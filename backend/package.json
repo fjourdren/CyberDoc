@@ -1,0 +1,20 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "backend pour le projet de genie logiciel",
+  "main": "./src/index.js",
+  "dependencies": {
+    "typescript": "^4.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "backend",
+    "genie",
+    "logiciel"
+  ],
+  "author": "equipe 4",
+  "license": "ISC"
+}

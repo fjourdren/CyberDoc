@@ -32,9 +32,34 @@ git push origin branch
 
 ## Frontend
 
+Installation de angular :
 ```
-Installation
+maeg@maeg-HP-ProBook-650-G1:~/Documents/PRJ_GEN_LOGI$ mkdir frontend
+maeg@maeg-HP-ProBook-650-G1:~/Documents/PRJ_GEN_LOGI$ cd frontend/
+maeg@maeg-HP-ProBook-650-G1:~/Documents/PRJ_GEN_LOGI$ sudo apt install npm
+maeg@maeg-HP-ProBook-650-G1:~/Documents/PRJ_GEN_LOGI$ npm update
+
+maeg@maeg-HP-ProBook-650-G1:~/Documents/PRJ_GEN_LOGI$ sudo apt-get install --only-upgrade nodejs
+
+wget -qO- https://deb.nodesource.com/setup_12.x | sudo -E bash -
+maeg@maeg-HP-ProBook-650-G1:~/Documents/PRJ_GEN_LOGI$ sudo apt-get install -y nodejs
+
+maeg@maeg-HP-ProBook-650-G1:~/Documents/PRJ_GEN_LOGI/frontend$ sudo npm install -g @angular/cli
 ```
+
+Au besoin, utiliser nvm :
+
+```
+maeg@maeg-HP-ProBook-650-G1:~$ node --version
+v12.18.3
+```
+
+```
+maeg@maeg-HP-ProBook-650-G1:~$ npm  --version
+6.14.6
+```
+
+
 
 ## Backend 
 
