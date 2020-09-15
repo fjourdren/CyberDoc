@@ -1,20 +1,30 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "backend pour le projet de genie logiciel",
-  "main": "./src/index.js",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsc": "tsc",
+    "build": "tsc",
+    "clean": "rm -rf build",
+    "dev": "nodemon",
+    "start": "ts-node src/server.ts",
+    "lint": "eslint . --ext .ts"
+  },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
+    "@types/express": "^4.17.8",
+    "compression": "^1.7.4",
+    "express": "^4.17.1",
+    "mongoose": "^5.10.5",
     "typescript": "^4.0.2"
   },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "backend",
-    "genie",
-    "logiciel"
-  ],
-  "author": "equipe 4",
-  "license": "ISC"
+  "devDependencies": {
+    "@types/mongoose": "^5.7.36",
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/parser": "^4.1.1",
+    "eslint": "^7.9.0"
+  }
 }
