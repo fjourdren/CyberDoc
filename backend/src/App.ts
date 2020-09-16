@@ -1,10 +1,12 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-//import compression from 'compression';
+import compression from 'compression';
+import log4js from 'log4js';
 
 import {default as routers} from './routers/ApiRouter';
 
 import HttpCodes from './configs/HttpCodes';
+import { logger } from './helpers/Log';
 
 class App {
 
@@ -21,7 +23,19 @@ class App {
      * http(s) request middleware
      */
     private middlewares(): void {
-        //this.expressApp.use(compression());
+        this.expressApp.use(log4js.connectLogger(log4js.getLogger("http"), { level: 'auto' }));
+        
+        // compression gzip
+        this.expressApp.use(compression({filter: function (req, res) {
+            if (req.headers['x-no-compression']) {
+                // don't compress responses with this request header
+                return false
+            }
+         
+           // fallback to standard filter function
+            return compression.filter(req, res)
+        }}));
+
         this.expressApp.use(bodyParser.json());
         this.expressApp.use(bodyParser.urlencoded({ extended: false }));
         this.expressApp.use((req, res, next) => {
