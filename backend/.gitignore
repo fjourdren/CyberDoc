@@ -1,5 +1,9 @@
+# vs code
+.vscode/
+
 # Typescript build
 build/*
+build
 
 # Logs
 logs

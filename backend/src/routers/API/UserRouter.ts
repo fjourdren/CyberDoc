@@ -1,16 +1,9 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
 
-import HttpCodes from '../../configs/HttpCodes'
+import UserController from '../../controllers/UserController'
 
 const UserRouter = Router();
 
-UserRouter.get('/profile', (req: Request, res: Response) => {
-    res.status(HttpCodes.SUCCESS);
-    res.json({
-        success: true,
-        msg: "",
-        user: "test"
-    });
-});
+UserRouter.get('/profile', UserController.profile);
 
 export default UserRouter;
