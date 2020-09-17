@@ -4,6 +4,7 @@ import App from './App';
 
 import { normalizePort } from './helpers/Conversions';
 import { logger } from './helpers/Log';
+import connectMongodb from './helpers/MongooseConnection';
 
 class Server {
     private static serverInstance: Server;
@@ -24,6 +25,11 @@ class Server {
     }
 
     private runServer(): void {
+        // mongodb connection
+        connectMongodb();
+
+
+        // start http server
         this.port = normalizePort(process.env.PORT || 3002);
 
         this.appInstance.expressApp.set('port', this.port);
