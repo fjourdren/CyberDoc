@@ -5,7 +5,7 @@ import log4js from 'log4js';
 
 import {default as routers} from './routers/ApiRouter';
 
-import HttpCodes from './configs/HttpCodes';
+import HttpCodes from './helpers/HttpCodes';
 import { logger } from './helpers/Log';
 
 class App {
