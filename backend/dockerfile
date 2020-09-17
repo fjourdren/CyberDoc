@@ -17,6 +17,9 @@ RUN npm build
 RUN rm -rf src/
 RUN rm nodemon.json
 RUN rm tsconfig.json
+RUN rm .gitignore
+RUN rm .eslintignore
+RUN rm .eslintrc
 
 # Expose port 3000
 EXPOSE 3000
