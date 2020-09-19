@@ -1,10 +1,13 @@
-import * as http from 'http';
-
 import App from './App';
+
+import connectMongodb from './helpers/MongooseConnection';
 
 import { normalizePort } from './helpers/Conversions';
 import { logger } from './helpers/Log';
-import connectMongodb from './helpers/MongooseConnection';
+
+
+// load config from environment variables
+import './helpers/ConfigLoader'
 
 class Server {
     private static serverInstance: Server;
@@ -30,7 +33,7 @@ class Server {
 
 
         // start http server
-        this.port = normalizePort(process.env.PORT || 3002);
+        this.port = normalizePort(process.env.APP_PORT || 3000);
 
         this.appInstance.expressApp.set('port', this.port);
 
