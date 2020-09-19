@@ -1,3 +1,8 @@
+# Config files
+.env
+.env.dev
+.env.prod
+
 # vs code
 .vscode/
 

@@ -2,8 +2,6 @@ import mongoose from 'mongoose';
 
 import { logger } from './Log';
 
-import { MONGODB_URL } from './ConfigLoader';
-
 function connectMongodb(): void {
     let db = mongoose.connection;
 
@@ -31,13 +29,14 @@ function connectMongodb(): void {
 
     db.on('disconnected', function() {
         logger.error('MongoDB disconnected !');
-        mongoose.connect(MONGODB_URL, {server:{auto_reconnect: true}});
+        mongoose.connect(process.env.MONGODB_URL, {server:{auto_reconnect: true}});
     });
+
 
 
     // first connect to mongodb
     try {
-        mongoose.connect(MONGODB_URL, {server:{auto_reconnect: true}});
+        mongoose.connect(process.env.MONGODB_URL, {server:{auto_reconnect: true}});
     } catch(e: any) {
         logger.error(e);
         process.exit();
