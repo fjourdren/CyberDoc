@@ -1,10 +1,11 @@
 import mongoose from 'mongoose';
 
-const uniqueValidator = require('mongoose-unique-validator')
-const bcrypt = require('bcryptjs')
-const validator = require('validator')
-const Guid = require('guid')
-const jwt = require('jsonwebtoken')
+import uniqueValidator from 'mongoose-unique-validator';
+import bcrypt from 'bcryptjs';
+import validator from 'validator';
+import Guid from 'guid';
+import jwt from 'jsonwebtoken';
+
 const secret = process.env.JWT_SECRET || 'devmode'
 
 
@@ -16,26 +17,29 @@ const UserSchema = new mongoose.Schema({
 		type: String,
 		default: () => Guid.raw()
 	},
-    name: {
+    firstname: {
+        type: String,
+        required: true
+    },
+    lastname: {
         type: String,
         required: true
     },
     email: {
-            type     : String,
-            required : true,
-            unique   : true,
-            uniqueCaseInsensitive: true,
-            trim     : true,
-            minlength: 5,
-            validate : {
-                validator: (value: string) => validator.isEmail(value),
-			    message: '{VALUE} is not a valid email'
-		    }
+        type     : String,
+        required : true,
+        unique   : true,
+        uniqueCaseInsensitive: true,
+        trim     : true,
+        minlength: 5,
+        validate : {
+            validator: (value: string) => validator.isEmail(value),
+            message: '{VALUE} is not a valid email'
+        }
     },
     password: {
 		type     : String,
-		required : true,
-		minlength: 6
+		required : true
 	},
     updated_at: {
         type: Date,
@@ -54,7 +58,8 @@ const UserSchema = new mongoose.Schema({
 // DO NOT export this, Type script validation (= Mongoose raw model)
 interface IUserSchema extends mongoose.Document {
     _id: string;
-    name: string;
+    firstname: string;
+    lastname: string;
     email: string;
     password: string;
     updated_at: string;
@@ -63,7 +68,7 @@ interface IUserSchema extends mongoose.Document {
 
 
 // Export this (= Mongoose after filtering and hiding sensitive data)
-interface IUser extends IUserSchema {
+export interface IUser extends IUserSchema {
     
 }
 
@@ -92,32 +97,8 @@ UserSchema.pre<IUser>("update", function(next) {
 });
 
 
-UserSchema.statics.findByCredentials = async function(email: string, password: string) {
-    const user = this
-    return new Promise(async (resolve, reject) => {
-        try {
-            user.findOne({ email }, (err: any, doc: any) => {
-                if(err || !doc) { 
-                    return reject({ status: 401, message: 'Invalid credentials'})
-                }
 
-                bcrypt.compare(password, doc.password, (err: any, didMatch: boolean) => {
-                    if(err) return reject(err)
-                    if(didMatch) {
-                        resolve(doc)
-                    } else {
-                        reject({ message: 'Not authorized'})
-                    }
-                })
-            })
-        } catch (e) {
-            reject(e)
-        }
-    })
-
-}
-
-UserSchema.statics.findByTokenJWT = function(tokenJWT: string) {
+/*UserSchema.statics.findByTokenJWT = function(tokenJWT: string) {
     return new Promise((resolve, reject) => {
         let decodedIdAndToken = jwt.verify(tokenJWT, secret)
         this.findById(decodedIdAndToken._id, (err: any, user: any) => {
@@ -128,9 +109,9 @@ UserSchema.statics.findByTokenJWT = function(tokenJWT: string) {
             return resolve(user)
         })
     })
-}
+}*/
 
 
 
 
-export default mongoose.model<IUser>('User', UserSchema);
+export const User = mongoose.model<IUser>('User', UserSchema);
