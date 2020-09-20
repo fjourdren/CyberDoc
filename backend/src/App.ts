@@ -37,7 +37,7 @@ class App {
         }}));
 
         this.expressApp.use(bodyParser.json());
-        this.expressApp.use(bodyParser.urlencoded({ extended: false }));
+        this.expressApp.use(bodyParser.urlencoded({ extended: true }));
         this.expressApp.use((req, res, next) => {
             res.header('Access-Control-Allow-Origin', '*'); // dev only
             res.header('Access-Control-Allow-Methods', 'OPTIONS,GET,PUT,POST,DELETE');
