@@ -6,14 +6,9 @@ import {IUser, User} from "../models/User";
 class AuthService {
 
     // register service
-    public static signup(firstname: string, lastname: string, email: string, password: string, repeatPassword: string) {
-        return new Promise((resolve, reject) => { 
+    public static signup(firstname: string, lastname: string, email: string, password: string) {
+        return new Promise((resolve, reject) => {
             let newUser: IUser = new User();
-
-            // check that password and confirm password are equal
-            if(password != repeatPassword)
-                reject("Password and password comfirmation aren't equals");
-
             
             // build object
             newUser.firstname = firstname;

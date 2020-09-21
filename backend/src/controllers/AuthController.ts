@@ -7,9 +7,9 @@ class AuthController {
 
     // register controller
     public static signup(req: Request, res: Response) {
-        let { firstname, lastname, email, password, repeatPassword } = req.body;
+        let { firstname, lastname, email, password } = req.body;
 
-        AuthService.signup(firstname, lastname, email, password, repeatPassword).then((user) => {
+        AuthService.signup(firstname, lastname, email, password).then((user) => {
             res.status(HttpCodes.OK);
             res.json({
                 success: true,
