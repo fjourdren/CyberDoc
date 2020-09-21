@@ -78,12 +78,6 @@ DocumentSchema.plugin(uniqueValidator);
 
 DocumentSchema.pre<IDocument>("save", function(next: any) {
     this.updated_at = new Date().getTime().toString();
-
-    if(this.isModified('password')) {
-        const salt = bcrypt.genSaltSync(10);
-        this.password = bcrypt.hashSync(this.password, salt);
-    }
-
     next();
 });
 
