@@ -5,9 +5,9 @@ import AuthMiddleware from '../../middlewares/AuthMiddleware';
 
 const AuthRouter = Router();
 
-AuthRouter.post('/signup', AuthMiddleware.test, AuthController.signup);
-AuthRouter.post('/signin', AuthController.signIn);
-AuthRouter.post('/forgottenpassword', AuthController.forgottenPassword);
-AuthRouter.post('/renewtoken', AuthController.renewToken);
+AuthRouter.post('/signup',            AuthMiddleware.isAuthenticate, AuthController.signup);
+AuthRouter.post('/signin',            AuthMiddleware.isntAuthenticate, AuthController.signIn);
+//AuthRouter.post('/forgottenpassword', AuthMiddleware.isntAuthenticate, AuthController.forgottenPassword);
+AuthRouter.post('/renewtoken',        AuthMiddleware.isAuthenticate,   AuthController.renewToken);
 
 export default AuthRouter;
