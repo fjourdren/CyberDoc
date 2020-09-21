@@ -8,7 +8,7 @@ import DocumentRouter from './API/DocumentRouter';
 const api = express.Router();
 
 api.use('/auth', AuthRouter);
-//api.use('/users', UserRouter);
+api.use('/users', UserRouter);
 //api.use('/documents', DocumentRouter);
 
 export default api;
