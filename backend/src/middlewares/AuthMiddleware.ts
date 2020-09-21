@@ -1,5 +1,6 @@
-import jwt from 'jsonwebtoken'
 import { Request, Response, NextFunction } from "express";
+
+import jwt from 'jsonwebtoken'
 
 import HttpCodes from '../helpers/HttpCodes';
 
@@ -40,6 +41,8 @@ class AuthMiddleware {
 
 
     public static isntAuthenticate(req: Request, res: Response, next: NextFunction): any {
+        res.locals.test = "ABCDEF";
+        
         // if user is connected, we send an error
         if(!AuthMiddleware.requestIsConnected(req)) {
             // otherwise we continue the route execution

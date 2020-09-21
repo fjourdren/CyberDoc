@@ -5,6 +5,6 @@ import AuthMiddleware from '../../middlewares/AuthMiddleware';
 
 const DocumentRouter = Router();
 
-DocumentRouter.get('/profile',    AuthMiddleware.isAuthenticate, DocumentController.todo);
+// DocumentRouter.get('/profile',    AuthMiddleware.isAuthenticate, DocumentController.todo);
 
 export default DocumentRouter;

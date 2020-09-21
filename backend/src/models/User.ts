@@ -6,24 +6,35 @@ import validator from 'validator';
 import Guid from 'guid';
 import jwt from 'jsonwebtoken';
 
-const secret = process.env.JWT_SECRET || 'devmode'
+
+/**
+ * Users role enum
+ */
+export enum Role {
+    OWNER         = 'owner',
+    COLLABORATER  = 'collaborater'
+}
 
 
 /**
  * Building typescript & Mongoose data archs
  */
-const UserSchema = new mongoose.Schema({
+export const UserSchema = new mongoose.Schema({
     _id: {
-		type: String,
+		type   : String,
 		default: () => Guid.raw()
 	},
     firstname: {
-        type: String,
-        required: true
+        type                 : String,
+        required             : true,
+        uniqueCaseInsensitive: true,
+        trim                 : true
     },
     lastname: {
-        type: String,
-        required: true
+        type                 : String,
+        required             : true,
+        uniqueCaseInsensitive: true,
+        trim                 : true
     },
     email: {
         type     : String,
@@ -39,19 +50,24 @@ const UserSchema = new mongoose.Schema({
     },
     password: {
 		type     : String,
-		required : true
-	},
+        required : true
+    },
+    role: {
+        type: String,
+        enum: Object.values(Role),
+        default: Role.COLLABORATER
+    },
     updated_at: {
-        type: Date,
+        type   : Date,
         default: new Date().getTime()
     },
     created_at: {
-        type: Date,
+        type   : Date,
         default: new Date().getTime()
     }
 },
 {
-  collection: 'User',
+    collection: 'User',
 })
 
 
@@ -62,6 +78,7 @@ interface IUserSchema extends mongoose.Document {
     lastname: string;
     email: string;
     password: string;
+    role: Role;
     updated_at: string;
     created_at: string;
 }
@@ -97,10 +114,18 @@ UserSchema.pre<IUser>("update", function(next) {
 });
 
 
+// Hide sensible information before exporting the object
+UserSchema.methods.toJSON = function() {
+    var obj = this.toObject();
+    delete obj.__v;
+    delete obj.password;
+    return obj;
+}
+
 
 /*UserSchema.statics.findByTokenJWT = function(tokenJWT: string) {
     return new Promise((resolve, reject) => {
-        let decodedIdAndToken = jwt.verify(tokenJWT, secret)
+        let decodedIdAndToken: IUser = jwt.verify(tokenJWT, process.env.JWT_SECRET) as IUser;
         this.findById(decodedIdAndToken._id, (err: any, user: any) => {
             if (err) {
                 return reject(err)
@@ -114,4 +139,5 @@ UserSchema.pre<IUser>("update", function(next) {
 
 
 
-export const User = mongoose.model<IUser>('User', UserSchema);
+export const User: mongoose.Model<IUser> = mongoose.model<IUser>('User', UserSchema);
+export default IUser;

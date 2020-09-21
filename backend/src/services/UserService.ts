@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 
 import {IUser, User} from "../models/User";
 
-class UserService {
+class DocumentService {
 
     // register service
     public static todo() {
@@ -14,4 +14,4 @@ class UserService {
 
 }
 
-export default UserService;
+export default DocumentService;

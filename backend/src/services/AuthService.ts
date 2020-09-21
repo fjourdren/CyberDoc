@@ -43,7 +43,7 @@ class AuthService {
                 if(!passwordIsValid)
                     reject("Invalid credentials");
 
-                var jwttoken = jwt.sign({ id: user?._id }, process.env.JWT_SECRET, {
+                var jwttoken = jwt.sign({ user }, process.env.JWT_SECRET, {
                     expiresIn: 86400 // 24 hours
                 });
 

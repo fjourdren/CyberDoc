@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 
 import HttpCodes from '../helpers/HttpCodes'
+import { IUser, User, UserSchema } from '../models/User';
 import AuthService from '../services/AuthService';
 
 class AuthController {
@@ -28,6 +29,8 @@ class AuthController {
 
     // login controller
     public static signIn(req: Request, res: Response) {
+        console.log(res.locals.test)
+
         let { email, password } = req.body;
 
         AuthService.login(email, password).then((jwttoken) => {
