@@ -4,24 +4,28 @@ import jwt from 'jsonwebtoken'
 
 import HttpCodes from '../helpers/HttpCodes'
 import IUser, { User } from '../models/User';
+import UserService from '../services/UserService';
 
 class UserController {
     public static profile(req: Request, res: Response) {
-        let authHeaderArray: any = (req.headers.authorization as string).split(" ");
-        let jwtToken: string = authHeaderArray[1];
 
-        let decodedUser: any = jwt.verify(jwtToken, process.env.JWT_SECRET) as any;
-
-        User.findOne({_id: decodedUser._id}).exec(function(err, user) {
+        UserService.profile(res.locals.APP_JWT_TOKEN.user._id).then((user) => {
             res.status(HttpCodes.OK);
             res.json({
                 success: true,
-                msg: user
+                msg: "Success",
+                user: user
+            });
+        }).catch((err) => {
+            res.status(HttpCodes.BAD_REQUEST);
+            res.json({
+                success: false,
+                msg: "Your user profile isn't valid"
             });
         });
     }
 
-    public static settings(req: Request, res: Response) {
+    /*public static settings(req: Request, res: Response) {
         res.status(HttpCodes.OK);
         res.json({
             success: true,
@@ -37,7 +41,7 @@ class UserController {
             msg: "",
             user: "test"
         });
-    }
+    }*/
 }
 
 export default UserController;
