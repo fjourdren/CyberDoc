@@ -17,8 +17,8 @@ class UserController {
             });
         }).catch((err) => {
             logger.error(err);
-            
-            res.status(HttpCodes.BAD_REQUEST);
+
+            res.status(HttpCodes.INTERNAL_ERROR);
             res.json({
                 success: false,
                 msg: "Your user profile isn't valid"
@@ -45,7 +45,7 @@ class UserController {
         }).catch((err) => {
             logger.error(err);
 
-            res.status(HttpCodes.BAD_REQUEST);
+            res.status(HttpCodes.INTERNAL_ERROR);
             res.json({
                 success: false,
                 msg: "User can't be deleted",
