@@ -7,6 +7,7 @@ import {default as routers} from './routers/ApiRouter';
 
 import HttpCodes from './helpers/HttpCodes';
 import { logger } from './helpers/Log';
+import JWTTokenExtractMiddleware from './middlewares/JWTTokenExtractMiddleware';
 
 class App {
 
@@ -55,7 +56,7 @@ class App {
      * API main routes
      */
     private routes(): void {
-        this.expressApp.use('/v1', routers);
+        this.expressApp.use('/v1', JWTTokenExtractMiddleware.run, routers);
         this.expressApp.use('/', (req, res) => {
             res.status(HttpCodes.NOT_FOUND);
             res.json({

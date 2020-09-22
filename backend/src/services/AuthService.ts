@@ -66,6 +66,20 @@ class AuthService {
         
     }
 
+
+    public static validateToken(jwtToken: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            try {
+                let decoded = jwt.verify(jwtToken, process.env.JWT_SECRET);
+                if(decoded != undefined) {
+                    resolve(decoded);
+                }
+            } catch(err) {
+                reject(err);
+            }
+        });
+    }
+
 }
 
 export default AuthService;

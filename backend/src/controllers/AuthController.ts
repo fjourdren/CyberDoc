@@ -29,8 +29,6 @@ class AuthController {
 
     // login controller
     public static signIn(req: Request, res: Response) {
-        console.log(res.locals.test)
-
         let { email, password } = req.body;
 
         AuthService.login(email, password).then((jwttoken) => {
