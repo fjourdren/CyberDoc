@@ -51,12 +51,6 @@ class AuthController {
     public static forgottenPassword(req: Request, res: Response) {
         
     }
-
-
-    // refresh token controller
-    public static renewToken(req: Request, res: Response) {
-        
-    }
 }
 
 export default AuthController;

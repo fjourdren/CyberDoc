@@ -123,21 +123,5 @@ UserSchema.methods.toJSON = function() {
 }
 
 
-/*UserSchema.statics.findByTokenJWT = function(tokenJWT: string) {
-    return new Promise((resolve, reject) => {
-        let decodedIdAndToken: IUser = jwt.verify(tokenJWT, process.env.JWT_SECRET) as IUser;
-        this.findById(decodedIdAndToken._id, (err: any, user: any) => {
-            if (err) {
-                return reject(err)
-            }
-            
-            return resolve(user)
-        })
-    })
-}*/
-
-
-
-
 export const User: mongoose.Model<IUser> = mongoose.model<IUser>('User', UserSchema);
 export default IUser;
