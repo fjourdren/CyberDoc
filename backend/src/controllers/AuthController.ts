@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 
 import HttpCodes from '../helpers/HttpCodes'
-import { IUser, User, UserSchema } from '../models/User';
 import AuthService from '../services/AuthService';
 
 class AuthController {
@@ -17,11 +16,11 @@ class AuthController {
                 msg: "Successful registration",
                 user: user
             });
-        }).catch((error) => {
+        }).catch((err) => {
             res.status(HttpCodes.BAD_REQUEST);
             res.json({
                 success: false,
-                msg: error
+                msg: err
             });
         });        
     }
@@ -38,11 +37,11 @@ class AuthController {
                 msg: "Authentication token generated",
                 token: jwttoken
             });
-        }).catch((error) => {
+        }).catch((err) => {
             res.status(HttpCodes.BAD_REQUEST);
             res.json({
                 success: false,
-                msg: error
+                msg: err
             });
         });
     }
