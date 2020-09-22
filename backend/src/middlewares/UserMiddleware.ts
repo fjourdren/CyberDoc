@@ -1,12 +1,24 @@
-import jwt from 'jsonwebtoken'
 import { Request, Response, NextFunction } from "express";
 
-import HttpCodes from '../helpers/HttpCodes';
+import { Role, User } from '../models/User';
+import HttpCodes from "../helpers/HttpCodes";
+import UserService from "../services/UserService";
 
 class UserMiddleware {
 
-    public static todo(req: Request, res: Response, next: NextFunction): any {
-        next();
+    public static hasRoles(rolesNeeded: Role[]) {
+        return function(req: Request, res: Response, next: NextFunction) {
+            if(UserService.hasRoles(rolesNeeded, res.locals.APP_JWT_TOKEN.user.role)) {
+                next();
+            } else {
+                res.status(HttpCodes.UNAUTHORIZED);
+                res.json({
+                    success: false,
+                    msg: "Your role isn't allowed"
+                });
+            }
+
+        }
     }
 
 }

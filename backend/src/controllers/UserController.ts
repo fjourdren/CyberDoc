@@ -1,9 +1,6 @@
 import { Request, Response } from 'express';
 
-import jwt from 'jsonwebtoken'
-
 import HttpCodes from '../helpers/HttpCodes'
-import IUser, { User } from '../models/User';
 import UserService from '../services/UserService';
 
 class UserController {

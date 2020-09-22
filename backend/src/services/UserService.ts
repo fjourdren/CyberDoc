@@ -1,6 +1,9 @@
-import {IUser, User} from "../models/User";
+import {IUser, User, Role} from "../models/User";
 
 class UserService {
+    public static hasRoles(rolesNeeded: Role[], role: Role): boolean {
+        return rolesNeeded.includes(role);
+    }
 
     // profile service
     public static profile(userId: string): Promise<IUser> {
