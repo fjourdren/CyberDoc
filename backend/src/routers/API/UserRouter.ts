@@ -2,6 +2,9 @@ import { Router } from 'express';
 
 import UserController from '../../controllers/UserController'
 import AuthMiddleware from '../../middlewares/AuthMiddleware';
+import UserMiddleware from '../../middlewares/UserMiddleware';
+
+import { Role } from '../../models/User';
 
 const UserRouter = Router();
 
