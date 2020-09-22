@@ -61,12 +61,7 @@ class AuthService {
     }
 
 
-    // refresh token service
-    public static renewToken() {
-        
-    }
-
-
+    // validate that the token is correct
     public static validateToken(jwtToken: string): Promise<any> {
         return new Promise((resolve, reject) => {
             try {
