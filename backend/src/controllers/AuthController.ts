@@ -17,7 +17,7 @@ class AuthController {
                 user: user
             });
         }).catch((err) => {
-            res.status(HttpCodes.BAD_REQUEST);
+            res.status(HttpCodes.INTERNAL_ERROR);
             res.json({
                 success: false,
                 msg: err
@@ -38,7 +38,7 @@ class AuthController {
                 token: jwttoken
             });
         }).catch((err) => {
-            res.status(HttpCodes.BAD_REQUEST);
+            res.status(HttpCodes.INTERNAL_ERROR);
             res.json({
                 success: false,
                 msg: err
