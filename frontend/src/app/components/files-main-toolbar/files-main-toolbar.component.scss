@@ -1,0 +1,25 @@
+#search-field {
+    flex: 1 1 auto;
+}
+
+#search-div {
+    font-size: 1rem;
+    margin: 16px;
+    display: flex;
+    flex: 1 1 auto;
+}
+
+.search-btn {
+    align-self: center;
+    margin-left: 4px;
+}
+
+#search-input {
+    flex: 1 1 auto;
+    border-radius: 4px;
+    padding: 8px;
+    appearance: none;
+    border: none;
+    color: black;
+    background: white;
+}

@@ -1,0 +1,42 @@
+<mat-nav-list>
+    <a href="#" mat-list-item disabled>
+        <span>
+            <mat-icon fontSet="fa" fontIcon="{{getIconForMimetype(data.node.mimetype)}}"></mat-icon>{{ data.node.name }}
+        </span>
+    </a>
+    <a href="#" mat-list-item (click)="onBottomSheetSelection($event,'open')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-external-link-alt"></mat-icon>{{ 'fileaction.open' | translate }}
+        </span>
+    </a>
+    <a href="#" *ngIf="!data.node.isDirectory" mat-list-item (click)="onBottomSheetSelection($event,'download')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-file-download"></mat-icon>{{ 'fileaction.download' | translate }}
+        </span>
+    </a>
+    <a href="#" *ngIf="data.showDetailsEntry" mat-list-item (click)="onBottomSheetSelection($event,'details')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-info-circle"></mat-icon>{{ 'fileaction.details' | translate }}
+        </span>
+    </a>
+    <a href="#" *ngIf="!data.readonlyMode" mat-list-item (click)="onBottomSheetSelection($event,'move')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-file-export"></mat-icon>{{ 'fileaction.move' | translate }}
+        </span>
+    </a>
+    <a href="#" *ngIf="!data.readonlyMode" mat-list-item (click)="onBottomSheetSelection($event,'copy')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-copy"></mat-icon>{{ 'fileaction.copy' | translate }}
+        </span>
+    </a>
+    <a href="#" *ngIf="!data.readonlyMode" mat-list-item (click)="onBottomSheetSelection($event,'rename')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-pen"></mat-icon>{{ 'fileaction.rename' | translate }}
+        </span>
+    </a>
+    <a href="#" *ngIf="!data.readonlyMode" mat-list-item (click)="onBottomSheetSelection($event,'delete')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-trash"></mat-icon>{{ 'fileaction.delete' | translate }}
+        </span>
+    </a>
+</mat-nav-list>

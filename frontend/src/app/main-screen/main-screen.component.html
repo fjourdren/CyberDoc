@@ -1,0 +1,37 @@
+<mat-drawer-container autosize>
+    <mat-drawer [opened]="!otherSS" [mode]="otherSS ? 'over' : 'side'" #treeviewDrawer id="treeview-drawer">
+        <mat-toolbar *ngIf="!otherSS">Cyberdoc</mat-toolbar>
+        <mat-toolbar *ngIf="otherSS">
+            Cyberdoc
+            <div style="flex: 1 1 auto"></div>
+            <button (click)="treeviewDrawer.close()" mat-icon-button>
+                <mat-icon>close</mat-icon>
+            </button>
+
+        </mat-toolbar>
+        <app-files-treeview [(currentDirectoryID)]="aaa"></app-files-treeview>
+    </mat-drawer>
+    <app-files-main-toolbar style="width: 100vh;" (menuButtonClicked)="treeviewDrawer.toggle()">
+    </app-files-main-toolbar>
+    <div id="app-files-breadcrumb-container">
+        <app-files-breadcrumb [(currentDirectoryID)]="aaa"></app-files-breadcrumb>
+    </div>
+    <app-files-table [(currentDirectoryID)]="aaa" [(selectedNodeID)]="bbb"
+        (openNodeDetailsSidenav)="fileDetailDrawer.open()" [isNodeDetailsSidenavLocked]="!isSmallScreen">
+    </app-files-table>
+
+    <app-files-upload [currentDirectoryID]="aaa"></app-files-upload>
+
+    <mat-drawer #fileDetailDrawer [opened]="!isSmallScreen" [mode]="isSmallScreen ? 'over' : 'side'" position="end"
+        id="file-detail-drawer">
+        <mat-toolbar *ngIf="isSmallScreen">
+            <button style="margin-right: 4px;" (click)="fileDetailDrawer.close()" mat-icon-button>
+                <mat-icon>close</mat-icon>
+            </button>
+            File details
+            <div style="flex: 1 1 auto"></div>
+        </mat-toolbar>
+        <app-files-details-panel [fileID]="bbb || aaa"></app-files-details-panel>
+    </mat-drawer>
+    <app-files-upload-overlay></app-files-upload-overlay>
+</mat-drawer-container>

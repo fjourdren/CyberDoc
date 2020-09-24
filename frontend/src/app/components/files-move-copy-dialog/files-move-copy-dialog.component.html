@@ -1,0 +1,14 @@
+<h1 mat-dialog-title>
+    {{data.copy ? ('fileaction.copy' | translate) : ('fileaction.move' | translate)}}
+</h1>
+
+<div mat-dialog-content>
+    <app-files-table style="display: block; overflow: auto;
+    height: 250px;" [restrictions]="filesTableRestrictions" [(currentDirectoryID)]="directoryID"></app-files-table>
+</div>
+
+<div mat-dialog-actions align="end">
+    <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+    <button [disabled]="loading" mat-button (click)="onCancelBtnClicked()">{{'general.cancel' | translate}}</button>
+    <button [disabled]="loading" mat-raised-button color="primary" (click)="onMoveOrCopyBtnClicked()">{{data.copy ? ('fileaction.copy' | translate) : ('fileaction.move' | translate)}}</button>
+</div>

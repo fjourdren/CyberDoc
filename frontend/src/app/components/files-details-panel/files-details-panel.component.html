@@ -1,0 +1,26 @@
+<mat-spinner *ngIf="!(node$ | async)" diameter="48"></mat-spinner>
+
+<div *ngIf="node$ | async as node">
+  <div class="mat-title">
+    <mat-icon fontSet="fa" fontIcon="{{getIconForMimetype(node.mimetype)}}"></mat-icon>
+    {{node.name}}
+  </div>
+
+  <div id="filepreview"></div>
+  <mat-slide-toggle>{{ 'file.preview' | translate }}</mat-slide-toggle>
+
+  <table id="details-table">
+    <tr *ngIf="!node.isDirectory">
+      <td class="mat-body-strong">{{ 'file.modified' | translate }}</td>
+      <td>{{node.lastModified | date}}</td>
+    </tr>
+    <tr *ngIf="!node.isDirectory">
+      <td class="mat-body-strong">{{ 'file.size' | translate }}</td>
+      <td>{{node.size | filesize}}</td>
+    </tr>
+    <tr>
+      <td class="mat-body-strong">{{ 'file.type' | translate }}</td>
+      <td>{{getFileTypeFromMimetype(node.mimetype) | translate }}</td>
+    </tr>
+  </table>
+</div>

@@ -1,0 +1,31 @@
+<mat-toolbar *ngIf="directory$ | async as dir">
+    <div *ngFor="let item of dir.path">
+        <button (click)="onDirectorySelected(item.id)" mat-button>{{item.name}}</button>
+        <button mat-icon-button (click)="loadDataForContextMenu(item)" [matMenuTriggerFor]="menu">
+            <mat-icon>keyboard_arrow_right</mat-icon>
+        </button>
+    </div>
+    <button (click)="onDirectorySelected(dir.id)" mat-button>{{dir.name}}</button>
+    <button mat-icon-button (click)="loadDataForContextMenu(dir)" [matMenuTriggerFor]="menu">
+        <mat-icon>keyboard_arrow_right</mat-icon>
+    </button>
+</mat-toolbar>
+
+<mat-toolbar *ngIf="!(directory$ | async)">
+</mat-toolbar>
+
+<mat-menu #menu="matMenu">
+    <div *ngIf="contextMenuContent$ | async as dirs">
+        <div *ngIf="dirs.length === 0">
+            <button mat-menu-item disabled>{{ 'general.noitems' | translate }}</button>
+        </div>
+        <div *ngIf="dirs.length !== 0">
+            <div *ngFor="let item of dirs">
+                <button (click)="onDirectorySelected(item.id)" mat-menu-item>{{item.name}}</button>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="!(contextMenuContent$ | async)">
+        <button mat-menu-item disabled>{{ 'general.loading' | translate }}</button>
+    </div>
+</mat-menu>

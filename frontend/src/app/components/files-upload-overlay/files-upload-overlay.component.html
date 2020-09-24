@@ -1,0 +1,9 @@
+<mat-card id="card" *ngIf="!hidden">
+    <mat-progress-bar mode="determinate" [value]="progressionPercent"></mat-progress-bar>
+    <div id="card-content">
+        <div id="card-text">
+            <div>   {{ (filename.length>20)? (filename | slice:0:20)+'..':(filename) }}&nbsp;<span class="mat-small">({{progressionPercent}}%, {{ 'general.remaining_time' | translate:param }})</span></div>
+        </div>
+        <button mat-stroked-button color="warn">{{ 'general.cancel' | translate }}</button>
+    </div>
+</mat-card>

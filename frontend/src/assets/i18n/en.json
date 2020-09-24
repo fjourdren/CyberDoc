@@ -1,0 +1,57 @@
+{
+    "filetype": {
+        "audio": "Audio",
+        "video": "Video",
+        "image": "Image",
+        "pdf": "PDF",
+        "archive": "Archive",
+        "unknow": "Unknow",
+        "powerpoint": "PowerPoint",
+        "excel": "Excel",
+        "word": "Word",
+        "ooimpress": "OpenOffice Impress",
+        "oocalc": "OpenOffice Calc",
+        "oowriter": "OpenOffice Writer",
+        "folder": "Folder"
+    },
+
+    "fileaction": {
+        "open": "Open",
+        "details": "Details",
+        "download": "Download",
+        "move": "Move",
+        "copy": "Copy",
+        "rename": "Rename",
+        "delete": "Delete",
+        "create": "Create",
+        "delete_confirm": "Are you sure you want to delete '{{filename}}' ?"
+    },
+
+    "file": {
+        "preview": "Preview",
+        "modified": "Modified",
+        "name": "Name",
+        "size": "Size",
+        "type": "Type",
+        "copy_new_name": "Copy of {{filename}}"
+    },
+
+    "general": {
+        "new_name": "New name",
+        "name": "Name",
+        "mysafe": "My safe",
+        "create_folder": "Create a new folder",
+        "yes": "Yes",
+        "no": "No",
+        "ok": "OK",
+        "settings": "Settings",
+        "logout": "Logout",
+        "appname": "CyberDoc",
+        "cancel": "Cancel",
+        "search": "Search",
+        "remaining_time": "{{remainingTime}} remaining",
+        "loading": "Loading...",
+        "noitems": "No items",
+        "no_empty": "Cannot be empty"
+    }
+}

@@ -1,0 +1,18 @@
+#card {
+    z-index: 100;
+    position: absolute;
+    left: calc(50% - 200px);
+    bottom: 15px;
+    width: 400px;
+    padding: 0;
+}
+
+#card-content {
+    display: flex;
+    padding: 16px;
+}
+
+#card-text {
+    flex: 1 1 auto;
+    align-self: center;
+}
