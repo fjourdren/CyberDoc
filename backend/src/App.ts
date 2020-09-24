@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import log4js from 'log4js';
+import multer from 'multer';
 
 import {default as routers} from './routers/ApiRouter';
 
@@ -37,8 +38,19 @@ class App {
             return compression.filter(req, res);
         }}));
 
+        // PARSING HEADERS
+        // parse application/json
         this.expressApp.use(bodyParser.json());
+        
+        // parse application/x-www-form-urlencoded
         this.expressApp.use(bodyParser.urlencoded({ extended: true }));
+
+        // parse multipart/form-data
+        const multerInstance = multer();
+        this.expressApp.use(multerInstance.any()); 
+
+
+        // OTHERS
         this.expressApp.use((req, res, next) => {
             res.header('Access-Control-Allow-Origin', '*'); // dev only
             res.header('Access-Control-Allow-Methods', 'OPTIONS,GET,PUT,POST,DELETE');

@@ -10,7 +10,7 @@ class AuthController {
         let { firstname, lastname, email, password } = req.body;
 
         AuthService.signup(firstname, lastname, email, password).then((user) => {
-            res.status(HttpCodes.OK);
+            res.status(HttpCodes.CREATED);
             res.json({
                 success: true,
                 msg: "Successful registration",
