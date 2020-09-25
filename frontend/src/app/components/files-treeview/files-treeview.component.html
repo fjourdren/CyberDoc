@@ -4,7 +4,7 @@
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding (click)="onClick(node.directory)" [ngClass]="{'selected': node.selected}">
     <!-- use a disabled button to provide padding for tree leaf -->
     <button mat-icon-button disabled></button>
-    <div style="display: flex; align-items: center;"><mat-icon style="margin-right: 4px;">folder</mat-icon> {{node.directory.name}}</div>
+    <div class="tree-node-div"><mat-icon>folder</mat-icon> {{node.directory.name}}</div>
   </mat-tree-node>
   <!-- This is the tree node template for expandable nodes -->
   <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding (click)="onClick(node.directory)" [ngClass]="{'selected': node.selected}">
@@ -13,7 +13,7 @@
         {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
       </mat-icon>
     </button>
-    <div style="display: flex; align-items: center;"><mat-icon style="margin-right: 4px;">folder</mat-icon> {{node.directory.name}}</div>
+    <div class="tree-node-div"><mat-icon>folder</mat-icon> {{node.directory.name}}</div>
     
   </mat-tree-node>
 </mat-tree>

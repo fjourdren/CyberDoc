@@ -2,4 +2,12 @@
     background: #e8f0fe;
     color: #1967d2 !important;
 }
-        
+
+.tree-node-div {
+    display: flex; 
+    align-items: center;
+}
+
+.tree-node-div > mat-icon {
+    margin-right: 4px;
+}

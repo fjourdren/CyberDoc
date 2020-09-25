@@ -33,7 +33,7 @@
     <mat-drawer #fileDetailDrawer [opened]="fileDetailDrawerLocked" [mode]="fileDetailDrawerLocked ? 'side' : 'over'"
         position="end" id="file-detail-drawer">
         <mat-toolbar *ngIf="!fileDetailDrawerLocked">
-            <button style="margin-right: 4px;" (click)="fileDetailDrawer.close()" mat-icon-button>
+            <button id="close-file-detail-drawer-btn" (click)="fileDetailDrawer.close()" mat-icon-button>
                 <mat-icon>close</mat-icon>
             </button>
             {{ 'general.filedetails' | translate }}

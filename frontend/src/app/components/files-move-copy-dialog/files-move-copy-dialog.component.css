@@ -1,0 +1,5 @@
+app-files-directory-table {
+    display: block;
+    overflow: auto;
+    height: 250px;
+}

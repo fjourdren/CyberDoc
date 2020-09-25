@@ -53,8 +53,8 @@
 
 </table>
 
-<div style="visibility: hidden; position: fixed" [style.left]="contextMenuPosition.x"
-    [style.top]="contextMenuPosition.y" [matMenuTriggerFor]="contextMenu">
+<div [style.left]="contextMenuPosition.x"
+    [style.top]="contextMenuPosition.y" [matMenuTriggerFor]="contextMenu" id="context-menu-div">
 </div>
 
 <mat-menu #contextMenu="matMenu">
