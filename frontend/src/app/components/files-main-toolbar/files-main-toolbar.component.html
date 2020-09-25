@@ -1,16 +1,13 @@
 <mat-toolbar>
-    <button mat-icon-button (click)="menuButtonClicked.emit()">
+    <button *ngIf="!hideMenuButton" mat-icon-button (click)="menuButtonClicked.emit()">
         <mat-icon>menu</mat-icon>
     </button>
-    <!--<span>{{ 'general.appname' | translate }}</span>-->
 
-    <div id="search-div" style="font-size: 1rem; display: flex; flex: 1 1 auto;">
+    <div id="search-div">
         <input id="search-input" type="text" matInput placeholder="{{ 'general.search' | translate }}">
-
         <button matSuffix mat-icon-button class="search-btn">
             <mat-icon>expand_more</mat-icon>
         </button>
-
     </div>
 
     <button mat-icon-button [matMenuTriggerFor]="menu">
@@ -20,7 +17,7 @@
 
 <mat-menu #menu="matMenu">
     <button mat-menu-item disabled>
-        <span>John Doe</span>
+        <span>John Doe</span> <!-- TODO get user name from user service -->
     </button>
     <button mat-menu-item>
         <mat-icon>settings</mat-icon>

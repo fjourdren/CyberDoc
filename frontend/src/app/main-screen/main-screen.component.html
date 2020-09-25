@@ -18,7 +18,7 @@
         </app-files-treeview>
     </mat-drawer>
 
-    <app-files-main-toolbar (menuButtonClicked)="treeviewDrawer.toggle()"></app-files-main-toolbar>
+    <app-files-main-toolbar [hideMenuButton]="treeviewDrawerLocked" (menuButtonClicked)="treeviewDrawer.toggle()"></app-files-main-toolbar>
 
     <div id="app-files-breadcrumb-container">
         <app-files-breadcrumb [(currentDirectoryID)]="currentDirectoryID"></app-files-breadcrumb>

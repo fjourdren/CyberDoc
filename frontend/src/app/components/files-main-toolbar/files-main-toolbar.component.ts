@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, Input } from '@angular/core';
 
 @Component({
   selector: 'app-files-main-toolbar',
@@ -7,6 +7,7 @@ import { Component, Output, EventEmitter } from '@angular/core';
 })
 export class FilesMainToolbarComponent {
 
+  @Input() hideMenuButton: boolean;
   @Output() menuButtonClicked = new EventEmitter<void>();
   
   constructor() { }
