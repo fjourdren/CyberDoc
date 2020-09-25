@@ -6,7 +6,7 @@ import { FilesNewFolderDialogComponent } from '../files-new-folder-dialog/files-
 @Component({
   selector: 'app-files-upload',
   templateUrl: './files-upload.component.html',
-  styleUrls: ['./files-upload.component.css']
+  styleUrls: ['./files-upload.component.scss']
 })
 export class FilesUploadComponent implements AfterViewInit {
 
@@ -22,7 +22,7 @@ export class FilesUploadComponent implements AfterViewInit {
     private fsProvider: FileSystemProviderService,
     private dialog: MatDialog
   ) {
-    fsProvider.default().currentUpload().subscribe(val=>{
+    fsProvider.default().currentUpload().subscribe(val => {
       this.currentlyUploading = (val != undefined);
     })
   }
@@ -35,7 +35,7 @@ export class FilesUploadComponent implements AfterViewInit {
     evt.stopPropagation();
     this.showDragZone = true;
     window.clearTimeout(this.setTimeoutID);
-    this.setTimeoutID = window.setTimeout(() => this.showDragZone = false, 500);
+    this.setTimeoutID = window.setTimeout(() => this.showDragZone = false, 250);
   }
 
   @HostListener('document:drop', ['$event'])
@@ -74,20 +74,11 @@ export class FilesUploadComponent implements AfterViewInit {
   createFolder() {
     this.fsProvider.default().get(this.currentDirectoryID).toPromise().then((node) => {
       if (node.isDirectory) {
-        const dialogRef = this.dialog.open(FilesNewFolderDialogComponent, {
+        this.dialog.open(FilesNewFolderDialogComponent, {
           maxWidth: "400px",
           data: node
         });
-
-        dialogRef.afterClosed().subscribe(success => {
-          if (success) {
-            ;
-          }
-        });
-
-      } else {
-        //TODO
       }
-    })
+    });
   }
 }

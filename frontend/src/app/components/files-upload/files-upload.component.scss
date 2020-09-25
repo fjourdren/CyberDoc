@@ -1,0 +1,26 @@
+#drop-div-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+}
+
+#drop-div {
+    background: white; 
+    position: absolute; 
+    left: 24px; 
+    right: 24px; 
+    top: 24px; 
+    bottom: 24px;
+}
+
+input {
+    visibility: hidden;
+}
+
+#fab {
+    position: absolute;
+    bottom: 24px; 
+    right: 24px;
+}

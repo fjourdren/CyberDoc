@@ -36,6 +36,12 @@
         "copy_new_name": "Copy of {{filename}}"
     },
 
+    "upload": {
+        "import_file": "Import file",
+        "new_directory": "New directory",
+        "drop_div_text": "Drop a file to import"
+    },
+
     "general": {
         "new_name": "New name",
         "name": "Name",
