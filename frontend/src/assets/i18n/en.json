@@ -41,6 +41,7 @@
         "name": "Name",
         "size": "Size",
         "type": "Type",
+        "owner": "Owner",
         "copy_new_name": "Copy of {{filename}}"
     },
 
