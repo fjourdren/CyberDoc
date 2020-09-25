@@ -3,7 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { CloudNode } from 'src/app/models/files-api-models';
 import { FileSystemProviderService } from 'src/app/services/filesystems/file-system-provider';
-import { FilesTableRestrictions } from '../files-table/files-table-restrictions';
+import { FilesTableRestrictions } from '../files-generic-table/files-table-restrictions';
 import { MoveCopyDialogModel } from './move-copy-dialog-model';
 
 @Component({

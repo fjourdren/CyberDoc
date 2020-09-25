@@ -1,0 +1,12 @@
+<mat-spinner *ngIf="loading" diameter="48" style="      margin-top: 48px;    left: calc(50% - 24px); "></mat-spinner>
+
+<app-files-generic-table 
+*ngIf="!loading"
+[showDetailsButton]="showDetailsButton" 
+[currentDirectoryID]="currentDirectoryID"
+[restrictions]="restrictions"
+[items]="items"
+[(selectedNode)]="selectedNode"
+(openButtonClicked)="openButtonClicked($event)"
+(detailsButtonClicked)="detailsButtonClicked.emit(null)">
+</app-files-generic-table>

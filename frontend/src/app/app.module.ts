@@ -7,8 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FilesTableComponent } from './components/files-table/files-table.component';
-import { FilesTableBottomSheetComponent } from './components/files-table/files-table-bottom-sheet.component';
+import { FilesDirectoryTableComponent } from './components/files-directory-table/files-directory-table.component';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
@@ -54,12 +53,13 @@ import { FilesRenameDialogComponent } from './components/files-rename-dialog/fil
 import { FilesDeleteDialogComponent } from './components/files-delete-dialog/files-delete-dialog.component';
 import { FilesNewFolderDialogComponent } from './components/files-new-folder-dialog/files-new-folder-dialog.component';
 import { FilesUploadComponent } from './components/files-upload/files-upload.component';
+import { FilesGenericTableComponent } from './components/files-generic-table/files-generic-table.component';
+import { FilesGenericTableBottomsheetComponent } from './components/files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    FilesTableComponent,
-    FilesTableBottomSheetComponent,
+    FilesDirectoryTableComponent,
     FilesDetailsPanelComponent,
     FilesTreeviewComponent,
     FilesMainToolbarComponent,
@@ -71,6 +71,8 @@ import { FilesUploadComponent } from './components/files-upload/files-upload.com
     FilesDeleteDialogComponent,
     FilesNewFolderDialogComponent,
     FilesUploadComponent,
+    FilesGenericTableComponent,
+    FilesGenericTableBottomsheetComponent,
   ],
   imports: [
     BrowserModule,

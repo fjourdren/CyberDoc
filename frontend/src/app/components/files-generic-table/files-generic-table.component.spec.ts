@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FilesTableComponent } from './files-table.component';
+import { FilesGenericTableComponent } from './files-generic-table.component';
 
-describe('FilesTableComponent', () => {
-  let component: FilesTableComponent;
-  let fixture: ComponentFixture<FilesTableComponent>;
+describe('FilesGenericTableComponent', () => {
+  let component: FilesGenericTableComponent;
+  let fixture: ComponentFixture<FilesGenericTableComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesTableComponent ]
+      declarations: [ FilesGenericTableComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FilesTableComponent);
+    fixture = TestBed.createComponent(FilesGenericTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

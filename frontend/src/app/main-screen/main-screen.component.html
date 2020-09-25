@@ -16,9 +16,9 @@
     <div id="app-files-breadcrumb-container">
         <app-files-breadcrumb [(currentDirectoryID)]="aaa"></app-files-breadcrumb>
     </div>
-    <app-files-table [(currentDirectoryID)]="aaa" [(selectedNodeID)]="bbb"
-        (openNodeDetailsSidenav)="fileDetailDrawer.open()" [isNodeDetailsSidenavLocked]="!isSmallScreen">
-    </app-files-table>
+    <app-files-directory-table [(currentDirectoryID)]="aaa" [(selectedNodeID)]="bbb"
+        (detailsButtonClicked)="fileDetailDrawer.open()" [showDetailsButton]="isSmallScreen">
+    </app-files-directory-table>
 
     <app-files-upload [currentDirectoryID]="aaa"></app-files-upload>
 
