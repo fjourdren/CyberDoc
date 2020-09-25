@@ -98,7 +98,7 @@ export class MockFileSystem implements FileSystem {
             if (success) {
                 this.filesMap.set(newEntry.id, newEntry);
                 this._currentUpload$.emit(null);
-                this._refreshNeeded$.emit(null);        
+                this._refreshNeeded$.emit(null);
             }
         });
     }
@@ -193,8 +193,9 @@ export class MockFileSystem implements FileSystem {
         this._copyInternal(sourceID, newFileName, destID);
         this._printToConsole();
 
-        this._refreshNeeded$.emit(null);
-        return of(null).pipe(delay(DELAY));
+        const observable = of(null).pipe(delay(DELAY));
+        observable.toPromise().then(() => this._refreshNeeded$.emit(null));
+        return observable;
     }
 
     move(sourceID: string, destID: string): Observable<void> {
@@ -215,8 +216,9 @@ export class MockFileSystem implements FileSystem {
         this.filesMap.set(sourceID, file);
         this._printToConsole();
 
-        this._refreshNeeded$.emit(null);
-        return of(null).pipe(delay(DELAY));
+        const observable = of(null).pipe(delay(DELAY));
+        observable.toPromise().then(() => this._refreshNeeded$.emit(null));
+        return observable;
     }
 
     rename(fileID: string, newName: string): Observable<void> {
@@ -229,8 +231,9 @@ export class MockFileSystem implements FileSystem {
         this.filesMap.set(fileID, file);
         this._printToConsole();
 
-        this._refreshNeeded$.emit(null);
-        return of(null).pipe(delay(DELAY));
+        const observable = of(null).pipe(delay(DELAY));
+        observable.toPromise().then(() => this._refreshNeeded$.emit(null));
+        return observable;
     }
 
     delete(fileID: string): Observable<void> {
@@ -241,8 +244,9 @@ export class MockFileSystem implements FileSystem {
         this._deleteInternal(fileID);
         this._printToConsole();
 
-        this._refreshNeeded$.emit(null);
-        return of(null).pipe(delay(DELAY));
+        const observable = of(null).pipe(delay(DELAY));
+        observable.toPromise().then(() => this._refreshNeeded$.emit(null));
+        return observable;
     }
 
     private _deleteInternal(fileID: string) {
@@ -276,7 +280,7 @@ export class MockFileSystem implements FileSystem {
     private async _uploadInternal(name: string) {
         let seconds = 55 * 15;
         for (let progress = 0; progress <= 100; progress += 10) {
-            if (this._uploadCancelRequested){
+            if (this._uploadCancelRequested) {
                 this._uploadCancelRequested = false;
                 return false;
             }
