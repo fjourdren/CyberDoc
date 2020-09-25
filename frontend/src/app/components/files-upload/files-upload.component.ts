@@ -22,7 +22,7 @@ export class FilesUploadComponent implements AfterViewInit {
     private fsProvider: FileSystemProviderService,
     private dialog: MatDialog
   ) {
-    fsProvider.default().currentUpload().subscribe(val => {
+    fsProvider.default().getCurrentFileUpload().subscribe(val => {
       this.currentlyUploading = (val != undefined);
     })
   }
@@ -51,7 +51,7 @@ export class FilesUploadComponent implements AfterViewInit {
   }
 
   uploadSelectedFile(file: File) {
-    this.fsProvider.default().upload(
+    this.fsProvider.default().startFileUpload(
       file,
       file.name,
       file.type,

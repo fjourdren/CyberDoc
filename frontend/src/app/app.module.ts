@@ -55,6 +55,7 @@ import { FilesNewFolderDialogComponent } from './components/files-new-folder-dia
 import { FilesUploadComponent } from './components/files-upload/files-upload.component';
 import { FilesGenericTableComponent } from './components/files-generic-table/files-generic-table.component';
 import { FilesGenericTableBottomsheetComponent } from './components/files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
+import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
 
 @NgModule({
   declarations: [
@@ -73,6 +74,7 @@ import { FilesGenericTableBottomsheetComponent } from './components/files-generi
     FilesUploadComponent,
     FilesGenericTableComponent,
     FilesGenericTableBottomsheetComponent,
+    RemainingTimePipe,
   ],
   imports: [
     BrowserModule,

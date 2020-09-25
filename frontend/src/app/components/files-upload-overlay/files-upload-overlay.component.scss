@@ -1,8 +1,8 @@
 #card {
-    z-index: 100;
     position: absolute;
-    left: calc(50% - 200px);
-    bottom: 15px;
+    max-width: calc(100vw - 32px);
+    left: 16px;
+    bottom: 16px;
     width: 400px;
     padding: 0;
 }

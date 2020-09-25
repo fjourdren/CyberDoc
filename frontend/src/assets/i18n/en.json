@@ -1,4 +1,12 @@
 {
+    "countdownjs": {
+        "singular": "|s|m|h|d||||||",
+        "plural": "|s|m|h|d||||||",
+        "last": " and ",
+        "delim": ", ",
+        "empty": ""
+    },
+
     "filetype": {
         "audio": "Audio",
         "video": "Video",
@@ -39,7 +47,9 @@
     "upload": {
         "import_file": "Import file",
         "new_directory": "New directory",
-        "drop_div_text": "Drop a file to import"
+        "drop_div_text": "Drop a file to import",
+        "success": "File successfully uploaded",
+        "canceled": "Upload canceled"
     },
 
     "general": {
@@ -55,9 +65,10 @@
         "appname": "CyberDoc",
         "cancel": "Cancel",
         "search": "Search",
-        "remaining_time": "{{remainingTime}} remaining",
+        "remaining": "remaining",
         "loading": "Loading...",
         "noitems": "No items",
-        "no_empty": "Cannot be empty"
+        "no_empty": "Cannot be empty",
+        "filedetails": "File details"
     }
 }
