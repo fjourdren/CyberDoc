@@ -30,7 +30,7 @@ export class FilesNewFolderDialogComponent {
     this.loading = true;
     this.input.disable();
     this.dialogRef.disableClose = true;
-    this.fsProvider.default().upload(null, this.input.value, DIRECTORY_MIMETYPE, this.data.id).toPromise().then(() => {
+    this.fsProvider.default().createDirectory(this.input.value, this.data.id).toPromise().then(() => {
       this.loading = false;
       this.input.enable();
       this.dialogRef.disableClose = false;

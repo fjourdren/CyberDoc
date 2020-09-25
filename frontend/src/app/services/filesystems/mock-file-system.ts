@@ -22,6 +22,7 @@ export class MockFileSystem implements FileSystem {
     private filesMap = new Map<string, InternalFileElement>();
     private _refreshNeeded$ = new EventEmitter<void>();
     private _currentUpload$ = new EventEmitter<Upload>();
+    private _uploadCancelRequested = false;
 
     constructor() {
         this.filesMap.set("root", { "name": "Root", "mimetype": DIRECTORY_MIMETYPE, id: "root" });
@@ -45,11 +46,32 @@ export class MockFileSystem implements FileSystem {
         this._printToConsole();
     }
 
-    cancelUpload() {
+    createDirectory(name: string, parentFolderID: string): Observable<void> {
+        const parentFolder = this.filesMap.get(parentFolderID);
+        if (!parentFolder || parentFolder.mimetype !== DIRECTORY_MIMETYPE) {
+            throw new Error(`404 unknow or wrong file ${parentFolderID}`);
+        }
+
+        let newEntry: InternalFileElement = {
+            id: parentFolder.name + "." + name,
+            name: name,
+            mimetype: DIRECTORY_MIMETYPE,
+            size: 0,
+            date: new Date(),
+            parentID: parentFolderID
+        }
+
+        this.filesMap.set(newEntry.id, newEntry);
+        this._refreshNeeded$.emit(null);
+        return of(null).pipe(delay(DELAY));
+    }
+
+    cancelFileUpload() {
+        this._uploadCancelRequested = true;
         this._currentUpload$.emit(null);
     }
 
-    currentUpload(): Observable<Upload> {
+    getCurrentFileUpload(): Observable<Upload> {
         return this._currentUpload$.asObservable();
     }
 
@@ -57,17 +79,11 @@ export class MockFileSystem implements FileSystem {
         return this._refreshNeeded$.asObservable();
     }
 
-    upload(file: Blob, name: string, mimetype: string, folderID: string): Observable<void> {
-        const parentFolder = this.filesMap.get(folderID);
+    startFileUpload(file: Blob, name: string, mimetype: string, parentFolderID: string): void {
+        const parentFolder = this.filesMap.get(parentFolderID);
         if (!parentFolder || parentFolder.mimetype !== DIRECTORY_MIMETYPE) {
-            throw new Error(`404 unknow or wrong file ${folderID}`);
+            throw new Error(`404 unknow or wrong file ${parentFolderID}`);
         }
-
-        this._currentUpload$.emit({
-            filename: name,
-            progress: 0,
-            remainingSeconds: 60
-        });
 
         let newEntry: InternalFileElement = {
             id: parentFolder.name + "." + name,
@@ -75,20 +91,16 @@ export class MockFileSystem implements FileSystem {
             mimetype: mimetype,
             size: file ? file.size : 0,
             date: new Date(),
-            parentID: folderID
+            parentID: parentFolderID
         }
 
-        this.filesMap.set(newEntry.id, newEntry);
-        of(null).pipe(delay(DELAY * 5)).toPromise().then(() => this._currentUpload$.emit({
-            filename: name,
-            progress: 0.5,
-            remainingSeconds: 30
-        }));
-
-        this._refreshNeeded$.emit(null);
-        const observable = of(null).pipe(delay(DELAY * 10));
-        observable.toPromise().then(() => this._currentUpload$.emit(null));
-        return observable;
+        this._uploadInternal(name).then((success) => {
+            if (success) {
+                this.filesMap.set(newEntry.id, newEntry);
+                this._currentUpload$.emit(null);
+                this._refreshNeeded$.emit(null);        
+            }
+        });
     }
 
     get(id: string): Observable<CloudNode> {
@@ -259,6 +271,30 @@ export class MockFileSystem implements FileSystem {
                 this._copyInternal(child.id, child.name, file.id + "_clone");
             }
         }
+    }
+
+    private async _uploadInternal(name: string) {
+        let seconds = 55 * 15;
+        for (let progress = 0; progress <= 100; progress += 10) {
+            if (this._uploadCancelRequested){
+                this._uploadCancelRequested = false;
+                return false;
+            }
+            this._currentUpload$.emit({
+                filename: name,
+                progress: progress / 100,
+                remainingSeconds: seconds
+            });
+            await this._wait(2);
+            seconds -= 5 * 15;
+        }
+        return true;
+    }
+
+    private async _wait(seconds: number) {
+        return new Promise((resolve, reject) => {
+            window.setTimeout(() => resolve(), seconds * 1000);
+        })
     }
 
     private _printToConsole() {

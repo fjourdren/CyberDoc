@@ -9,13 +9,15 @@ export interface Upload {
 
 export interface FileSystem {
     get(id: string): Observable<CloudNode>;
-    upload(file: Blob, name: string, mimetype: string, folderID: string): Observable<void>;
-    cancelUpload(): void;
     copy(sourceID: string, newFileName: string, destID: string): Observable<void>;
     move(sourceID: string, destID: string): Observable<void>;
     rename(fileID: string, newName: string): Observable<void>;
     delete(fileID: string): Observable<void>;
+    createDirectory(name: string, parentFolderID: string): Observable<void>;
 
-    currentUpload(): Observable<Upload>;
+    startFileUpload(file: Blob, name: string, mimetype: string, parentFolderID: string): void;
+    cancelFileUpload(): void;
+    getCurrentFileUpload(): Observable<Upload>;
+
     refreshNeeded(): Observable<void>;
 }
