@@ -10,7 +10,10 @@ app-files-treeview {
     display: block;
     width: 80vw;
     max-width: 300px;
+}
 
+app-files-main-toolbar {
+    width: 100vh;
 }
 
 app-files-details-panel {
@@ -38,4 +41,8 @@ app-files-breadcrumb {
 
 app-files-table {
     display: block;
+}
+
+.take-remaining-space {
+    flex: 1 1 auto;
 }

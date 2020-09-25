@@ -1,5 +1,5 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -7,58 +7,44 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './main-screen.component.html',
   styleUrls: ['./main-screen.component.scss']
 })
-export class MainScreenComponent implements OnInit {
+export class MainScreenComponent {
 
-  constructor(private changeSS: ChangeDetectorRef, private breakpointObserver: BreakpointObserver, private aa: ActivatedRoute     ) { 
-    this.breakpointObserver.observe('(max-width: 1000px)').subscribe(result=>{
-      this.isSmallScreen = result.matches;
+  treeviewDrawerLocked = false;
+  fileDetailDrawerLocked = false;
+  private _currentDirectoryID: string;
+  private _selectedNodeID: string;
+
+  constructor(private breakpointObserver: BreakpointObserver, private route: ActivatedRoute) {
+    this.breakpointObserver.observe('(max-width: 1000px)').subscribe(result => {
+      this.fileDetailDrawerLocked = !result.matches;
     })
-    this.breakpointObserver.observe('(max-width: 1500px)').subscribe(result=>{
-      this.otherSS = result.matches;
+    this.breakpointObserver.observe('(max-width: 1500px)').subscribe(result => {
+      this.treeviewDrawerLocked = !result.matches;
     })
 
-    aa.paramMap.subscribe((val)=>{
-      if (val.has("dirID")){
-        this.aaa = val.get("dirID");
-        this.changeSS.markForCheck();
-
+    route.paramMap.subscribe((val) => {
+      if (val.has("dirID")) {
+        this.currentDirectoryID = val.get("dirID");
       }
     });
-
   }
 
-  isSmallScreen = this.breakpointObserver.isMatched('(max-width: 1000px)');
-  otherSS = this.breakpointObserver.isMatched('(max-width: 1500px)');
-  
-  _aaa: string;
-  bbb: string;
-  _directoryID: string;
-  fileID: string;
-
-  get aaa(){
-    return this._aaa;
+  get currentDirectoryID() {
+    return this._currentDirectoryID;
   }
 
-  set aaa(val: string){
-    this._aaa = val;
-    history.pushState({}, null,  `/drive/${val}`);
+  set currentDirectoryID(directoryID: string) {
+    this._currentDirectoryID = directoryID;
+    if (directoryID) {
+      history.pushState({}, null, `/drive/${directoryID}`);
+    }
   }
 
-  get directoryID(){
-    return this._directoryID;
+  get selectedNodeID() {
+    return this._selectedNodeID;
   }
 
-  set directoryID(val: string) {
-    console.log(val);
-    this._directoryID = val;
-    this.changeSS.markForCheck();
+  set selectedNodeID(nodeID: string) {
+    this._selectedNodeID = nodeID;
   }
-
-  ngOnInit(): void {
-  }
-
-  a(obj){
-    console.log(obj);
-  }
-
 }
