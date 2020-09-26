@@ -1,70 +1,77 @@
 import mongoose from 'mongoose';
 
 import uniqueValidator from 'mongoose-unique-validator';
-import validator from 'validator';
 import Guid from 'guid';
+
+
+/**
+ * File Type enum
+ */
+export enum FileType {
+    DIRECTORY = 0,
+    DOCUMENT  = 1
+}
 
 
 /**
  * Building typescript & Mongoose data archs
  */
-const DocumentSchema = new mongoose.Schema({
+export const FileSchema = new mongoose.Schema({
     _id: {
-		type: String,
-		default: () => Guid.raw()
-	},
-    firstname: {
-        type: String,
-        required: true
-    },
-    lastname: {
-        type: String,
-        required: true
-    },
-    email: {
-        type     : String,
-        required : true,
-        unique   : true,
+        type                 : String,
+        unique               : true,
         uniqueCaseInsensitive: true,
-        trim     : true,
-        minlength: 5,
-        validate : {
-            validator: (value: string) => validator.isEmail(value),
-            message: '{VALUE} is not a valid email'
-        }
+		default: () => Guid.raw()
     },
-    password: {
-		type     : String,
-		required : true
+    type: {
+		type    : FileType,
+		required: true
 	},
+    name: {
+        type    : String,
+        required: true,
+        trim    : true
+    },
+    document_id: {
+        type: String
+    },
+    parent_file_id: {
+        type     : String
+    },
+    owner_id: {
+		type     : String,
+        required : true
+    },
     updated_at: {
-        type: Date,
+        type   : Date,
         default: new Date().getTime()
     },
     created_at: {
-        type: Date,
+        type   : Date,
         default: new Date().getTime()
     }
 },
 {
-  collection: 'Document',
+    collection: 'File',
 })
 
 
 // DO NOT export this, Type script validation (= Mongoose raw model)
-interface IDocumentSchema extends mongoose.Document {
-    _id: string;
-    firstname: string;
-    lastname: string;
-    email: string;
-    password: string;
-    updated_at: string;
-    created_at: string;
+interface IFileSchema extends mongoose.Document {
+    _id           : string;
+    type          : FileType;
+    name          : string;
+    document_id   : string;
+    parent_file_id: string;
+    owner_id      : string;
+    updated_at    : string;
+    created_at    : string;
 }
 
 
+
 // Export this (= Mongoose after filtering and hiding sensitive data)
-export interface IDocument extends IDocumentSchema {
+export interface IFile extends IFileSchema {
     
 }
 
@@ -74,17 +81,21 @@ export interface IDocument extends IDocumentSchema {
 /**
  * Processing model data
  */
-DocumentSchema.plugin(uniqueValidator);
+FileSchema.plugin(uniqueValidator);
 
-DocumentSchema.pre<IDocument>("save", function(next: any) {
+FileSchema.pre<IFile>("update", function(next) {
     this.updated_at = new Date().getTime().toString();
     next();
 });
 
-DocumentSchema.pre<IDocument>("update", function(next) {
-    this.updated_at = new Date().getTime().toString();
-    next();
-});
+// Hide sensible information before exporting the object
+FileSchema.methods.toJSON = function() {
+    var obj = this.toObject();
+    delete obj.__v;
+    delete obj.owner_id;
+    return obj;
+}
 
 
-export const Document = mongoose.model<IDocument>('Document', DocumentSchema);
+export const File: mongoose.Model<IFile> = mongoose.model<IFile>('File', FileSchema);
+export default IFile;

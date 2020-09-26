@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 import { logger } from './Log';
 
-function connectMongodb(): void {
+export default function connectMongodb(): void {
     let db = mongoose.connection;
 
     // init event log on the mongodb connection
@@ -21,6 +21,9 @@ function connectMongodb(): void {
 
     db.once('open', function() {
         logger.info('MongoDB connection opened !');
+
+        //logger.info('Build GridFS object');
+        //let gfs = Grid(db.db, mongoose.mongo);
     });
 
     db.on('reconnected', function () {
@@ -42,5 +45,3 @@ function connectMongodb(): void {
         process.exit();
     }
 }
-
-export default connectMongodb;

@@ -2,18 +2,17 @@ import { Router } from 'express';
 
 import FileController from '../../controllers/FileController'
 import AuthMiddleware from '../../middlewares/AuthMiddleware';
+import UserMiddleware from '../../middlewares/UserMiddleware';
+import { Role, User } from '../../models/User';
 
 const FileRouter = Router();
 
-//https://redocly.github.io/redoc/?url=https://pastebin.pl/view/raw/2faea685#/paths/~1file/post
-
-FileRouter.post('/', AuthMiddleware.isAuthenticate, FileController.upload);
+FileRouter.post('/', AuthMiddleware.isAuthenticate, UserMiddleware.hasRoles([Role.OWNER]), FileController.upload);
 FileRouter.get('/:fileId', AuthMiddleware.isAuthenticate, FileController.get);
-FileRouter.put('/:fileId', AuthMiddleware.isAuthenticate, FileController.update);
-FileRouter.patch('/:fileId', AuthMiddleware.isAuthenticate, FileController.rename);
+FileRouter.put('/:fileId', AuthMiddleware.isAuthenticate, FileController.updateContent);
+FileRouter.patch('/:fileId', AuthMiddleware.isAuthenticate, FileController.edit);
 FileRouter.delete('/:fileId', AuthMiddleware.isAuthenticate, FileController.delete);
 
-FileRouter.post('/:fileId/move', AuthMiddleware.isAuthenticate, FileController.move);
 FileRouter.post('/:fileId/copy', AuthMiddleware.isAuthenticate, FileController.copy);
 
 FileRouter.get('/:fileId/preview', AuthMiddleware.isAuthenticate, FileController.preview);
