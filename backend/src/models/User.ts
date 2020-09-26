@@ -21,8 +21,14 @@ export enum Role {
  */
 export const UserSchema = new mongoose.Schema({
     _id: {
-		type   : String,
+        type                 : String,
+        unique               : true,
+        uniqueCaseInsensitive: true,
 		default: () => Guid.raw()
+    },
+    directory_id: {
+		type    : String,
+		required: true,
 	},
     firstname: {
         type                 : String,
@@ -74,6 +80,7 @@ export const UserSchema = new mongoose.Schema({
 // DO NOT export this, Type script validation (= Mongoose raw model)
 interface IUserSchema extends mongoose.Document {
     _id: string;
+    directory_id: string;
     firstname: string;
     lastname: string;
     email: string;
@@ -113,11 +120,11 @@ UserSchema.pre<IUser>("update", function(next) {
     next();
 });
 
-
 // Hide sensible information before exporting the object
 UserSchema.methods.toJSON = function() {
     var obj = this.toObject();
     delete obj.__v;
+    delete obj.directory_id;
     delete obj.password;
     return obj;
 }

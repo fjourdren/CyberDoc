@@ -1,4 +1,4 @@
-import {IUser, User, Role} from "../models/User";
+import { IUser, User, Role } from "../models/User";
 
 class UserService {
     
