@@ -1,87 +1,84 @@
-# CyberDoc
+CyberDoc
+========
 
-## GIT
+Table of contents
+-----------------
+* [Introduction](#introduction)
+* [Services plan](#services-plan)
+* [Technologies](#technologies)
+* [Usage](#usage)
+* [Git Strategy](#git-strategy)
+* [Team](#team)
+* [License](#license)
 
-Pour initialiser son répertoire : 
-```
-git init
-git remote add origin https://github.com/fjourdren/CyberDoc.git
-```
+Introduction
+------------
+CyberDoc will be a secure and personal sensitive document storage service, which makes users able to securely manage, modify, share, collaborate and sign documents.
+For that purpose, it will need to be secure and have a fault-tolerant storage system. Moreover, it will be usable on all devices (smartphones/tablets/computers) and needs to have a smooth interface.
 
-Ensuite pull le code : 
-```
-git pull origin master
-```
+Services plan
+-------------
+![Services plan](https://i.ibb.co/7yNmjxg/services-plan-1.png)
 
-Pour push du code :
-```
-# tout ajouter
-git add .
+Technologies
+----------
+* [Angular 10](https://angular.io/)
+* [Ansible](https://www.ansible.com/)
+* [Docker](https://www.docker.com/)
+* [Docker Compose](https://docs.docker.com/compose/)
+* [ExpressJS](https://expressjs.com/)
+* [GridFS](https://docs.mongodb.com/manual/core/gridfs/)
+* [Jenkins](https://www.jenkins.io/)
+* [MongoDB](https://www.mongodb.com/)
+* [Mongoose](https://mongoosejs.com/)
+* [Mercure](https://mercure.rocks/)
+* [NodeJS](https://nodejs.org/)
+* [Postfix](http://www.postfix.org/)
+* [Python](https://www.python.org/)
+* [RabbitMQ](https://www.rabbitmq.com/)
+* [SonarQube](https://www.sonarqube.org/)
+* [Swagger](https://swagger.io/)
+* [Traefik](https://doc.traefik.io/traefik/)
+* [TypeScript](https://www.typescriptlang.org/)
 
-# ajouter un répertoire ciblé
-git add ./branch/file
+Usage
+-----
+## Front-end
+* start: `ng serve`
+* build: `ng build`
+* Karma - Unit test: `ng test`
+* lint: `ng lint`
+* Protractor - E2E tests: `ng e2e`
 
-git commit -m "mon message de commit permettant de contextualiser le commit"
+## Back-end
+* test: `jest --forceExit --coverage --verbose`
+* tsc: `tsc`
+* build: `tsc`
+* clean: `rm -rf dist`
+* dev: `nodemon`
+* startdev: `APP_ENV=dev ts-node src/server.ts`
+* lint: `eslint . --ext .ts`
+* start: `APP_ENV=prod node dist/server.js`
 
-# ici on choisit la branche ou on push le code
-# master : 
-git push origin master
-# branch :
-git push origin branch
-```
+## System
+* Docker Compose: `docker-compose up --build`
 
-## Frontend
+Git Strategy
+------------
+In order to simplify the addition of new features, we are following a rather simplistic Git strategy :
+1. Any new feature will have to be developed on a **new branch**. 
+2. Once the new feature has been tested and validated by a third party, it is merged on the `develop` branch.
+2. Once deployed in production, the new feature is merged into the `master' branch.
 
-Installation de angular :
-```
-maeg@maeg-HP-ProBook-650-G1:~/Documents/PRJ_GEN_LOGI$ mkdir frontend
-maeg@maeg-HP-ProBook-650-G1:~/Documents/PRJ_GEN_LOGI$ cd frontend/
-maeg@maeg-HP-ProBook-650-G1:~/Documents/PRJ_GEN_LOGI$ sudo apt install npm
-maeg@maeg-HP-ProBook-650-G1:~/Documents/PRJ_GEN_LOGI$ npm update
+Team
+------------
+| <a href="https://github.com/ndelvoye" target="_blank">**DELVOYE Nicolhas**</a> | <a href="https://github.com/cforgeard" target="_blank">**FORGEARD Clément**</a> | <a href="https://fjourdren.com/" target="_blank">**JOURDREN Flavien**</a> | <a href="https://github.com/galeadon" target="_blank">**LE GAL Alexis**</a> | <a href="https://maeg.fr/index" target="_blank">**MORIN--COZANNET MAEG**</a> |
+| :---: |:---:| :---:| :---:| :---:|
+| [![ndelvoye](https://avatars0.githubusercontent.com/u/33501606?v3&s=200)](#) | [![cforgeard](https://avatars2.githubusercontent.com/u/19496563?v3&s=200)](#) | [![fjourdren](https://avatars2.githubusercontent.com/u/22824594?v3&s=200)](https://fjourdren.com/) | [![alegal](https://avatars2.githubusercontent.com/u/51356870?v3&s=100)](#) | [![mmorin](https://avatars1.githubusercontent.com/u/37983763?v3&s=200)](https://maeg.fr/) |
+| Back-end developer | Front-end developer | Back-end developer & System Engineer | Front-end developer | Back-end developer & DevOps Engineer |
 
-maeg@maeg-HP-ProBook-650-G1:~/Documents/PRJ_GEN_LOGI$ sudo apt-get install --only-upgrade nodejs
-
-wget -qO- https://deb.nodesource.com/setup_12.x | sudo -E bash -
-maeg@maeg-HP-ProBook-650-G1:~/Documents/PRJ_GEN_LOGI$ sudo apt-get install -y nodejs
-
-maeg@maeg-HP-ProBook-650-G1:~/Documents/PRJ_GEN_LOGI/frontend$ sudo npm install -g @angular/cli
-```
-
-Au besoin, utiliser nvm :
-
-```
-maeg@maeg-HP-ProBook-650-G1:~$ node --version
-v12.18.3
-```
-
-```
-maeg@maeg-HP-ProBook-650-G1:~$ npm  --version
-6.14.6
-```
-
-
-
-## Backend 
-
-Node Js ? 
-
-```
-Installation
-```
-
-## DevOps
-
-Jenkins ? => build automatisé en 1 click
-```
-Installation
-```
-
-### Tests
-
-Si besoin : angular e2e test
-
-Pour le back : Jest
-
-### Déploiement
-
-Jenkins + ansible
+License
+------------
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+* MIT license
+* Copyright 2020 © Fulgen Corporation
