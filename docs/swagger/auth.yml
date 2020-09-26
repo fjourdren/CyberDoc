@@ -1,0 +1,107 @@
+openapi: 3.0.0
+info:
+  title: CyberDoc Auth API
+  version: 1.0.0
+paths:
+  /auth/signup:
+    post:
+      summary: Register user
+      description: Register user
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                firstname:
+                  description: User's firstname
+                  type: string
+                lastname:
+                  description: User's lastname
+                  type: string
+                email:
+                  description: User's email
+                  type: string
+                password:
+                  description: User's password
+                  type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/signup"
+        "500":
+          description: Internal Error
+  /auth/signin:
+    post:
+      summary: Log an user
+      description: Log an user
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                email:
+                  description: User's email
+                  type: string
+                password:
+                  description: User's password
+                  type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/signin"
+        "500":
+          description: Internal Error
+          
+          
+components:
+  schemas:
+    signup:
+      example: 
+        success: true
+        msg: "Account created"
+      description: Send to user answer for his signup request
+      type: object
+      required:
+        - success
+        - msg
+      properties:
+        success:
+          type: boolean
+          example: true
+          description: Action successed
+        msg:
+          type: string
+          example: "Account created"
+          description: Send to HTTP client a message / an error
+    signin:
+      example: 
+        success: true
+        msg: "Authentication token generated"
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8"
+      description: Send to user his log token
+      type: object
+      required:
+        - success
+        - msg
+        - token
+      properties:
+        success:
+          type: boolean
+          example: true
+          description: Action successed
+        msg:
+          type: string
+          example: "Authentication token generated"
+          description: Send to HTTP client a message / an error
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8"
+          description: User's JWTToken

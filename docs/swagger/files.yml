@@ -1,0 +1,342 @@
+openapi: 3.0.0
+info:
+  title: CyberDoc Files API
+  version: 1.0.0
+  description: "All responses have two keys : success (boolean) and msg (string) [not included after !]"
+paths:
+  /files:
+    post:
+      summary: Upload new file
+      description: Upload new file
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                upfile:
+                  description: The file to upload.
+                  type: string
+                  format: binary
+                name:
+                  description: File name
+                  type: string
+                mimetype:
+                  description: File mimetype
+                  type: string
+                folderID:
+                  description: ID of the folder which will contains the new file
+                  type: string
+      responses:
+        "201":
+          description: Created
+        "404":
+          description: Not Found / Forbidden
+        "500":
+          description: Server error
+  "/files/{fileId}":
+    get:
+      summary: Get file by ID
+      description: Get a single file
+      parameters:
+        - name: fileId
+          in: path
+          description: File ID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                 - $ref: "#/components/schemas/CloudFile"
+                 - $ref: "#/components/schemas/CloudDirectory"
+        "404":
+          description: Not Found / Forbidden
+        "500":
+          description: Server error
+    put:
+      summary: Upload new version of an existing file
+      description: Upload new version of an existing file
+      parameters:
+        - name: fileId
+          in: path
+          description: File ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: "#/components/requestBodies/postFile"
+      responses:
+        "204":
+          description: Success
+        "404":
+          description: Not Found / Forbidden
+    patch:
+      summary: Edit file metadata (name & directoryID)
+      description: Edit file metadata (name & directoryID)
+      parameters:
+        - name: fileId
+          in: path
+          description: File ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name: 
+                  type: string
+                  description: File name
+                  example: FileName.pdf
+                directoryID:
+                  type: string
+                  format: uuid
+                  example: 9b81d950-b605-471f-a654-4fffba6bcfc5
+                  description: ID of the directory which contains the file
+        description: File
+        required: true
+      responses:
+        "204":
+          description: Success
+        "404":
+          description: Not Found / Forbidden
+        "500":
+          description: Server error
+    delete:
+      summary: Delete a file
+      description: Delete a single file
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Success
+        "404":
+          description: Not Found / Forbidden
+        "500":
+          description: Server error
+  "/files/{fileId}/copy":	
+    post:	
+      summary: Copy a file	
+      description: Copy a single file	
+      parameters:	
+        - name: fileId	
+          in: path	
+          description: ID of file to copy	
+          required: true	
+          schema:	
+            type: string	
+      requestBody:	
+        content:	
+          application/json:	
+            schema:	
+              $ref: "#/components/schemas/FileCopyBody"	
+        description: File	
+        required: true	
+      responses:	
+        "204":	
+          description: Success	
+        "404":	
+          description: Not Found / Forbidden	
+        "500":	
+          description: Server error	
+  "/files/{fileId}/preview":
+    get:
+      summary: Get file preview
+      description: Get file preview
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+        "404":
+          description: Not Found / Forbidden
+        "500":
+          description: Server error
+  "/files/{fileId}/download":
+    get:
+      summary: Download file
+      description: Download file
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+        "404":
+          description: Not Found / Forbidden
+        "500":
+          description: Server error
+components:
+  requestBodies:
+    postFile:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              upfile:
+                description: The file to upload.
+                type: string
+                format: binary
+  schemas:
+    Path:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 9b81d950-b605-471f-a654-4fffba6bcfc5
+          description: Directory ID
+        name:
+          type: string
+          example: SubDir
+          description: Directory name
+    FileCopyBody:	
+      type: object	
+      required:	
+        - destID	
+      properties:	
+        copyFileName:	
+          type: string	
+          example: FileName.pdf	
+          description: Copy name	
+        destID:	
+          type: string	
+          format: uuid	
+          example: 9b81d950-b605-471f-a654-4fffba6bcfc5	
+          description: ID of the destination directory	
+          
+    CloudFile:
+      example: 
+        id: 9b81d950-b605-471f-a654-4fffba6bcfc5
+        ownerName: John Doe
+        name: "File.pdf"
+        mimetype: "application/pdf"
+        size: 666
+        lastModified: "2017-07-21T17:32:28Z"
+      description: Represents a classic file, sent by the server
+      type: object
+      required:
+        - id
+        - ownerName
+        - name
+        - mimetype
+        - size
+        - lastModified
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 9b81d950-b605-471f-a654-4fffba6bcfc5
+          description: File ID
+        ownerName:
+          type: string
+          format: uuid
+          example: John Doe
+          description: Owner ID
+        name:
+          type: string
+          example: FileName.pdf
+          description: File name
+        mimetype:
+          type: string
+          example: application/pdf
+          description: File type
+        size:
+          type: integer
+          example: "666"
+          description: File size
+        lastModified:
+          type: string
+          format: date-time
+          description: File last modification date
+          
+    CloudDirectory:
+      example: 
+        id: 9b81d950-b605-471f-a654-4fffba6bcfc5
+        ownerName: John Doe
+        name: subsubdir
+        mimetype: application/x-dir
+        path:
+          - id: 9b81d950-b605-471f-a654-4fffba6bcfc1
+            name: root
+          - id: 9b81d950-b605-471f-a654-4fffba6bcfc2
+            name: subdir
+        directoryContent:
+          - id: 9b81d950-b605-471f-a654-4fffba6bcfc3
+            ownerName: John Doe
+            name: subsubsubdir
+            mimetype: application/x-dir
+            path: []
+            directoryContent: []
+          - id: 9b81d950-b605-471f-a654-4fffba6bcfc5
+            name: "File.pdf"
+            ownerName: John Doe
+            mimetype: "application/pdf"
+            size: 666
+            lastModified: "2017-07-21T17:32:28Z"
+      description: Represents a directory, sent by the server
+      type: object
+      required:
+        - id
+        - owner
+        - name
+        - mimetype
+        - path
+        - directoryContent
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 9b81d950-b605-471f-a654-4fffba6bcfc5
+          description: Directory ID
+        ownerName:
+          type: string
+          format: uuid
+          example: John Doe
+          description: Owner ID
+        name:
+          type: string
+          example: MyDir
+          description: Directory name
+        mimetype:
+          type: string
+          enum:
+            - application/x-dir
+          example: application/x-dir
+          description: application/x-dir for a directory
+        path:
+          type: array
+          description: Tree structure to access this folder, excluding the folder itself.
+          items:
+            $ref: "#/components/schemas/Path"
+        directoryContent:
+          type: array
+          description: Content of the directory (if returns CloudDirectory, the directoryContent array is empty)
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/CloudFile"
+              - $ref: "#/components/schemas/CloudDirectory"
