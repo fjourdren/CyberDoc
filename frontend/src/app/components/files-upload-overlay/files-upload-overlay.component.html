@@ -2,9 +2,9 @@
     <mat-progress-bar mode="determinate" [value]="progressionPercent"></mat-progress-bar>
     <div id="card-content">
         <div id="card-text">
-            <div>
-                {{ (filename.length>20)? (filename | slice:0:20)+'...':(filename) }}&nbsp;
-                <span class="mat-small">({{progressionPercent}}%, <span [innerHTML]="remainingTimeSeconds | remainingTime"></span> {{'general.remaining' | translate}})</span>
+            <div id="card-text-div">
+                <span id="filename-span">{{ (filename.length>50)? (filename | slice:0:50)+'...':(filename) }}</span>
+                <span id="progress-span" class="mat-small">({{progressionPercent}}%, <span [innerHTML]="remainingTimeSeconds | remainingTime"></span> {{'general.remaining' | translate}})</span>
             </div>
         </div>
         <button (click)="cancelUpload()" mat-icon-button>

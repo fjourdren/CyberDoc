@@ -9,7 +9,7 @@ import { FileSystemProviderService } from 'src/app/services/filesystems/file-sys
   styleUrls: ['./files-upload-overlay.component.scss']
 })
 export class FilesUploadOverlayComponent {
-  filename = "MyCoolFilename";
+  filename = "";
   currentlyUploading = false;
   progressionPercent = 0;
   remainingTimeSeconds = 0;
