@@ -46,6 +46,10 @@ export class MockFileSystem implements FileSystem {
         this._printToConsole();
     }
 
+    getFilePreviewImageURL(fileID: string): string {
+        return `https://via.placeholder.com/300x200`;
+    }
+
     getDownloadURL(fileID: string): string {
         return `/fake-download-url/${fileID}`;
     }

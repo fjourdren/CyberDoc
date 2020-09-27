@@ -34,6 +34,10 @@ export class FilesDetailsPanelComponent {
     this.node$ = this.fsProvider.default().get(this._fileID);
   }
 
+  getFilePreviewImageURL(){
+    return this.fsProvider.default().getFilePreviewImageURL(this.fileID);
+  }
+
   getIconForMimetype(mimetype: string) {
     return this.mimetypeUtils.getFontAwesomeIconForMimetype(mimetype);
   }
