@@ -46,6 +46,10 @@ export class MockFileSystem implements FileSystem {
         this._printToConsole();
     }
 
+    getDownloadURL(fileID: string): string {
+        return `/fake-download-url/${fileID}`;
+    }
+
     createDirectory(name: string, parentFolderID: string): Observable<void> {
         const parentFolder = this.filesMap.get(parentFolderID);
         if (!parentFolder || parentFolder.mimetype !== DIRECTORY_MIMETYPE) {

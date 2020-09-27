@@ -14,6 +14,7 @@ export interface FileSystem {
     rename(fileID: string, newName: string): Observable<void>;
     delete(fileID: string): Observable<void>;
     createDirectory(name: string, parentFolderID: string): Observable<void>;
+    getDownloadURL(fileID: string): string;
 
     startFileUpload(file: Blob, name: string, mimetype: string, parentFolderID: string): void;
     cancelFileUpload(): void;

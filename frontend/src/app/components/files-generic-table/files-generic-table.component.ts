@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 
 import { FilesTableRestrictions, NO_RESTRICTIONS } from './files-table-restrictions';
-import { CloudNode } from 'src/app/models/files-api-models';
+import { CloudFile, CloudNode } from 'src/app/models/files-api-models';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatMenuTrigger } from '@angular/material/menu';
@@ -14,6 +14,8 @@ import { MimetypeUtilsService } from 'src/app/services/mimetype-utils/mimetype-u
 import { NgResizeObserver, ngResizeObserverProviders } from 'ng-resize-observer';
 import { map } from 'rxjs/operators';
 import { FilesGenericTableBottomsheetComponent } from '../files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
+import { FilesRenameDialogComponent } from '../files-rename-dialog/files-rename-dialog.component';
+import { FileSystemProviderService } from 'src/app/services/filesystems/file-system-provider';
 
 export type FileAction = "open" | "download" | "rename" | "copy" | "delete" | "move" | "details";
 
@@ -43,7 +45,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   private _selectedNode: CloudNode | null;
   private _restrictions: FilesTableRestrictions = NO_RESTRICTIONS;
 
-  get selectedNode(){
+  get selectedNode() {
     return this._selectedNode;
   }
 
@@ -83,7 +85,8 @@ export class FilesGenericTableComponent implements AfterViewInit {
     private bottomSheet: MatBottomSheet,
     private dialog: MatDialog,
     private mimetypeUtils: MimetypeUtilsService,
-    private resize: NgResizeObserver
+    private resize: NgResizeObserver,
+    private fsProvider: FileSystemProviderService
   ) {
     resize.pipe(map(entry => entry.contentRect.width)).subscribe(this.onTableWidthChanged.bind(this));
   }
@@ -185,14 +188,15 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   execActionOnSelectedNode(action: FileAction) {
-    console.log(this.selectedNode);
     switch (action) {
       case "open": {
         this.openButtonClicked.emit(this.selectedNode);
         break;
       }
       case "download": {
-        alert("TODO"); //TODO download function
+        if (!this.selectedNode.isDirectory) {
+          this.downloadFile(this.selectedNode as CloudFile);
+        }
         break;
       }
       case "details": {
@@ -227,7 +231,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   renameNode(node: CloudNode) {
-    this.dialog.open(FilesDeleteDialogComponent, {
+    this.dialog.open(FilesRenameDialogComponent, {
       maxWidth: "400px",
       data: node
     });
@@ -242,6 +246,12 @@ export class FilesGenericTableComponent implements AfterViewInit {
     });
   }
 
-
+  downloadFile(file: CloudFile) {
+    const anchor = document.createElement("a");
+    anchor.download = file.name;
+    anchor.href = this.fsProvider.default().getDownloadURL(file.id);
+    anchor.click();
+    anchor.remove();
+  }
 
 }
