@@ -70,6 +70,8 @@
         "loading": "Loading...",
         "noitems": "No items",
         "no_empty": "Cannot be empty",
-        "filedetails": "File details"
+        "filedetails": "File details",
+        "page_not_found": "Page not found",
+        "go_to_homepage": "Go to homepage"
     }
 }

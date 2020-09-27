@@ -56,6 +56,7 @@ import { FilesUploadComponent } from './components/files-upload/files-upload.com
 import { FilesGenericTableComponent } from './components/files-generic-table/files-generic-table.component';
 import { FilesGenericTableBottomsheetComponent } from './components/files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
+import { NotFoundPageComponent } from './components/not-found-page/not-found-page.component';
 
 @NgModule({
   declarations: [
@@ -75,6 +76,7 @@ import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
     FilesGenericTableComponent,
     FilesGenericTableBottomsheetComponent,
     RemainingTimePipe,
+    NotFoundPageComponent,
   ],
   imports: [
     BrowserModule,
