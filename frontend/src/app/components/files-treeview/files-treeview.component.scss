@@ -1,6 +1,7 @@
+@import '../../../vars.scss';
+
 .selected, .selected > * {
-    background: #e8f0fe;
-    color: #1967d2 !important;
+    background: $app-selected;
 }
 
 .tree-node-div {

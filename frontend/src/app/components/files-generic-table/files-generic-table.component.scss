@@ -1,14 +1,15 @@
+@import '../../../vars.scss';
+
 table {
     width: 100%;
-  }
+}
   
 .mat-form-field-infix{
   width: auto !important;
 }
 
 .selected, .selected > * {
-  background: #e8f0fe;
-  color: #1967d2 !important;
+  background: $app-selected;
 }
 
 th.mat-sort-header-sorted {
