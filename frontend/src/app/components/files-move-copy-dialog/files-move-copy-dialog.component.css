@@ -3,3 +3,11 @@ app-files-directory-table {
     overflow: auto;
     height: 250px;
 }
+
+[mat-dialog-title] {
+    display: flex;
+}
+
+#mat-dialog-title-div {
+    align-self: center;
+}

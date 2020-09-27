@@ -13,7 +13,7 @@ import { MoveCopyDialogModel } from '../files-move-copy-dialog/move-copy-dialog-
 import { MimetypeUtilsService } from 'src/app/services/mimetype-utils/mimetype-utils.service';
 import { NgResizeObserver, ngResizeObserverProviders } from 'ng-resize-observer';
 import { map } from 'rxjs/operators';
-import { FilesGenericTableBottomsheetComponent } from '../files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
+import { FilesGenericTableBottomsheetComponent, FilesGenericTableBottomsheetData } from '../files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 import { FilesRenameDialogComponent } from '../files-rename-dialog/files-rename-dialog.component';
 import { FileSystemProviderService } from 'src/app/services/filesystems/file-system-provider';
 
@@ -148,7 +148,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
         showDetailsEntry: this.showDetailsButton,
         node: node,
         onBottomSheetClose: this.onBottomSheetClose.bind(this)
-      }
+      } as FilesGenericTableBottomsheetData
     });
   }
 

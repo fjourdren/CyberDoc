@@ -3,7 +3,7 @@ import { MimetypeUtilsService } from 'src/app/services/mimetype-utils/mimetype-u
 import { Component, Inject } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 
-export interface MatBottomSheetData {
+export interface FilesGenericTableBottomsheetData {
   callback: (action: string) => void;
   showDetailsEntry: boolean;
   readonlyMode: boolean;
@@ -18,7 +18,7 @@ export interface MatBottomSheetData {
 })
 export class FilesGenericTableBottomsheetComponent {
   constructor(private bottomSheetRef: MatBottomSheetRef<FilesGenericTableBottomsheetComponent>,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: MatBottomSheetData,
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: FilesGenericTableBottomsheetData,
     private mimetypeUtils: MimetypeUtilsService) {
 
     this.bottomSheetRef.afterDismissed().toPromise().then(() => this.data.onBottomSheetClose());
