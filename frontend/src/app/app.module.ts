@@ -44,7 +44,6 @@ import { FilesDetailsPanelComponent } from './components/files-details-panel/fil
 import { FilesTreeviewComponent } from './components/files-treeview/files-treeview.component';
 import { FilesMainToolbarComponent } from './components/files-main-toolbar/files-main-toolbar.component';
 import { FilesUploadOverlayComponent } from './components/files-upload-overlay/files-upload-overlay.component';
-import { MainScreenComponent } from './main-screen/main-screen.component';
 import { FilesBreadcrumbComponent } from './components/files-breadcrumb/files-breadcrumb.component';
 import { FilesMoveCopyDialogComponent } from './components/files-move-copy-dialog/files-move-copy-dialog.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
@@ -56,7 +55,8 @@ import { FilesUploadComponent } from './components/files-upload/files-upload.com
 import { FilesGenericTableComponent } from './components/files-generic-table/files-generic-table.component';
 import { FilesGenericTableBottomsheetComponent } from './components/files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
-import { NotFoundPageComponent } from './components/not-found-page/not-found-page.component';
+import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
+import { DrivePageComponent } from './pages/drive-page/drive-page.component';
 
 @NgModule({
   declarations: [
@@ -66,7 +66,7 @@ import { NotFoundPageComponent } from './components/not-found-page/not-found-pag
     FilesTreeviewComponent,
     FilesMainToolbarComponent,
     FilesUploadOverlayComponent,
-    MainScreenComponent,
+    DrivePageComponent,
     FilesBreadcrumbComponent,
     FilesMoveCopyDialogComponent,
     FilesRenameDialogComponent,

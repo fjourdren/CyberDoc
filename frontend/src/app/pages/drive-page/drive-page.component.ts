@@ -3,11 +3,11 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-main-screen',
-  templateUrl: './main-screen.component.html',
-  styleUrls: ['./main-screen.component.scss']
+  selector: 'app-drive-page',
+  templateUrl: './drive-page.component.html',
+  styleUrls: ['./drive-page.component.scss']
 })
-export class MainScreenComponent {
+export class DrivePageComponent {
 
   treeviewDrawerLocked = false;
   fileDetailDrawerLocked = false;

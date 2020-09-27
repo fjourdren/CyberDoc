@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { NotFoundPageComponent } from './components/not-found-page/not-found-page.component';
-import { MainScreenComponent } from './main-screen/main-screen.component';
+import { DrivePageComponent } from './pages/drive-page/drive-page.component';
+import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
 
 const routes: Routes = [
-  { path: 'drive/:dirID', component: MainScreenComponent },
+  { path: 'drive/:dirID', component: DrivePageComponent },
   { path: '**', component: NotFoundPageComponent },
 ];
 

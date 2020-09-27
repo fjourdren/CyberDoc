@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MainScreenComponent } from './main-screen.component';
+import { DrivePageComponent } from './drive-page.component';
 
-describe('MainScreenComponent', () => {
-  let component: MainScreenComponent;
-  let fixture: ComponentFixture<MainScreenComponent>;
+describe('DrivePageComponent', () => {
+  let component: DrivePageComponent;
+  let fixture: ComponentFixture<DrivePageComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ MainScreenComponent ]
+      declarations: [ DrivePageComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(MainScreenComponent);
+    fixture = TestBed.createComponent(DrivePageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
