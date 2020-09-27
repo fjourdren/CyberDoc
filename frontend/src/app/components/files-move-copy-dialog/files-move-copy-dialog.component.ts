@@ -1,4 +1,4 @@
-import { Component, HostListener, Inject } from '@angular/core';
+import { Component, ElementRef, HostListener, Inject, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { CloudNode } from 'src/app/models/files-api-models';
@@ -12,10 +12,20 @@ import { MoveCopyDialogModel } from './move-copy-dialog-model';
   styleUrls: ['./files-move-copy-dialog.component.css']
 })
 export class FilesMoveCopyDialogComponent {
-  directoryID: string;
+  private _directoryID: string;
+  directories: string[] = [];
   loading = false;
 
   filesTableRestrictions: FilesTableRestrictions;
+
+  //HACK this click refreshes the files-generic-table component
+  //@cforgeard : I don't know why the component don't refresh automatically
+  @ViewChild('title') title: ElementRef<HTMLElement>;
+  @HostListener("dblclick", ["$event"])
+  @HostListener("click", ["$event"])
+  evt(evt: MouseEvent) {
+    this.title.nativeElement.click();
+  }
 
   constructor(public dialogRef: MatDialogRef<FilesMoveCopyDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: MoveCopyDialogModel,
@@ -24,11 +34,21 @@ export class FilesMoveCopyDialogComponent {
     this.directoryID = data.initialDirID;
 
     this.filesTableRestrictions = {
-      isSelectable: (node: CloudNode) => false,
+      isSelectable: (node: CloudNode) => node.isDirectory && node.id !== data.node.id,
       isReadOnly: (node: CloudNode) => true,
       isDisabled: (node: CloudNode) => !node.isDirectory || node.id === data.node.id,
       isContextAndBottomSheetDisabled: (node: CloudNode) => true
     }
+  }
+
+  get directoryID() {
+    return this._directoryID;
+  }
+
+  set directoryID(val: string) {
+    if (val && this.directories.indexOf(this._directoryID) === -1) this.directories.push(this._directoryID);
+    this._directoryID = val;
+    console.warn(val, this.directories);
   }
 
   @HostListener("keydown", ['$event'])
@@ -36,6 +56,11 @@ export class FilesMoveCopyDialogComponent {
     if (evt.key === "Enter") {
       this.onMoveOrCopyBtnClicked();
     }
+  }
+
+  onBackBtnClicked() {
+    this.directories.pop()
+    this.directoryID = this.directories.pop();
   }
 
   onMoveOrCopyBtnClicked() {

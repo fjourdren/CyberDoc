@@ -1,5 +1,6 @@
-<h1 mat-dialog-title>
-    {{data.copy ? ('fileaction.copy' | translate) : ('fileaction.move' | translate)}}
+<h1 #title mat-dialog-title style="display: flex">
+    <button (click)="onBackBtnClicked()" *ngIf="directories.length > 1" mat-icon-button><mat-icon>arrow_back</mat-icon></button>
+    <div style="align-self: center;">{{data.copy ? ('fileaction.copy' | translate) : ('fileaction.move' | translate)}}</div>
 </h1>
 
 <div mat-dialog-content>
