@@ -14,12 +14,14 @@
     margin-left: 4px;
 }
 
-#search-input {
+mat-form-field {
     flex: 1 1 auto;
+
+}
+
+#search-input {
     border-radius: 4px;
     padding: 8px;
     appearance: none;
     border: none;
-    color: black;
-    background: white;
 }

@@ -4,7 +4,9 @@
     </button>
 
     <div id="search-div">
-        <input id="search-input" type="text" matInput placeholder="{{ 'general.search' | translate }}">
+        <mat-form-field floatLabel="never"> 
+            <input matInput id="search-input" type="text">
+        </mat-form-field>
         <button matSuffix mat-icon-button class="search-btn">
             <mat-icon>expand_more</mat-icon>
         </button>
