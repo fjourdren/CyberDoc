@@ -79,6 +79,4 @@ Team
 
 License
 ------------
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-* MIT license
-* Copyright 2020 © Fulgen Corporation
+* Copyright 2020-2021 © Fulgen Corporation
