@@ -2,6 +2,7 @@ import { FlatTreeControl } from '@angular/cdk/tree';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CloudDirectory } from 'src/app/models/files-api-models';
 import { FileSystemProviderService } from 'src/app/services/filesystems/file-system-provider';
+import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { FilesTreeviewDataSource } from './files-treeview-datasource';
 import { FilesTreeviewNode } from './files-treeview-node';
 
@@ -16,11 +17,14 @@ export class FilesTreeviewComponent {
   private _currentDirectoryID: string;
   @Output() currentDirectoryIDChange = new EventEmitter<string>();
 
-  constructor(private fsProvider: FileSystemProviderService) {
+  constructor(
+    private fsProvider: FileSystemProviderService,
+    private userServiceProvider: UserServiceProvider
+  ) {
     this.treeControl = new FlatTreeControl<FilesTreeviewNode>(this.getLevel, this.isExpandable);
     this.dataSource = new FilesTreeviewDataSource(this.treeControl, fsProvider);
     this._loading = true;
-    fsProvider.default().get("root").toPromise().then(root => { //TODO constant
+    fsProvider.default().get(userServiceProvider.default().getActiveUser().rootDirectoryID).toPromise().then(root => {
       if (root.isDirectory) {
         this.dataSource.data = [new FilesTreeviewNode(root, 0, [], true, true)];
       }
@@ -28,7 +32,7 @@ export class FilesTreeviewComponent {
     this._loading = false;
   }
 
-  get loading(){
+  get loading() {
     return this._loading || this.dataSource.loading;
   }
 
@@ -39,10 +43,10 @@ export class FilesTreeviewComponent {
   @Input()
   set currentDirectoryID(val: string) {
     this._currentDirectoryID = val;
-    if (this.treeControl.dataNodes){
+    if (this.treeControl.dataNodes) {
       for (const node of this.treeControl.dataNodes) {
         node.selected = node.directory.id === val;
-      }  
+      }
     }
   }
 

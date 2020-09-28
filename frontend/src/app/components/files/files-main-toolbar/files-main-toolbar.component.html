@@ -19,14 +19,14 @@
 
 <mat-menu #menu="matMenu">
     <button mat-menu-item disabled>
-        <span>John Doe</span> <!-- TODO get user name from user service -->
+        <span>{{getCurrentUsername()}}</span>
     </button>
-    <button mat-menu-item>
+    <a mat-menu-item routerLink="/settings">
         <mat-icon>settings</mat-icon>
         <span>{{ 'general.settings' | translate }}</span>
-    </button>
-    <button mat-menu-item>
+    </a>
+    <a mat-menu-item routerLink="/logout">
         <mat-icon>logout</mat-icon>
         <span>{{ 'general.logout' | translate }}</span>
-    </button>
+    </a>
 </mat-menu>

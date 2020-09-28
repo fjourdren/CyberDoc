@@ -16,6 +16,7 @@ import { map } from 'rxjs/operators';
 import { FilesGenericTableBottomsheetComponent, FilesGenericTableBottomsheetData } from '../files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 import { FilesRenameDialogComponent } from '../files-rename-dialog/files-rename-dialog.component';
 import { FileSystemProviderService } from 'src/app/services/filesystems/file-system-provider';
+import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 
 export type FileAction = "open" | "download" | "rename" | "copy" | "delete" | "move" | "details";
 
@@ -86,7 +87,8 @@ export class FilesGenericTableComponent implements AfterViewInit {
     private dialog: MatDialog,
     private mimetypeUtils: MimetypeUtilsService,
     private resize: NgResizeObserver,
-    private fsProvider: FileSystemProviderService
+    private fsProvider: FileSystemProviderService,
+    private userServiceProvider: UserServiceProvider
   ) {
     resize.pipe(map(entry => entry.contentRect.width)).subscribe(this.onTableWidthChanged.bind(this));
   }
@@ -238,11 +240,11 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   moveOrCopyNode(node: CloudNode, isCopy: boolean) {
-    //TODO put root folder if this.currentDirectoryID is null
+    let initialDirectoryID = this.currentDirectoryID || this.userServiceProvider.default().getActiveUser().rootDirectoryID;
     this.dialog.open(FilesMoveCopyDialogComponent, {
       width: "400px",
       height: "400px",
-      data: new MoveCopyDialogModel(node, this.currentDirectoryID, isCopy)
+      data: new MoveCopyDialogModel(node, initialDirectoryID, isCopy)
     });
   }
 
