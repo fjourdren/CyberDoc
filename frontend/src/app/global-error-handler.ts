@@ -8,7 +8,7 @@ export class GlobalErrorHandler implements ErrorHandler {
     constructor(private injector: Injector, private ngzone: NgZone) { }
 
     handleError(error) {
-
+        console.error(error);
         const dialog: MatDialog = this.injector.get(MatDialog);
         this.ngzone.run(() => {
             dialog.open(UnhandledErrorDialogComponent, {
