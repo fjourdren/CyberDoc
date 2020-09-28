@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DrivePageComponent } from './drive-page.component';
+import { FilesPageComponent } from './files-page.component';
 
-describe('DrivePageComponent', () => {
-  let component: DrivePageComponent;
-  let fixture: ComponentFixture<DrivePageComponent>;
+describe('FilesPageComponent', () => {
+  let component: FilesPageComponent;
+  let fixture: ComponentFixture<FilesPageComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DrivePageComponent ]
+      declarations: [ FilesPageComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DrivePageComponent);
+    fixture = TestBed.createComponent(FilesPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

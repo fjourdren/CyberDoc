@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { DrivePageComponent } from './pages/drive-page/drive-page.component';
+import { FilesPageComponent } from './pages/files-page/files-page.component';
 import { ErrorPageComponent } from './pages/error-page/error-page.component';
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
 
 const routes: Routes = [
-  { path: 'drive/:dirID', component: DrivePageComponent },
+  { path: 'files/:dirID', component: FilesPageComponent },
   { path: 'error', component: ErrorPageComponent },
   { path: '**', component: NotFoundPageComponent },
 ];

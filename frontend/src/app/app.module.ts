@@ -1,13 +1,9 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorHandler, NgModule } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FilesDirectoryTableComponent } from './components/files-directory-table/files-directory-table.component';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,59 +21,66 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { LayoutModule } from '@angular/cdk/layout';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { NgResizeObserverPonyfillModule } from 'ng-resize-observer';
+import { LayoutModule } from '@angular/cdk/layout';
+import { NgxFilesizeModule } from 'ngx-filesize';
+
+import { FilesDirectoryTableComponent } from './components/files/files-directory-table/files-directory-table.component';
+import { FilesDetailsPanelComponent } from './components/files/files-details-panel/files-details-panel.component';
+import { FilesTreeviewComponent } from './components/files/files-treeview/files-treeview.component';
+import { FilesMainToolbarComponent } from './components/files/files-main-toolbar/files-main-toolbar.component';
+import { FilesUploadOverlayComponent } from './components/files/files-upload-overlay/files-upload-overlay.component';
+import { FilesBreadcrumbComponent } from './components/files/files-breadcrumb/files-breadcrumb.component';
+import { FilesMoveCopyDialogComponent } from './components/files/files-move-copy-dialog/files-move-copy-dialog.component';
+import { FilesRenameDialogComponent } from './components/files/files-rename-dialog/files-rename-dialog.component';
+import { FilesDeleteDialogComponent } from './components/files/files-delete-dialog/files-delete-dialog.component';
+import { FilesNewFolderDialogComponent } from './components/files/files-new-folder-dialog/files-new-folder-dialog.component';
+import { FilesUploadComponent } from './components/files/files-upload/files-upload.component';
+import { FilesGenericTableComponent } from './components/files/files-generic-table/files-generic-table.component';
+import { FilesGenericTableBottomsheetComponent } from './components/files/files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
+
+import { ErrorPageComponent } from './pages/error-page/error-page.component';
+import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
+import { FilesPageComponent } from './pages/files-page/files-page.component';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
+import { GlobalErrorHandler } from './global-error-handler';
+import { environment } from '../environments/environment';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
   return new TranslateHttpLoader(httpClient);
 }
 
-
-import { NgxFilesizeModule } from 'ngx-filesize';
-import { FilesDetailsPanelComponent } from './components/files-details-panel/files-details-panel.component';
-import { FilesTreeviewComponent } from './components/files-treeview/files-treeview.component';
-import { FilesMainToolbarComponent } from './components/files-main-toolbar/files-main-toolbar.component';
-import { FilesUploadOverlayComponent } from './components/files-upload-overlay/files-upload-overlay.component';
-import { FilesBreadcrumbComponent } from './components/files-breadcrumb/files-breadcrumb.component';
-import { FilesMoveCopyDialogComponent } from './components/files-move-copy-dialog/files-move-copy-dialog.component';
-import { ServiceWorkerModule } from '@angular/service-worker';
-import { environment } from '../environments/environment';
-import { FilesRenameDialogComponent } from './components/files-rename-dialog/files-rename-dialog.component';
-import { FilesDeleteDialogComponent } from './components/files-delete-dialog/files-delete-dialog.component';
-import { FilesNewFolderDialogComponent } from './components/files-new-folder-dialog/files-new-folder-dialog.component';
-import { FilesUploadComponent } from './components/files-upload/files-upload.component';
-import { FilesGenericTableComponent } from './components/files-generic-table/files-generic-table.component';
-import { FilesGenericTableBottomsheetComponent } from './components/files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
-import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
-import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
-import { DrivePageComponent } from './pages/drive-page/drive-page.component';
-import { GlobalErrorHandler } from './global-error-handler';
-import { ErrorPageComponent } from './pages/error-page/error-page.component';
+const FILES_COMPONENTS = [
+  FilesDirectoryTableComponent,
+  FilesDetailsPanelComponent,
+  FilesTreeviewComponent,
+  FilesMainToolbarComponent,
+  FilesUploadOverlayComponent,
+  FilesBreadcrumbComponent,
+  FilesMoveCopyDialogComponent,
+  FilesRenameDialogComponent,
+  FilesDeleteDialogComponent,
+  FilesNewFolderDialogComponent,
+  FilesUploadComponent,
+  FilesGenericTableComponent,
+  FilesGenericTableBottomsheetComponent
+]
 
 @NgModule({
   declarations: [
     AppComponent,
-    FilesDirectoryTableComponent,
-    FilesDetailsPanelComponent,
-    FilesTreeviewComponent,
-    FilesMainToolbarComponent,
-    FilesUploadOverlayComponent,
-    DrivePageComponent,
-    FilesBreadcrumbComponent,
-    FilesMoveCopyDialogComponent,
-    FilesRenameDialogComponent,
-    FilesDeleteDialogComponent,
-    FilesNewFolderDialogComponent,
-    FilesUploadComponent,
-    FilesGenericTableComponent,
-    FilesGenericTableBottomsheetComponent,
+    ...FILES_COMPONENTS,
     RemainingTimePipe,
+    FilesPageComponent,
     NotFoundPageComponent,
     ErrorPageComponent,
   ],
@@ -118,7 +121,7 @@ import { ErrorPageComponent } from './pages/error-page/error-page.component';
     LayoutModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
-  providers: [{provide: ErrorHandler, useClass: GlobalErrorHandler}],
+  providers: [{ provide: ErrorHandler, useClass: GlobalErrorHandler }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

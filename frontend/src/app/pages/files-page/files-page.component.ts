@@ -3,11 +3,11 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-drive-page',
-  templateUrl: './drive-page.component.html',
-  styleUrls: ['./drive-page.component.scss']
+  selector: 'app-files-page',
+  templateUrl: './files-page.component.html',
+  styleUrls: ['./files-page.component.scss']
 })
-export class DrivePageComponent {
+export class FilesPageComponent {
 
   treeviewDrawerLocked = false;
   fileDetailDrawerLocked = false;
@@ -36,7 +36,7 @@ export class DrivePageComponent {
   set currentDirectoryID(directoryID: string) {
     this._currentDirectoryID = directoryID;
     if (directoryID) {
-      history.pushState({}, null, `/drive/${directoryID}`);
+      history.pushState({}, null, `/files/${directoryID}`);
     }
   }
 
