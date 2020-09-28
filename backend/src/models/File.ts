@@ -36,7 +36,8 @@ export const FileSchema = new mongoose.Schema({
         type: String
     },
     parent_file_id: {
-        type     : String
+        type: mongoose.Schema.Types.ObjectId,
+        ref : 'File'
     },
     owner_id: {
 		type     : String,
@@ -93,6 +94,7 @@ FileSchema.methods.toJSON = function() {
     var obj = this.toObject();
     delete obj.__v;
     delete obj.owner_id;
+    delete obj.document_id;
     return obj;
 }
 

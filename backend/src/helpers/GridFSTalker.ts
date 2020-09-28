@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import Grid from 'gridfs-stream';
-import GridFSStream from 'gridfs-stream';
 
 class GridFSTalker {
 
@@ -53,7 +52,7 @@ class GridFSTalker {
     }
 
     // check if a file exists in the gridfs storage
-    public static exists(mongoDbOptions: any) { // use any because GridFSStream.Options isn't exported in @type/gridfs-stream
+    public static exists(mongoDbOptions: any): Promise<boolean> { // use any because GridFSStream.Options isn't exported in @type/gridfs-stream
         return new Promise((resolve, reject) => {
             try {
                 const gfs = GridFSTalker.getGrid();
@@ -70,12 +69,12 @@ class GridFSTalker {
     }
 
     // create a file in gridfs
-    public static create(mongoDbOptions: any, file: any) { // use any because GridFSStream.Options and GridFSStream.readStream aren't exported in @type/gridfs-stream
+    public static create(mongoDbOptions: any, content: any) { // use any because GridFSStream.Options and GridFSStream.readStream aren't exported in @type/gridfs-stream
         return new Promise((resolve, reject) => {
             try {
                 const gfs = GridFSTalker.getGrid();
                 var writeStream = gfs.createWriteStream(mongoDbOptions);
-                file.pipe(writeStream);
+                content.pipe(writeStream);
                 resolve();
             } catch(err) {
                 reject(err);
