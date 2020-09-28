@@ -1,3 +1,5 @@
+@import '../../../../vars.scss';
+
 #drop-div-text {
     display: flex;
     justify-content: center;
@@ -7,7 +9,7 @@
 }
 
 #drop-div {
-    background: white; 
+    background: $app-selected;
     position: absolute; 
     left: 24px; 
     right: 24px; 
