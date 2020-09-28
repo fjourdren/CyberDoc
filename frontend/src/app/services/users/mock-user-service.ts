@@ -25,6 +25,9 @@ export class MockUserService implements UserService {
     constructor() {
         localStorage.setItem(LOCALSTORAGE_KEY, JWT_TOKEN);
         this._users.set(USER.email, USER);
+        if (localStorage.getItem("__currentUser") == undefined) {
+            localStorage.setItem("__currentUser", JSON.stringify(USER));
+        }
         this._activeUser = USER;
     }
 
@@ -33,7 +36,12 @@ export class MockUserService implements UserService {
     }
 
     getActiveUser(): User {
-        return this._activeUser;
+        const val = JSON.parse(localStorage.getItem("__currentUser"));
+        if (val === "null") {
+            return null;
+        } else {
+            return val as User;
+        }
     }
 
     register(user: User): Observable<User> {
@@ -55,7 +63,7 @@ export class MockUserService implements UserService {
     }
 
     logout(): Observable<void> {
-        this._activeUser = null;
+        localStorage.setItem("__currentUser", JSON.stringify("null"));
         return of(null).pipe(delay(DELAY));
     }
 
