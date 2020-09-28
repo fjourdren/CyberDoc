@@ -18,6 +18,7 @@ export class FilesRenameDialogComponent implements AfterViewInit {
   constructor(public dialogRef: MatDialogRef<FilesRenameDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: CloudNode,
     private fsProvider: FileSystemProviderService) {
+      this.input.setValue(this.data.name);
   }
 
   @HostListener("keydown", ['$event'])
@@ -28,13 +29,11 @@ export class FilesRenameDialogComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.input.setValue(this.data.name);
-
     if (!this.data.isDirectory && this.data.name.indexOf(".") !== -1) {
       this.inputElement.nativeElement.setSelectionRange(0, this.data.name.lastIndexOf("."));
     } else {
       this.inputElement.nativeElement.setSelectionRange(0, this.data.name.length);
-    }
+    } 
   }
 
   onRenameBtnClicked() {
