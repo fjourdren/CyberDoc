@@ -45,9 +45,9 @@ import { FilesUploadComponent } from './components/files/files-upload/files-uplo
 import { FilesGenericTableComponent } from './components/files/files-generic-table/files-generic-table.component';
 import { FilesGenericTableBottomsheetComponent } from './components/files/files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 
-import { ErrorPageComponent } from './pages/error-page/error-page.component';
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
 import { FilesPageComponent } from './pages/files-page/files-page.component';
+import { UnhandledErrorDialogComponent } from './components/global/unhandled-error-dialog/unhandled-error-dialog.component';
 
 import { FileSystemProviderService } from './services/filesystems/file-system-provider';
 import { MimetypeUtilsService } from './services/mimetype-utils/mimetype-utils.service';
@@ -58,7 +58,6 @@ import { AppComponent } from './app.component';
 import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
 import { GlobalErrorHandler } from './global-error-handler';
 import { environment } from '../environments/environment';
-import { UserService } from './services/users/user-service';
 import { LogoutPageComponent } from './pages/logout-page/logout-page.component';
 
 // AoT requires an exported function for factories
@@ -99,8 +98,8 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
     RemainingTimePipe,
     FilesPageComponent,
     NotFoundPageComponent,
-    ErrorPageComponent,
     LogoutPageComponent,
+    UnhandledErrorDialogComponent,
   ],
   imports: [
     BrowserModule,

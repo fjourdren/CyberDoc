@@ -62,6 +62,7 @@
         "no": "No",
         "ok": "OK",
         "settings": "Settings",
+        "refresh": "Refresh",
         "logout": "Logout",
         "appname": "CyberDoc",
         "cancel": "Cancel",
@@ -72,7 +73,8 @@
         "no_empty": "Cannot be empty",
         "filedetails": "File details",
         "page_not_found": "Page not found",
-        "error": "An error occured. Please check your Internet connection",
+        "error_title": "Error",
+        "error_content": "An error occured. Please check your Internet connection, then refresh the page.",
         "go_to_homepage": "Go to homepage"
     }
 }
