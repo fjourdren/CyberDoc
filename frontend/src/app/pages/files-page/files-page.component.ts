@@ -1,6 +1,7 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 
 @Component({
   selector: 'app-files-page',
@@ -14,7 +15,9 @@ export class FilesPageComponent {
   private _currentDirectoryID: string;
   private _selectedNodeID: string;
 
-  constructor(private breakpointObserver: BreakpointObserver, private route: ActivatedRoute) {
+  constructor(private breakpointObserver: BreakpointObserver,
+    private route: ActivatedRoute,
+    private userServiceProvider: UserServiceProvider) {
     this.breakpointObserver.observe('(max-width: 1000px)').subscribe(result => {
       this.fileDetailDrawerLocked = !result.matches;
     })
@@ -22,9 +25,12 @@ export class FilesPageComponent {
       this.treeviewDrawerLocked = !result.matches;
     })
 
+
     route.paramMap.subscribe((val) => {
       if (val.has("dirID")) {
         this.currentDirectoryID = val.get("dirID");
+      } else {
+        this.currentDirectoryID = userServiceProvider.default().getActiveUser().rootDirectoryID;
       }
     });
   }

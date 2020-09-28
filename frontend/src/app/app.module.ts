@@ -59,6 +59,7 @@ import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
 import { GlobalErrorHandler } from './global-error-handler';
 import { environment } from '../environments/environment';
 import { UserService } from './services/users/user-service';
+import { LogoutPageComponent } from './pages/logout-page/logout-page.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
@@ -99,6 +100,7 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
     FilesPageComponent,
     NotFoundPageComponent,
     ErrorPageComponent,
+    LogoutPageComponent,
   ],
   imports: [
     BrowserModule,
