@@ -154,8 +154,9 @@ class FileService {
             
             // get file content
             try {
-                let out: any = await GridFSTalker.getFileContent({ _id: file.document_id });
-                resolve(out);
+                let infos: any = await GridFSTalker.getFileInfos({ _id: file.document_id });
+                let out: any   = await GridFSTalker.getFileContent({ _id: file.document_id });
+                resolve({ infos: infos, stream: out });
             } catch(err) {
                 reject(err);
             }
