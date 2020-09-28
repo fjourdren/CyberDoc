@@ -6,11 +6,10 @@ const env = process.env.APP_ENV || undefined
 try {
     let envConfigFilename: any | undefined;
 
-    if(env == undefined) {
+    if(env == undefined)
         envConfigFilename = '.env';
-    } else {
+    else
         envConfigFilename = '.env.' + env;
-    }
 
     logger.info(`Load config : ${envConfigFilename}`);
 

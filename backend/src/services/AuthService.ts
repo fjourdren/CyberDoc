@@ -1,80 +1,49 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { requireNonNull } from '../helpers/DataValidation';
 
 import {IUser, User} from "../models/User";
 
 class AuthService {
 
     // register service
-    public static signup(firstname: string, lastname: string, email: string, password: string) {
-        return new Promise((resolve, reject) => {
-            let newUser: IUser = new User();
-            
-            // build object
-            newUser.firstname = firstname;
-            newUser.lastname  = lastname;
-            newUser.email     = email;
-            newUser.password  = password;
+    public static async signup(firstname: string, lastname: string, email: string, password: string): Promise<IUser> {
+        let newUser: IUser = new User();
+        
+        // build object
+        newUser.firstname = firstname;
+        newUser.lastname  = lastname;
+        newUser.email     = email;
+        newUser.password  = password;
 
-
-            // save object in database
-            newUser.save().then((out) => {
-                resolve(out);
-            }).catch((err) => {
-                // rewrite value by moongoose message
-                if(err.message != undefined)
-                    err = err.message;
-
-                reject(err);
-            });
-        });
+        return requireNonNull(await newUser.save());
     }
-
 
     // login service
-    public static login(email: string, password: string) {
-        return new Promise((resolve, reject) => { 
-            User.findOne({ email: email }).then((user) => {
-                if(user == undefined)
-                    reject("Invalid credentials");
+    public static async login(email: string, password: string): Promise<string> {
+        let user: IUser = requireNonNull(await User.findOne({ email: email }));
 
-                let passwordIsValid = bcrypt.compareSync(password, user?.password!);
+        let passwordIsValid = bcrypt.compareSync(password, user?.password!);
 
-                if(!passwordIsValid)
-                    reject("Invalid credentials");
+        if(!passwordIsValid)
+            throw new Error("Invalid credentials");
 
-                var jwttoken = jwt.sign({ user }, process.env.JWT_SECRET, {
-                    expiresIn: 86400 // 24 hours
-                });
-
-                resolve(jwttoken);
-            }).catch((err) => {
-                reject(err);
-            });
+        var jwttoken = jwt.sign({ user }, process.env.JWT_SECRET, {
+            expiresIn: 86400 // 24 hours
         });
-    }
 
+        return jwttoken;
+    }
 
     // forgotten password service
     public static forgottenPassword() {
-        
+        // TODO
     }
-
 
     // validate that the token is correct
-    public static validateToken(jwtToken: string): Promise<any> {
-        return new Promise((resolve, reject) => {
-            try {
-                let decoded = jwt.verify(jwtToken, process.env.JWT_SECRET);
-                if(decoded != undefined) {
-                    resolve(decoded);
-                }
-            } catch(err) {
-                reject(err);
-            }
-        });
+    public static async validateToken(jwtToken: string): Promise<any> {
+        return jwt.verify(jwtToken, process.env.JWT_SECRET);
     }
-
 }
 
 export default AuthService;

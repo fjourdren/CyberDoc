@@ -4,24 +4,22 @@ import AuthService from "../services/AuthService";
 
 class JWTTokenExtractMiddleware {
 
-    public static run(req: Request, res: Response, next: NextFunction): any {
+    public static async run(req: Request, res: Response, next: NextFunction) {
         // read JWT token extract and validate it and save it in a variable insade request object
         if(req.headers && req.headers.authorization) {
             let authHeaderArray: string[] = (req.headers.authorization as string).split(" ");
             let jwtToken: string = authHeaderArray[1];
 
-            AuthService.validateToken(jwtToken).then((decoded) => {
+            let decoded: any = await AuthService.validateToken(jwtToken);
+
+            if(decoded) {
                 res.locals.APP_JWT_TOKEN     = decoded;
                 res.locals.APP_RAW_JWT_TOKEN = jwtToken;
-                next(); // next for valid token
-            }).catch((err) => {
-                next(); // next for unvalid token
-            });
-        } else {
-            next(); // next for non authenticated
+            }
         }
+        
+        next(); // next for non authenticated
     }
-
 }
 
 export default JWTTokenExtractMiddleware;

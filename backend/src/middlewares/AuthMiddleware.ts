@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 
-import jwt from 'jsonwebtoken'
-
 import HttpCodes from '../helpers/HttpCodes';
 
 class AuthMiddleware {

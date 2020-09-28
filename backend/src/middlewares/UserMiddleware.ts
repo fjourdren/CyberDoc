@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-import { Role, User } from '../models/User';
+import { Role } from '../models/User';
 import HttpCodes from "../helpers/HttpCodes";
 import UserService from "../services/UserService";
 
@@ -17,10 +17,8 @@ class UserMiddleware {
                     msg: "Your role isn't allowed"
                 });
             }
-
         }
     }
-
 }
 
 export default UserMiddleware;
