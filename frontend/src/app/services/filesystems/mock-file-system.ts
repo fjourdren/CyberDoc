@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { FileSystem, Upload } from './file-system';
-import { of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { of, } from 'rxjs';
+import { delay, map } from 'rxjs/operators';
 import { CloudDirectory, CloudFile, CloudNode, PathItem } from 'src/app/models/files-api-models';
 import { EventEmitter } from '@angular/core';
 
@@ -14,9 +14,11 @@ interface InternalFileElement {
     size?: number;
 }
 
+const UPLOAD_SPEED = 5000 * 1000; //5mo/s
 const DELAY = 500;
 const OWNER = "John Doe"
 const DIRECTORY_MIMETYPE = "application/x-dir";
+
 export class MockFileSystem implements FileSystem {
 
     private filesMap = new Map<string, InternalFileElement>();
@@ -43,7 +45,6 @@ export class MockFileSystem implements FileSystem {
         this.filesMap.set("root.sub1.sub.f1", { "parentID": "root.sub1.sub", name: "file1C.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.sub.f1" });
         this.filesMap.set("root.sub1.sub.f2", { "parentID": "root.sub1.sub", name: "file2C.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.sub.f2" });
         this.filesMap.set("root.sub1.sub.f3", { "parentID": "root.sub1.sub", name: "file3C.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.sub.f3" });
-        this._printToConsole();
     }
 
     getFilePreviewImageURL(fileID: string): string {
@@ -55,23 +56,20 @@ export class MockFileSystem implements FileSystem {
     }
 
     createDirectory(name: string, parentFolderID: string): Observable<void> {
-        const parentFolder = this.filesMap.get(parentFolderID);
-        if (!parentFolder || parentFolder.mimetype !== DIRECTORY_MIMETYPE) {
-            throw new Error(`404 unknow or wrong file ${parentFolderID}`);
-        }
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            const parentFolder = this._ensureFileExists(parentFolderID, true);
+            let newEntry: InternalFileElement = {
+                id: parentFolder.name + "." + name,
+                name: name,
+                mimetype: DIRECTORY_MIMETYPE,
+                size: 0,
+                date: new Date(),
+                parentID: parentFolderID
+            }
 
-        let newEntry: InternalFileElement = {
-            id: parentFolder.name + "." + name,
-            name: name,
-            mimetype: DIRECTORY_MIMETYPE,
-            size: 0,
-            date: new Date(),
-            parentID: parentFolderID
-        }
-
-        this.filesMap.set(newEntry.id, newEntry);
-        this._refreshNeeded$.emit(null);
-        return of(null).pipe(delay(DELAY));
+            this.filesMap.set(newEntry.id, newEntry);
+            this._refreshNeeded$.emit(null);
+        }));
     }
 
     cancelFileUpload() {
@@ -88,11 +86,7 @@ export class MockFileSystem implements FileSystem {
     }
 
     startFileUpload(file: Blob, name: string, mimetype: string, parentFolderID: string): void {
-        const parentFolder = this.filesMap.get(parentFolderID);
-        if (!parentFolder || parentFolder.mimetype !== DIRECTORY_MIMETYPE) {
-            throw new Error(`404 unknow or wrong file ${parentFolderID}`);
-        }
-
+        const parentFolder = this._ensureFileExists(parentFolderID, true);
         let newEntry: InternalFileElement = {
             id: parentFolder.name + "." + name,
             name: name,
@@ -102,7 +96,7 @@ export class MockFileSystem implements FileSystem {
             parentID: parentFolderID
         }
 
-        this._uploadInternal(name).then((success) => {
+        this._uploadInternal(name, file.size).then((success) => {
             if (success) {
                 this.filesMap.set(newEntry.id, newEntry);
                 this._currentUpload$.emit(null);
@@ -112,149 +106,105 @@ export class MockFileSystem implements FileSystem {
     }
 
     get(id: string): Observable<CloudNode> {
-        const internalFile = this.filesMap.get(id);
-        if (!internalFile) {
-            throw new Error(`404 unknow file ${id}`);
-        }
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            const internalFile = this._ensureFileExists(id);
+            let node = { id: internalFile.id, name: internalFile.name, ownerName: OWNER, mimetype: internalFile.mimetype };
 
-        let node = {
-            id: internalFile.id,
-            name: internalFile.name,
-            ownerName: OWNER,
-            mimetype: internalFile.mimetype
-        }
+            if (internalFile.mimetype === DIRECTORY_MIMETYPE) {
+                const content = Array.from(this.filesMap.values()).filter(val => val.parentID === id).map(val => {
+                    let node = { id: val.id, name: val.name, ownerName: OWNER, mimetype: val.mimetype }
 
-        if (internalFile.mimetype === DIRECTORY_MIMETYPE) {
-            const directoryContent = Array.from(this.filesMap.values()).filter(
-                val => val.parentID === id
-            ).map(val => {
-                let node = {
-                    id: val.id,
-                    name: val.name,
-                    ownerName: OWNER,
-                    mimetype: val.mimetype
+                    if (val.mimetype === DIRECTORY_MIMETYPE) {
+                        return { ...node, directoryContent: [], path: [], mimetype: "application/x-dir", isDirectory: true } as CloudDirectory;
+                    } else {
+                        return { ...node, size: val.size, lastModified: val.date, isDirectory: false } as CloudFile;
+                    }
+                });
+
+                let path = [];
+                let current = internalFile;
+                while (current) {
+                    path.push({ name: current.name, id: current.id });
+                    if (current.parentID) {
+                        current = Array.from(this.filesMap.values()).filter(val => val.id === current.parentID)[0];
+                    } else {
+                        current = null;
+                    }
                 }
 
-                if (val.mimetype === DIRECTORY_MIMETYPE) {
-                    return {
-                        ...node,
-                        directoryContent: [],
-                        path: [],
-                        mimetype: "application/x-dir",
-                        isDirectory: true
-                    } as CloudDirectory;
-                } else {
-                    return {
-                        ...node,
-                        size: val.size,
-                        lastModified: val.date,
-                        isDirectory: false
-                    } as CloudFile;
-                }
-            });
+                path = path.reverse();
+                path.pop();
 
-            let path = [];
-            let current = internalFile;
-            while (current) {
-                path.push({ name: current.name, id: current.id });
-                if (current.parentID) {
-                    current = Array.from(this.filesMap.values()).filter(val => val.id === current.parentID)[0];
-                } else {
-                    current = null;
-                }
+                return { ...node, path: path, directoryContent: content, mimetype: "application/x-dir", isDirectory: true };
+            } else {
+                return { ...node, size: internalFile.size, lastModified: internalFile.date, isDirectory: false };
             }
-
-            path = path.reverse();
-            path.pop();
-
-            return of<CloudDirectory>({
-                ...node,
-                path: path,
-                directoryContent: directoryContent,
-                mimetype: "application/x-dir",
-                isDirectory: true
-            }).pipe(delay(DELAY));
-
-        } else {
-            return of<CloudFile>({
-                ...node,
-                size: internalFile.size,
-                lastModified: internalFile.date,
-                isDirectory: false
-            }).pipe(delay(DELAY));
-        }
+        }));
     }
 
     copy(sourceID: string, newFileName: string, destID: string): Observable<void> {
-        if (!this.filesMap.get(sourceID)) {
-            throw new Error('Unknow file sourceID.');
-        }
-
-        if (!this.filesMap.get(destID)) {
-            throw new Error('Unknow file destID.');
-        }
-
-        if (this.filesMap.get(destID).mimetype !== DIRECTORY_MIMETYPE) {
-            throw new Error('destID is not a directory.');
-        }
-
-        this._copyInternal(sourceID, newFileName, destID);
-        this._printToConsole();
-
-        const observable = of(null).pipe(delay(DELAY));
-        observable.toPromise().then(() => this._refreshNeeded$.emit(null));
-        return observable;
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            this._ensureFileExists(sourceID);
+            this._ensureFileExists(destID, true);
+            this._copyInternal(sourceID, newFileName, destID);
+            this._refreshNeeded$.emit(null);
+        }));
     }
 
     move(sourceID: string, destID: string): Observable<void> {
-        if (!this.filesMap.get(sourceID)) {
-            throw new Error('Unknow file sourceID.');
-        }
-
-        if (!this.filesMap.get(destID)) {
-            throw new Error('Unknow file destID.');
-        }
-
-        if (this.filesMap.get(destID).mimetype !== DIRECTORY_MIMETYPE) {
-            throw new Error('destID is not a directory.');
-        }
-
-        let file = this.filesMap.get(sourceID);
-        file.parentID = destID;
-        this.filesMap.set(sourceID, file);
-        this._printToConsole();
-
-        const observable = of(null).pipe(delay(DELAY));
-        observable.toPromise().then(() => this._refreshNeeded$.emit(null));
-        return observable;
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            this._ensureFileExists(sourceID);
+            this._ensureFileExists(destID, true);
+            let file = this.filesMap.get(sourceID);
+            file.parentID = destID;
+            this.filesMap.set(sourceID, file);
+            this._refreshNeeded$.emit(null);
+        }));
     }
 
     rename(fileID: string, newName: string): Observable<void> {
-        if (!this.filesMap.get(fileID)) {
-            throw new Error('Unknow file.');
-        }
-
-        let file = this.filesMap.get(fileID);
-        file.name = newName;
-        this.filesMap.set(fileID, file);
-        this._printToConsole();
-
-        const observable = of(null).pipe(delay(DELAY));
-        observable.toPromise().then(() => this._refreshNeeded$.emit(null));
-        return observable;
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            this._ensureFileExists(fileID);
+            let file = this.filesMap.get(fileID);
+            file.name = newName;
+            this.filesMap.set(fileID, file);
+            this._refreshNeeded$.emit(null);
+        }));
     }
 
     delete(fileID: string): Observable<void> {
-        if (!this.filesMap.get(fileID)) {
-            throw new Error('Unknow file.');
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            this._ensureFileExists(fileID);
+            this._deleteInternal(fileID);
+            this._refreshNeeded$.emit(null);
+        }));
+    }
+
+
+
+
+
+
+
+
+
+
+    private _ensureFileExists(fileID: string, onlyDirectory: boolean = null) {
+        if (!this.filesMap.has(fileID)) {
+            throw new Error('404 NOT FOUND');
         }
 
-        this._deleteInternal(fileID);
-        this._printToConsole();
+        if (onlyDirectory === true) {
+            if (this.filesMap.get(fileID).mimetype !== DIRECTORY_MIMETYPE) {
+                throw new Error('400 BAD REQUEST');
+            }
+        } else if (onlyDirectory === false) {
+            if (this.filesMap.get(fileID).mimetype === DIRECTORY_MIMETYPE) {
+                throw new Error('400 BAD REQUEST');
+            }
+        }
 
-        const observable = of(null).pipe(delay(DELAY));
-        observable.toPromise().then(() => this._refreshNeeded$.emit(null));
-        return observable;
+        return this.filesMap.get(fileID);
     }
 
     private _deleteInternal(fileID: string) {
@@ -285,21 +235,26 @@ export class MockFileSystem implements FileSystem {
         }
     }
 
-    private async _uploadInternal(name: string) {
-        let seconds = 55 * 15;
-        for (let progress = 0; progress <= 100; progress += 10) {
+    private async _uploadInternal(name: string, size: number) {
+        let remainingTime = (size / UPLOAD_SPEED) + 1;
+        let remainingSize = size;
+        while (remainingSize > 0) {
             if (this._uploadCancelRequested) {
                 this._uploadCancelRequested = false;
                 return false;
             }
+
             this._currentUpload$.emit({
                 filename: name,
-                progress: progress / 100,
-                remainingSeconds: seconds
+                progress: 1 - (remainingSize / size),
+                remainingSeconds: remainingTime
             });
-            await this._wait(2);
-            seconds -= 5 * 15;
+
+            remainingSize -= UPLOAD_SPEED;
+            remainingTime -= 1;
+            await this._wait(1);
         }
+
         return true;
     }
 
@@ -307,9 +262,5 @@ export class MockFileSystem implements FileSystem {
         return new Promise((resolve, reject) => {
             window.setTimeout(() => resolve(), seconds * 1000);
         })
-    }
-
-    private _printToConsole() {
-        console.log(this.filesMap);
     }
 }
