@@ -34,7 +34,7 @@ import { FilesDirectoryTableComponent } from './components/files/files-directory
 import { FilesDetailsPanelComponent } from './components/files/files-details-panel/files-details-panel.component';
 import { FilesTreeviewComponent } from './components/files/files-treeview/files-treeview.component';
 import { FilesMainToolbarComponent } from './components/files/files-main-toolbar/files-main-toolbar.component';
-import { FilesUploadOverlayComponent } from './components/files/files-upload-overlay/files-upload-overlay.component';
+import { FilesUploadProgressSnackbarComponent } from './components/files/files-upload-progress-snackbar/files-upload-progress-snackbar.component';
 import { FilesBreadcrumbComponent } from './components/files/files-breadcrumb/files-breadcrumb.component';
 import { FilesMoveCopyDialogComponent } from './components/files/files-move-copy-dialog/files-move-copy-dialog.component';
 import { FilesRenameDialogComponent } from './components/files/files-rename-dialog/files-rename-dialog.component';
@@ -64,7 +64,7 @@ const FILES_COMPONENTS = [
   FilesDetailsPanelComponent,
   FilesTreeviewComponent,
   FilesMainToolbarComponent,
-  FilesUploadOverlayComponent,
+  FilesUploadProgressSnackbarComponent,
   FilesBreadcrumbComponent,
   FilesMoveCopyDialogComponent,
   FilesRenameDialogComponent,

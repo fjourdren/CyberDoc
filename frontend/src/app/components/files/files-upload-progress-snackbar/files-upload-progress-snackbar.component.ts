@@ -4,11 +4,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { FileSystemProviderService } from 'src/app/services/filesystems/file-system-provider';
 
 @Component({
-  selector: 'app-files-upload-overlay',
-  templateUrl: './files-upload-overlay.component.html',
-  styleUrls: ['./files-upload-overlay.component.scss']
+  selector: 'app-files-upload-progress-snackbar',
+  templateUrl: './files-upload-progress-snackbar.component.html',
+  styleUrls: ['./files-upload-progress-snackbar.component.scss']
 })
-export class FilesUploadOverlayComponent {
+export class FilesUploadProgressSnackbarComponent {
   filename = "";
   currentlyUploading = false;
   progressionPercent = 0;
