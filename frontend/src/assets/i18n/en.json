@@ -72,6 +72,7 @@
         "no_empty": "Cannot be empty",
         "filedetails": "File details",
         "page_not_found": "Page not found",
+        "error": "An error occured. Please check your Internet connection",
         "go_to_homepage": "Go to homepage"
     }
 }
