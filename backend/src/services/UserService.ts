@@ -1,5 +1,7 @@
 import { IUser, User, Role } from "../models/User";
 
+import { requireNonNull } from "../helpers/DataValidation";
+
 class UserService {
     
     // verify that a role is in a list
@@ -8,57 +10,15 @@ class UserService {
     }
 
     // profile service
-    public static profile(userId: string): Promise<IUser> {
-        return new Promise((resolve, reject) => {
-            User.findOne({_id: userId}).exec(function(err, user) {
-                if(err || user == undefined) {
-                    reject(err);
-                } else {
-                    resolve(user);
-                }
-            });
-        });
+    public static async profile(userId: string): Promise<IUser> {
+        return requireNonNull(await User.findById(userId).exec());
     }
 
 
     // delete user account service
-    public static delete(_id: string): Promise<IUser> {
-        return new Promise((resolve, reject) => {
-            // check that the user exist and delete it (check also that the delete has been correctly been done)
-            User.findOneAndRemove({ _id: _id }).exec(function(err, userDeleted) {
-                // catch other errors
-                if (err) {
-                    let errorValue: any = err;
-
-                    // rewrite value by moongoose message
-                    if(err.message != undefined)
-                        errorValue = err.message;
-
-                    reject(errorValue);
-                }
-
-                // check if user has been deleted
-                if (!userDeleted) {
-                    reject("User not found");
-                }
-
-                resolve();
-            });
-
-            User.findByIdAndDelete(_id, function(err) {
-                if(err) {
-                    // rewrite value by moongoose message
-                    if(err.message != undefined)
-                        err = err.message;
-                    
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
-        });
+    public static async delete(_id: string): Promise<IUser> {
+        return requireNonNull(await User.findByIdAndDelete(_id).exec());
     }
-
 }
 
 export default UserService;

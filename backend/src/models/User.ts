@@ -4,7 +4,6 @@ import uniqueValidator from 'mongoose-unique-validator';
 import bcrypt from 'bcryptjs';
 import validator from 'validator';
 import Guid from 'guid';
-import jwt from 'jsonwebtoken';
 
 
 /**

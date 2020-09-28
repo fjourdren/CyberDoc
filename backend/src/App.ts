@@ -7,7 +7,6 @@ import multer from 'multer';
 import {default as routers} from './routers/ApiRouter';
 
 import HttpCodes from './helpers/HttpCodes';
-import { logger } from './helpers/Log';
 import JWTTokenExtractMiddleware from './middlewares/JWTTokenExtractMiddleware';
 
 class App {

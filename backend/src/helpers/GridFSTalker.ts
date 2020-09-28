@@ -10,7 +10,7 @@ class GridFSTalker {
     }
 
     // get a file's informations from gridfs storage
-    public static getFileInfos(mongoDbOptions: any) { // use any because GridFSStream.Options isn't exported in @type/gridfs-stream
+    public static getFileInfos(mongoDbOptions: any): Promise<any> { // use any because GridFSStream.Options isn't exported in @type/gridfs-stream
         /*
             GRIDFS object stored
             "_id" : <ObjectId>,
@@ -40,7 +40,7 @@ class GridFSTalker {
     }
 
     // get a file stream from gridfs storage
-    public static getFileContent(mongoDbOptions: any) { // use any because GridFSStream.Options isn't exported in @type/gridfs-stream
+    public static getFileContent(mongoDbOptions: any): Promise<any> { // use any because GridFSStream.Options isn't exported in @type/gridfs-stream
         return new Promise((resolve, reject) => {
             try {
                 const gfs = GridFSTalker.getGrid();
@@ -69,7 +69,7 @@ class GridFSTalker {
     }
 
     // create a file in gridfs
-    public static create(mongoDbOptions: any, content: any) { // use any because GridFSStream.Options and GridFSStream.readStream aren't exported in @type/gridfs-stream
+    public static create(mongoDbOptions: any, content: any): Promise<any> { // use any because GridFSStream.Options and GridFSStream.readStream aren't exported in @type/gridfs-stream
         return new Promise((resolve, reject) => {
             try {
                 const gfs = GridFSTalker.getGrid();
@@ -83,7 +83,7 @@ class GridFSTalker {
     }
 
     // delete a file from the gridfs storage
-    public static delete(mongoDbOptions: any) { // use any because GridFSStream.Options isn't exported in @type/gridfs-stream
+    public static delete(mongoDbOptions: any): Promise<any> { // use any because GridFSStream.Options isn't exported in @type/gridfs-stream
         return new Promise((resolve, reject) => {
             try {
                 const gfs = GridFSTalker.getGrid();

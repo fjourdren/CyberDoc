@@ -10,8 +10,8 @@ export default function connectMongodb(): void {
         logger.info('Connecting to MongoDB...');
     });
 
-    db.on('error', function(error) {
-        logger.error('Error in MongoDb connection: ' + error);
+    db.on('error', function(err) {
+        logger.error('Error in MongoDb connection: ' + err);
         mongoose.disconnect();
     });
 
@@ -21,9 +21,6 @@ export default function connectMongodb(): void {
 
     db.once('open', function() {
         logger.info('MongoDB connection opened !');
-
-        //logger.info('Build GridFS object');
-        //let gfs = Grid(db.db, mongoose.mongo);
     });
 
     db.on('reconnected', function () {
@@ -39,9 +36,8 @@ export default function connectMongodb(): void {
 
     // first connect to mongodb
     try {
-        mongoose.connect(process.env.MONGODB_URL, {server:{auto_reconnect: true}});
-    } catch(e: any) {
-        logger.error(e);
-        process.exit();
+        mongoose.connect(process.env.MONGODB_URL, {server: {auto_reconnect: true}});
+    } catch(err) {
+        logger.error(err);
     }
 }
