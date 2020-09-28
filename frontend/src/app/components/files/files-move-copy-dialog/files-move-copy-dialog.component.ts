@@ -1,8 +1,8 @@
 import { Component, ElementRef, HostListener, Inject, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
-import { CloudNode } from 'src/app/models/files-api-models';
-import { FileSystemProviderService } from 'src/app/services/filesystems/file-system-provider';
+import { CloudDirectory, CloudNode } from 'src/app/models/files-api-models';
+import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { FilesTableRestrictions } from '../files-generic-table/files-table-restrictions';
 import { MoveCopyDialogModel } from './move-copy-dialog-model';
 
@@ -16,6 +16,7 @@ export class FilesMoveCopyDialogComponent {
   directories: string[] = [];
   loading = false;
 
+  currentDirectory: CloudDirectory;
   filesTableRestrictions: FilesTableRestrictions;
 
   //HACK this click refreshes the files-generic-table component
@@ -29,7 +30,7 @@ export class FilesMoveCopyDialogComponent {
 
   constructor(public dialogRef: MatDialogRef<FilesMoveCopyDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: MoveCopyDialogModel,
-    private fsProvider: FileSystemProviderService,
+    private fsProvider: FileSystemProvider,
     private translate: TranslateService) {
     this.directoryID = data.initialDirID;
 
@@ -46,9 +47,16 @@ export class FilesMoveCopyDialogComponent {
   }
 
   set directoryID(val: string) {
-    if (val && this.directories.indexOf(this._directoryID) === -1) this.directories.push(this._directoryID);
+    if (val && this.directories.indexOf(val) === -1) this.directories.push(val);
     this._directoryID = val;
-    console.warn(val, this.directories);
+
+    this.loading = true;
+    this.fsProvider.default().get(val).toPromise().then(node=>{
+      if (node.isDirectory) {
+        this.currentDirectory = node;
+      }
+      this.loading = false;
+    })
   }
 
   @HostListener("keydown", ['$event'])
@@ -62,6 +70,22 @@ export class FilesMoveCopyDialogComponent {
     this.directories.pop()
     this.directoryID = this.directories.pop();
   }
+
+  openButtonClicked(node: CloudNode) {
+    if (node && this.directories.indexOf(node.id) === -1) this.directories.push(node.id);
+    console.warn(this.directories);
+    if (node.isDirectory) {
+      this.loading = true;
+      this.fsProvider.default().get(node.id).toPromise().then(node=>{
+        if (node.isDirectory) {
+          this.currentDirectory = node;
+        }
+        this.loading = false;
+        this.title.nativeElement.click();
+      })
+    }
+  }
+
 
   onMoveOrCopyBtnClicked() {
     const oldRestrictions = this.filesTableRestrictions;

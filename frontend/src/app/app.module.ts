@@ -31,7 +31,6 @@ import { LayoutModule } from '@angular/cdk/layout';
 import { NgxFilesizeModule } from 'ngx-filesize';
 import { JwtModule, JWT_OPTIONS } from "@auth0/angular-jwt";
 
-import { FilesDirectoryTableComponent } from './components/files/files-directory-table/files-directory-table.component';
 import { FilesDetailsPanelComponent } from './components/files/files-details-panel/files-details-panel.component';
 import { FilesTreeviewComponent } from './components/files/files-treeview/files-treeview.component';
 import { FilesMainToolbarComponent } from './components/files/files-main-toolbar/files-main-toolbar.component';
@@ -49,7 +48,7 @@ import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.com
 import { FilesPageComponent } from './pages/files-page/files-page.component';
 import { UnhandledErrorDialogComponent } from './components/global/unhandled-error-dialog/unhandled-error-dialog.component';
 
-import { FileSystemProviderService } from './services/filesystems/file-system-provider';
+import { FileSystemProvider } from './services/filesystems/file-system-provider';
 import { MimetypeUtilsService } from './services/mimetype-utils/mimetype-utils.service';
 import { UserServiceProvider } from './services/users/user-service-provider';
 
@@ -66,7 +65,6 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
 }
 
 const FILES_COMPONENTS = [
-  FilesDirectoryTableComponent,
   FilesDetailsPanelComponent,
   FilesTreeviewComponent,
   FilesMainToolbarComponent,
@@ -147,7 +145,7 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
   ],
   providers: [
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
-    FileSystemProviderService,
+    FileSystemProvider,
     UserServiceProvider,
     MimetypeUtilsService
   ],

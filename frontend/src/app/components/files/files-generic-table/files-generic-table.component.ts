@@ -15,7 +15,7 @@ import { NgResizeObserver, ngResizeObserverProviders } from 'ng-resize-observer'
 import { map } from 'rxjs/operators';
 import { FilesGenericTableBottomsheetComponent, FilesGenericTableBottomsheetData } from '../files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 import { FilesRenameDialogComponent } from '../files-rename-dialog/files-rename-dialog.component';
-import { FileSystemProviderService } from 'src/app/services/filesystems/file-system-provider';
+import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 
 export type FileAction = "open" | "download" | "rename" | "copy" | "delete" | "move" | "details";
@@ -87,7 +87,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
     private dialog: MatDialog,
     private mimetypeUtils: MimetypeUtilsService,
     private resize: NgResizeObserver,
-    private fsProvider: FileSystemProviderService,
+    private fsProvider: FileSystemProvider,
     private userServiceProvider: UserServiceProvider
   ) {
     resize.pipe(map(entry => entry.contentRect.width)).subscribe(this.onTableWidthChanged.bind(this));

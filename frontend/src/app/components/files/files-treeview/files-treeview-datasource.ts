@@ -4,7 +4,7 @@ import { FlatTreeControl } from '@angular/cdk/tree';
 import { BehaviorSubject, merge, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CloudDirectory, PathItem } from 'src/app/models/files-api-models';
-import { FileSystemProviderService } from 'src/app/services/filesystems/file-system-provider';
+import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { FilesTreeviewNode } from './files-treeview-node';
 
 export class FilesTreeviewDataSource implements DataSource<FilesTreeviewNode> {
@@ -19,7 +19,7 @@ export class FilesTreeviewDataSource implements DataSource<FilesTreeviewNode> {
   }
 
   constructor(private treeControl: FlatTreeControl<FilesTreeviewNode>,
-    private fsProvider: FileSystemProviderService) { }
+    private fsProvider: FileSystemProvider) { }
 
   connect(collectionViewer: CollectionViewer): Observable<FilesTreeviewNode[]> {
     this.treeControl.expansionModel.changed.subscribe(change => {
