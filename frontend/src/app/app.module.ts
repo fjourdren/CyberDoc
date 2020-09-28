@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -57,6 +57,8 @@ import { FilesGenericTableBottomsheetComponent } from './components/files-generi
 import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
 import { DrivePageComponent } from './pages/drive-page/drive-page.component';
+import { GlobalErrorHandler } from './global-error-handler';
+import { ErrorPageComponent } from './pages/error-page/error-page.component';
 
 @NgModule({
   declarations: [
@@ -77,6 +79,7 @@ import { DrivePageComponent } from './pages/drive-page/drive-page.component';
     FilesGenericTableBottomsheetComponent,
     RemainingTimePipe,
     NotFoundPageComponent,
+    ErrorPageComponent,
   ],
   imports: [
     BrowserModule,
@@ -115,7 +118,7 @@ import { DrivePageComponent } from './pages/drive-page/drive-page.component';
     LayoutModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
-  providers: [],
+  providers: [{provide: ErrorHandler, useClass: GlobalErrorHandler}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
