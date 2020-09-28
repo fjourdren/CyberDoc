@@ -22,6 +22,7 @@
     "@angular/platform-browser-dynamic": "~10.1.1",
     "@angular/router": "~10.1.1",
     "@angular/service-worker": "~10.1.1",
+    "@auth0/angular-jwt": "^5.0.1",
     "@fortawesome/fontawesome-free": "^5.14.0",
     "@juggle/resize-observer": "^3.2.0",
     "@ngx-translate/core": "^13.0.0",
@@ -31,6 +32,7 @@
     "ngx-filesize": "^2.0.16",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
+    "url-polyfill": "^1.1.10",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {

@@ -29,6 +29,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { NgResizeObserverPonyfillModule } from 'ng-resize-observer';
 import { LayoutModule } from '@angular/cdk/layout';
 import { NgxFilesizeModule } from 'ngx-filesize';
+import { JwtModule, JWT_OPTIONS } from "@auth0/angular-jwt";
 
 import { FilesDirectoryTableComponent } from './components/files/files-directory-table/files-directory-table.component';
 import { FilesDetailsPanelComponent } from './components/files/files-details-panel/files-details-panel.component';
@@ -48,11 +49,16 @@ import { ErrorPageComponent } from './pages/error-page/error-page.component';
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
 import { FilesPageComponent } from './pages/files-page/files-page.component';
 
+import { FileSystemProviderService } from './services/filesystems/file-system-provider';
+import { MimetypeUtilsService } from './services/mimetype-utils/mimetype-utils.service';
+import { UserServiceProvider } from './services/users/user-service-provider';
+
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
 import { GlobalErrorHandler } from './global-error-handler';
 import { environment } from '../environments/environment';
+import { UserService } from './services/users/user-service';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
@@ -75,6 +81,16 @@ const FILES_COMPONENTS = [
   FilesGenericTableBottomsheetComponent
 ]
 
+function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
+  return {
+    tokenGetter: () => {
+      return userServiceProvider.default().getJwtToken();
+    },
+    allowedDomains: ["localhost:4200"]
+  }
+}
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -92,6 +108,13 @@ const FILES_COMPONENTS = [
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,
         deps: [HttpClient]
+      }
+    }),
+    JwtModule.forRoot({
+      jwtOptionsProvider: {
+        provide: JWT_OPTIONS,
+        useFactory: jwtOptionsFactory,
+        deps: [UserServiceProvider]
       }
     }),
     FormsModule,
@@ -121,7 +144,12 @@ const FILES_COMPONENTS = [
     LayoutModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
-  providers: [{ provide: ErrorHandler, useClass: GlobalErrorHandler }],
+  providers: [
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    FileSystemProviderService,
+    UserServiceProvider,
+    MimetypeUtilsService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
