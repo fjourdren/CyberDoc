@@ -31,7 +31,6 @@ class UserService {
         });
     }
 
-
     // delete user account service
     public static async delete(_id: string): Promise<IUser> {
         return requireNonNull(await User.findByIdAndDelete(_id).exec());

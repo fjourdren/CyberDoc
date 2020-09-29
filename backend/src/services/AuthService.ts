@@ -1,8 +1,11 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { requireNonNull } from '../helpers/DataValidation';
+import Guid from 'guid';
 
-import {IUser, User} from "../models/User";
+import { IFile, File, FileType } from "../models/File";
+import { IUser, User } from "../models/User";
+
+import { requireNonNull } from '../helpers/DataValidation';
 
 class AuthService {
 
@@ -18,11 +21,21 @@ class AuthService {
         let newUser: IUser = new User();
         
         // build object
+        newUser._id       = Guid.raw()
         newUser.firstname = firstname;
         newUser.lastname  = lastname;
         newUser.email     = email;
         newUser.password  = password;
 
+        // build user's root directory
+        let root_user_dir: IFile = new File();
+        root_user_dir._id = Guid.raw();
+        root_user_dir.type = FileType.DIRECTORY;
+        root_user_dir.name = newUser._id;
+        root_user_dir.owner_id = newUser._id;
+
+        newUser.directory_id = root_user_dir._id;
+        requireNonNull(await root_user_dir.save());
         return requireNonNull(await newUser.save());
     }
 
@@ -46,7 +59,7 @@ class AuthService {
     }
 
     // validate that the token is correct
-    public static async validateToken(jwtToken: string): Promise<any> {
+    public static validateToken(jwtToken: string): any {
         return jwt.verify(jwtToken, process.env.JWT_SECRET);
     }
 }

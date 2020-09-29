@@ -1,34 +1,69 @@
 import { Request, Response } from 'express';
-import { IFile, File, FileType } from "../models/File";
 
 import HttpCodes from '../helpers/HttpCodes'
+import { requireNonNull } from '../helpers/DataValidation';
+
 import FileService from '../services/FileService';
-import { logger } from '../helpers/Log';
+
+import { IFile, File, FileType } from "../models/File";
+import { IUser, User } from "../models/User";
 import GridFSTalker from '../helpers/GridFSTalker';
 
 class FileController {
     // upload a new file controller
     public static async upload(req: Request, res: Response) {
-        // if user is owner
-        // if user is owner of parent place
-        // file type is autorized
+        // prepare vars
+        const user_id = res.locals.APP_JWT_TOKEN.user._id;
+        const { upfile, name, mimetype, folderID } = req.body;
 
-        filename = req.query.name;
-        content_type = req.query.type;
+        // build IFile
+        let fileToSave: IFile = new File();
+        // if file is a Directory
+        if(upfile == undefined || mimetype == undefined)
+            fileToSave.type = FileType.DIRECTORY;
+        else // otherwise file is a document
+            fileToSave.type = FileType.DOCUMENT;
 
-        writeStream.on('finish', function() {
-            return res.status(200).send({
-                message: fileId.toString()
-            });
+        fileToSave.name           = name;
+        fileToSave.parent_file_id = folderID;
+        fileToSave.owner_id       = user_id;
+        
+        // check that user is owner
+        if(fileToSave.owner_id != user_id)
+            throw new Error("User isn't owner")
+
+        // check that user is owner of parent place
+        FileService.requireIsFileOwner(user_id, fileToSave.parent_file_id);
+
+        // check if file is a directory or a document and create it
+        let out: any;
+        if(fileToSave.type == FileType.DIRECTORY)
+            out = await FileService.createDirectory(fileToSave);
+        else
+            out = await FileService.createDocument(fileToSave, fileToSave.name, mimetype, upfile);
+
+        // reply to client
+        res.status(HttpCodes.OK);
+        res.json({
+            success: true,
+            msg: "File created",
+            file: out
         });
-
-        throw new Error('Method not implemented.');
     }
 
 
     // get content and informations of a file controller
-    public static get(req: Request, res: Response) {
-        // if user is owner of the file (or have an access)
+    public static async get(req: Request, res: Response) {
+        // prepare vars
+        const user_id = res.locals.APP_JWT_TOKEN.user._id;
+        const fileId = req.params.fileId;
+
+        // find file
+        const file: IFile = requireNonNull(await File.findById(fileId));
+
+        // check that user is owner
+        if(file.owner_id != user_id)
+            throw new Error("User isn't owner")
 
         
 
@@ -47,91 +82,130 @@ class FileController {
 
 
     // update content of a file
-    public static updateContent(req: Request, res: Response) {
-        // if user is owner (or have rights to modify)
+    public static async updateContent(req: Request, res: Response) {
+        // prepare vars
+        const { upfile } = req.body;
+        const user_id = res.locals.APP_JWT_TOKEN.user._id;
+        const fileId = req.params.fileId;
+    
+        // find file
+        const file: IFile = requireNonNull(await File.findById(fileId));
 
-        // TODO
+        // check that user is owner
+        if(file.owner_id != user_id)
+            throw new Error("User isn't owner")
+
+        // check that file is a document
+        if(file.type != FileType.DOCUMENT)
+            throw new Error("File need to be a document")
+
+        // update content in gridfs
+        await GridFSTalker.create({ _id: file.document_id }, upfile);
+
+        // reply to client
+        res.status(HttpCodes.OK);
+        res.json({
+            success: true,
+            msg: "File updated"
+        });
     }
 
 
     // edit atributes of a file controller
-    public static edit(req: Request, res: Response) {
-        // if user is owner
-        // ne pas pouvoir déplacer un fichier dans lui même
+    public static async edit(req: Request, res: Response) {
+        // prepare vars
+        const { name, directoryID } = req.body;
+        const user_id = res.locals.APP_JWT_TOKEN.user._id;
+        const fileId = req.params.fileId;
+    
+        // find file
+        const file: IFile = requireNonNull(await File.findById(fileId));
 
-        // TODO
+        // check that user is owner
+        if(file.owner_id != user_id)
+            throw new Error("User isn't owner")
+
+        // modify vars
+        if(name != undefined)
+            file.name = name;
+        if(directoryID != undefined)
+            file.parent_file_id = directoryID;
+
+        // save
+        if(file.type == FileType.DIRECTORY)
+            FileService.editDirectory(file);
+        else
+            FileService.editDirectory(file);
+
+        // reply client
+        res.status(HttpCodes.OK);
+        res.json({
+            success: true,
+            msg: "File informations modified"
+        });
     }
 
 
     // delete a file controller
     public static async delete(req: Request, res: Response) {
-        try {
-            // if user is owner or have access
-            let user_id = res.locals.user.APP_JWT_TOKEN._id;
-            let file_id = req.params.fileId;
-        
-        
-            // === find file ===
-            let file: IFile = (await File.findById(file_id))!;
-        
-
-            // ===  if file not found === 
-            if(file == undefined) {
-                logger.error("User_id: " + user_id + " asked to access a file that doesn't exist. File_id: " + file_id);
-        
-                res.status(HttpCodes.NOT_FOUND);
-                res.json({
-                    success: false,
-                    msg: "Unknow file"
-                });
-            }
-        
+        // prepare vars
+        let user_id = res.locals.user.APP_JWT_TOKEN._id;
+        let file_id = req.params.fileId;
     
-            // ===  check if user isn't owner === 
-            if(!FileService.isFileOwner(user_id, file._id)) {
-                logger.error("User_id: " + user_id + " tried to access a file that he's not the owner. File_id: " + file_id);
-        
-                res.status(HttpCodes.NOT_FOUND);
-                res.json({
-                    success: false,
-                    msg: "Unknow file"
-                });
-            }   
-            
+        // find file
+        let file: IFile = requireNonNull(await File.findById(file_id));    
 
-            // ===  delete file ===
-            FileService.deleteFile(file).then(function() {
-                res.status(HttpCodes.OK);
-                res.json({
-                    success: true,
-                    msg: "Deleted"
-                });
-            }).catch(function(err) {
-                logger.error(err);
-            
-                res.status(HttpCodes.INTERNAL_ERROR);
-                res.json({
-                    success: false,
-                    msg: "Deletion failed"
-                });
-            });
-        } catch(err) {
-            logger.error(err);
-        
-            res.status(HttpCodes.INTERNAL_ERROR);
-            res.json({
-                success: false,
-                msg: "Unknow error"
-            });
-        }        
+        // check that user is owner
+        if(file.owner_id != user_id)
+            throw new Error("User isn't owner")
+
+        //  delete file
+        if(file.type == FileType.DIRECTORY)
+            await FileService.deleteDirectory(file);
+        else
+            await FileService.deleteDocument(file);
+
+        res.status(HttpCodes.OK);
+        res.json({
+            success: true,
+            msg: "File deleted"
+        });
     }
 
 
     // copy a file controller
-    public static copy(req: Request, res: Response) {
-        // if user is owner (or have right to copy)
+    public static async copy(req: Request, res: Response) {
+        // prepare vars
+        const { copyFileName, destID } = req.body;
+        const user_id = res.locals.user.APP_JWT_TOKEN._id;
+        const file_id = req.params.fileId;
+    
+        // check that copyFileName, destID aren't null
+        requireNonNull(copyFileName);
+        requireNonNull(destID);
 
-        // TODO
+        // find user & file
+        const user: IUser = requireNonNull(await User.findById(user_id));
+        const file: IFile = requireNonNull(await File.findById(file_id));
+
+        // check that user is owner
+        if(file.owner_id != user_id)
+            throw new Error("User isn't owner")
+
+        // run copy
+        let out: IFile;
+        if(file.type == FileType.DIRECTORY)
+            out = await FileService.copyDirectory(user, file, destID, copyFileName);
+        else
+            out = await FileService.copyDocument(user, file, destID, copyFileName);
+        
+        // reply to user
+        res.status(HttpCodes.OK);
+        res.json({
+            success: true,
+            msg: "File copied",
+            file: out
+        });
     }
 
 
@@ -145,67 +219,26 @@ class FileController {
 
     // start downloading a file controller
     public static async download(req: Request, res: Response) {
-        try {
-            // if user is owner or have access
-            let user_id = res.locals.user.APP_JWT_TOKEN._id;
-            let file_id = req.params.fileId;
-        
-            // === find file ===
-            let file: IFile = (await File.findById(file_id))!;
-        
-        
-            // === if file not found ===
-            if(file == undefined) {
-                logger.error("User_id: " + user_id + " asked to access a file that doesn't exist. File_id: " + file_id);
-        
-                res.status(HttpCodes.NOT_FOUND);
-                res.json({
-                    success: false,
-                    msg: "Unknow file"
-                });
-            }
-        
-        
-            // === check if user can view the file ===
-            if(!FileService.fileCanBeViewed(user_id, file._id)) {
-                logger.error("User_id: " + user_id + " tried to access a file that he's not the owner. File_id: " + file_id);
-        
-                res.status(HttpCodes.NOT_FOUND);
-                res.json({
-                    success: false,
-                    msg: "Unknow file"
-                });
-            }   
+        // if user is owner or have access
+        let user_id = res.locals.user.APP_JWT_TOKEN._id;
+        let file_id = req.params.fileId;
+    
+        // find file
+        let file: IFile = requireNonNull(await File.findById(file_id));
+    
+        // check if user can view the file
+        FileService.requireFileCanBeViewed(user_id, file_id);
                 
-            // === get file and start download ===
-            try {
-                let readstream: any     = (await FileService.getContentFile(file)!);
-                let gridfsDocument: any = (await FileService.getGridFSFile(file.document_id)!);
+        // get file and start download
+        let documentGridFs: any = await FileService.getFileContent(file);
+        requireNonNull(documentGridFs.infos);
+        requireNonNull(documentGridFs.stream);
 
-                // start the download
-                res.set('Content-Type', gridfsDocument.contentType);
-                res.set('Content-Disposition', 'attachment; filename="' + gridfsDocument.filename + '"');
-        
-                readstream.pipe(res);
-            } catch(err) {
-                logger.error("User_id: " + user_id + " access to download a file that can't be get on the gridfs cluster. File_id: " + file_id);
-                
-                res.status(HttpCodes.NOT_FOUND);
-                res.json({
-                    success: false,
-                    msg: "Unknow file"
-                });
-            }
-            
-        } catch(err) {
-            logger.error(err);
-        
-            res.status(HttpCodes.INTERNAL_ERROR);
-            res.json({
-                success: false,
-                msg: "Unknow error"
-            });
-        }
+        // start the download
+        res.set('Content-Type', documentGridFs.infos.contentType);
+        res.set('Content-Disposition', 'attachment; filename="' + documentGridFs.infos.filename + '"');
+
+        documentGridFs.stream.pipe(res);
     }
 }
 
