@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
+import { userInfo } from 'os';
 
 import HttpCodes from '../helpers/HttpCodes'
 import { logger } from '../helpers/Log';
+import IUser from '../models/User';
 import UserService from '../services/UserService';
 
 class UserController {
@@ -26,14 +28,29 @@ class UserController {
         });
     }
 
-    /*public static settings(req: Request, res: Response) {
-        res.status(HttpCodes.OK);
-        res.json({
-            success: true,
-            msg: "",
-            user: "test"
+    public static settings(req: Request, res: Response) {
+        const user_id = res.locals.APP_JWT_TOKEN.user._id;
+
+        const { firstname, lastname, email, password } = req.body;
+
+        UserService.updateProfile(user_id, firstname, lastname, email, password).then((output) => {
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "Profile updated",
+                user: output.user,
+                token: output.newToken
+            });
+        }).catch((err) => {
+            logger.error(err);
+
+            res.status(HttpCodes.INTERNAL_ERROR);
+            res.json({
+                success: false,
+                msg: "Profile can't be updated",
+            });
         });
-    }*/
+    }
 
     public static delete(req: Request, res: Response) {
         UserService.delete(res.locals.APP_JWT_TOKEN.user._id).then(() => {
