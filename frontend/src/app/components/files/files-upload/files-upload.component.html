@@ -1,9 +1,9 @@
 <button id="fab" *ngIf="!currentlyUploading" [matMenuTriggerFor]="menu" mat-fab color="primary">
     <mat-icon>add</mat-icon>
 </button>
-<div *ngIf="!currentlyUploading && showDragZone" #dropDiv id="drop-div" class="mat-elevation-z2">
+<mat-card *ngIf="!currentlyUploading && showDragZone" #dropDiv id="drop-div" class="mat-elevation-z2">
     <div class="mat-display-1" id="drop-div-text"> {{ 'upload.drop_div_text' | translate }}</div>
-</div>
+</mat-card>
 
 <mat-menu #menu="matMenu">
     <button mat-menu-item (click)="uploadFile()">
