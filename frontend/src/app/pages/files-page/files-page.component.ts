@@ -29,10 +29,10 @@ export class FilesPageComponent implements AfterViewInit {
     private fsProvider: FileSystemProvider,
     private userServiceProvider: UserServiceProvider) {
     this.fsProvider.default().refreshNeeded().subscribe(() => this.refresh());
-    this.breakpointObserver.observe('(max-width: 1000px)').subscribe(result => {
+    this.breakpointObserver.observe('(max-width: 800px)').subscribe(result => {
       this.fileDetailDrawerLocked = !result.matches;
     })
-    this.breakpointObserver.observe('(max-width: 1500px)').subscribe(result => {
+    this.breakpointObserver.observe('(max-width: 1200px)').subscribe(result => {
       this.treeviewDrawerLocked = !result.matches;
     })
   }
