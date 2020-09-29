@@ -1,5 +1,5 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CloudDirectory, CloudNode } from 'src/app/models/files-api-models';
@@ -68,6 +68,6 @@ export class FilesPageComponent implements AfterViewInit {
       this.router.navigate(['/files', node.id]);
     } else {
       this.router.navigate(['/file', node.id]);
-    }
+    }  
   }
 }

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, NgZone, OnInit, Output, ViewChild } from '@angular/core';
 
 import { FilesTableRestrictions, NO_RESTRICTIONS } from './files-table-restrictions';
 import { CloudFile, CloudNode } from 'src/app/models/files-api-models';
@@ -85,6 +85,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   constructor(
     private bottomSheet: MatBottomSheet,
     private dialog: MatDialog,
+    private ngZone: NgZone,
     private mimetypeUtils: MimetypeUtilsService,
     private resize: NgResizeObserver,
     private fsProvider: FileSystemProvider,
@@ -162,19 +163,23 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   onClick(node: CloudNode) {
-    if (this.isTouchScreen) {
-      this.setSelectedNode(node);
-      this.execActionOnSelectedNode("open");
-    } else if (this.selectedNode && this.selectedNode === node) {
-      this.setSelectedNode(null);
-    } else if (this._restrictions.isSelectable(node)) {
-      this.setSelectedNode(node);
-    }
+    this.ngZone.run(()=>{
+      if (this.isTouchScreen) {
+        this.setSelectedNode(node);
+        this.execActionOnSelectedNode("open");
+      } else if (this.selectedNode && this.selectedNode === node) {
+        this.setSelectedNode(null);
+      } else if (this._restrictions.isSelectable(node)) {
+        this.setSelectedNode(node);
+      }  
+    })
   }
 
   onDoubleClick(node: CloudNode) {
-    this.setSelectedNode(node);
-    this.execActionOnSelectedNode("open");
+    this.ngZone.run(()=>{
+      this.setSelectedNode(node);
+      this.execActionOnSelectedNode("open");  
+    })
   }
 
   onTableWidthChanged(width: number) {
