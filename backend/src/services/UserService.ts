@@ -1,6 +1,7 @@
 import { IUser, User, Role } from "../models/User";
 
 import { requireNonNull } from "../helpers/DataValidation";
+
 import AuthService from "./AuthService";
 
 class UserService {

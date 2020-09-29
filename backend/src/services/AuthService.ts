@@ -41,7 +41,7 @@ class AuthService {
 
     // login service
     public static async login(email: string, password: string): Promise<string> {
-        const user: IUser = requireNonNull(await User.findOne({ email: email }));
+        const user: IUser = requireNonNull(await User.findOne({ email: email }).exec());
 
         const passwordIsValid = bcrypt.compareSync(password, user?.password!);
 
