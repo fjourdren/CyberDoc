@@ -6,6 +6,13 @@ import {IUser, User} from "../models/User";
 
 class AuthService {
 
+    // generate a JWT token
+    public static generateJWTToken(user: IUser) {
+        return jwt.sign({ user }, process.env.JWT_SECRET, {
+            expiresIn: 86400 // 24 hours
+        });
+    }
+
     // register service
     public static async signup(firstname: string, lastname: string, email: string, password: string): Promise<IUser> {
         let newUser: IUser = new User();
@@ -21,16 +28,14 @@ class AuthService {
 
     // login service
     public static async login(email: string, password: string): Promise<string> {
-        let user: IUser = requireNonNull(await User.findOne({ email: email }));
+        const user: IUser = requireNonNull(await User.findOne({ email: email }));
 
-        let passwordIsValid = bcrypt.compareSync(password, user?.password!);
+        const passwordIsValid = bcrypt.compareSync(password, user?.password!);
 
         if(!passwordIsValid)
             throw new Error("Invalid credentials");
 
-        var jwttoken = jwt.sign({ user }, process.env.JWT_SECRET, {
-            expiresIn: 86400 // 24 hours
-        });
+        const jwttoken = AuthService.generateJWTToken(user);
 
         return jwttoken;
     }
