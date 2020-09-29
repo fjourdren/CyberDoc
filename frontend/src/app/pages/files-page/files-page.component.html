@@ -1,7 +1,4 @@
-<div style="    display: flex;
-flex-direction: column;
-width: 100%;
-height: 100%;">
+<div id="filepage">
     <div *ngIf="fileDetailDrawerLocked">
         <app-files-main-toolbar [hideAppName]="smallScreen" [hideMenuButton]="treeviewDrawerLocked"
             (menuButtonClicked)="treeviewDrawer.toggle()">
@@ -60,6 +57,5 @@ height: 100%;">
         <app-files-upload-progress-snackbar></app-files-upload-progress-snackbar>
 
     </mat-drawer-container>
-    <app-files-upload style="z-index: 10;" [currentDirectoryID]="currentDirectory && currentDirectory.id"></app-files-upload>
-
+    <app-files-upload [currentDirectoryID]="currentDirectory && currentDirectory.id"></app-files-upload>
 </div>
