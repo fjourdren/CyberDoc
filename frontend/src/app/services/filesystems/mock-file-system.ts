@@ -4,6 +4,7 @@ import { of, } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 import { CloudDirectory, CloudFile, CloudNode, PathItem } from 'src/app/models/files-api-models';
 import { EventEmitter } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 
 interface InternalFileElement {
     parentID?: string;
@@ -191,16 +192,31 @@ export class MockFileSystem implements FileSystem {
 
     private _ensureFileExists(fileID: string, onlyDirectory: boolean = null) {
         if (!this.filesMap.has(fileID)) {
-            throw new Error('404 NOT FOUND');
+            throw new HttpErrorResponse({
+                error: `File with id ${fileID} doesn't exist`,
+                statusText: 'NOT FOUND',
+                status: 404,
+                url: '/fake-url'
+            });
         }
 
         if (onlyDirectory === true) {
             if (this.filesMap.get(fileID).mimetype !== DIRECTORY_MIMETYPE) {
-                throw new Error('400 BAD REQUEST');
+                throw new HttpErrorResponse({
+                    error: `BAD REQUEST [notDir]`,
+                    statusText: 'BAD REQUEST',
+                    status: 400,
+                    url: '/fake-url'
+                });
             }
         } else if (onlyDirectory === false) {
             if (this.filesMap.get(fileID).mimetype === DIRECTORY_MIMETYPE) {
-                throw new Error('400 BAD REQUEST');
+                throw new HttpErrorResponse({
+                    error: `BAD REQUEST [isDir]`,
+                    statusText: 'BAD REQUEST',
+                    status: 400,
+                    url: '/fake-url'
+                });
             }
         }
 
