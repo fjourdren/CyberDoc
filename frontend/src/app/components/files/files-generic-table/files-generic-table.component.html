@@ -45,19 +45,11 @@
         </td>
     </ng-container>
 
-    <ng-container matColumnDef="noData">
-        <td *matFooterCellDef [attr.colspan]="displayedColumns.length">
-            No records found.
-        </td>
-    </ng-container>
-
-
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr (contextmenu)="onContextMenu($event, row)" class="example-box" mat-row
         *matRowDef="let row; columns: displayedColumns;"
         [ngClass]="{'disabled': restrictions.isDisabled(row), 'selected': !isTouchScreen && selectedNode && selectedNode.id === row.id}">
     </tr>
-    <tr *matFooterRowDef="['noData']" [hidden]="dataSource && dataSource.data.length > 0"></tr>
 
 </table>
 
