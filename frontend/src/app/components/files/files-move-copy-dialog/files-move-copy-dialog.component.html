@@ -7,7 +7,7 @@
 </h1>
 
 <div mat-dialog-content>
-    <app-files-generic-table *ngIf="!loading" [showDetailsButton]="false" [restrictions]="filesTableRestrictions"
+    <app-files-generic-table *ngIf="!loading" [showDetailsButton]="false" [restrictions]="filesTableRestrictions" (selectedNodeChange)="this.selectedNode = $event"
         [items]="currentDirectory && currentDirectory.directoryContent" (openButtonClicked)="openButtonClicked($event)">
     </app-files-generic-table>
 
