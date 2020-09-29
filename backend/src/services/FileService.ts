@@ -315,7 +315,7 @@ class FileService {
         let out: IFile = await newFile.save(); // save the new directory file
 
         // find all child files
-        let files = await File.find({ parent_file_id: file._id });
+        let files = await File.find({ parent_file_id: file._id }).exec();
         files.forEach(fileToCopy => {
             // copy directory and document recursively
             if(fileToCopy.type == FileType.DIRECTORY)

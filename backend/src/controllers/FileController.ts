@@ -59,22 +59,72 @@ class FileController {
         const fileId = req.params.fileId;
 
         // find file
-        const file: IFile = requireNonNull(await File.findById(fileId));
+        const file: IFile = requireNonNull(await File.findById(fileId).exec());
 
         // check that user is owner
         if(file.owner_id != user_id)
             throw new Error("User isn't owner")
 
-        
+        // if file is a directory
+        if(file.type == FileType.DIRECTORY) {
+            /**
+              {
+                "id": "9b81d950-b605-471f-a654-4fffba6bcfc5",
+                "ownerName": "John Doe",
+                "name": "subsubdir",
+                "mimetype": "application/x-dir",
+                "path": [
+                    {
+                        "id": "9b81d950-b605-471f-a654-4fffba6bcfc1",
+                        "name": "root"
+                    },
+                    {
+                        "id": "9b81d950-b605-471f-a654-4fffba6bcfc2",
+                        "name": "subdir"
+                    }
+                ],
+                "directoryContent": [
+                    {
+                        "id": "9b81d950-b605-471f-a654-4fffba6bcfc3",
+                        "ownerName": "John Doe",
+                        "name": "subsubsubdir",
+                        "mimetype": "application/x-dir",
+                        "updated_at": "2017-07-21T17:32:28Z",
+                        "created_at": "2017-07-21T17:32:28Z"
+                    },
+                    {
+                        "id": "9b81d950-b605-471f-a654-4fffba6bcfc5",
+                        "name": "File.pdf",
+                        "ownerName": "John Doe",
+                        "mimetype": "application/pdf",
+                        "size": 666,
+                        "updated_at": "2017-07-21T17:32:28Z",
+                        "created_at": "2017-07-21T17:32:28Z"
+                    }
+                ]
+                }
+             */
+            
+        } else { // otherwise it's a document
+            const owner: IUser = requireNonNull(await User.findById(file.owner_id).exec());
+            const gridFsFileInfos: any = requireNonNull(await FileService.getFileInformations(file));
 
-       /** OUT example
-            id": "9b81d950-b605-471f-a654-4fffba6bcfc5",
-            "ownerName": "John Doe",
-            "name": "File.pdf",
-            "mimetype": "application/pdf",
-            "size": 666,
-            "lastModified"
-         */
+            // reply to client
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "File informations loaded",
+                file: {
+                    "id":         file._id,
+                    "ownerName":  owner.firstname + " " + owner.lastname,
+                    "name":       file.name,
+                    "mimetype":   gridFsFileInfos.contentType,
+                    "size":       gridFsFileInfos.length,
+                    "updated_at": file.updated_at,
+                    "created_at": file.updated_at
+                }
+            });
+        }
 
          
         // TODO
@@ -89,7 +139,7 @@ class FileController {
         const fileId = req.params.fileId;
     
         // find file
-        const file: IFile = requireNonNull(await File.findById(fileId));
+        const file: IFile = requireNonNull(await File.findById(fileId).exec());
 
         // check that user is owner
         if(file.owner_id != user_id)
@@ -119,7 +169,7 @@ class FileController {
         const fileId = req.params.fileId;
     
         // find file
-        const file: IFile = requireNonNull(await File.findById(fileId));
+        const file: IFile = requireNonNull(await File.findById(fileId).exec());
 
         // check that user is owner
         if(file.owner_id != user_id)
@@ -153,7 +203,7 @@ class FileController {
         let file_id = req.params.fileId;
     
         // find file
-        let file: IFile = requireNonNull(await File.findById(file_id));    
+        let file: IFile = requireNonNull(await File.findById(file_id).exec());    
 
         // check that user is owner
         if(file.owner_id != user_id)
@@ -185,8 +235,8 @@ class FileController {
         requireNonNull(destID);
 
         // find user & file
-        const user: IUser = requireNonNull(await User.findById(user_id));
-        const file: IFile = requireNonNull(await File.findById(file_id));
+        const user: IUser = requireNonNull(await User.findById(user_id).exec());
+        const file: IFile = requireNonNull(await File.findById(file_id).exec());
 
         // check that user is owner
         if(file.owner_id != user_id)
@@ -224,7 +274,7 @@ class FileController {
         let file_id = req.params.fileId;
     
         // find file
-        let file: IFile = requireNonNull(await File.findById(file_id));
+        let file: IFile = requireNonNull(await File.findById(file_id).exec());
     
         // check if user can view the file
         FileService.requireFileCanBeViewed(user_id, file_id);
