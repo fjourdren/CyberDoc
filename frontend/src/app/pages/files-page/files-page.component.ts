@@ -1,4 +1,5 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -27,7 +28,7 @@ export class FilesPageComponent implements AfterViewInit {
     private router: Router,
     private fsProvider: FileSystemProvider,
     private userServiceProvider: UserServiceProvider) {
-    this.fsProvider.default().refreshNeeded().subscribe(()=>this.refresh());
+    this.fsProvider.default().refreshNeeded().subscribe(() => this.refresh());
     this.breakpointObserver.observe('(max-width: 1000px)').subscribe(result => {
       this.fileDetailDrawerLocked = !result.matches;
     })
@@ -51,7 +52,7 @@ export class FilesPageComponent implements AfterViewInit {
     }, 50)
   }
 
-  refresh(directoryID: string | null = null){
+  refresh(directoryID: string | null = null) {
     this.loading = true;
     this.fsProvider.default().get(directoryID || this.currentDirectory.id).toPromise().then(node => {
       if (node.isDirectory) {
@@ -60,6 +61,12 @@ export class FilesPageComponent implements AfterViewInit {
         this.router.navigate(['/files']);
       }
       this.loading = false;
+    }).catch(err => {
+      if (err instanceof HttpErrorResponse && err.status === 404) {
+        this.router.navigate(['/files']);
+      } else {
+        throw err;
+      }
     });
   }
 
@@ -68,6 +75,6 @@ export class FilesPageComponent implements AfterViewInit {
       this.router.navigate(['/files', node.id]);
     } else {
       this.router.navigate(['/file', node.id]);
-    }  
+    }
   }
 }
