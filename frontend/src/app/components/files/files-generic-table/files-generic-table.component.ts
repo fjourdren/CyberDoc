@@ -148,12 +148,18 @@ export class FilesGenericTableComponent implements AfterViewInit {
     this.unselectAfterContextMenuOrBottomSheet = true;
     this.bottomSheet.open(FilesGenericTableBottomsheetComponent, {
       data: {
-        callback: (action: FileAction) => { this.ngZone.run(() => this.execActionOnSelectedNode(action)) },
+        callback: this.onContextMenuOrBottomSheetSelection.bind(this),
         readonlyMode: this.isReadOnly(node),
         showDetailsEntry: this.showDetailsButton,
         node: node,
         onBottomSheetClose: this.onBottomSheetClose.bind(this)
       } as FilesGenericTableBottomsheetData
+    });
+  }
+
+  onContextMenuOrBottomSheetSelection(action: FileAction) {
+    this.ngZone.run(() => {
+      this.execActionOnSelectedNode(action);
     });
   }
 
@@ -194,7 +200,6 @@ export class FilesGenericTableComponent implements AfterViewInit {
       this.setSelectedNode(node);
       this.execActionOnSelectedNode("open");
     })
-
   }
 
   onTableWidthChanged(width: number) {
@@ -210,42 +215,39 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   execActionOnSelectedNode(action: FileAction) {
-    this.ngZone.run(() => {
-
-      switch (action) {
-        case "open": {
-          this.openButtonClicked.emit(this.selectedNode);
-          break;
-        }
-        case "download": {
-          if (!this.selectedNode.isDirectory) {
-            this.downloadFile(this.selectedNode as CloudFile);
-          }
-          break;
-        }
-        case "details": {
-          this.unselectAfterContextMenuOrBottomSheet = false;
-          this.detailsButtonClicked.emit(this.selectedNode);
-          break;
-        }
-        case "delete": {
-          this.deleteNode(this.selectedNode);
-          break;
-        }
-        case "rename": {
-          this.renameNode(this.selectedNode);
-          break;
-        }
-        case "move": {
-          this.moveOrCopyNode(this.selectedNode, false);
-          break;
-        }
-        case "copy": {
-          this.moveOrCopyNode(this.selectedNode, true);
-          break;
-        }
+    switch (action) {
+      case "open": {
+        this.openButtonClicked.emit(this.selectedNode);
+        break;
       }
-    });
+      case "download": {
+        if (!this.selectedNode.isDirectory) {
+          this.downloadFile(this.selectedNode as CloudFile);
+        }
+        break;
+      }
+      case "details": {
+        this.unselectAfterContextMenuOrBottomSheet = false;
+        this.detailsButtonClicked.emit(this.selectedNode);
+        break;
+      }
+      case "delete": {
+        this.deleteNode(this.selectedNode);
+        break;
+      }
+      case "rename": {
+        this.renameNode(this.selectedNode);
+        break;
+      }
+      case "move": {
+        this.moveOrCopyNode(this.selectedNode, false);
+        break;
+      }
+      case "copy": {
+        this.moveOrCopyNode(this.selectedNode, true);
+        break;
+      }
+    }
   }
 
   deleteNode(node: CloudNode) {
