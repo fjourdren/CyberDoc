@@ -9,6 +9,7 @@ import { UserServiceProvider } from 'src/app/services/users/user-service-provide
 export class FilesMainToolbarComponent {
 
   @Input() hideMenuButton: boolean;
+  @Input() hideAppName: boolean;
   @Output() menuButtonClicked = new EventEmitter<void>();
   
   constructor(private userServiceProvider: UserServiceProvider) { }

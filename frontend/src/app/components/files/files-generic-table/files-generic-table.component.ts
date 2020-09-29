@@ -17,6 +17,7 @@ import { FilesGenericTableBottomsheetComponent, FilesGenericTableBottomsheetData
 import { FilesRenameDialogComponent } from '../files-rename-dialog/files-rename-dialog.component';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { ActionSequence } from 'protractor';
 
 export type FileAction = "open" | "download" | "rename" | "copy" | "delete" | "move" | "details";
 
@@ -147,7 +148,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
     this.unselectAfterContextMenuOrBottomSheet = true;
     this.bottomSheet.open(FilesGenericTableBottomsheetComponent, {
       data: {
-        callback: this.execActionOnSelectedNode.bind(this),
+        callback: (action: FileAction) => { this.ngZone.run(() => this.execActionOnSelectedNode(action)) },
         readonlyMode: this.isReadOnly(node),
         showDetailsEntry: this.showDetailsButton,
         node: node,
