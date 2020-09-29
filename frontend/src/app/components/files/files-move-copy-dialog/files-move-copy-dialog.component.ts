@@ -19,15 +19,6 @@ export class FilesMoveCopyDialogComponent {
   currentDirectory: CloudDirectory;
   filesTableRestrictions: FilesTableRestrictions;
 
-  //HACK this click refreshes the files-generic-table component
-  //@cforgeard : I don't know why the component don't refresh automatically
-  @ViewChild('title') title: ElementRef<HTMLElement>;
-  @HostListener("dblclick", ["$event"])
-  @HostListener("click", ["$event"])
-  evt(evt: MouseEvent) {
-    this.title.nativeElement.click();
-  }
-
   constructor(public dialogRef: MatDialogRef<FilesMoveCopyDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: MoveCopyDialogModel,
     private fsProvider: FileSystemProvider,
@@ -73,7 +64,6 @@ export class FilesMoveCopyDialogComponent {
 
   openButtonClicked(node: CloudNode) {
     if (node && this.directories.indexOf(node.id) === -1) this.directories.push(node.id);
-    console.warn(this.directories);
     if (node.isDirectory) {
       this.loading = true;
       this.fsProvider.default().get(node.id).toPromise().then(node=>{
@@ -81,7 +71,6 @@ export class FilesMoveCopyDialogComponent {
           this.currentDirectory = node;
         }
         this.loading = false;
-        this.title.nativeElement.click();
       })
     }
   }
