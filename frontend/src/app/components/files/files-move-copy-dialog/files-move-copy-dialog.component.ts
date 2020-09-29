@@ -16,6 +16,7 @@ export class FilesMoveCopyDialogComponent {
   directories: string[] = [];
   loading = false;
 
+  selectedNode: CloudNode;
   currentDirectory: CloudDirectory;
   filesTableRestrictions: FilesTableRestrictions;
 
@@ -80,11 +81,19 @@ export class FilesMoveCopyDialogComponent {
     const oldRestrictions = this.filesTableRestrictions;
     this.filesTableRestrictions.isDisabled = (node: CloudNode) => true;
 
+    let destID: string;
+    if (this.selectedNode) {
+      destID = this.selectedNode.id;
+    } else {
+      destID = this.directoryID;
+    }
+
+
     this.loading = true;
     this.dialogRef.disableClose = true;
     if (this.data.copy) {
       this.translate.get("file.copy_new_name", { "filename": this.data.node.name }).toPromise().then(newName => {
-        this.fsProvider.default().copy(this.data.node.id, newName, this.directoryID).toPromise().then(() => {
+        this.fsProvider.default().copy(this.data.node.id, newName, destID).toPromise().then(() => {
           this.loading = false;
           this.filesTableRestrictions = oldRestrictions;
           this.dialogRef.disableClose = false;
@@ -92,7 +101,7 @@ export class FilesMoveCopyDialogComponent {
         })
       })
     } else {
-      this.fsProvider.default().move(this.data.node.id, this.directoryID).toPromise().then(() => {
+      this.fsProvider.default().move(this.data.node.id, destID).toPromise().then(() => {
         this.loading = false;
         this.filesTableRestrictions = oldRestrictions;
         this.dialogRef.disableClose = false;
