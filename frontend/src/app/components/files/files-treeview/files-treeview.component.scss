@@ -1,11 +1,11 @@
-@import '../../../../vars.scss';
+@import '../../../../theme.scss';
 
 mat-tree {
     user-select: none;
 }
 
-.selected, .selected > * {
-    background: $app-selected;
+.selected {
+    background: $selected;
 }
 
 .tree-node-div {

@@ -1,6 +1,6 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, NgZone, ViewChild } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CloudDirectory, CloudNode } from 'src/app/models/files-api-models';
@@ -18,6 +18,7 @@ export class FilesPageComponent implements AfterViewInit {
 
   treeviewDrawerLocked = false;
   fileDetailDrawerLocked = false;
+  smallScreen = false;
   loading = false;
 
   currentDirectory: CloudDirectory;
@@ -26,9 +27,13 @@ export class FilesPageComponent implements AfterViewInit {
   constructor(private breakpointObserver: BreakpointObserver,
     private route: ActivatedRoute,
     private router: Router,
+    private ngZone: NgZone,
     private fsProvider: FileSystemProvider,
     private userServiceProvider: UserServiceProvider) {
     this.fsProvider.default().refreshNeeded().subscribe(() => this.refresh());
+    this.breakpointObserver.observe('(max-width: 600px)').subscribe(result => {
+      this.smallScreen = result.matches;
+    })
     this.breakpointObserver.observe('(max-width: 800px)').subscribe(result => {
       this.fileDetailDrawerLocked = !result.matches;
     })
@@ -39,16 +44,20 @@ export class FilesPageComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.route.paramMap.subscribe((val) => {
-        this.treeviewDrawer.close();
-        let currentDirectoryID: string;
-        if (val.has("dirID")) {
-          currentDirectoryID = val.get("dirID");
-        } else {
-          currentDirectoryID = this.userServiceProvider.default().getActiveUser().rootDirectoryID;
-        }
-        this.refresh(currentDirectoryID);
-      });
+      this.ngZone.run(() => {
+        this.route.paramMap.subscribe((val) => {
+          if (!this.treeviewDrawerLocked) { this.treeviewDrawer.close() };
+          this.selectedNode = null;
+          let currentDirectoryID: string;
+          if (val.has("dirID")) {
+            currentDirectoryID = val.get("dirID");
+          } else {
+            currentDirectoryID = this.userServiceProvider.default().getActiveUser().rootDirectoryID;
+          }
+          this.refresh(currentDirectoryID);
+        });
+
+      })
     }, 50)
   }
 

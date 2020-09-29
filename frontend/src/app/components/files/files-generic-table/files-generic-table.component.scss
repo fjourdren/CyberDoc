@@ -1,4 +1,4 @@
-@import '../../../../vars.scss';
+@import '../../../../theme.scss';
 
 table {
     width: 100%;
@@ -10,7 +10,7 @@ table {
 }
 
 .selected, .selected > * {
-  background: $app-selected;
+  background: $selected;
 }
 
 th.mat-sort-header-sorted {

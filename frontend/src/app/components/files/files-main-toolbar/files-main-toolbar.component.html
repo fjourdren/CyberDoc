@@ -1,10 +1,13 @@
-<mat-toolbar>
+<mat-toolbar color="primary">
     <button *ngIf="!hideMenuButton" mat-icon-button (click)="menuButtonClicked.emit()">
         <mat-icon>menu</mat-icon>
     </button>
-
+    <div  style="display:flex;align-items:center;padding-left: 4px; padding-right: 4px">
+        <img style="padding-left: 4px; padding-right: 4px" width="36" height="36" src="/assets/favicon.ico">
+        <span *ngIf="!hideAppName">{{'general.appname' | translate}}</span>
+    </div>
     <div id="search-div">
-        <mat-form-field floatLabel="never"> 
+        <mat-form-field floatLabel="never">
             <input matInput id="search-input" type="text">
         </mat-form-field>
         <button matSuffix mat-icon-button class="search-btn">

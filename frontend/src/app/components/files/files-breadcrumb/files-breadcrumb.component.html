@@ -1,4 +1,4 @@
-<mat-toolbar *ngIf="currentDirectory">
+<mat-toolbar *ngIf="currentDirectory" color="primary">
     <div *ngFor="let item of currentDirectory.path">
         <a [routerLink]="['/files', item.id]" mat-button>{{item.name}}</a>
         <button mat-icon-button (click)="loadDataForContextMenu(item)" [matMenuTriggerFor]="menu">
@@ -11,7 +11,7 @@
     </button>
 </mat-toolbar>
 
-<mat-toolbar *ngIf="!currentDirectory">
+<mat-toolbar color="primary" *ngIf="!currentDirectory">
 </mat-toolbar>
 
 <mat-menu #menu="matMenu">
