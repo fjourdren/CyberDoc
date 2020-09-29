@@ -2,8 +2,8 @@
     <button *ngIf="!hideMenuButton" mat-icon-button (click)="menuButtonClicked.emit()">
         <mat-icon>menu</mat-icon>
     </button>
-    <div *ngIf="!hideAppName" style="display:flex;align-items:center;padding-left: 4px; padding-right: 4px">
-        <img style="padding-left: 4px; padding-right: 4px" width="36" height="36" src="/assets/favicon.ico">
+    <div id="app-name-icon-container" *ngIf="!hideAppName">
+        <img id="app-icon" width="36" height="36" src="/assets/favicon.ico">
         <span>{{'general.appname' | translate}}</span>
     </div>
     <div id="search-div">

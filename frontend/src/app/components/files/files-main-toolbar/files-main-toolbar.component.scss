@@ -16,7 +16,6 @@
 
 mat-form-field {
     flex: 1 1 auto;
-
 }
 
 #search-input {
@@ -24,4 +23,16 @@ mat-form-field {
     padding: 8px;
     appearance: none;
     border: none;
+}
+
+#app-icon {
+    padding-left: 4px; 
+    padding-right: 4px
+}
+
+#app-name-icon-container {
+    display:flex;
+    align-items:center;
+    padding-left: 4px; 
+    padding-right: 4px
 }
