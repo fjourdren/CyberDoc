@@ -210,39 +210,42 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   execActionOnSelectedNode(action: FileAction) {
-    switch (action) {
-      case "open": {
-        this.openButtonClicked.emit(this.selectedNode);
-        break;
-      }
-      case "download": {
-        if (!this.selectedNode.isDirectory) {
-          this.downloadFile(this.selectedNode as CloudFile);
+    this.ngZone.run(() => {
+
+      switch (action) {
+        case "open": {
+          this.openButtonClicked.emit(this.selectedNode);
+          break;
         }
-        break;
+        case "download": {
+          if (!this.selectedNode.isDirectory) {
+            this.downloadFile(this.selectedNode as CloudFile);
+          }
+          break;
+        }
+        case "details": {
+          this.unselectAfterContextMenuOrBottomSheet = false;
+          this.detailsButtonClicked.emit(this.selectedNode);
+          break;
+        }
+        case "delete": {
+          this.deleteNode(this.selectedNode);
+          break;
+        }
+        case "rename": {
+          this.renameNode(this.selectedNode);
+          break;
+        }
+        case "move": {
+          this.moveOrCopyNode(this.selectedNode, false);
+          break;
+        }
+        case "copy": {
+          this.moveOrCopyNode(this.selectedNode, true);
+          break;
+        }
       }
-      case "details": {
-        this.unselectAfterContextMenuOrBottomSheet = false;
-        this.detailsButtonClicked.emit(this.selectedNode);
-        break;
-      }
-      case "delete": {
-        this.deleteNode(this.selectedNode);
-        break;
-      }
-      case "rename": {
-        this.renameNode(this.selectedNode);
-        break;
-      }
-      case "move": {
-        this.moveOrCopyNode(this.selectedNode, false);
-        break;
-      }
-      case "copy": {
-        this.moveOrCopyNode(this.selectedNode, true);
-        break;
-      }
-    }
+    });
   }
 
   deleteNode(node: CloudNode) {
