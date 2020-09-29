@@ -11,27 +11,27 @@
     <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'file.name' | translate }} </th>
         <td class="name-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
-            (dblclick)="onDoubleClick(element)"> {{element.name}} </td>
+            (dblclick)="onDoubleClick(element)" (touchstart)="onTouchStart(element)"> {{element.name}} </td>
     </ng-container>
 
     <ng-container matColumnDef="type">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'file.type' | translate }} </th>
         <td class="type-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
-            (dblclick)="onDoubleClick(element)">
+            (dblclick)="onDoubleClick(element)" (touchstart)="onTouchStart(element)">
             {{getFileTypeFromMimetype(element.mimetype) | translate}} </td>
     </ng-container>
 
     <ng-container matColumnDef="size">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'file.size' | translate }} </th>
         <td class="size-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
-            (dblclick)="onDoubleClick(element)">
+            (dblclick)="onDoubleClick(element)" (touchstart)="onTouchStart(element)">
             {{element.size ? (element.size | filesize) : '—'}} </td>
     </ng-container>
 
     <ng-container matColumnDef="date">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'file.modified' | translate }} </th>
         <td class="date-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
-            (dblclick)="onDoubleClick(element)">
+            (dblclick)="onDoubleClick(element)" (touchstart)="onTouchStart(element)">
             {{element.lastModified ? (element.lastModified | date) : '—'}} </td>
     </ng-container>
 

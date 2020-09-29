@@ -30,6 +30,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
 
   isTouchScreen = 'ontouchstart' in window;
   unselectAfterContextMenuOrBottomSheet = false;
+  private _touchStartEventTrigerred = false;
 
   displayedColumns = ['icon', 'name', 'type', 'size', 'date', 'menubutton'];
   dataSource = new MatTableDataSource([]);
@@ -162,24 +163,37 @@ export class FilesGenericTableComponent implements AfterViewInit {
     }
   }
 
+  onTouchStart(node: CloudNode) {
+    this.ngZone.run(() => {
+      this.isTouchScreen = true;
+      this._touchStartEventTrigerred = true;
+      this.setSelectedNode(node);
+      this.execActionOnSelectedNode("open");
+    });
+  }
+
   onClick(node: CloudNode) {
-    this.ngZone.run(()=>{
-      if (this.isTouchScreen) {
-        this.setSelectedNode(node);
-        this.execActionOnSelectedNode("open");
-      } else if (this.selectedNode && this.selectedNode === node) {
+    this.ngZone.run(() => {
+      if (this._touchStartEventTrigerred) {
+        this._touchStartEventTrigerred = false;
+        return;
+      }
+
+      this.isTouchScreen = false;
+      if (this.selectedNode && this.selectedNode === node) {
         this.setSelectedNode(null);
       } else if (this._restrictions.isSelectable(node)) {
         this.setSelectedNode(node);
-      }  
+      }
     })
   }
 
   onDoubleClick(node: CloudNode) {
-    this.ngZone.run(()=>{
+    this.ngZone.run(() => {
       this.setSelectedNode(node);
-      this.execActionOnSelectedNode("open");  
+      this.execActionOnSelectedNode("open");
     })
+
   }
 
   onTableWidthChanged(width: number) {
