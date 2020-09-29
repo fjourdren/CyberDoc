@@ -4,7 +4,9 @@ import GridFSTalker from "../helpers/GridFSTalker";
 import { requireNonNull, requireIsNull } from '../helpers/DataValidation';
 
 import IUser from "../models/User";
-import { IFile, File, FileType } from "../models/File";
+import { IFile, File, FileType, FileSchema } from "../models/File";
+
+import configAcceptedFileContent from "../configs/AcceptedFileContent.json";
 
 class FileService {
 
@@ -19,11 +21,17 @@ class FileService {
         return (file.owner_id == user_id);
     }
 
+    public static async requireIsFileOwner(user_id: string, file_id:string) {
+        if(!await FileService.isFileOwner(user_id, file_id))
+            throw new Error("User isn't file owner");
+    }
+
     // check if user has been put in share list of the file
     public static fileHasBeenSharedUser(user_id: string, file_id: string): boolean {
         // TODO
         return false;
     }
+
 
 
     /* === Advanced permissions === */
@@ -33,6 +41,12 @@ class FileService {
     */
     public static async fileCanBeViewed(user_id: string, file_id: string): Promise<boolean> {
         return await this.isFileOwner(user_id, file_id) || this.fileHasBeenSharedUser(user_id, file_id);
+    }
+
+    // thrower
+    public static requireFileCanBeViewed(user_id: string, file_id: string) {
+        if(!FileService.fileCanBeViewed(user_id, file_id))
+            throw new Error("This user can't read this file");
     }
 
     /* check if user can modify a file
@@ -57,7 +71,7 @@ class FileService {
 
     /**
      * FILE CHECKERS
-     */
+     */    
     public static fileIsDocument(file: IFile): boolean {
         return file.type == FileType.DOCUMENT;
     }
@@ -68,12 +82,12 @@ class FileService {
 
     // throwers
     public static requireFileIsDocument(file: IFile) {
-        if(!FileService.fileIsDocument)
+        if(!FileService.fileIsDocument(file))
             throw new Error("File isn't a document");
     }
 
     public static requireFileIsDirectory(file: IFile) {
-        if(!FileService.fileIsDirectory)
+        if(!FileService.fileIsDirectory(file))
             throw new Error("File isn't a directory");
     }
 
@@ -110,7 +124,7 @@ class FileService {
     }
 
     // create a directory service
-    public static async createDirectory(file: IFile, filename: string, content_type: string, fileContent: any): Promise<IFile> {
+    public static async createDirectory(file: IFile): Promise<IFile> {
         // be sure that file is a directory
         FileService.requireFileIsDirectory(file);
 
@@ -121,8 +135,17 @@ class FileService {
         return await file.save();
     }
 
+    // get file informations from gridfs
+    public static async getFileInformations(file: IFile): Promise<any> {
+        // be sure that file is a document
+        FileService.requireFileIsDocument(file);
+        
+        // get file infos and return it
+        return await GridFSTalker.getFileInfos({ _id: file.document_id });
+    }
+
     // get file content from gridfs (to start a download for example)
-    public static async getContentFile(file: IFile): Promise<any> {
+    public static async getFileContent(file: IFile): Promise<any> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
         
@@ -147,6 +170,10 @@ class FileService {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
+        // check that id != parent_id
+        if(file._id == file.parent_file_id)
+            throw new Error("Directory can't be parent of himself")
+
         // be sure that file has a valid parent_id
         requireNonNull(file.parent_file_id);
 
@@ -165,6 +192,10 @@ class FileService {
     public static async editDirectory(file: IFile) {
         // be sure that file is a directory
         FileService.requireFileIsDirectory(file);
+
+        // check that id != parent_id
+        if(file._id == file.parent_file_id)
+            throw new Error("Directory can't be parent of himself")
 
         // check that there is no gridfs document_id set (because a directory isn't a document)
         requireIsNull(file.document_id);
@@ -209,7 +240,7 @@ class FileService {
     }
 
     // copy a document
-    public static async copyDocument(user: IUser, file: IFile, destination_id: string) {
+    public static async copyDocument(user: IUser, file: IFile, destination_id: string, copyFileName: string | undefined = undefined) {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
@@ -219,33 +250,37 @@ class FileService {
         
     
         // ***** generate new filename *****
-        let finalFilename: string = "";
-        let filenameSplit = file.name.split("."); // split to find extension later
-        // if there is an extension
-        if(filenameSplit.length > 1) {
-            // we concanate all if there is multi points
-            for(let i = 0; i < filenameSplit.length - 1; i++) {
-                finalFilename += filenameSplit[i];
-            }
+        if(copyFileName == undefined) {
+            // change to something != undefined
+            copyFileName = "";
 
-            // generate final filename
-            finalFilename = finalFilename + " - Copy" + filenameSplit[filenameSplit.length - 1];
-        } else {
-            // if there is no point, we just add the postfix
-            finalFilename = file.name + " - Copy"
+            // split to find extension later
+            let filenameSplit = file.name.split(".");
+            // if there is an extension
+            if(filenameSplit.length > 1) {
+                // we concanate all if there is multi points
+                for(let i = 0; i < filenameSplit.length - 1; i++)
+                    copyFileName += filenameSplit[i];
+
+                // generate final filename
+                copyFileName = copyFileName + " - Copy" + filenameSplit[filenameSplit.length - 1];
+            } else {
+                // if there is no point, we just add the postfix
+                copyFileName = file.name + " - Copy"
+            }
         }
         // ***********************
 
-    
+
         // generate the new gridfs informations
         let newFileGridFsInformations      = fileGridFsInformations;
         newFileGridFsInformations._id      = Guid.raw();
-        newFileGridFsInformations.filename = finalFilename;
+        newFileGridFsInformations.filename = copyFileName;
 
         // generate new file informations
         let newFile: IFile = file;
         newFile._id            = Guid.raw();
-        newFile.name           = finalFilename;       
+        newFile.name           = copyFileName;       
         newFile.parent_file_id = destination_id;
         newFile.document_id    = newFileGridFsInformations._id;
         newFile.owner_id       = user._id;
@@ -256,14 +291,23 @@ class FileService {
     }
 
     // copy a directory
-    public static async copyDirectory(user: IUser, file: IFile, destination_id: string) {
+    public static async copyDirectory(user: IUser, file: IFile, destination_id: string, copyFileName: string | undefined = undefined) {
         // be sure that file is a directory
         FileService.requireFileIsDirectory(file);
+
+
+        // ***** generate new filename *****
+        if(copyFileName == undefined) {
+            // change to something != undefined
+            copyFileName = file.name + " - Copy"
+        }
+        // ***********************
+
 
         // generate new file informations
         let newFile: IFile = file;
         newFile._id            = Guid.raw();
-        newFile.name           = file.name + " - Copy";
+        newFile.name           = copyFileName;
         newFile.parent_file_id = destination_id;
         newFile.owner_id       = user._id;
 
