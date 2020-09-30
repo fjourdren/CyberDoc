@@ -7,7 +7,7 @@ import UserService from "../services/UserService";
 class UserMiddleware {
 
     public static hasRoles(rolesNeeded: Role[]) {
-        return function(req: Request, res: Response, next: NextFunction) {
+        return function(req: Request, res: Response, next: NextFunction): void {
             if(UserService.hasRoles(rolesNeeded, res.locals.APP_JWT_TOKEN.user.role)) {
                 next();
             } else {

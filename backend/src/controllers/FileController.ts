@@ -11,13 +11,13 @@ import GridFSTalker from '../helpers/GridFSTalker';
 
 class FileController {
     // upload a new file controller
-    public static async upload(req: Request, res: Response) {
+    public static async upload(req: Request, res: Response): Promise<void> {
         // prepare vars
         const user_id = res.locals.APP_JWT_TOKEN.user._id;
         const { upfile, name, mimetype, folderID } = req.body;
 
         // build IFile
-        let fileToSave: IFile = new File();
+        const fileToSave: IFile = new File();
         // if file is a Directory
         if(upfile == undefined || mimetype == undefined)
             fileToSave.type = FileType.DIRECTORY;
@@ -36,7 +36,7 @@ class FileController {
         FileService.requireIsFileOwner(user_id, fileToSave.parent_file_id);
 
         // check if file is a directory or a document and create it
-        let out: any;
+        let out: IFile;
         if(fileToSave.type == FileType.DIRECTORY)
             out = await FileService.createDirectory(fileToSave);
         else
@@ -53,7 +53,7 @@ class FileController {
 
 
     // get content and informations of a file controller
-    public static async get(req: Request, res: Response) {
+    public static async get(req: Request, res: Response): Promise<void> {
         // prepare vars
         const user_id = res.locals.APP_JWT_TOKEN.user._id;
         const fileId = req.params.fileId;
@@ -68,10 +68,10 @@ class FileController {
         // if file is a directory
         if(file.type == FileType.DIRECTORY) {
             // get owner
-            let owner: IUser = requireNonNull(await User.findById(file.owner_id).exec());
+            const owner: IUser = requireNonNull(await User.findById(file.owner_id).exec());
 
             // === CALCULATE PATH ===
-            let pathsOutput: any[] = [];
+            const pathsOutput: Record<string, any> = [];
 
             let aboveFile: IFile = file;
             while(aboveFile.parent_file_id != undefined) {
@@ -85,11 +85,12 @@ class FileController {
 
 
             // === GET ALL FILES IN THE DIRECTORY ===
-            let directoryContentOutput: any[] = [];
-            let files: IFile[] = await File.find({ parent_file_id: file._id }).exec();
+            const directoryContentOutput: Record<string, any> = [];
+
+            const files: IFile[] = await File.find({ parent_file_id: file._id }).exec();
             files.forEach(async (fileInDir) => {
                 // get owner
-                let ownerFileInDir: IUser = requireNonNull(await User.findById(fileInDir.owner_id).exec());
+                const ownerFileInDir: IUser = requireNonNull(await User.findById(fileInDir.owner_id).exec());
 
                 // get gridfs informations if it's a document
                 let gridfsInformation: any = undefined;
@@ -158,7 +159,7 @@ class FileController {
 
 
     // update content of a file
-    public static async updateContent(req: Request, res: Response) {
+    public static async updateContent(req: Request, res: Response): Promise<void> {
         // prepare vars
         const { upfile } = req.body;
         const user_id = res.locals.APP_JWT_TOKEN.user._id;
@@ -188,7 +189,7 @@ class FileController {
 
 
     // edit atributes of a file controller
-    public static async edit(req: Request, res: Response) {
+    public static async edit(req: Request, res: Response): Promise<void> {
         // prepare vars
         const { name, directoryID } = req.body;
         const user_id = res.locals.APP_JWT_TOKEN.user._id;
@@ -223,13 +224,13 @@ class FileController {
 
 
     // delete a file controller
-    public static async delete(req: Request, res: Response) {
+    public static async delete(req: Request, res: Response): Promise<void> {
         // prepare vars
-        let user_id = res.locals.user.APP_JWT_TOKEN._id;
-        let file_id = req.params.fileId;
+        const user_id = res.locals.user.APP_JWT_TOKEN._id;
+        const file_id = req.params.fileId;
     
         // find file
-        let file: IFile = requireNonNull(await File.findById(file_id).exec());    
+        const file: IFile = requireNonNull(await File.findById(file_id).exec());    
 
         // check that user is owner
         if(file.owner_id != user_id)
@@ -250,7 +251,7 @@ class FileController {
 
 
     // copy a file controller
-    public static async copy(req: Request, res: Response) {
+    public static async copy(req: Request, res: Response): Promise<void> {
         // prepare vars
         const { copyFileName, destID } = req.body;
         const user_id = res.locals.user.APP_JWT_TOKEN._id;
@@ -286,27 +287,27 @@ class FileController {
 
 
     // ask to generate a preview of a file controller
-    public static preview(req: Request, res: Response) {
+    /*public static preview(req: Request, res: Response) {
         // if user is owner or have access
 
         // TODO
-    }
+    }*/
 
 
     // start downloading a file controller
-    public static async download(req: Request, res: Response) {
+    public static async download(req: Request, res: Response): Promise<void> {
         // if user is owner or have access
-        let user_id = res.locals.user.APP_JWT_TOKEN._id;
-        let file_id = req.params.fileId;
+        const user_id = res.locals.user.APP_JWT_TOKEN._id;
+        const file_id = req.params.fileId;
     
         // find file
-        let file: IFile = requireNonNull(await File.findById(file_id).exec());
+        const file: IFile = requireNonNull(await File.findById(file_id).exec());
     
         // check if user can view the file
         FileService.requireFileCanBeViewed(user_id, file_id);
                 
         // get file and start download
-        let documentGridFs: any = await FileService.getFileContent(file);
+        const documentGridFs: any = await FileService.getFileContent(file);
         requireNonNull(documentGridFs.infos);
         requireNonNull(documentGridFs.stream);
 

@@ -17,19 +17,17 @@ class UserService {
     }
 
     // profile update
-    public static updateProfile(user_id: string, firstname: string, lastname: string, email: string, password: string): Promise<any> {
-        return new Promise(async (resolve, reject) => {
-            let user = requireNonNull(await User.findById(user_id).exec());
-            user.firstname = firstname;
-            user.lastname = lastname;
-            user.email = email;
-            user.password = password;
-            user = requireNonNull(await user.save());
+    public static async updateProfile(user_id: string, firstname: string, lastname: string, email: string, password: string): Promise<Record<string, IUser | string>> {
+        let user = requireNonNull(await User.findById(user_id).exec());
+        user.firstname = firstname;
+        user.lastname = lastname;
+        user.email = email;
+        user.password = password;
+        user = requireNonNull(await user.save());
 
-            const newToken = AuthService.generateJWTToken(user);
+        const newToken = AuthService.generateJWTToken(user);
 
-            resolve({ user: user, newToken: newToken });
-        });
+        return { "user": user, "newToken": newToken };
     }
 
     // delete user account service

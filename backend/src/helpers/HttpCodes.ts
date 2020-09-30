@@ -9,6 +9,6 @@ enum HttpCodes {
     NOT_FOUND        = 404,
     INTERNAL_ERROR   = 500,
     NOT_IMPLEMENTED  = 501
-};
+}
 
 export default HttpCodes;

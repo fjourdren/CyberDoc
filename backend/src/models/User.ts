@@ -77,7 +77,7 @@ export const UserSchema = new mongoose.Schema({
 
 
 // DO NOT export this, Type script validation (= Mongoose raw model)
-interface IUserSchema extends mongoose.Document {
+export interface IUser extends mongoose.Document {
     _id: string;
     directory_id: string;
     firstname: string;
@@ -90,12 +90,6 @@ interface IUserSchema extends mongoose.Document {
 }
 
 
-// Export this (= Mongoose after filtering and hiding sensitive data)
-export interface IUser extends IUserSchema {
-    
-}
-
-
 
 
 /**
@@ -103,7 +97,7 @@ export interface IUser extends IUserSchema {
  */
 UserSchema.plugin(uniqueValidator);
 
-UserSchema.pre<IUser>("save", function(next: any) {
+UserSchema.pre<IUser>("save", function(next: mongoose.HookNextFunction): void {
     this.updated_at = new Date().getTime().toString();
 
     if(this.isModified('password')) {
@@ -114,14 +108,14 @@ UserSchema.pre<IUser>("save", function(next: any) {
     next();
 });
 
-UserSchema.pre<IUser>("update", function(next) {
+UserSchema.pre<IUser>("update", function(next: mongoose.HookNextFunction): void {
     this.updated_at = new Date().getTime().toString();
     next();
 });
 
 // Hide sensible information before exporting the object
 UserSchema.methods.toJSON = function() {
-    var obj = this.toObject();
+    const obj = this.toObject();
     delete obj.__v;
     delete obj.directory_id;
     delete obj.password;

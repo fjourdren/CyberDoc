@@ -58,7 +58,7 @@ export const FileSchema = new mongoose.Schema({
 
 
 // DO NOT export this, Type script validation (= Mongoose raw model)
-interface IFileSchema extends mongoose.Document {
+export interface IFile extends mongoose.Document {
     _id           : string;
     type          : FileType;
     name          : string;
@@ -67,13 +67,6 @@ interface IFileSchema extends mongoose.Document {
     owner_id      : string;
     updated_at    : string;
     created_at    : string;
-}
-
-
-
-// Export this (= Mongoose after filtering and hiding sensitive data)
-export interface IFile extends IFileSchema {
-    
 }
 
 
@@ -91,7 +84,7 @@ FileSchema.pre<IFile>("update", function(next) {
 
 // Hide sensible information before exporting the object
 FileSchema.methods.toJSON = function() {
-    var obj = this.toObject();
+    const obj = this.toObject();
     delete obj.__v;
     delete obj.owner_id;
     delete obj.document_id;

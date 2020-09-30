@@ -5,7 +5,7 @@ class GridFSTalker {
 
     // generate GridFS object to communicate with mongodb's gridfs driver
     private static getGrid(): Grid.Grid {
-        let db = mongoose.connection;
+        const db = mongoose.connection;
         return Grid(db.db, mongoose.mongo);
     }
 
@@ -73,7 +73,7 @@ class GridFSTalker {
         return new Promise((resolve, reject) => {
             try {
                 const gfs = GridFSTalker.getGrid();
-                var writeStream = gfs.createWriteStream(mongoDbOptions);
+                const writeStream = gfs.createWriteStream(mongoDbOptions);
                 content.pipe(writeStream);
                 resolve();
             } catch(err) {

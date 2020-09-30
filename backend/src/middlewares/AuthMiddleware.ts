@@ -4,7 +4,7 @@ import HttpCodes from '../helpers/HttpCodes';
 
 class AuthMiddleware {
 
-    public static isAuthenticate(req: Request, res: Response, next: NextFunction): any {
+    public static isAuthenticate(req: Request, res: Response, next: NextFunction): void {
         // if user is disconnected, we send an error
         if(res.locals.APP_JWT_TOKEN != undefined) {
             // otherwise we continue the route execution
@@ -19,7 +19,7 @@ class AuthMiddleware {
     }
 
 
-    public static isntAuthenticate(req: Request, res: Response, next: NextFunction): any {
+    public static isntAuthenticate(req: Request, res: Response, next: NextFunction): void {
         // if user is connected, we send an error
         if(res.locals.APP_JWT_TOKEN == undefined) {
             // otherwise we continue the route execution

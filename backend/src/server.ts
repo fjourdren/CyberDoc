@@ -7,7 +7,7 @@ import { logger } from './helpers/Log';
 
 
 // load config from environment variables
-import './helpers/ConfigLoader'
+import runConfigLoader from './helpers/ConfigLoader'
 
 class Server {
     private static serverInstance: Server;
@@ -28,6 +28,9 @@ class Server {
     }
 
     private runServer(): void {
+        // load config
+        runConfigLoader();
+
         // mongodb connection
         connectMongodb();
 

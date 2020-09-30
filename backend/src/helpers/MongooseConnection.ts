@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import { logger } from './Log';
 
 export default function connectMongodb(): void {
-    let db = mongoose.connection;
+    const db = mongoose.connection;
 
     // init event log on the mongodb connection
     db.on('connecting', function() {
