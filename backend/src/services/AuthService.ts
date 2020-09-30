@@ -10,7 +10,7 @@ import { requireNonNull } from '../helpers/DataValidation';
 class AuthService {
 
     // generate a JWT token
-    public static generateJWTToken(user: IUser) {
+    public static generateJWTToken(user: IUser): string {
         return jwt.sign({ user }, process.env.JWT_SECRET, {
             expiresIn: 86400 // 24 hours
         });
@@ -18,7 +18,7 @@ class AuthService {
 
     // register service
     public static async signup(firstname: string, lastname: string, email: string, password: string): Promise<IUser> {
-        let newUser: IUser = new User();
+        const newUser: IUser = new User();
         
         // build object
         newUser._id       = Guid.raw()
@@ -28,7 +28,7 @@ class AuthService {
         newUser.password  = password;
 
         // build user's root directory
-        let root_user_dir: IFile = new File();
+        const root_user_dir: IFile = new File();
         root_user_dir._id = Guid.raw();
         root_user_dir.type = FileType.DIRECTORY;
         root_user_dir.name = newUser._id;
@@ -43,7 +43,7 @@ class AuthService {
     public static async login(email: string, password: string): Promise<string> {
         const user: IUser = requireNonNull(await User.findOne({ email: email }).exec());
 
-        const passwordIsValid = bcrypt.compareSync(password, user?.password!);
+        const passwordIsValid = bcrypt.compareSync(password, user.password);
 
         if(!passwordIsValid)
             throw new Error("Invalid credentials");
@@ -54,13 +54,13 @@ class AuthService {
     }
 
     // forgotten password service
-    public static forgottenPassword() {
+    /*public static forgottenPassword() {
         // TODO
-    }
+    }*/
 
     // validate that the token is correct
-    public static validateToken(jwtToken: string): any {
-        return jwt.verify(jwtToken, process.env.JWT_SECRET);
+    public static validateToken(jwtToken: string): string[] {
+        return jwt.verify(jwtToken, process.env.JWT_SECRET) as string[];
     }
 }
 

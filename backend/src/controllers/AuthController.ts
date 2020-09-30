@@ -10,7 +10,7 @@ import IUser from '../models/User';
 class AuthController {
 
     // register controller
-    public static async signup(req: Request, res: Response) {
+    public static async signup(req: Request, res: Response): Promise<void> {
         const { firstname, lastname, email, password } = req.body;
 
         const user: IUser = requireNonNull(await AuthService.signup(firstname, lastname, email, password));
@@ -24,7 +24,7 @@ class AuthController {
 
 
     // login controller
-    public static async signIn(req: Request, res: Response) {
+    public static async signIn(req: Request, res: Response): Promise<void> {
         const { email, password } = req.body;
 
         const jwttoken: string = requireNonNull(await AuthService.login(email, password));
@@ -39,9 +39,9 @@ class AuthController {
 
 
     // forgotten password controller
-    public static forgottenPassword(req: Request, res: Response) {
+    /*public static forgottenPassword(req: Request, res: Response) {
         // TODO
-    }
+    }*/
 }
 
 export default AuthController;

@@ -1,23 +1,26 @@
 import { logger } from './Log';
 import dotenv from 'dotenv'
 
-const env = process.env.APP_ENV || undefined
+export default function runConfigLoader(): void {
+    const env = process.env.APP_ENV || undefined
 
-try {
-    let envConfigFilename: any | undefined;
+    try {
+        let envConfigFilename: string;
 
-    if(env == undefined)
-        envConfigFilename = '.env';
-    else
-        envConfigFilename = '.env.' + env;
+        if(env == undefined)
+            envConfigFilename = '.env';
+        else
+            envConfigFilename = '.env.' + env;
 
-    logger.info(`Load config : ${envConfigFilename}`);
+        logger.info(`Load config : ${envConfigFilename}`);
 
-    dotenv.config({ path: __dirname + "/../../" + envConfigFilename });
-} catch (err) {
-    logger.error(err);
-    process.exit(-1);
+        dotenv.config({ path: __dirname + "/../../" + envConfigFilename });
+    } catch (err) {
+        logger.error(err);
+        process.exit(-1);
+    }
 }
+
 
 
 
