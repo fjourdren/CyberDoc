@@ -8,7 +8,7 @@ import { Role } from '../../models/User';
 const FileRouter = Router();
 
 FileRouter.post('/', AuthMiddleware.isAuthenticate, UserMiddleware.hasRoles([Role.OWNER]), FileController.upload);
-//FileRouter.get('/:fileId', AuthMiddleware.isAuthenticate, FileController.get);
+FileRouter.get('/:fileId', AuthMiddleware.isAuthenticate, FileController.get);
 FileRouter.put('/:fileId', AuthMiddleware.isAuthenticate, FileController.updateContent);
 FileRouter.patch('/:fileId', AuthMiddleware.isAuthenticate, FileController.edit);
 FileRouter.delete('/:fileId', AuthMiddleware.isAuthenticate, FileController.delete);
