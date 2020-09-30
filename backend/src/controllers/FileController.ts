@@ -67,43 +67,72 @@ class FileController {
 
         // if file is a directory
         if(file.type == FileType.DIRECTORY) {
-            /**
-              {
-                "id": "9b81d950-b605-471f-a654-4fffba6bcfc5",
-                "ownerName": "John Doe",
-                "name": "subsubdir",
-                "mimetype": "application/x-dir",
-                "path": [
-                    {
-                        "id": "9b81d950-b605-471f-a654-4fffba6bcfc1",
-                        "name": "root"
-                    },
-                    {
-                        "id": "9b81d950-b605-471f-a654-4fffba6bcfc2",
-                        "name": "subdir"
-                    }
-                ],
-                "directoryContent": [
-                    {
-                        "id": "9b81d950-b605-471f-a654-4fffba6bcfc3",
-                        "ownerName": "John Doe",
-                        "name": "subsubsubdir",
-                        "mimetype": "application/x-dir",
-                        "updated_at": "2017-07-21T17:32:28Z",
-                        "created_at": "2017-07-21T17:32:28Z"
-                    },
-                    {
-                        "id": "9b81d950-b605-471f-a654-4fffba6bcfc5",
-                        "name": "File.pdf",
-                        "ownerName": "John Doe",
-                        "mimetype": "application/pdf",
-                        "size": 666,
-                        "updated_at": "2017-07-21T17:32:28Z",
-                        "created_at": "2017-07-21T17:32:28Z"
-                    }
-                ]
+            // get owner
+            let owner: IUser = requireNonNull(await User.findById(file.owner_id).exec());
+
+            // === CALCULATE PATH ===
+            let pathsOutput: any[] = [];
+
+            let aboveFile: IFile = file;
+            while(aboveFile.parent_file_id != undefined) {
+                aboveFile = requireNonNull(await File.findById(aboveFile.parent_file_id).exec())
+                pathsOutput.push({
+                    "id":   aboveFile._id,
+                    "name": aboveFile.name
+                });
+            }
+            // ===========
+
+
+            // === GET ALL FILES IN THE DIRECTORY ===
+            let directoryContentOutput: any[] = [];
+            let files: IFile[] = await File.find({ parent_file_id: file._id }).exec();
+            files.forEach(async (fileInDir) => {
+                // get owner
+                let ownerFileInDir: IUser = requireNonNull(await User.findById(fileInDir.owner_id).exec());
+
+                // get gridfs informations if it's a document
+                let gridfsInformation: any = undefined;
+                if(fileInDir.type == FileType.DOCUMENT) {
+                    gridfsInformation = requireNonNull(await FileService.getFileInformations(file));
+
+                    directoryContentOutput.push({
+                        "id":         fileInDir._id,
+                        "name":       fileInDir.name,
+                        "ownerName":  ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
+                        "mimetype":   gridfsInformation.contentType,
+                        "size":       gridfsInformation.length,
+                        "updated_at": fileInDir.updated_at,
+                        "created_at": fileInDir.created_at
+                    });
+                } else { // if it's a directory
+                    directoryContentOutput.push({
+                        "id":         fileInDir._id,
+                        "name":       fileInDir.name,
+                        "ownerName":  ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
+                        "mimetype":   "application/x-dir",
+                        "updated_at": fileInDir.updated_at,
+                        "created_at": fileInDir.created_at
+                    });
                 }
-             */
+            });
+            // ===========
+
+
+            // reply to client
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "File informations loaded",
+                content: {
+                    "id":               file._id,
+                    "ownerName":        owner.firstname + " " + owner.lastname,
+                    "name":             file.name,
+                    "mimetype":         "application/x-dir",
+                    "path":             pathsOutput,
+                    "directoryContent": directoryContentOutput
+                }
+            });
             
         } else { // otherwise it's a document
             const owner: IUser = requireNonNull(await User.findById(file.owner_id).exec());
@@ -114,7 +143,7 @@ class FileController {
             res.json({
                 success: true,
                 msg: "File informations loaded",
-                file: {
+                content: {
                     "id":         file._id,
                     "ownerName":  owner.firstname + " " + owner.lastname,
                     "name":       file.name,
@@ -125,9 +154,6 @@ class FileController {
                 }
             });
         }
-
-         
-        // TODO
     }
 
 
