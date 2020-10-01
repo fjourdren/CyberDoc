@@ -1,0 +1,14 @@
+<mat-card id="card" *ngIf="currentlyUploading">
+    <mat-progress-bar mode="determinate" [value]="progressionPercent"></mat-progress-bar>
+    <div id="card-content">
+        <div id="card-text">
+            <div id="card-text-div">
+                <span id="filename-span">{{ (filename.length>50)? (filename | slice:0:50)+'...':(filename) }}</span>
+                <span id="progress-span" class="mat-small">({{progressionPercent}}%, <span [innerHTML]="remainingTimeSeconds | remainingTime"></span> {{'general.remaining' | translate}})</span>
+            </div>
+        </div>
+        <button (click)="cancelUpload()" mat-icon-button>
+            <mat-icon>cancel</mat-icon>
+        </button>
+    </div>
+</mat-card>

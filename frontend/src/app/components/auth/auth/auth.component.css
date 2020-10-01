@@ -1,0 +1,73 @@
+.full-width {
+  width: 100%;
+}
+
+.space {
+  margin-bottom: 1000px;
+}
+
+.shipping-card {
+  min-width: 120px;
+  margin: 20px auto;
+}
+
+.mat-radio-button {
+  display: block;
+  margin: 5px 0;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.col {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.col:last-child {
+  margin-right: 0;
+}
+
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.center_header {
+  margin-left: auto;
+  margin-right: auto;
+  width: 30%;
+  min-width: 300px;
+  margin-top: 5%;
+}
+
+.submit{
+  width: 100%;
+}
+
+
+
+img {
+  max-width: 100%;
+  vertical-align:middle;
+  height: auto;
+}
+
+h1{
+  text-align: center;
+}
+
+@media screen and (max-width: 640px) {
+  .col {
+    flex: 1;
+    margin-right: 5px;
+    width: 50%;
+  }
+}
+

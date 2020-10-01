@@ -1,0 +1,22 @@
+@import '../../../../theme.scss';
+
+mat-tree {
+    user-select: none;
+}
+
+.selected {
+    background: $selected;
+}
+
+.tree-node-div {
+    display: flex; 
+    align-items: center;
+}
+
+.tree-node-div > mat-icon {
+    margin-right: 4px;
+}
+
+a{
+    width: 100%;
+}

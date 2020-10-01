@@ -1,0 +1,40 @@
+#card {
+    position: absolute;
+    max-width: calc(100vw - 32px);
+    left: 16px;
+    bottom: 16px;
+    width: 400px;
+    padding: 0;
+}
+
+#card-content {
+    display: flex;
+    padding: 16px;
+    width: calc(100% - 32px);
+}
+
+#card-text {
+    flex: 1 1 auto;
+    align-self: center;
+    width: 100%;
+}
+
+#card-text-div {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+#filename-span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+#progress-span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}

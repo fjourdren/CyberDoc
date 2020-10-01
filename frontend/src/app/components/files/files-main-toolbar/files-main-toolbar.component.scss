@@ -1,0 +1,38 @@
+#search-field {
+    flex: 1 1 auto;
+}
+
+#search-div {
+    font-size: 1rem;
+    margin: 16px;
+    display: flex;
+    flex: 1 1 auto;
+}
+
+.search-btn {
+    align-self: center;
+    margin-left: 4px;
+}
+
+mat-form-field {
+    flex: 1 1 auto;
+}
+
+#search-input {
+    border-radius: 4px;
+    padding: 8px;
+    appearance: none;
+    border: none;
+}
+
+#app-icon {
+    padding-left: 4px; 
+    padding-right: 4px
+}
+
+#app-name-icon-container {
+    display:flex;
+    align-items:center;
+    padding-left: 4px; 
+    padding-right: 4px
+}

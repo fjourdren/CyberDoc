@@ -1,0 +1,13 @@
+app-files-generic-table, [mat-dialog-content] {
+    display: block;
+    overflow: auto;
+    height: 250px;
+}
+
+[mat-dialog-title] {
+    display: flex;
+}
+
+#mat-dialog-title-div {
+    align-self: center;
+}

@@ -1,0 +1,57 @@
+@import '../../../../theme.scss';
+
+table {
+    width: 100%;
+    user-select: none;
+}
+  
+.mat-form-field-infix{
+  width: auto !important;
+}
+
+.selected, .selected > * {
+  background: $selected;
+}
+
+th.mat-sort-header-sorted {
+  color: black;
+}
+
+.disabled, .disabled > * {
+  color: gray !important;
+}
+
+.icon-column {
+  width: 32px;
+}
+
+.type-column {
+  width: 96px;
+}
+
+.size-column {
+  width: 96px;
+}
+
+.date-column {
+  width: 96px;
+}
+
+.menubutton-column {
+  width: 32px;
+}
+
+mat-icon {
+  font-size: 20px;
+}
+
+#context-menu-div {
+  visibility: hidden;
+  position: fixed
+}
+
+#no-items-div {
+  margin-top: 48px;
+  left: calc(50% - 24px);
+  position: absolute;
+}

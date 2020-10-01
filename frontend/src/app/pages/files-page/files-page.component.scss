@@ -1,0 +1,68 @@
+#treeview-drawer {
+    border-top: solid 1px rgba(0,0,0,.12);
+}
+
+#file-detail-drawer {
+    border-top: solid 1px rgba(0,0,0,.12);
+}
+
+#close-file-detail-drawer-btn {
+    margin-right: 4px;
+}
+
+app-files-treeview {
+    display: block;
+    width: 80vw;
+    max-width: 300px;
+}
+
+app-files-main-toolbar {
+    width: 100vh;
+}
+
+app-files-details-panel {
+    display: block;
+    width: 80vw;
+    max-width: 300px;
+        padding: 8px;
+}
+
+mat-drawer-container {
+    width: 100%;
+    flex: 1 1 auto;
+}
+
+#app-files-breadcrumb-container {
+    display: block;
+    overflow: auto;
+}
+
+app-files-breadcrumb {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+}
+
+.take-remaining-space {
+    flex: 1 1 auto;
+}
+
+mat-spinner {
+    margin-top: 48px;
+    left: calc(50% - 24px);
+}
+
+app-files-generic-table {
+    display: block;
+}
+
+app-files-upload{
+    z-index: 10;
+}
+
+#filepage {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}

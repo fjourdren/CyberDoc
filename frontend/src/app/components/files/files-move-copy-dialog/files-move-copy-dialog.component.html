@@ -1,0 +1,23 @@
+<h1 #title mat-dialog-title>
+    <button (click)="onBackBtnClicked()" *ngIf="directories.length > 1" mat-icon-button>
+        <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div id="mat-dialog-title-div">{{data.copy ? ('fileaction.copy' | translate) : ('fileaction.move' | translate)}}
+    </div>
+</h1>
+
+<div mat-dialog-content>
+    <app-files-generic-table *ngIf="!loading" [showDetailsButton]="false" [restrictions]="filesTableRestrictions" (selectedNodeChange)="this.selectedNode = $event"
+        [items]="currentDirectory && currentDirectory.directoryContent" (openButtonClicked)="openButtonClicked($event)">
+    </app-files-generic-table>
+
+
+    <!-- <app-files-directory-table [restrictions]="filesTableRestrictions" [(currentDirectoryID)]="directoryID"></app-files-directory-table> -->
+</div>
+
+<div mat-dialog-actions align="end">
+    <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+    <button [disabled]="loading" mat-button (click)="onCancelBtnClicked()">{{'general.cancel' | translate}}</button>
+    <button [disabled]="loading" mat-raised-button color="primary"
+        (click)="onMoveOrCopyBtnClicked()">{{data.copy ? ('fileaction.copy' | translate) : ('fileaction.move' | translate)}}</button>
+</div>

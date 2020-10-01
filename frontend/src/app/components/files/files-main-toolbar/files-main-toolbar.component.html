@@ -1,0 +1,35 @@
+<mat-toolbar color="primary">
+    <button *ngIf="!hideMenuButton" mat-icon-button (click)="menuButtonClicked.emit()">
+        <mat-icon>menu</mat-icon>
+    </button>
+    <div id="app-name-icon-container" *ngIf="!hideAppName">
+        <img id="app-icon" width="36" height="36" src="/assets/favicon.ico">
+        <span>{{'general.appname' | translate}}</span>
+    </div>
+    <div id="search-div">
+        <mat-form-field floatLabel="never">
+            <input matInput id="search-input" type="text">
+        </mat-form-field>
+        <button matSuffix mat-icon-button class="search-btn">
+            <mat-icon>expand_more</mat-icon>
+        </button>
+    </div>
+
+    <button mat-icon-button [matMenuTriggerFor]="menu">
+        <mat-icon>account_circle</mat-icon>
+    </button>
+</mat-toolbar>
+
+<mat-menu #menu="matMenu">
+    <button mat-menu-item disabled>
+        <span>{{getCurrentUsername()}}</span>
+    </button>
+    <a mat-menu-item routerLink="/settings">
+        <mat-icon>settings</mat-icon>
+        <span>{{ 'general.settings' | translate }}</span>
+    </a>
+    <a mat-menu-item routerLink="/logout">
+        <mat-icon>logout</mat-icon>
+        <span>{{ 'general.logout' | translate }}</span>
+    </a>
+</mat-menu>

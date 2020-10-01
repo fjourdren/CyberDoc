@@ -1,0 +1,11 @@
+<h1 mat-dialog-title>
+    {{'general.error_title' | translate}}
+</h1>
+
+<div mat-dialog-content>
+    {{ 'general.error_content' | translate }}
+</div>
+
+<div mat-dialog-actions align="end">
+    <button (click)="onRefreshBtn()" mat-raised-button color="warn">{{'general.refresh' | translate}}</button>
+</div>
