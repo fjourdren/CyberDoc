@@ -7,7 +7,7 @@ const DEFAULT_FS_PROVIDER_NAME = "mock";
 @Injectable({
     providedIn: 'root'
 })
-export class FileSystemProviderService {
+export class FileSystemProvider {
     private _instances = new Map<string, FileSystem>();
 
     constructor(){}

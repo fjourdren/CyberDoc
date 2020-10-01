@@ -1,7 +1,7 @@
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CloudDirectory } from 'src/app/models/files-api-models';
-import { FileSystemProviderService } from 'src/app/services/filesystems/file-system-provider';
+import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { FilesTreeviewDataSource } from './files-treeview-datasource';
 import { FilesTreeviewNode } from './files-treeview-node';
@@ -15,10 +15,9 @@ export class FilesTreeviewComponent {
 
   private _loading = false;
   private _currentDirectoryID: string;
-  @Output() currentDirectoryIDChange = new EventEmitter<string>();
 
   constructor(
-    private fsProvider: FileSystemProviderService,
+    private fsProvider: FileSystemProvider,
     private userServiceProvider: UserServiceProvider
   ) {
     this.treeControl = new FlatTreeControl<FilesTreeviewNode>(this.getLevel, this.isExpandable);
@@ -52,10 +51,6 @@ export class FilesTreeviewComponent {
 
   treeControl: FlatTreeControl<FilesTreeviewNode>;
   dataSource: FilesTreeviewDataSource;
-
-  onClick(directory: CloudDirectory) {
-    this.currentDirectoryIDChange.emit(directory.id);
-  }
 
   getLevel = (node: FilesTreeviewNode) => node.level;
   isExpandable = (node: FilesTreeviewNode) => node.expandable;

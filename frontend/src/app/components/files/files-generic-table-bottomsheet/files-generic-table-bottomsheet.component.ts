@@ -1,6 +1,6 @@
 import { CloudNode } from 'src/app/models/files-api-models';
 import { MimetypeUtilsService } from 'src/app/services/mimetype-utils/mimetype-utils.service';
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, NgZone } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 
 export interface FilesGenericTableBottomsheetData {
@@ -19,7 +19,8 @@ export interface FilesGenericTableBottomsheetData {
 export class FilesGenericTableBottomsheetComponent {
   constructor(private bottomSheetRef: MatBottomSheetRef<FilesGenericTableBottomsheetComponent>,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: FilesGenericTableBottomsheetData,
-    private mimetypeUtils: MimetypeUtilsService) {
+    private mimetypeUtils: MimetypeUtilsService,
+    private ngZone: NgZone) {
 
     this.bottomSheetRef.afterDismissed().toPromise().then(() => this.data.onBottomSheetClose());
   }
@@ -33,7 +34,9 @@ export class FilesGenericTableBottomsheetComponent {
   onBottomSheetSelection(event: Event, action: string) {
     event.preventDefault();
     this.bottomSheetRef.dismiss();
-    this.data.callback(action);
-    this.data.onBottomSheetClose();
+    this.ngZone.run(() => {
+      this.data.callback(action);
+      this.data.onBottomSheetClose();
+    })
   }
 }

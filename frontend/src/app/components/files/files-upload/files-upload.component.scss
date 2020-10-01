@@ -1,4 +1,4 @@
-@import '../../../../vars.scss';
+@import '../../../../theme.scss';
 
 #drop-div-text {
     display: flex;
@@ -9,7 +9,6 @@
 }
 
 #drop-div {
-    background: $app-selected;
     position: absolute; 
     left: 24px; 
     right: 24px; 

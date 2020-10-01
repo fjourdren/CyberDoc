@@ -2,7 +2,7 @@ import { Component, ElementRef, HostListener, Inject, OnInit, ViewChild } from '
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CloudDirectory, DIRECTORY_MIMETYPE } from 'src/app/models/files-api-models';
-import { FileSystemProviderService } from 'src/app/services/filesystems/file-system-provider';
+import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 
 @Component({
   selector: 'app-files-new-folder-dialog',
@@ -15,8 +15,8 @@ export class FilesNewFolderDialogComponent {
   input = new FormControl('', [Validators.required]);
 
   constructor(public dialogRef: MatDialogRef<FilesNewFolderDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: CloudDirectory,
-    private fsProvider: FileSystemProviderService) {
+    @Inject(MAT_DIALOG_DATA) public parentFolder: CloudDirectory,
+    private fsProvider: FileSystemProvider) {
   }
 
   @HostListener("keydown", ['$event'])
@@ -27,10 +27,12 @@ export class FilesNewFolderDialogComponent {
   }
 
   onCreateBtnClicked() {
+    if (!this.input.value) { return; }
+
     this.loading = true;
     this.input.disable();
     this.dialogRef.disableClose = true;
-    this.fsProvider.default().createDirectory(this.input.value, this.data.id).toPromise().then(() => {
+    this.fsProvider.default().createDirectory(this.input.value, this.parentFolder.id).toPromise().then(() => {
       this.loading = false;
       this.input.enable();
       this.dialogRef.disableClose = false;
@@ -41,7 +43,4 @@ export class FilesNewFolderDialogComponent {
   onCancelBtnClicked() {
     this.dialogRef.close(false);
   }
-
-
-
 }

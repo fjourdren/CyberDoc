@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { FileSystemProviderService } from 'src/app/services/filesystems/file-system-provider';
+import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { FilesNewFolderDialogComponent } from '../files-new-folder-dialog/files-new-folder-dialog.component';
 
 @Component({
@@ -19,7 +19,7 @@ export class FilesUploadComponent implements AfterViewInit {
   currentlyUploading = false;
 
   constructor(
-    private fsProvider: FileSystemProviderService,
+    private fsProvider: FileSystemProvider,
     private dialog: MatDialog
   ) {
     fsProvider.default().getCurrentFileUpload().subscribe(val => {

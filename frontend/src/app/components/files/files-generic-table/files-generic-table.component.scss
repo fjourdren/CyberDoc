@@ -1,7 +1,8 @@
-@import '../../../../vars.scss';
+@import '../../../../theme.scss';
 
 table {
     width: 100%;
+    user-select: none;
 }
   
 .mat-form-field-infix{
@@ -9,7 +10,7 @@ table {
 }
 
 .selected, .selected > * {
-  background: $app-selected;
+  background: $selected;
 }
 
 th.mat-sort-header-sorted {
@@ -47,4 +48,10 @@ mat-icon {
 #context-menu-div {
   visibility: hidden;
   position: fixed
+}
+
+#no-items-div {
+  margin-top: 48px;
+  left: calc(50% - 24px);
+  position: absolute;
 }
