@@ -29,7 +29,7 @@ app-files-details-panel {
 
 mat-drawer-container {
     width: 100%;
-    height: 100%;
+    flex: 1 1 auto;
 }
 
 #app-files-breadcrumb-container {
@@ -43,10 +43,26 @@ app-files-breadcrumb {
     min-width: 100%;
 }
 
-app-files-directory-table {
+.take-remaining-space {
+    flex: 1 1 auto;
+}
+
+mat-spinner {
+    margin-top: 48px;
+    left: calc(50% - 24px);
+}
+
+app-files-generic-table {
     display: block;
 }
 
-.take-remaining-space {
-    flex: 1 1 auto;
+app-files-upload{
+    z-index: 10;
+}
+
+#filepage {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
 }

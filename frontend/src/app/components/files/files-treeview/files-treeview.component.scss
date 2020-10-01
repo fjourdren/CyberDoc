@@ -1,7 +1,11 @@
-@import '../../../../vars.scss';
+@import '../../../../theme.scss';
 
-.selected, .selected > * {
-    background: $app-selected;
+mat-tree {
+    user-select: none;
+}
+
+.selected {
+    background: $selected;
 }
 
 .tree-node-div {
@@ -11,4 +15,8 @@
 
 .tree-node-div > mat-icon {
     margin-right: 4px;
+}
+
+a{
+    width: 100%;
 }

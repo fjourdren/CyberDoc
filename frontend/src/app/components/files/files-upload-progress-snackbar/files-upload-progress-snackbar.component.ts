@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
-import { FileSystemProviderService } from 'src/app/services/filesystems/file-system-provider';
+import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 
 @Component({
   selector: 'app-files-upload-progress-snackbar',
@@ -15,14 +15,14 @@ export class FilesUploadProgressSnackbarComponent {
   remainingTimeSeconds = 0;
 
   constructor(
-    private fsProvider: FileSystemProviderService,
+    private fsProvider: FileSystemProvider,
     private snackBar: MatSnackBar,
     private translate: TranslateService
   ) {
     fsProvider.default().getCurrentFileUpload().subscribe(state => {
       if (state) {
         this.filename = state.filename;
-        this.progressionPercent = state.progress * 100;
+        this.progressionPercent = Math.round(state.progress * 100);
         this.remainingTimeSeconds = state.remainingSeconds;
         this.currentlyUploading = true;
       } else if (this.currentlyUploading) { //don't show success msg if upload canceled

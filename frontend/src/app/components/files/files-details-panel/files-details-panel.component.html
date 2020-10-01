@@ -1,6 +1,4 @@
-<mat-spinner *ngIf="!(node$ | async)" diameter="48"></mat-spinner>
-
-<div *ngIf="node$ | async as node">
+<div *ngIf="node">
   <div class="mat-title">
     <mat-icon fontSet="fa" fontIcon="{{getIconForMimetype(node.mimetype)}}"></mat-icon>
     {{node.name}}
@@ -30,3 +28,5 @@
     </tr>
   </table>
 </div>
+
+<mat-spinner *ngIf="!node" diameter="48"></mat-spinner>

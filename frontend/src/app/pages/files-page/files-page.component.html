@@ -1,47 +1,61 @@
-<mat-drawer-container autosize>
+<div id="filepage">
+    <div *ngIf="fileDetailDrawerLocked">
+        <app-files-main-toolbar [hideAppName]="smallScreen" [hideMenuButton]="treeviewDrawerLocked"
+            (menuButtonClicked)="treeviewDrawer.toggle()">
+        </app-files-main-toolbar>
 
-    <mat-drawer [opened]="treeviewDrawerLocked" [mode]="treeviewDrawerLocked ? 'side' : 'over'" #treeviewDrawer
-        id="treeview-drawer">
-
-        <mat-toolbar *ngIf="treeviewDrawerLocked">{{ 'general.appname' | translate }}</mat-toolbar>
-
-        <mat-toolbar *ngIf="!treeviewDrawerLocked">
-            {{ 'general.appname' | translate }}
-            <div class="take-remaining-space"></div>
-            <button (click)="treeviewDrawer.close()" mat-icon-button>
-                <mat-icon>close</mat-icon>
-            </button>
-        </mat-toolbar>
-
-        <app-files-treeview [(currentDirectoryID)]="currentDirectoryID"
-            (currentDirectoryIDChange)="treeviewDrawer.close()">
-        </app-files-treeview>
-    </mat-drawer>
-
-    <app-files-main-toolbar [hideMenuButton]="treeviewDrawerLocked" (menuButtonClicked)="treeviewDrawer.toggle()"></app-files-main-toolbar>
-
-    <div id="app-files-breadcrumb-container">
-        <app-files-breadcrumb [(currentDirectoryID)]="currentDirectoryID"></app-files-breadcrumb>
+        <div id="app-files-breadcrumb-container">
+            <app-files-breadcrumb [(currentDirectory)]="currentDirectory"></app-files-breadcrumb>
+        </div>
     </div>
+    <mat-drawer-container autosize>
 
-    <app-files-directory-table [(currentDirectoryID)]="currentDirectoryID" [(selectedNodeID)]="selectedNodeID"
-        (detailsButtonClicked)="fileDetailDrawer.open()" [showDetailsButton]="!fileDetailDrawerLocked">
-    </app-files-directory-table>
+        <mat-drawer [opened]="treeviewDrawerLocked" [mode]="treeviewDrawerLocked ? 'side' : 'over'" #treeviewDrawer
+            id="treeview-drawer">
 
-    <app-files-upload [currentDirectoryID]="currentDirectoryID"></app-files-upload>
+            <mat-toolbar *ngIf="!fileDetailDrawerLocked">
+                {{ 'general.appname' | translate }}
+                <div class="take-remaining-space"></div>
+                <button (click)="treeviewDrawer.close()" mat-icon-button>
+                    <mat-icon>close</mat-icon>
+                </button>
+            </mat-toolbar>
 
-    <mat-drawer #fileDetailDrawer [opened]="fileDetailDrawerLocked" [mode]="fileDetailDrawerLocked ? 'side' : 'over'"
-        position="end" id="file-detail-drawer">
-        <mat-toolbar *ngIf="!fileDetailDrawerLocked">
-            <button id="close-file-detail-drawer-btn" (click)="fileDetailDrawer.close()" mat-icon-button>
-                <mat-icon>close</mat-icon>
-            </button>
-            {{ 'general.filedetails' | translate }}
-            <div class="take-remaining-space"></div>
-        </mat-toolbar>
-        <app-files-details-panel [fileID]="selectedNodeID || currentDirectoryID"></app-files-details-panel>
-    </mat-drawer>
+            <app-files-treeview [currentDirectoryID]="currentDirectory && currentDirectory.id"></app-files-treeview>
+        </mat-drawer>
 
-    <app-files-upload-progress-snackbar></app-files-upload-progress-snackbar>
+        <div *ngIf="!fileDetailDrawerLocked">
+            <app-files-main-toolbar [hideAppName]="smallScreen" [hideMenuButton]="treeviewDrawerLocked"
+                (menuButtonClicked)="treeviewDrawer.toggle()">
+            </app-files-main-toolbar>
 
-</mat-drawer-container>
+            <div id="app-files-breadcrumb-container">
+                <app-files-breadcrumb [(currentDirectory)]="currentDirectory"></app-files-breadcrumb>
+            </div>
+        </div>
+
+        <mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
+
+        <app-files-generic-table *ngIf="!loading" [showDetailsButton]="!fileDetailDrawerLocked"
+            [currentDirectoryID]="currentDirectory && currentDirectory.id"
+            [items]="currentDirectory && currentDirectory.directoryContent" [(selectedNode)]="selectedNode"
+            (openButtonClicked)="openButtonClicked($event)" (detailsButtonClicked)="fileDetailDrawer.open()">
+        </app-files-generic-table>
+
+        <mat-drawer #fileDetailDrawer [opened]="fileDetailDrawerLocked"
+            [mode]="fileDetailDrawerLocked ? 'side' : 'over'" position="end" id="file-detail-drawer">
+            <mat-toolbar *ngIf="!fileDetailDrawerLocked">
+                <button id="close-file-detail-drawer-btn" (click)="fileDetailDrawer.close()" mat-icon-button>
+                    <mat-icon>close</mat-icon>
+                </button>
+                {{ 'general.filedetails' | translate }}
+                <div class="take-remaining-space"></div>
+            </mat-toolbar>
+            <app-files-details-panel [node]="selectedNode || currentDirectory"></app-files-details-panel>
+        </mat-drawer>
+
+        <app-files-upload-progress-snackbar></app-files-upload-progress-snackbar>
+
+    </mat-drawer-container>
+    <app-files-upload [currentDirectoryID]="currentDirectory && currentDirectory.id"></app-files-upload>
+</div>

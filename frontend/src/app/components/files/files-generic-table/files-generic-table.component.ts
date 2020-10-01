@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, NgZone, OnInit, Output, ViewChild } from '@angular/core';
 
 import { FilesTableRestrictions, NO_RESTRICTIONS } from './files-table-restrictions';
 import { CloudFile, CloudNode } from 'src/app/models/files-api-models';
@@ -15,8 +15,9 @@ import { NgResizeObserver, ngResizeObserverProviders } from 'ng-resize-observer'
 import { map } from 'rxjs/operators';
 import { FilesGenericTableBottomsheetComponent, FilesGenericTableBottomsheetData } from '../files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 import { FilesRenameDialogComponent } from '../files-rename-dialog/files-rename-dialog.component';
-import { FileSystemProviderService } from 'src/app/services/filesystems/file-system-provider';
+import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { ActionSequence } from 'protractor';
 
 export type FileAction = "open" | "download" | "rename" | "copy" | "delete" | "move" | "details";
 
@@ -30,6 +31,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
 
   isTouchScreen = 'ontouchstart' in window;
   unselectAfterContextMenuOrBottomSheet = false;
+  private _touchStartEventTrigerred = false;
 
   displayedColumns = ['icon', 'name', 'type', 'size', 'date', 'menubutton'];
   dataSource = new MatTableDataSource([]);
@@ -85,9 +87,10 @@ export class FilesGenericTableComponent implements AfterViewInit {
   constructor(
     private bottomSheet: MatBottomSheet,
     private dialog: MatDialog,
+    private ngZone: NgZone,
     private mimetypeUtils: MimetypeUtilsService,
     private resize: NgResizeObserver,
-    private fsProvider: FileSystemProviderService,
+    private fsProvider: FileSystemProvider,
     private userServiceProvider: UserServiceProvider
   ) {
     resize.pipe(map(entry => entry.contentRect.width)).subscribe(this.onTableWidthChanged.bind(this));
@@ -145,12 +148,18 @@ export class FilesGenericTableComponent implements AfterViewInit {
     this.unselectAfterContextMenuOrBottomSheet = true;
     this.bottomSheet.open(FilesGenericTableBottomsheetComponent, {
       data: {
-        callback: this.execActionOnSelectedNode.bind(this),
+        callback: this.onContextMenuOrBottomSheetSelection.bind(this),
         readonlyMode: this.isReadOnly(node),
         showDetailsEntry: this.showDetailsButton,
         node: node,
         onBottomSheetClose: this.onBottomSheetClose.bind(this)
       } as FilesGenericTableBottomsheetData
+    });
+  }
+
+  onContextMenuOrBottomSheetSelection(action: FileAction) {
+    this.ngZone.run(() => {
+      this.execActionOnSelectedNode(action);
     });
   }
 
@@ -161,20 +170,36 @@ export class FilesGenericTableComponent implements AfterViewInit {
     }
   }
 
-  onClick(node: CloudNode) {
-    if (this.isTouchScreen) {
+  onTouchStart(node: CloudNode) {
+    this.ngZone.run(() => {
+      this.isTouchScreen = true;
+      this._touchStartEventTrigerred = true;
       this.setSelectedNode(node);
       this.execActionOnSelectedNode("open");
-    } else if (this.selectedNode && this.selectedNode === node) {
-      this.setSelectedNode(null);
-    } else if (this._restrictions.isSelectable(node)) {
-      this.setSelectedNode(node);
-    }
+    });
+  }
+
+  onClick(node: CloudNode) {
+    this.ngZone.run(() => {
+      if (this._touchStartEventTrigerred) {
+        this._touchStartEventTrigerred = false;
+        return;
+      }
+
+      this.isTouchScreen = false;
+      if (this.selectedNode && this.selectedNode === node) {
+        this.setSelectedNode(null);
+      } else if (this._restrictions.isSelectable(node)) {
+        this.setSelectedNode(node);
+      }
+    })
   }
 
   onDoubleClick(node: CloudNode) {
-    this.setSelectedNode(node);
-    this.execActionOnSelectedNode("open");
+    this.ngZone.run(() => {
+      this.setSelectedNode(node);
+      this.execActionOnSelectedNode("open");
+    })
   }
 
   onTableWidthChanged(width: number) {

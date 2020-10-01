@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, HostListener, Inject, ViewChild }
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CloudNode } from 'src/app/models/files-api-models';
-import { FileSystemProviderService } from 'src/app/services/filesystems/file-system-provider';
+import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 
 @Component({
   selector: 'app-files-rename-dialog',
@@ -16,9 +16,9 @@ export class FilesRenameDialogComponent implements AfterViewInit {
   @ViewChild('inputElement') inputElement: ElementRef<HTMLInputElement>;
 
   constructor(public dialogRef: MatDialogRef<FilesRenameDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: CloudNode,
-    private fsProvider: FileSystemProviderService) {
-      this.input.setValue(this.data.name);
+    @Inject(MAT_DIALOG_DATA) public node: CloudNode,
+    private fsProvider: FileSystemProvider) {
+      this.input.setValue(this.node.name);
   }
 
   @HostListener("keydown", ['$event'])
@@ -29,18 +29,20 @@ export class FilesRenameDialogComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (!this.data.isDirectory && this.data.name.indexOf(".") !== -1) {
-      this.inputElement.nativeElement.setSelectionRange(0, this.data.name.lastIndexOf("."));
+    if (!this.node.isDirectory && this.node.name.indexOf(".") !== -1) {
+      this.inputElement.nativeElement.setSelectionRange(0, this.node.name.lastIndexOf("."));
     } else {
-      this.inputElement.nativeElement.setSelectionRange(0, this.data.name.length);
+      this.inputElement.nativeElement.setSelectionRange(0, this.node.name.length);
     } 
   }
 
   onRenameBtnClicked() {
+    if (!this.input.value) { return; }
+
     this.loading = true;
     this.input.disable();
     this.dialogRef.disableClose = true;
-    this.fsProvider.default().rename(this.data.id, this.input.value).toPromise().then(() => {
+    this.fsProvider.default().rename(this.node.id, this.input.value).toPromise().then(() => {
       this.loading = false;
       this.input.enable();
       this.dialogRef.disableClose = false;
