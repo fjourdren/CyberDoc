@@ -2,6 +2,10 @@
   width: 100%;
 }
 
+.space {
+  margin-bottom: 1000px;
+}
+
 .shipping-card {
   min-width: 120px;
   margin: 20px auto;
@@ -46,3 +50,24 @@
 .submit{
   width: 100%;
 }
+
+
+
+img {
+  max-width: 100%;
+  vertical-align:middle;
+  height: auto;
+}
+
+h1{
+  text-align: center;
+}
+
+@media screen and (max-width: 640px) {
+  .col {
+    flex: 1;
+    margin-right: 5px;
+    width: 50%;
+  }
+}
+
