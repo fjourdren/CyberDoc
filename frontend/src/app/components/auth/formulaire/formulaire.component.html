@@ -29,9 +29,9 @@
         <div class="col">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Enter your email</mat-label>
-            <input matInput formControlName="email" [formControl]="email" required>
-            <mat-error *ngIf="email.invalid">
-              {{getErrorMessage()}}
+            <input matInput formControlName="email" required>
+            <mat-error *ngIf="addressForm.controls['email'].hasError('required')">
+              Email is <strong>required. </strong>
             </mat-error>
           </mat-form-field>
         </div>

@@ -50,7 +50,7 @@ export class MockUserService implements UserService {
         }
 
         this._users.set(user.email, user);
-        return of(null).pipe(delay(DELAY));
+        return of(user).pipe(delay(DELAY));
     }
 
     login(email: string, password: string): Observable<User> {
