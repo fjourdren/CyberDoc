@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Grid from 'gridfs-stream';
+import { Readable } from 'stream';
 
 class GridFSTalker {
 
@@ -56,12 +57,21 @@ class GridFSTalker {
         return new Promise((resolve, reject) => {
             try {
                 const gfs = GridFSTalker.getGrid();
-                gfs.exist(mongoDbOptions, function(err: Error, found: boolean) {
+                gfs.findOne(mongoDbOptions, function(err: Error, file: string[]) {
                     if(err)
                         reject(err);
-                    
-                    resolve(found);
+
+                    resolve(file != undefined);
                 });
+
+                /* Doesn't work with gridfs-stream last versions
+                gfs.exist(mongoDbOptions, function(err: Error, found: boolean) {
+                    if(err) {
+                        reject(err);
+                    }
+
+                    resolve(found);
+                });*/
             } catch(err) {
                 reject(err);
             }
@@ -74,7 +84,12 @@ class GridFSTalker {
             try {
                 const gfs = GridFSTalker.getGrid();
                 const writeStream = gfs.createWriteStream(mongoDbOptions);
-                content.pipe(writeStream);
+
+                const readableTrackStream = new Readable();
+                readableTrackStream.push(content);
+                readableTrackStream.push(null);
+
+                readableTrackStream.pipe(writeStream);
                 resolve();
             } catch(err) {
                 reject(err);

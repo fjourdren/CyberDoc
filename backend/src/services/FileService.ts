@@ -1,4 +1,5 @@
 import Guid from 'guid';
+import mongoose from 'mongoose';
 
 import GridFSTalker from "../helpers/GridFSTalker";
 import { requireNonNull, requireIsNull } from '../helpers/DataValidation';
@@ -77,12 +78,12 @@ class FileService {
 
     // throwers
     public static requireFileIsDocument(file: IFile): void {
-        if(!FileService.fileIsDocument(file))
+        if(FileService.fileIsDocument(file) == false)
             throw new HTTPError(HttpCodes.BAD_REQUEST, "File isn't a document");
     }
 
     public static requireFileIsDirectory(file: IFile): void {
-        if(!FileService.fileIsDirectory(file))
+        if(FileService.fileIsDirectory(file) == false)
             throw new HTTPError(HttpCodes.BAD_REQUEST, "File isn't a directory");
     }
 
@@ -212,16 +213,17 @@ class FileService {
     }
 
     // delete a directory
-    public static async deleteDirectory(file: IFile): Promise<any> {
+    public static async deleteDirectory(file: IFile, forceDeleteRoot: boolean = false): Promise<any> {
         // be sure that file is a directory
         FileService.requireFileIsDirectory(file);
 
         // if file don't have parent, we don't delete it because it's a root dir
-        requireNonNull(file.parent_file_id);
+        if(!forceDeleteRoot)
+            requireNonNull(file.parent_file_id);
 
         // start deleting
         // find all child files
-        const files = await File.find({ parent_file_id: file._id }).exec();
+        const files: IFile[] = await File.find({ parent_file_id: file._id }).exec();
         files.forEach(fileToDelete => {
             // delete directory and document recursively
             if(fileToDelete.type == FileType.DIRECTORY)

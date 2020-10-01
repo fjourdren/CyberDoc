@@ -1,8 +1,10 @@
 import { IUser, User, Role } from "../models/User";
+import { IFile, File } from "../models/File";
 
 import { requireNonNull } from "../helpers/DataValidation";
 
 import AuthService from "./AuthService";
+import FileService from "./FileService";
 
 class UserService {
     
@@ -17,12 +19,18 @@ class UserService {
     }
 
     // profile update
-    public static async updateProfile(user_id: string, firstname: string, lastname: string, email: string, password: string): Promise<Record<string, IUser | string>> {
+    public static async updateProfile(user_id: string | undefined, firstname: string | undefined, lastname: string | undefined, email: string | undefined, password: string | undefined): Promise<Record<string, IUser | string>> {
         let user = requireNonNull(await User.findById(user_id).exec());
-        user.firstname = firstname;
-        user.lastname = lastname;
-        user.email = email;
-        user.password = password;
+    
+        if(firstname != undefined)
+            user.firstname = firstname;
+        if(lastname != undefined)
+            user.lastname = lastname;
+        if(email != undefined)
+            user.email = email;
+        if(password != undefined)
+            user.password = password;
+
         user = requireNonNull(await user.save());
 
         const newToken = AuthService.generateJWTToken(user);
@@ -32,6 +40,9 @@ class UserService {
 
     // delete user account service
     public static async delete(_id: string): Promise<IUser> {
+        const user: IUser = requireNonNull(await User.findById(_id));
+        const user_root: IFile = requireNonNull(await File.findById(user.directory_id));
+        requireNonNull(await FileService.deleteDirectory(user_root, true)); // true => force root directory to be deleted
         return requireNonNull(await User.findByIdAndDelete(_id).exec());
     }
 }

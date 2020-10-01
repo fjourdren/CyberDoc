@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import Guid from 'guid';
 
 import { IFile, File, FileType } from "../models/File";
-import { IUser, User } from "../models/User";
+import { IUser, User, Role } from "../models/User";
 
 import { requireNonNull } from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes';
@@ -19,7 +19,7 @@ class AuthService {
     }
 
     // register service
-    public static async signup(firstname: string, lastname: string, email: string, password: string): Promise<IUser> {
+    public static async signup(firstname: string, lastname: string, email: string, password: string, role: Role): Promise<IUser> {
         const newUser: IUser = new User();
         
         // build object
@@ -28,12 +28,13 @@ class AuthService {
         newUser.lastname  = lastname;
         newUser.email     = email;
         newUser.password  = password;
+        newUser.role      = role;
 
         // build user's root directory
         const root_user_dir: IFile = new File();
         root_user_dir._id = Guid.raw();
         root_user_dir.type = FileType.DIRECTORY;
-        root_user_dir.name = newUser._id;
+        root_user_dir.name = "Root";
         root_user_dir.owner_id = newUser._id;
 
         newUser.directory_id = root_user_dir._id;

@@ -28,7 +28,7 @@ class ErrorCatcherMiddleware {
         // reply error
         res.status(httpcode);
         res.json({
-            succes: false,
+            success: false,
             msg: httpmessage
         });
 

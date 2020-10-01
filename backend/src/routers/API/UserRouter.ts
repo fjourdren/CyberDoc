@@ -6,7 +6,7 @@ import AuthMiddleware from '../../middlewares/AuthMiddleware';
 const UserRouter = Router();
 
 UserRouter.get('/profile', AuthMiddleware.isAuthenticate, UserController.profile);
-UserRouter.post('/settings', AuthMiddleware.isAuthenticate, UserController.settings);
+UserRouter.post('/profile', AuthMiddleware.isAuthenticate, UserController.settings);
 UserRouter.delete('/profile', AuthMiddleware.isAuthenticate, UserController.delete);
 
 export default UserRouter;
