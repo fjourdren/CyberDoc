@@ -6,6 +6,8 @@ import { IFile, File, FileType } from "../models/File";
 import { IUser, User } from "../models/User";
 
 import { requireNonNull } from '../helpers/DataValidation';
+import HttpCodes from '../helpers/HttpCodes';
+import HTTPError from '../helpers/HTTPError';
 
 class AuthService {
 
@@ -46,7 +48,7 @@ class AuthService {
         const passwordIsValid = bcrypt.compareSync(password, user.password);
 
         if(!passwordIsValid)
-            throw new Error("Invalid credentials");
+            throw new HTTPError(HttpCodes.UNAUTHORIZED, "Invalid credentials");
 
         const jwttoken = AuthService.generateJWTToken(user);
 

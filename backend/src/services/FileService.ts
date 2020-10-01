@@ -2,9 +2,12 @@ import Guid from 'guid';
 
 import GridFSTalker from "../helpers/GridFSTalker";
 import { requireNonNull, requireIsNull } from '../helpers/DataValidation';
+import HttpCodes from '../helpers/HttpCodes';
+import HTTPError from '../helpers/HTTPError';
 
 import IUser from "../models/User";
 import { IFile, File, FileType } from "../models/File";
+
 
 class FileService {
 
@@ -21,7 +24,7 @@ class FileService {
 
     public static async requireIsFileOwner(user_id: string, file_id:string): Promise<void> {
         if(!await FileService.isFileOwner(user_id, file_id))
-            throw new Error("User isn't file owner");
+            throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't file owner");
     }
 
 
@@ -38,7 +41,7 @@ class FileService {
     // thrower
     public static requireFileCanBeViewed(user_id: string, file_id: string): void {
         if(!FileService.fileCanBeViewed(user_id, file_id))
-            throw new Error("This user can't read this file");
+            throw new HTTPError(HttpCodes.UNAUTHORIZED, "Unauthorized to read this file");
     }
 
     /* check if user can modify a file
@@ -75,12 +78,12 @@ class FileService {
     // throwers
     public static requireFileIsDocument(file: IFile): void {
         if(!FileService.fileIsDocument(file))
-            throw new Error("File isn't a document");
+            throw new HTTPError(HttpCodes.BAD_REQUEST, "File isn't a document");
     }
 
     public static requireFileIsDirectory(file: IFile): void {
         if(!FileService.fileIsDirectory(file))
-            throw new Error("File isn't a directory");
+            throw new HTTPError(HttpCodes.BAD_REQUEST, "File isn't a directory");
     }
 
 
@@ -164,7 +167,7 @@ class FileService {
 
         // check that id != parent_id
         if(file._id == file.parent_file_id)
-            throw new Error("Directory can't be parent of himself")
+            throw new HTTPError(HttpCodes.INTERNAL_ERROR, "Directory can't be parent of himself");
 
         // be sure that file has a valid parent_id
         requireNonNull(file.parent_file_id);
@@ -177,7 +180,7 @@ class FileService {
         if(await GridFSTalker.exists({ _id: file.document_id }))
             return await file.save();
         else
-            throw new Error("GridFS File doesn't exist");
+            throw new HTTPError(HttpCodes.NOT_FOUND, "GridFS File doesn't exist");
     }
 
     // edit a document attributes
@@ -187,7 +190,7 @@ class FileService {
 
         // check that id != parent_id
         if(file._id == file.parent_file_id)
-            throw new Error("Directory can't be parent of himself")
+            throw new HTTPError(HttpCodes.INTERNAL_ERROR, "Directory can't be parent of himself");
 
         // check that there is no gridfs document_id set (because a directory isn't a document)
         requireIsNull(file.document_id);
