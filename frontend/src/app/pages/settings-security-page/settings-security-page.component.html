@@ -1,0 +1,35 @@
+<div id="settingssecuritypage">
+    <div *ngIf="fileDetailDrawerLocked">
+        <app-files-main-toolbar [hideAppName]="smallScreen" [hideMenuButton]="treeviewDrawerLocked"
+            (menuButtonClicked)="treeviewDrawer.toggle()">
+        </app-files-main-toolbar>
+
+    </div>
+    <mat-drawer-container autosize>
+
+        <mat-drawer [opened]="treeviewDrawerLocked" [mode]="treeviewDrawerLocked ? 'side' : 'over'" #treeviewDrawer
+            id="treeview-drawer">
+
+            <mat-toolbar *ngIf="!fileDetailDrawerLocked">
+                {{ 'general.appname' | translate }}
+                <div class="take-remaining-space"></div>
+                <button (click)="treeviewDrawer.close()" mat-icon-button>
+                    <mat-icon>close</mat-icon>
+                </button>
+            </mat-toolbar>
+
+            
+            <app-settings-menu></app-settings-menu>
+        </mat-drawer>
+
+        <div *ngIf="!fileDetailDrawerLocked">
+            <app-files-main-toolbar [hideAppName]="smallScreen" [hideMenuButton]="treeviewDrawerLocked"
+                (menuButtonClicked)="treeviewDrawer.toggle()">
+            </app-files-main-toolbar>
+        </div>
+
+        <mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
+
+        <app-settings-security id="settings-security"></app-settings-security>
+    </mat-drawer-container>
+</div>
