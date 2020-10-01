@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
+import { MatRadioModule } from '@angular/material/radio';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSortModule } from '@angular/material/sort';
@@ -59,6 +60,11 @@ import { GlobalErrorHandler } from './global-error-handler';
 import { environment } from '../environments/environment';
 import { LogoutPageComponent } from './pages/logout-page/logout-page.component';
 
+//Login et authentification :
+import { AuthComponent} from './components/auth/auth/auth.component';
+import {FormulaireComponent} from './components/auth/formulaire/formulaire.component';
+
+
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
   return new TranslateHttpLoader(httpClient);
@@ -98,6 +104,8 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
     NotFoundPageComponent,
     LogoutPageComponent,
     UnhandledErrorDialogComponent,
+    FormulaireComponent,
+    AuthComponent,
   ],
   imports: [
     BrowserModule,
@@ -141,6 +149,7 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
     NgxFilesizeModule,
     NgResizeObserverPonyfillModule,
     LayoutModule,
+    MatRadioModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   providers: [
