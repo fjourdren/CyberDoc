@@ -117,7 +117,6 @@ UserSchema.pre<IUser>("update", function(next: mongoose.HookNextFunction): void 
 UserSchema.methods.toJSON = function() {
     const obj = this.toObject();
     delete obj.__v;
-    delete obj.directory_id;
     delete obj.password;
     return obj;
 }

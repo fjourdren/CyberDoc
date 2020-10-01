@@ -5,16 +5,16 @@ import HttpCodes from '../helpers/HttpCodes'
 
 import AuthService from '../services/AuthService';
 
-import IUser from '../models/User';
+import IUser, { Role } from '../models/User';
 
 class AuthController {
 
     // register controller
     public static async signup(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { firstname, lastname, email, password } = req.body;
+            const { firstname, lastname, email, password, role } = req.body;
 
-            const user: IUser = requireNonNull(await AuthService.signup(firstname, lastname, email, password));
+            const user: IUser = requireNonNull(await AuthService.signup(firstname, lastname, email, password, role));
             res.status(HttpCodes.CREATED);
             res.json({
                 success: true,

@@ -36,8 +36,7 @@ export const FileSchema = new mongoose.Schema({
         type: String
     },
     parent_file_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref : 'File'
+        type     : String
     },
     owner_id: {
 		type     : String,

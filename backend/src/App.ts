@@ -8,6 +8,7 @@ import {default as routers} from './routers/ApiRouter';
 
 import HttpCodes from './helpers/HttpCodes';
 import JWTTokenExtractMiddleware from './middlewares/JWTTokenExtractMiddleware';
+import ErrorCatcherMiddleware from './middlewares/ErrorCatcherMiddleware';
 
 class App {
 
@@ -68,13 +69,18 @@ class App {
      */
     private routes(): void {
         this.expressApp.use('/v1', JWTTokenExtractMiddleware.run, routers);
+
+        // Error Handlers
+        this.expressApp.use(ErrorCatcherMiddleware.logErrorHandler);
+        this.expressApp.use(ErrorCatcherMiddleware.clientErrorHandler);
+
         this.expressApp.use('/', (req, res) => {
             res.status(HttpCodes.NOT_FOUND);
             res.json({
                 success: false,
                 msg: "Unknow action"
             });
-        });
+        });        
     }
 
 }

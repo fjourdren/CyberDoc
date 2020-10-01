@@ -21,7 +21,7 @@ class FileController {
             // build IFile
             const fileToSave: IFile = new File();
             // if file is a Directory
-            if(upfile == undefined || mimetype == undefined)
+            if(upfile == undefined || mimetype == undefined || mimetype == "application/x-dir")
                 fileToSave.type = FileType.DIRECTORY;
             else // otherwise file is a document
                 fileToSave.type = FileType.DOCUMENT;
@@ -94,14 +94,17 @@ class FileController {
                 const directoryContentOutput: Record<string, any> = [];
 
                 const files: IFile[] = await File.find({ parent_file_id: file._id }).exec();
-                files.forEach(async (fileInDir) => {
+                
+                for(let i = 0; i < files.length; i++) {
+                    const fileInDir: IFile = files[i];
+
                     // get owner
                     const ownerFileInDir: IUser = requireNonNull(await User.findById(fileInDir.owner_id).exec());
 
                     // get gridfs informations if it's a document
                     let gridfsInformation: any = undefined;
                     if(fileInDir.type == FileType.DOCUMENT) {
-                        gridfsInformation = requireNonNull(await FileService.getFileInformations(file));
+                        gridfsInformation = requireNonNull(await FileService.getFileInformations(fileInDir));
 
                         directoryContentOutput.push({
                             "id":         fileInDir._id,
@@ -122,7 +125,7 @@ class FileController {
                             "created_at": fileInDir.created_at
                         });
                     }
-                });
+                }
                 // ===========
 
 
@@ -224,9 +227,9 @@ class FileController {
 
             // save
             if(file.type == FileType.DIRECTORY)
-                FileService.editDirectory(file);
+                await FileService.editDirectory(file);
             else
-                FileService.editDirectory(file);
+                await FileService.editDocument(file);
 
             // reply client
             res.status(HttpCodes.OK);
@@ -244,7 +247,7 @@ class FileController {
     public static async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             // prepare vars
-            const user_id = res.locals.user.APP_JWT_TOKEN._id;
+            const user_id = res.locals.APP_JWT_TOKEN.user._id;
             const file_id = req.params.fileId;
         
             // find file
@@ -276,7 +279,7 @@ class FileController {
         try {
             // prepare vars
             const { copyFileName, destID } = req.body;
-            const user_id = res.locals.user.APP_JWT_TOKEN._id;
+            const user_id = res.locals.APP_JWT_TOKEN.user._id;
             const file_id = req.params.fileId;
         
             // check that copyFileName, destID aren't null
@@ -324,7 +327,7 @@ class FileController {
     public static async download(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             // if user is owner or have access
-            const user_id = res.locals.user.APP_JWT_TOKEN._id;
+            const user_id = res.locals.APP_JWT_TOKEN.user._id;
             const file_id = req.params.fileId;
         
             // find file
