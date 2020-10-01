@@ -53,7 +53,7 @@ export class MimetypeUtilsService {
         return "filetype.archive";
 
       default:
-        return "filetype.unknow";
+        return "filetype.unknown";
     }
   }
 

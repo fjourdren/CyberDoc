@@ -28,24 +28,24 @@ export class MockFileSystem implements FileSystem {
     private _uploadCancelRequested = false;
 
     constructor() {
-        this.filesMap.set("root", { "name": "Root", "mimetype": DIRECTORY_MIMETYPE, id: "root" });
-        this.filesMap.set("root.sub1", { "parentID": "root", "name": "sub1", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1" });
-        this.filesMap.set("root.sub2", { "parentID": "root", "name": "sub2", mimetype: DIRECTORY_MIMETYPE, id: "root.sub2" });
-        this.filesMap.set("root.sub3", { "parentID": "root", "name": "sub3", mimetype: DIRECTORY_MIMETYPE, id: "root.sub3" });
-        this.filesMap.set("root.sub4", { "parentID": "root", "name": "sub4", mimetype: DIRECTORY_MIMETYPE, id: "root.sub4" });
-        this.filesMap.set("root.sub1.sub", { "parentID": "root.sub1", "name": "subsub", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1.sub" });
+        this.filesMap.set("root", { "name": "My safe", "mimetype": DIRECTORY_MIMETYPE, id: "root" });
+        this.filesMap.set("root.sub1", { "parentID": "root", "name": "Documents", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1" });
+        this.filesMap.set("root.sub2", { "parentID": "root", "name": "Videos", mimetype: DIRECTORY_MIMETYPE, id: "root.sub2" });
+        this.filesMap.set("root.sub3", { "parentID": "root", "name": "Pictures", mimetype: DIRECTORY_MIMETYPE, id: "root.sub3" });
+        this.filesMap.set("root.sub4", { "parentID": "root", "name": "Others", mimetype: DIRECTORY_MIMETYPE, id: "root.sub4" });
+        this.filesMap.set("root.sub1.sub", { "parentID": "root.sub1", "name": "Bills", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1.sub" });
 
-        this.filesMap.set("root.f1", { "parentID": "root", name: "file1A.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.f1" });
-        this.filesMap.set("root.f2", { "parentID": "root", name: "file2A.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.f2" });
-        this.filesMap.set("root.f3", { "parentID": "root", name: "file3A.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.f3" });
+        this.filesMap.set("root.f1", { "parentID": "root", name: "my_image.png", mimetype: "image/png", size: 2316471, date: new Date(), id: "root.f1" });
+        this.filesMap.set("root.f2", { "parentID": "root", name: "my_video.mp4", mimetype: "video/mp4", size: 29904561, date: new Date(), id: "root.f2" });
+        this.filesMap.set("root.f3", { "parentID": "root", name: "my_audio.mp3", mimetype: "audio/mp3", size: 4404561, date: new Date(), id: "root.f3" });
 
-        this.filesMap.set("root.sub1.f1", { "parentID": "root.sub1", name: "file1B.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.f1" });
-        this.filesMap.set("root.sub1.f2", { "parentID": "root.sub1", name: "file2B.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.f2" });
-        this.filesMap.set("root.sub1.f3", { "parentID": "root.sub1", name: "file3B.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.f3" });
+        this.filesMap.set("root.sub1.f1", { "parentID": "root.sub1", name: "mydoc01.pdf", mimetype: "application/pdf", size: 846, date: new Date(), id: "root.sub1.f1" });
+        this.filesMap.set("root.sub1.f2", { "parentID": "root.sub1", name: "mydoc02.pdf", mimetype: "application/pdf", size: 964, date: new Date(), id: "root.sub1.f2" });
+        this.filesMap.set("root.sub1.f3", { "parentID": "root.sub1", name: "mydoc03.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.f3" });
 
-        this.filesMap.set("root.sub1.sub.f1", { "parentID": "root.sub1.sub", name: "file1C.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.sub.f1" });
-        this.filesMap.set("root.sub1.sub.f2", { "parentID": "root.sub1.sub", name: "file2C.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.sub.f2" });
-        this.filesMap.set("root.sub1.sub.f3", { "parentID": "root.sub1.sub", name: "file3C.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.sub.f3" });
+        this.filesMap.set("root.sub1.sub.f1", { "parentID": "root.sub1.sub", name: "bill01.pdf", mimetype: "application/pdf", size: 368, date: new Date(), id: "root.sub1.sub.f1" });
+        this.filesMap.set("root.sub1.sub.f2", { "parentID": "root.sub1.sub", name: "bill02.pdf", mimetype: "application/pdf", size: 216, date: new Date(), id: "root.sub1.sub.f2" });
+        this.filesMap.set("root.sub1.sub.f3", { "parentID": "root.sub1.sub", name: "bill03.pdf", mimetype: "application/pdf", size: 698, date: new Date(), id: "root.sub1.sub.f3" });
     }
 
     getFilePreviewImageURL(fileID: string): string {
