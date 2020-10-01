@@ -53,6 +53,35 @@ export class MockUserService implements UserService {
         return of(user).pipe(delay(DELAY));
     }
 
+    updateProfile(firstName: string, lastName: string, newEmail: string, oldEmail: string) {
+        if (!this._activeUser) {
+            throw new Error("403 not logged in");
+        }
+
+        const user = this._users.get(oldEmail);
+        if (user) { 
+            user.firstname = firstName;
+            user.lastname = lastName;
+            user.email = newEmail;
+            this._users.delete(oldEmail);
+            this._users.set(newEmail, user);
+            localStorage.setItem("__currentUser", JSON.stringify(user))
+            return of(null).pipe(delay(DELAY));
+        } else throw new Error("Account doesn't exist");
+    }
+
+    updatePassword(oldPassword: string, newPassword: string, email: string) {
+        if (!this._activeUser) {
+            throw new Error("403 not logged in");
+        }
+
+        const user = this._users.get(email);
+        if (user != undefined) { 
+            // TODO : Changer le mdp
+            return of(null).pipe(delay(DELAY));
+        } else throw new Error("Account doesn't exist");
+    }
+
     login(email: string, password: string): Observable<User> {
         for (const user of this._users.values()) {
             if (user.email === email) {

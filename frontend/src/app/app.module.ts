@@ -60,9 +60,13 @@ import { GlobalErrorHandler } from './global-error-handler';
 import { environment } from '../environments/environment';
 import { LogoutPageComponent } from './pages/logout-page/logout-page.component';
 
-//Login et authentification :
 import { AuthComponent} from './components/auth/auth/auth.component';
-import {FormulaireComponent} from './components/auth/formulaire/formulaire.component';
+import { FormulaireComponent } from './components/auth/formulaire/formulaire.component';
+import { SettingsProfilePageComponent } from './pages/settings-profile-page/settings-profile-page.component';
+import { SettingsSecurityPageComponent } from './pages/settings-security-page/settings-security-page.component';
+import { SettingsMenuComponent } from './components/settings/settings-menu/settings-menu.component';
+import { SettingsProfileComponent } from './components/settings/settings-profile/settings-profile.component';
+import { SettingsSecurityComponent } from './components/settings/settings-security/settings-security.component';
 
 
 // AoT requires an exported function for factories
@@ -85,6 +89,12 @@ const FILES_COMPONENTS = [
   FilesGenericTableBottomsheetComponent
 ]
 
+const SETTINGS_COMPONENTS = [
+  SettingsMenuComponent,
+  SettingsProfileComponent,
+  SettingsSecurityComponent
+]
+
 function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
   return {
     tokenGetter: () => {
@@ -103,6 +113,9 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
     FilesPageComponent,
     NotFoundPageComponent,
     LogoutPageComponent,
+    ...SETTINGS_COMPONENTS,
+    SettingsProfilePageComponent,
+    SettingsSecurityPageComponent,
     UnhandledErrorDialogComponent,
     FormulaireComponent,
     AuthComponent,
