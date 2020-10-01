@@ -1,0 +1,80 @@
+{
+    "countdownjs": {
+        "singular": "|s|m|h|d||||||",
+        "plural": "|s|m|h|d||||||",
+        "last": " and ",
+        "delim": ", ",
+        "empty": ""
+    },
+
+    "filetype": {
+        "audio": "Audio",
+        "video": "Video",
+        "image": "Image",
+        "pdf": "PDF",
+        "archive": "Archive",
+        "unknow": "Unknow",
+        "powerpoint": "PowerPoint",
+        "excel": "Excel",
+        "word": "Word",
+        "ooimpress": "OpenOffice Impress",
+        "oocalc": "OpenOffice Calc",
+        "oowriter": "OpenOffice Writer",
+        "folder": "Folder"
+    },
+
+    "fileaction": {
+        "open": "Open",
+        "details": "Details",
+        "download": "Download",
+        "move": "Move",
+        "copy": "Copy",
+        "rename": "Rename",
+        "delete": "Delete",
+        "create": "Create",
+        "delete_confirm": "Are you sure you want to delete '{{filename}}' ?"
+    },
+
+    "file": {
+        "preview": "Preview",
+        "modified": "Modified",
+        "name": "Name",
+        "size": "Size",
+        "type": "Type",
+        "owner": "Owner",
+        "copy_new_name": "Copy of {{filename}}"
+    },
+
+    "upload": {
+        "import_file": "Import file",
+        "new_directory": "New directory",
+        "drop_div_text": "Drop a file to import",
+        "success": "File successfully uploaded",
+        "canceled": "Upload canceled"
+    },
+
+    "general": {
+        "new_name": "New name",
+        "name": "Name",
+        "mysafe": "My safe",
+        "create_folder": "Create a new folder",
+        "yes": "Yes",
+        "no": "No",
+        "ok": "OK",
+        "settings": "Settings",
+        "refresh": "Refresh",
+        "logout": "Logout",
+        "appname": "CyberDoc",
+        "cancel": "Cancel",
+        "search": "Search",
+        "remaining": "remaining",
+        "loading": "Loading...",
+        "noitems": "No items",
+        "no_empty": "Cannot be empty",
+        "filedetails": "File details",
+        "page_not_found": "Page not found",
+        "error_title": "Error",
+        "error_content": "An error occured. Please check your Internet connection, then refresh the page.",
+        "go_to_homepage": "Go to homepage"
+    }
+}

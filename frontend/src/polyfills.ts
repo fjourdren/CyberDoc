@@ -19,7 +19,11 @@
  */
 
 /** IE10 and IE11 requires the following for NgClass support on SVG elements */
-// import 'classlist.js';  // Run `npm install --save classlist.js`.
+import 'classlist.js';  // Run `npm install --save classlist.js`.
+
+//For https://github.com/auth0/angular2-jwt
+//https://github.com/auth0/angular2-jwt#installation
+import 'url-polyfill';
 
 /**
  * Web Animations `@angular/platform-browser/animations`

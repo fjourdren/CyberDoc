@@ -1,0 +1,45 @@
+<div class="center_header">
+  <form [formGroup]="addressForm" novalidate (ngSubmit)="onSubmit()">
+    <mat-card class="shipping-card">
+      <h1><img src="../../../../assets/icons/icon-192x192.png" alt="Fulgen"  width="100" height="100" /><b>CyberDoc</b></h1>
+      <mat-card-header>
+        
+        <mat-card-title class="center_header">Login</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="row">
+          <div class="col">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Enter your email</mat-label>
+              <input matInput formControlName="email" required>
+              <mat-error *ngIf="addressForm.controls['email'].hasError('required')">
+                Email is <strong>required. </strong>
+              </mat-error>
+            </mat-form-field>
+          </div>   
+        </div>
+        <div class="row">
+          <div class="col">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Enter your password</mat-label>
+              <input matInput [type]="hide ? 'password' : 'text'" placeholder="password" formControlName="password">
+              <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+              <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+              </button>
+              <mat-error *ngIf="addressForm.controls['password'].hasError('required')">
+                Password is <strong>required. </strong> <a href="https://example.com">Forgot your password ?</a>
+              </mat-error>
+              <mat-hint><a href="https://example.com">Forgot your password ?</a></mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" type="submit" class="submit">Submit</button>
+        &nbsp;&nbsp;&nbsp;
+      <a routerLink="register"><button mat-raised-button color="primary" class="submit">Create new account</button></a>
+      </mat-card-actions>
+    </mat-card>
+  </form>
+
+</div>

@@ -1,0 +1,18 @@
+<h1 mat-dialog-title>
+    {{'general.create_folder' | translate}}
+</h1>
+
+<div mat-dialog-content>
+    <mat-form-field appearance="outline">
+        <mat-label>{{'general.name' | translate}}</mat-label>
+        <input matInput [formControl]="input" required #inputElement>
+        <mat-error *ngIf="input.invalid">{{'general.no_empty' | translate}}</mat-error>
+    </mat-form-field>
+</div>
+
+<div mat-dialog-actions align="end">
+    <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+    <button [disabled]="loading" mat-button (click)="onCancelBtnClicked()">{{'general.cancel' | translate}}</button>
+    <button [disabled]="loading || !input.valid" mat-raised-button color="primary"
+        (click)="onCreateBtnClicked()">{{'fileaction.create' | translate}}</button>
+</div>
