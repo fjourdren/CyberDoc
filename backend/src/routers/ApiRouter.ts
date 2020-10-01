@@ -13,6 +13,8 @@ api.use('/auth',  AuthRouter);
 api.use('/users', UserRouter);
 api.use('/files', FileRouter);
 
-api.use(ErrorCatcherMiddleware.run); // Error handler
+// Error Handlers
+api.use(ErrorCatcherMiddleware.logErrorHandler);
+api.use(ErrorCatcherMiddleware.clientErrorHandler);
 
 export default api;
