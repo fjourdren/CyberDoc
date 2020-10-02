@@ -1,4 +1,5 @@
 import { AfterViewInit, Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 
 @Component({
@@ -8,11 +9,14 @@ import { UserServiceProvider } from 'src/app/services/users/user-service-provide
 })
 export class LogoutPageComponent implements AfterViewInit {
 
-  constructor(private userServiceProvider: UserServiceProvider) { }
+  constructor(
+    private userServiceProvider: UserServiceProvider,
+    private router: Router
+    ) { }
 
   ngAfterViewInit(): void {
     this.userServiceProvider.default().logout().toPromise().then(()=>{
-      location.pathname = "/login";
+      this.router.navigate(["/login"]);
     })
   }
 
