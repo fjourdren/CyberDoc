@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
-import { UserServiceProvider } from '../../../services/users/user-service-provider'
+import { UserServiceProvider } from '../../services/users/user-service-provider'
 import { User } from 'src/app/models/users-api-models';
 import { DatePipe } from '@angular/common';
+import { MustMatch } from 'src/app/components/settings/settings-security/_helpers/must-match.validator';
 
 /*const USER: User = {
-  "role": "collaborater",
+  "role": "owner",
   "updated_at": "2020-09-22T11:31:20.714Z",
   "created_at": "2020-09-22T11:30:54.556Z",
   "_id": "65af88e0-4d6f-80da-1cab-6ef5db2c719e",
@@ -15,19 +16,19 @@ import { DatePipe } from '@angular/common';
   "rootDirectoryID": "root",
 }*/
 @Component({
-  selector: 'app-formulaire',
-  templateUrl: './formulaire.component.html',
-  styleUrls: ['./formulaire.component.css'],
+  selector: 'app-register-page',
+  templateUrl: './register-page.component.html',
+  styleUrls: ['./register-page.component.css'],
   providers: [DatePipe]
 })
-export class FormulaireComponent implements OnInit {
-  addressForm = this.fb.group({
+export class RegisterPageComponent implements OnInit {
+  registerForm = this.fb.group({
     firstName: [null, Validators.required],
     lastName: [null, Validators.required],
     email: [null, Validators.required],
     password: [null, Validators.required],
     repeat: [null, Validators.required],
-    state: ['collaborator', Validators.required],
+    state: ['owner', Validators.required],
   });
 
   hide = true;
@@ -43,21 +44,19 @@ export class FormulaireComponent implements OnInit {
   constructor(private fb: FormBuilder, private userProvider: UserServiceProvider) { }
 
   onSubmit() {
-    if (this.addressForm.invalid) {
-      alert('Error !');
+    if (this.registerForm.invalid) {
+      //alert('Error !');
       return;
     }
 
-   
-
     this.user = {
-    "role": this.addressForm.controls.state.value,
-    "firstname": this.addressForm.controls.firstName.value,
-    "lastname": this.addressForm.controls.lastName.value,
-    "email": this.addressForm.controls.email.value,
-  } as User;
+      "role": this.registerForm.controls.state.value,
+      "firstname": this.registerForm.controls.firstName.value,
+      "lastname": this.registerForm.controls.lastName.value,
+      "email": this.registerForm.controls.email.value,
+    } as User;
 
-    this.userProvider.default().register(this.user).toPromise().then(value => { console.log(value) });
+    this.userProvider.default().register(this.user);
   }
 
 /*getErrorMessage() {
@@ -67,15 +66,19 @@ export class FormulaireComponent implements OnInit {
 
   return this.email.hasError('email') ? 'Not a valid email' : '';
 }*/
+
+passwordStrength = '(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&].{8,}';
 ngOnInit() {
   //this.email = new FormControl('', [Validators.required, Validators.email]);
-  this.addressForm = this.fb.group({
-    firstName: [null, Validators.required],
-    lastName: [null, Validators.required],
-    email: [null, Validators.required],
-    password: [null, Validators.required],
-    repeat: [null, Validators.required],
-    state: ['collaborator', Validators.required],
+  this.registerForm = this.fb.group({
+    firstName: ['', Validators.required],
+    lastName: ['', Validators.required],
+    email: ['', Validators.required],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(this.passwordStrength)]],
+    repeat: ['', Validators.required],
+    state: ['owner', Validators.required],
+  }, {
+    validator: MustMatch('password', 'repeat')
   });
 }
   

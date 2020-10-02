@@ -45,8 +45,18 @@ import { FilesUploadComponent } from './components/files/files-upload/files-uplo
 import { FilesGenericTableComponent } from './components/files/files-generic-table/files-generic-table.component';
 import { FilesGenericTableBottomsheetComponent } from './components/files/files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 
+import { SettingsMenuComponent } from './components/settings/settings-menu/settings-menu.component';
+import { SettingsProfileComponent } from './components/settings/settings-profile/settings-profile.component';
+import { SettingsSecurityComponent } from './components/settings/settings-security/settings-security.component';
+
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
-import { FilesPageComponent } from './pages/files-page/files-page.component';
+import { RegisterPageComponent } from './pages/register-page/register-page.component';
+import { LoginPageComponent } from './pages/login-page/login-page.component';
+import { LogoutPageComponent } from './pages/logout-page/logout-page.component';
+import { SettingsProfilePageComponent } from './pages/settings-profile-page/settings-profile-page.component';
+import { SettingsSecurityPageComponent } from './pages/settings-security-page/settings-security-page.component'
+import { FilesPageComponent } from './pages/files-page/files-page.component';;
+
 import { UnhandledErrorDialogComponent } from './components/global/unhandled-error-dialog/unhandled-error-dialog.component';
 
 import { FileSystemProvider } from './services/filesystems/file-system-provider';
@@ -58,16 +68,6 @@ import { AppComponent } from './app.component';
 import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
 import { GlobalErrorHandler } from './global-error-handler';
 import { environment } from '../environments/environment';
-import { LogoutPageComponent } from './pages/logout-page/logout-page.component';
-
-import { AuthComponent} from './components/auth/auth/auth.component';
-import { FormulaireComponent } from './components/auth/formulaire/formulaire.component';
-import { SettingsProfilePageComponent } from './pages/settings-profile-page/settings-profile-page.component';
-import { SettingsSecurityPageComponent } from './pages/settings-security-page/settings-security-page.component';
-import { SettingsMenuComponent } from './components/settings/settings-menu/settings-menu.component';
-import { SettingsProfileComponent } from './components/settings/settings-profile/settings-profile.component';
-import { SettingsSecurityComponent } from './components/settings/settings-security/settings-security.component';
-
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
@@ -104,7 +104,6 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
   }
 }
 
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -112,13 +111,13 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
     RemainingTimePipe,
     FilesPageComponent,
     NotFoundPageComponent,
+    RegisterPageComponent,
+    LoginPageComponent,
     LogoutPageComponent,
     ...SETTINGS_COMPONENTS,
     SettingsProfilePageComponent,
     SettingsSecurityPageComponent,
     UnhandledErrorDialogComponent,
-    FormulaireComponent,
-    AuthComponent,
   ],
   imports: [
     BrowserModule,

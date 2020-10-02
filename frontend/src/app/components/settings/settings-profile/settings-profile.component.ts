@@ -38,4 +38,8 @@ export class SettingsProfileComponent {
       this.profileForm.get('oldEmail').value
     );
   }
+
+  deleteAccount() {
+    this.userServiceProvider.default().deleteAccount();
+  }
 }
