@@ -56,7 +56,7 @@ export class RegisterPageComponent implements OnInit {
       "email": this.registerForm.controls.email.value,
     } as User;
 
-    this.userProvider.default().register(this.user);
+    //this.userProvider.default().register(this.user);
   }
 
 /*getErrorMessage() {
