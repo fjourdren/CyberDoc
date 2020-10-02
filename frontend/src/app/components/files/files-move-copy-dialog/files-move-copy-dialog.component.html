@@ -1,5 +1,6 @@
 <h1 #title mat-dialog-title>
-    <button (click)="onBackBtnClicked()" *ngIf="directories.length > 1" mat-icon-button>
+    <button (click)="onBackBtnClicked()"
+        [disabled]="!(!loading && currentDirectory && currentDirectory.path.length > 0)" mat-icon-button>
         <mat-icon>arrow_back</mat-icon>
     </button>
     <div id="mat-dialog-title-div">{{data.copy ? ('fileaction.copy' | translate) : ('fileaction.move' | translate)}}
@@ -7,12 +8,10 @@
 </h1>
 
 <div mat-dialog-content>
-    <app-files-generic-table *ngIf="!loading" [showDetailsButton]="false" [restrictions]="filesTableRestrictions" (selectedNodeChange)="this.selectedNode = $event"
+    <app-files-generic-table *ngIf="!loading" [showDetailsButton]="false" [restrictions]="filesTableRestrictions"
+        (selectedNodeChange)="this.selectedNode = $event"
         [items]="currentDirectory && currentDirectory.directoryContent" (openButtonClicked)="openButtonClicked($event)">
     </app-files-generic-table>
-
-
-    <!-- <app-files-directory-table [restrictions]="filesTableRestrictions" [(currentDirectoryID)]="directoryID"></app-files-directory-table> -->
 </div>
 
 <div mat-dialog-actions align="end">

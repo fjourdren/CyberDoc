@@ -13,7 +13,6 @@ import { MoveCopyDialogModel } from './move-copy-dialog-model';
 })
 export class FilesMoveCopyDialogComponent {
   private _directoryID: string;
-  directories: string[] = [];
   loading = false;
 
   selectedNode: CloudNode;
@@ -39,7 +38,6 @@ export class FilesMoveCopyDialogComponent {
   }
 
   set directoryID(val: string) {
-    if (val && this.directories.indexOf(val) === -1) this.directories.push(val);
     this._directoryID = val;
 
     this.loading = true;
@@ -59,12 +57,10 @@ export class FilesMoveCopyDialogComponent {
   }
 
   onBackBtnClicked() {
-    this.directories.pop()
-    this.directoryID = this.directories.pop();
+    this.directoryID = this.currentDirectory.path[this.currentDirectory.path.length - 1].id;
   }
 
   openButtonClicked(node: CloudNode) {
-    if (node && this.directories.indexOf(node.id) === -1) this.directories.push(node.id);
     if (node.isDirectory) {
       this.loading = true;
       this.fsProvider.default().get(node.id).toPromise().then(node=>{
