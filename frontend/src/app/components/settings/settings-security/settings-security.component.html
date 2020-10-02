@@ -5,7 +5,7 @@
 				<mat-form-field>
 					<input [type]="isTextFieldType ? 'text' : 'password'" matInput formControlName="oldPassword" placeholder="Old password">
 				</mat-form-field>
-				<button (click)="toggleOldPasswordFieldType()" mat-flat-button item-right>
+				<button (click)="toggleOldPasswordFieldType($event)" mat-flat-button item-right>
 					<mat-icon>{{isTextFieldType ? 'visibility_off' : 'visibility'}}</mat-icon>
 				</button>
 				<mat-error *ngIf="checkError('oldPassword', 'required')">Old password is required.</mat-error>
@@ -14,7 +14,7 @@
 				<mat-form-field>
 					<input [type]="isTextFieldType2 ? 'text' : 'password'" matInput formControlName="newPassword" placeholder="New password">
 				</mat-form-field>
-				<button (click)="toggleNewPasswordFieldType()" mat-flat-button item-right>
+				<button (click)="toggleNewPasswordFieldType($event)" mat-flat-button item-right>
 					<mat-icon>{{isTextFieldType2 ? 'visibility_off' : 'visibility'}}</mat-icon>
 				</button>
 				<mat-error *ngIf="checkError('newPassword', 'required')">New password is required.</mat-error>
@@ -25,7 +25,7 @@
 				<mat-form-field>
 					<input [type]="isTextFieldType3 ? 'text' : 'password'" matInput formControlName="newPasswordConfirmation" placeholder="Confirm new password">
 				</mat-form-field>
-				<button (click)="toggleNewPasswordConfirmFieldType()" mat-flat-button item-right>
+				<button (click)="toggleNewPasswordConfirmFieldType($event)" mat-flat-button item-right>
 					<mat-icon>{{isTextFieldType3 ? 'visibility_off' : 'visibility'}}</mat-icon>
 				</button>
 				<mat-error *ngIf="checkError('newPasswordConfirmation', 'required')">New password confirmation is required.</mat-error>
