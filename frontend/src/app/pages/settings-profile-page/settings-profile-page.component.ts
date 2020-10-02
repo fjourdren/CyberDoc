@@ -22,7 +22,7 @@ export class SettingsProfilePageComponent implements AfterViewInit {
     this.breakpointObserver.observe('(max-width: 800px)').subscribe(result => {
       this.fileDetailDrawerLocked = !result.matches;
     })
-    this.breakpointObserver.observe('(max-width: 1200px)').subscribe(result => {
+    this.breakpointObserver.observe('(max-width: 600px)').subscribe(result => {
       this.treeviewDrawerLocked = !result.matches;
     }) 
   }
