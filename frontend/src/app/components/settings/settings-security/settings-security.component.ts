@@ -52,13 +52,16 @@ export class SettingsSecurityComponent implements OnInit {
     }
   }
 
-  toggleOldPasswordFieldType(){
+  toggleOldPasswordFieldType(evt: Event){
+    evt.preventDefault();
     this.isTextFieldType = !this.isTextFieldType;
   }
-  toggleNewPasswordFieldType(){
+  toggleNewPasswordFieldType(evt: Event){
+    evt.preventDefault();
     this.isTextFieldType2 = !this.isTextFieldType2;
   }
-  toggleNewPasswordConfirmFieldType(){
+  toggleNewPasswordConfirmFieldType(evt: Event){
+    evt.preventDefault();
     this.isTextFieldType3 = !this.isTextFieldType3;
   }
 
