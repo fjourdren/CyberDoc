@@ -8,7 +8,7 @@ const LOCALSTORAGE_KEY = "auth-token";
 const JWT_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8";
 const DELAY = 500;
 const USER: User = {
-    "role": "collaborater",
+    "role": "owner",
     "updated_at": "2020-09-22T11:31:20.714Z",
     "created_at": "2020-09-22T11:30:54.556Z",
     "_id": "65af88e0-4d6f-80da-1cab-6ef5db2c719e",
@@ -105,5 +105,4 @@ export class MockUserService implements UserService {
         this._activeUser = null;
         return of(null).pipe(delay(DELAY)).pipe();
     }
-
 }

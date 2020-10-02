@@ -45,17 +45,15 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { OverlayModule } from '@angular/cdk/overlay';
 
-import { FormulaireComponent } from './formulaire.component';
+import { LoginPageComponent } from './login-page.component';
 
-
-
-describe('FormulaireComponent', () => {
-  let component: FormulaireComponent;
-  let fixture: ComponentFixture<FormulaireComponent>;
+describe('LoginPageComponent', () => {
+  let component: LoginPageComponent;
+  let fixture: ComponentFixture<LoginPageComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [FormulaireComponent],
+      declarations: [ LoginPageComponent ],
       imports: [
         NoopAnimationsModule,
         ReactiveFormsModule,
@@ -108,7 +106,7 @@ describe('FormulaireComponent', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FormulaireComponent);
+    fixture = TestBed.createComponent(LoginPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
