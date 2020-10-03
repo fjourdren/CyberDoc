@@ -23,3 +23,7 @@ mat-spinner {
     margin-top: 48px;
     left: calc(50% - 24px);
   }
+
+#add-tag-btn {
+    margin: 4px;
+}
