@@ -171,7 +171,6 @@ export class MockFileSystem implements FileSystem {
             this._ensureFileExists(fileID);
             let file = this.filesMap.get(fileID);
             file.tagsIDs = tagIDs;
-            console.log(file);
             this.filesMap.set(fileID, file);
             this._save();
             this._refreshNeeded$.emit(null);
