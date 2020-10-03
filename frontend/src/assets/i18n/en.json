@@ -14,12 +14,9 @@
         "pdf": "PDF",
         "archive": "Archive",
         "unknown": "Unknown",
-        "powerpoint": "PowerPoint",
-        "excel": "Excel",
-        "word": "Word",
-        "ooimpress": "OpenOffice Impress",
-        "oocalc": "OpenOffice Calc",
-        "oowriter": "OpenOffice Writer",
+        "document": "Document",
+        "spreadsheet": "Spreadsheet",
+        "presentation": "Presentation",
         "folder": "Folder"
     },
 

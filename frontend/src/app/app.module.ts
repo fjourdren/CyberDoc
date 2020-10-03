@@ -60,7 +60,7 @@ import { FilesPageComponent } from './pages/files-page/files-page.component';;
 import { UnhandledErrorDialogComponent } from './components/global/unhandled-error-dialog/unhandled-error-dialog.component';
 
 import { FileSystemProvider } from './services/filesystems/file-system-provider';
-import { MimetypeUtilsService } from './services/mimetype-utils/mimetype-utils.service';
+import { FilesUtilsService } from './services/files-utils/files-utils.service';
 import { UserServiceProvider } from './services/users/user-service-provider';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -168,7 +168,7 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
     FileSystemProvider,
     UserServiceProvider,
-    MimetypeUtilsService
+    FilesUtilsService
   ],
   bootstrap: [AppComponent]
 })

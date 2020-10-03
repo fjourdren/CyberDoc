@@ -10,7 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { FilesDeleteDialogComponent } from '../files-delete-dialog/files-delete-dialog.component';
 import { FilesMoveCopyDialogComponent } from '../files-move-copy-dialog/files-move-copy-dialog.component';
 import { MoveCopyDialogModel } from '../files-move-copy-dialog/move-copy-dialog-model';
-import { MimetypeUtilsService } from 'src/app/services/mimetype-utils/mimetype-utils.service';
+import { FilesUtilsService } from 'src/app/services/files-utils/files-utils.service';
 import { NgResizeObserver, ngResizeObserverProviders } from 'ng-resize-observer';
 import { map } from 'rxjs/operators';
 import { FilesGenericTableBottomsheetComponent, FilesGenericTableBottomsheetData } from '../files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
@@ -88,7 +88,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
     private bottomSheet: MatBottomSheet,
     private dialog: MatDialog,
     private ngZone: NgZone,
-    private mimetypeUtils: MimetypeUtilsService,
+    private filesUtils: FilesUtilsService,
     private resize: NgResizeObserver,
     private fsProvider: FileSystemProvider,
     private userServiceProvider: UserServiceProvider
@@ -113,11 +113,13 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   getIconForMimetype(mimetype: string) {
-    return this.mimetypeUtils.getFontAwesomeIconForMimetype(mimetype);
+    const fileType = this.filesUtils.getFileTypeForMimetype(mimetype);
+    return this.filesUtils.getFontAwesomeIcon(fileType);
   }
 
   getFileTypeFromMimetype(mimetype: string) {
-    return this.mimetypeUtils.getFileTypeForMimetype(mimetype);
+    const fileType = this.filesUtils.getFileTypeForMimetype(mimetype);
+    return this.filesUtils.fileTypeToString(fileType);
   }
 
   isReadOnly(node: CloudNode) {
