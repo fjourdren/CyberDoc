@@ -1,5 +1,5 @@
 import { CloudNode } from 'src/app/models/files-api-models';
-import { MimetypeUtilsService } from 'src/app/services/mimetype-utils/mimetype-utils.service';
+import { FilesUtilsService } from 'src/app/services/files-utils/files-utils.service';
 import { Component, Inject, NgZone } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 
@@ -19,7 +19,7 @@ export interface FilesGenericTableBottomsheetData {
 export class FilesGenericTableBottomsheetComponent {
   constructor(private bottomSheetRef: MatBottomSheetRef<FilesGenericTableBottomsheetComponent>,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: FilesGenericTableBottomsheetData,
-    private mimetypeUtils: MimetypeUtilsService,
+    private filesUtils: FilesUtilsService,
     private ngZone: NgZone) {
 
     this.bottomSheetRef.afterDismissed().toPromise().then(() => this.data.onBottomSheetClose());
@@ -28,7 +28,8 @@ export class FilesGenericTableBottomsheetComponent {
   node: CloudNode;
 
   getIconForMimetype(mimetype: string) {
-    return this.mimetypeUtils.getFontAwesomeIconForMimetype(mimetype);
+    const fileType = this.filesUtils.getFileTypeForMimetype(mimetype);
+    return this.filesUtils.getFontAwesomeIcon(fileType);
   }
 
   onBottomSheetSelection(event: Event, action: string) {
