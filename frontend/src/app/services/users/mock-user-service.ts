@@ -1,7 +1,7 @@
 import { UserService } from './user-service';
 
 import { Observable, of } from 'rxjs';
-import { User } from 'src/app/models/users-api-models';
+import { FileTag, User } from 'src/app/models/users-api-models';
 import { delay, map } from 'rxjs/operators';
 
 const LOCALSTORAGE_KEY = "auth-token";
@@ -17,6 +17,28 @@ const USER: User = {
     "lastname": "JOURDREN",
     "email": "flavien.jourdren@gmail.com",
     "rootDirectoryID": "root",
+    "fileTags": [
+        {
+            "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7188",
+            "name": "MyTag",
+            "hexColor": "#FF0000"
+        },
+        {
+            "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7177",
+            "name": "MyTag2",
+            "hexColor": "#00FF00"
+        },
+        {
+            "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7199",
+            "name": "MyTag3",
+            "hexColor": "#0000FF"
+        },
+        {
+            "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7166",
+            "name": "MyTag4",
+            "hexColor": "#cccccc"
+        },
+    ]
 }
 
 export class MockUserService implements UserService {
@@ -74,6 +96,20 @@ export class MockUserService implements UserService {
             this._passwords.delete(oldEmail);
             this._users.set(newEmail, user);
             this._passwords.set(newEmail, pass);
+            this._save();
+            this._setUser(user);
+        }));
+    }
+
+    updateTags(tags: FileTag[]) {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            if (!this.getActiveUser()) {
+                throw new Error("403 not logged in");
+            }
+
+            const user = this.getActiveUser();
+            user.fileTags = tags;
+            this._users.set(user.email, user);
             this._save();
             this._setUser(user);
         }));
@@ -159,12 +195,12 @@ export class MockUserService implements UserService {
         }
     }
 
-    private _save(){
+    private _save() {
         localStorage.setItem("__users", JSON.stringify(Array.from(this._users.entries())))
         localStorage.setItem("__passwords", JSON.stringify(Array.from(this._passwords.entries())))
     }
 
-    private _load(){
+    private _load() {
         this._users = new Map(JSON.parse(localStorage.getItem("__users")));
         this._passwords = new Map(JSON.parse(localStorage.getItem("__passwords")));
 
@@ -173,7 +209,7 @@ export class MockUserService implements UserService {
             this._passwords = new Map();
             this._users.set(USER.email, USER);
             this._passwords.set(USER.email, "Chb44xw@@Q");
-            this._save();    
+            this._save();
         }
     }
 }

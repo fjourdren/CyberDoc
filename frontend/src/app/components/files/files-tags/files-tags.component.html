@@ -1,0 +1,29 @@
+<div id="title-div" class="mat-h3">
+    <span id="title-span">{{'tags.tags' | translate}}</span>
+    <button mat-button (click)="createNewTag()">
+        {{'tags.create_new_tag' | translate}}
+    </button>
+</div>
+
+<mat-form-field *ngIf="!loading">
+    <mat-chip-list #chipList>
+        <mat-chip [style.background]="tag.hexColor" [style.color]="tag.textColor" *ngFor="let tag of fileTags"
+            selectable removable (removed)="remove(tag)">
+            {{tag.name}}
+            <mat-icon matChipRemove>cancel</mat-icon>
+        </mat-chip>
+        <input placeholder="{{'tags.enter_tag' | translate}}" #tagInput [formControl]="tagsCtrl" [matAutocomplete]="auto"
+            [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            (matChipInputTokenEnd)="add($event)">
+    </mat-chip-list>
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+        <mat-option *ngFor="let tag of filteredTags$ | async" [value]="tag">
+            <div class="autocomplete-option-container">
+                <div>{{tag.name}}</div>
+                <div class="tag-color-div" [style.background]="tag.hexColor"></div>
+            </div>
+        </mat-option>
+    </mat-autocomplete>
+</mat-form-field>
+
+<mat-spinner *ngIf="loading" diameter="48"></mat-spinner>

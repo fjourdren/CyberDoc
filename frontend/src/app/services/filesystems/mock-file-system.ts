@@ -13,6 +13,7 @@ interface InternalFileElement {
     date?: Date;
     mimetype: string;
     size?: number;
+    tagsIDs: string[];
 }
 
 const UPLOAD_SPEED = 5000 * 1000; //5mo/s
@@ -48,7 +49,8 @@ export class MockFileSystem implements FileSystem {
                 mimetype: DIRECTORY_MIMETYPE,
                 size: 0,
                 date: new Date(),
-                parentID: parentFolderID
+                parentID: parentFolderID,
+                tagsIDs: [],
             }
 
             this.filesMap.set(newEntry.id, newEntry);
@@ -78,7 +80,8 @@ export class MockFileSystem implements FileSystem {
             mimetype: mimetype,
             size: file ? file.size : 0,
             date: new Date(),
-            parentID: parentFolderID
+            parentID: parentFolderID,
+            tagsIDs: [],
         }
 
         this._uploadInternal(name, file.size).then((success) => {
@@ -101,9 +104,9 @@ export class MockFileSystem implements FileSystem {
                     let node = { id: val.id, name: val.name, ownerName: OWNER, mimetype: val.mimetype }
 
                     if (val.mimetype === DIRECTORY_MIMETYPE) {
-                        return { ...node, directoryContent: [], path: [], mimetype: "application/x-dir", isDirectory: true } as CloudDirectory;
+                        return { ...node, directoryContent: [], path: [], mimetype: "application/x-dir", isDirectory: true, tagIDs: val.tagsIDs } as CloudDirectory;
                     } else {
-                        return { ...node, size: val.size, lastModified: val.date, isDirectory: false } as CloudFile;
+                        return { ...node, size: val.size, lastModified: val.date, isDirectory: false, tagIDs: val.tagsIDs } as CloudFile;
                     }
                 });
 
@@ -122,10 +125,10 @@ export class MockFileSystem implements FileSystem {
                 path.pop();
 
                 this._save();
-                return { ...node, path: path, directoryContent: content, mimetype: "application/x-dir", isDirectory: true };
+                return { ...node, path: path, directoryContent: content, mimetype: "application/x-dir", isDirectory: true, tagIDs: internalFile.tagsIDs };
             } else {
                 this._save();
-                return { ...node, size: internalFile.size, lastModified: internalFile.date, isDirectory: false };
+                return { ...node, size: internalFile.size, lastModified: internalFile.date, isDirectory: false, tagIDs: internalFile.tagsIDs };
             }
         }));
     }
@@ -157,6 +160,18 @@ export class MockFileSystem implements FileSystem {
             this._ensureFileExists(fileID);
             let file = this.filesMap.get(fileID);
             file.name = newName;
+            this.filesMap.set(fileID, file);
+            this._save();
+            this._refreshNeeded$.emit(null);
+        }));
+    }
+
+    editTags(fileID: string, tagIDs: string[]): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            this._ensureFileExists(fileID);
+            let file = this.filesMap.get(fileID);
+            file.tagsIDs = tagIDs;
+            console.log(file);
             this.filesMap.set(fileID, file);
             this._save();
             this._refreshNeeded$.emit(null);
@@ -223,7 +238,8 @@ export class MockFileSystem implements FileSystem {
             mimetype: file.mimetype,
             name: newFileName,
             date: file.date,
-            size: file.size
+            size: file.size,
+            tagsIDs: file.tagsIDs,
         });
 
         if (file.mimetype === DIRECTORY_MIMETYPE) {
@@ -269,25 +285,25 @@ export class MockFileSystem implements FileSystem {
     private _load() {
         this.filesMap = new Map(JSON.parse(localStorage.getItem("__filesMap")));
         if (!this.filesMap || this.filesMap.size === 0) {
-            this.filesMap.set("other.root", { "name": "My safe", "mimetype": DIRECTORY_MIMETYPE, id: "other.root" })
-            this.filesMap.set("root", { "name": "My safe", "mimetype": DIRECTORY_MIMETYPE, id: "root" });
-            this.filesMap.set("root.sub1", { "parentID": "root", "name": "Documents", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1" });
-            this.filesMap.set("root.sub2", { "parentID": "root", "name": "Videos", mimetype: DIRECTORY_MIMETYPE, id: "root.sub2" });
-            this.filesMap.set("root.sub3", { "parentID": "root", "name": "Pictures", mimetype: DIRECTORY_MIMETYPE, id: "root.sub3" });
-            this.filesMap.set("root.sub4", { "parentID": "root", "name": "Others", mimetype: DIRECTORY_MIMETYPE, id: "root.sub4" });
-            this.filesMap.set("root.sub1.sub", { "parentID": "root.sub1", "name": "Bills", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1.sub" });
+            this.filesMap.set("other.root", { "name": "My safe", "mimetype": DIRECTORY_MIMETYPE, id: "other.root", tagsIDs: [] })
+            this.filesMap.set("root", { "name": "My safe", "mimetype": DIRECTORY_MIMETYPE, id: "root", tagsIDs: [] });
+            this.filesMap.set("root.sub1", { "parentID": "root", "name": "Documents", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1", tagsIDs: [] });
+            this.filesMap.set("root.sub2", { "parentID": "root", "name": "Videos", mimetype: DIRECTORY_MIMETYPE, id: "root.sub2", tagsIDs: [] });
+            this.filesMap.set("root.sub3", { "parentID": "root", "name": "Pictures", mimetype: DIRECTORY_MIMETYPE, id: "root.sub3", tagsIDs: [] });
+            this.filesMap.set("root.sub4", { "parentID": "root", "name": "Others", mimetype: DIRECTORY_MIMETYPE, id: "root.sub4", tagsIDs: [] });
+            this.filesMap.set("root.sub1.sub", { "parentID": "root.sub1", "name": "Bills", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1.sub", tagsIDs: [] });
 
-            this.filesMap.set("root.f1", { "parentID": "root", name: "my_image.png", mimetype: "image/png", size: 2316471, date: new Date(), id: "root.f1" });
-            this.filesMap.set("root.f2", { "parentID": "root", name: "my_video.mp4", mimetype: "video/mp4", size: 29904561, date: new Date(), id: "root.f2" });
-            this.filesMap.set("root.f3", { "parentID": "root", name: "my_audio.mp3", mimetype: "audio/mp3", size: 4404561, date: new Date(), id: "root.f3" });
+            this.filesMap.set("root.f1", { "parentID": "root", name: "my_image.png", mimetype: "image/png", size: 2316471, date: new Date(), id: "root.f1", tagsIDs: [] });
+            this.filesMap.set("root.f2", { "parentID": "root", name: "my_video.mp4", mimetype: "video/mp4", size: 29904561, date: new Date(), id: "root.f2", tagsIDs: [] });
+            this.filesMap.set("root.f3", { "parentID": "root", name: "my_audio.mp3", mimetype: "audio/mp3", size: 4404561, date: new Date(), id: "root.f3", tagsIDs: [] });
 
-            this.filesMap.set("root.sub1.f1", { "parentID": "root.sub1", name: "mydoc01.pdf", mimetype: "application/pdf", size: 846, date: new Date(), id: "root.sub1.f1" });
-            this.filesMap.set("root.sub1.f2", { "parentID": "root.sub1", name: "mydoc02.pdf", mimetype: "application/pdf", size: 964, date: new Date(), id: "root.sub1.f2" });
-            this.filesMap.set("root.sub1.f3", { "parentID": "root.sub1", name: "mydoc03.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.f3" });
+            this.filesMap.set("root.sub1.f1", { "parentID": "root.sub1", name: "mydoc01.pdf", mimetype: "application/pdf", size: 846, date: new Date(), id: "root.sub1.f1", tagsIDs: [] });
+            this.filesMap.set("root.sub1.f2", { "parentID": "root.sub1", name: "mydoc02.pdf", mimetype: "application/pdf", size: 964, date: new Date(), id: "root.sub1.f2", tagsIDs: [] });
+            this.filesMap.set("root.sub1.f3", { "parentID": "root.sub1", name: "mydoc03.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.f3", tagsIDs: [] });
 
-            this.filesMap.set("root.sub1.sub.f1", { "parentID": "root.sub1.sub", name: "bill01.pdf", mimetype: "application/pdf", size: 368, date: new Date(), id: "root.sub1.sub.f1" });
-            this.filesMap.set("root.sub1.sub.f2", { "parentID": "root.sub1.sub", name: "bill02.pdf", mimetype: "application/pdf", size: 216, date: new Date(), id: "root.sub1.sub.f2" });
-            this.filesMap.set("root.sub1.sub.f3", { "parentID": "root.sub1.sub", name: "bill03.pdf", mimetype: "application/pdf", size: 698, date: new Date(), id: "root.sub1.sub.f3" });
+            this.filesMap.set("root.sub1.sub.f1", { "parentID": "root.sub1.sub", name: "bill01.pdf", mimetype: "application/pdf", size: 368, date: new Date(), id: "root.sub1.sub.f1", tagsIDs: [] });
+            this.filesMap.set("root.sub1.sub.f2", { "parentID": "root.sub1.sub", name: "bill02.pdf", mimetype: "application/pdf", size: 216, date: new Date(), id: "root.sub1.sub.f2", tagsIDs: [] });
+            this.filesMap.set("root.sub1.sub.f3", { "parentID": "root.sub1.sub", name: "bill03.pdf", mimetype: "application/pdf", size: 698, date: new Date(), id: "root.sub1.sub.f3", tagsIDs: [] });
             this._save();
         }
     }

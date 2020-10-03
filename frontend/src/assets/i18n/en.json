@@ -50,6 +50,12 @@
         "canceled": "Upload canceled"
     },
 
+    "tags": {
+        "create_new_tag": "Create a new tag",
+        "tags": "Tags",
+        "enter_tag": "Enter a tag..."
+    },
+
     "general": {
         "new_name": "New name",
         "name": "Name",
@@ -58,6 +64,8 @@
         "yes": "Yes",
         "no": "No",
         "ok": "OK",
+        "color": "Color",
+        "add": "Add",
         "settings": "Settings",
         "refresh": "Refresh",
         "logout": "Logout",
