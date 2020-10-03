@@ -27,3 +27,11 @@ mat-spinner {
 #add-tag-btn {
     margin: 4px;
 }
+
+mat-chip {
+    user-select: none;
+}
+
+mat-form-field {
+    width: 100%;
+}
