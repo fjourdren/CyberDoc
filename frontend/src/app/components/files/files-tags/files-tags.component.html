@@ -7,7 +7,7 @@
 
 <mat-form-field *ngIf="!loading">
     <mat-chip-list #chipList>
-        <mat-chip [style.background]="tag.hexColor" [style.color]="tag.textColor" *ngFor="let tag of fileTags"
+        <mat-chip disableRipple [style.background]="tag.hexColor" [style.color]="tag.textColor" *ngFor="let tag of fileTags"
             selectable removable (removed)="remove(tag)">
             {{tag.name}}
             <mat-icon matChipRemove>cancel</mat-icon>
