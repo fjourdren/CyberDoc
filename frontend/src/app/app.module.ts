@@ -24,6 +24,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -68,6 +70,8 @@ import { AppComponent } from './app.component';
 import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
 import { GlobalErrorHandler } from './global-error-handler';
 import { environment } from '../environments/environment';
+import { FilesTagsComponent } from './components/files/files-tags/files-tags.component';
+import { FilesCreateTagDialogComponent } from './components/files/files-create-tag-dialog/files-create-tag-dialog.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
@@ -118,6 +122,8 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
     SettingsProfilePageComponent,
     SettingsSecurityPageComponent,
     UnhandledErrorDialogComponent,
+    FilesTagsComponent,
+    FilesCreateTagDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -158,6 +164,8 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
     MatDialogModule,
     MatSlideToggleModule,
     MatProgressSpinnerModule,
+    MatChipsModule,
+    MatAutocompleteModule,
     NgxFilesizeModule,
     NgResizeObserverPonyfillModule,
     LayoutModule,

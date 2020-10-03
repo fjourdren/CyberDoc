@@ -27,6 +27,10 @@
       <td [title]="node.mimetype">{{getFileTypeFromMimetype(node.mimetype) | translate }}&nbsp;&nbsp;</td>
     </tr>
   </table>
+
+  <mat-divider></mat-divider>
+  <app-files-tags [node]="node"></app-files-tags>
+
 </div>
 
 <mat-spinner *ngIf="!node" diameter="48"></mat-spinner>

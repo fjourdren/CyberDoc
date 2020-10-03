@@ -1,4 +1,11 @@
 //from swagger file users.yml
+
+export class FileTag {
+    public id;
+    public name: string;
+    public hexColor: string;
+}
+
 export class User {
     public _id: string;
     public firstname: string;
@@ -8,4 +15,5 @@ export class User {
     public created_at: string;
     public role: string;
     public rootDirectoryID: string;
+    public fileTags: FileTag[];
 }

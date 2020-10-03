@@ -12,6 +12,7 @@ export interface FileSystem {
     copy(sourceID: string, newFileName: string, destID: string): Observable<void>;
     move(sourceID: string, destID: string): Observable<void>;
     rename(fileID: string, newName: string): Observable<void>;
+    editTags(fileID: string, tagIDs: string[]): Observable<void>;
     delete(fileID: string): Observable<void>;
     createDirectory(name: string, parentFolderID: string): Observable<void>;
     getDownloadURL(fileID: string): string;

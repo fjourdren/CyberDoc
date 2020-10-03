@@ -13,6 +13,7 @@ export class CloudFile {
     public mimetype: Exclude<string, "application/x-dir">;
     public size: number;
     public lastModified: Date;
+    public tagIDs: string[];
     isDirectory: false;
 }
 
@@ -23,6 +24,7 @@ export class CloudDirectory {
     public mimetype: "application/x-dir";
     public path: PathItem[];
     public directoryContent: CloudNode[];
+    public tagIDs: string[];
     isDirectory: true;
 }
 

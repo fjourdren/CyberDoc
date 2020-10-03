@@ -1,0 +1,26 @@
+<h1 mat-dialog-title>
+    {{'tags.create_new_tag' | translate}}
+</h1>
+
+<div mat-dialog-content>
+    <div>
+        <mat-form-field appearance="fill">
+            <mat-label>{{'general.name' | translate}}</mat-label>
+            <input matInput [formControl]="name" required>
+            <mat-error *ngIf="name.invalid">{{'general.no_empty' | translate}}</mat-error>
+        </mat-form-field>
+        <br>
+        <mat-form-field appearance="fill">
+            <mat-label>{{'general.color' | translate}}</mat-label>
+            <input type="color" matInput [formControl]="color" required>
+            <mat-error *ngIf="color.invalid">{{'general.no_empty' | translate}}</mat-error>
+        </mat-form-field>
+    </div>
+
+</div>
+
+<div mat-dialog-actions align="end">
+    <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+    <button [disabled]="loading" mat-button (click)="onCancelBtnClicked()">{{'general.cancel' | translate}}</button>
+    <button [disabled]="loading" mat-raised-button color="primary" (click)="onAddBtnClicked()">{{'general.add' | translate}}</button>
+</div>

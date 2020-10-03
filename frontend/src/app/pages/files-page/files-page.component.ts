@@ -63,9 +63,22 @@ export class FilesPageComponent implements AfterViewInit {
 
   refresh(directoryID: string | null = null) {
     this.loading = true;
-    this.fsProvider.default().get(directoryID || this.currentDirectory.id).toPromise().then(node => {
+    const id = directoryID || this.currentDirectory.id;
+    const selectedNodeID = this.selectedNode ? this.selectedNode.id : null;
+
+    this.currentDirectory = null;
+    this.selectedNode = null;
+    this.fsProvider.default().get(id).toPromise().then(node => {
       if (node.isDirectory) {
         this.currentDirectory = node;
+        if (selectedNodeID) {
+          for (const item of node.directoryContent) {
+            if (item.id === selectedNodeID) {
+              this.selectedNode = item;
+            }
+          }  
+        }
+
       } else {
         this.router.navigate(['/files']);
       }
