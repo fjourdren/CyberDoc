@@ -20,22 +20,22 @@ const USER: User = {
     "fileTags": [
         {
             "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7188",
-            "name": "MyTag",
+            "name": "TODO",
             "hexColor": "#FF0000"
         },
         {
             "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7177",
-            "name": "MyTag2",
+            "name": "In progress",
             "hexColor": "#00FF00"
         },
         {
             "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7199",
-            "name": "MyTag3",
+            "name": "In test",
             "hexColor": "#0000FF"
         },
         {
             "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7166",
-            "name": "MyTag4",
+            "name": "Done",
             "hexColor": "#cccccc"
         },
     ]
