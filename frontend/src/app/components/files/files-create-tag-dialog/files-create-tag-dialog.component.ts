@@ -14,7 +14,7 @@ export class FilesCreateTagDialogComponent {
 
   loading = false;
   name = new FormControl('', [Validators.required]);
-  color = new FormControl('', [Validators.required]);
+  color = new FormControl('#000000', [Validators.required]);
 
   constructor(public dialogRef: MatDialogRef<FilesCreateTagDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public node: CloudNode,
