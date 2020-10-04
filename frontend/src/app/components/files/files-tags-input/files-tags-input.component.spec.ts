@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FilesTagsComponent } from './files-tags.component';
+import { FilesTagsInputComponent } from './files-tags-input.component';
 
-describe('FilesTagsComponent', () => {
-  let component: FilesTagsComponent;
-  let fixture: ComponentFixture<FilesTagsComponent>;
+describe('FilesTagsInputComponent', () => {
+  let component: FilesTagsInputComponent;
+  let fixture: ComponentFixture<FilesTagsInputComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesTagsComponent ]
+      declarations: [ FilesTagsInputComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FilesTagsComponent);
+    fixture = TestBed.createComponent(FilesTagsInputComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

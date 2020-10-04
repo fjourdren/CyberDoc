@@ -22,3 +22,18 @@ mat-spinner {
   margin-top: 48px;
   left: calc(50% - 24px);
 }
+
+#title-div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-weight: bold;
+}
+
+#title-span {
+  flex: 1 1 auto;
+}
+
+#add-tag-btn {
+  margin: 4px;
+}
