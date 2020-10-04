@@ -68,7 +68,6 @@ Git Strategy
 In order to simplify the addition of new features, we are following a rather simplistic Git strategy :
 1. Any new feature will have to be developed on a **new branch**. 
 2. Once the new feature has been tested and validated by a third party, it is merged on the `develop` branch.
-2. Once deployed in production, the new feature is merged into the `master' branch.
 
 Team
 ------------
