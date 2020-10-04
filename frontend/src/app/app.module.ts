@@ -26,12 +26,14 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { NgResizeObserverPonyfillModule } from 'ng-resize-observer';
 import { LayoutModule } from '@angular/cdk/layout';
 import { NgxFilesizeModule } from 'ngx-filesize';
+import { Ng2TelInputModule } from 'ng2-tel-input';
 import { JwtModule, JWT_OPTIONS } from "@auth0/angular-jwt";
 
 import { FilesDetailsPanelComponent } from './components/files/files-details-panel/files-details-panel.component';
@@ -54,6 +56,7 @@ import { SettingsSecurityComponent } from './components/settings/settings-securi
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
+import { TwoFactorPageComponent } from './pages/two-factor-page/two-factor-page.component';
 import { LogoutPageComponent } from './pages/logout-page/logout-page.component';
 import { SettingsProfilePageComponent } from './pages/settings-profile-page/settings-profile-page.component';
 import { SettingsSecurityPageComponent } from './pages/settings-security-page/settings-security-page.component'
@@ -117,6 +120,7 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
     NotFoundPageComponent,
     RegisterPageComponent,
     LoginPageComponent,
+    TwoFactorPageComponent,
     LogoutPageComponent,
     ...SETTINGS_COMPONENTS,
     SettingsProfilePageComponent,
@@ -166,10 +170,12 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
     MatProgressSpinnerModule,
     MatChipsModule,
     MatAutocompleteModule,
+    MatExpansionModule,
     NgxFilesizeModule,
     NgResizeObserverPonyfillModule,
     LayoutModule,
     MatRadioModule,
+    Ng2TelInputModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   providers: [
