@@ -1,41 +1,77 @@
 <mat-card style="margin-bottom: 10px;">
 	<mat-card-content>
-		<form [formGroup]="securityForm" (ngSubmit)="onSubmit()">
-			<div class="col-md-12">
-				<mat-form-field>
-					<input [type]="isTextFieldType ? 'text' : 'password'" matInput formControlName="oldPassword" placeholder="Old password">
-				</mat-form-field>
-				<button (click)="toggleOldPasswordFieldType($event)" mat-flat-button item-right>
-					<mat-icon>{{isTextFieldType ? 'visibility_off' : 'visibility'}}</mat-icon>
-				</button>
-				<mat-error *ngIf="checkError('oldPassword', 'required')">Old password is required.</mat-error>
-            </div>
-			<div class="col-md-12">
-				<mat-form-field>
-					<input [type]="isTextFieldType2 ? 'text' : 'password'" matInput formControlName="newPassword" placeholder="New password">
-				</mat-form-field>
-				<button (click)="toggleNewPasswordFieldType($event)" mat-flat-button item-right>
-					<mat-icon>{{isTextFieldType2 ? 'visibility_off' : 'visibility'}}</mat-icon>
-				</button>
-				<mat-error *ngIf="checkError('newPassword', 'required')">New password is required.</mat-error>
-				<mat-error *ngIf="checkError('newPassword', 'minlength')">New password must be at least 8 characters long.</mat-error>
-				<mat-error *ngIf="checkError('newPassword', 'pattern')">New password must have at least 1 uppercase, 1 alphanumeric & 1 symbol.</mat-error>
-			</div>
-			<div class="col-md-12">
-				<mat-form-field>
-					<input [type]="isTextFieldType3 ? 'text' : 'password'" matInput formControlName="newPasswordConfirmation" placeholder="Confirm new password">
-				</mat-form-field>
-				<button (click)="toggleNewPasswordConfirmFieldType($event)" mat-flat-button item-right>
-					<mat-icon>{{isTextFieldType3 ? 'visibility_off' : 'visibility'}}</mat-icon>
-				</button>
-				<mat-error *ngIf="checkError('newPasswordConfirmation', 'required')">New password confirmation is required.</mat-error>
-				<mat-error *ngIf="checkError('newPasswordConfirmation', 'minlength')">New password confirmation must be at least 8 characters long.</mat-error>
-				<mat-error *ngIf="checkError('newPasswordConfirmation', 'pattern')">New password confirmation must have at least 1 uppercase, 1 alphanumeric & 1 symbol.</mat-error>
-				<mat-error *ngIf="checkError('newPasswordConfirmation', 'mustMatch')">Must match with new password.</mat-error>
-				<input type="email" hidden formControlName="email">
-			</div>
-			<button mat-flat-button color="primary" type="submit" [disabled]="securityForm.invalid">Update</button>
-			
-        </form>
-    </mat-card-content>
+		<mat-accordion>
+			<mat-expansion-panel>
+				<mat-expansion-panel-header>
+					<mat-panel-title>
+						Password
+					</mat-panel-title>
+					<mat-panel-description>
+						Set a unique password to protect your personal CyberDoc account.
+					</mat-panel-description>
+				</mat-expansion-panel-header>
+				<form [formGroup]="passwordForm" (ngSubmit)="onSubmitPassword()">
+					<mat-form-field>
+						<input [type]="isTextFieldType ? 'text' : 'password'" matInput formControlName="oldPassword" placeholder="Old password">
+					</mat-form-field>
+					<button (click)="toggleOldPasswordFieldType($event)" mat-flat-button item-right>
+						<mat-icon>{{isTextFieldType ? 'visibility_off' : 'visibility'}}</mat-icon>
+					</button>
+					<mat-error *ngIf="checkError('oldPassword', 'required') && passwordForm.get('oldPassword').touched">Old password is required.</mat-error>
+					<mat-form-field>
+						<input [type]="isTextFieldType2 ? 'text' : 'password'" matInput formControlName="newPassword" placeholder="New password">
+					</mat-form-field>
+					<button (click)="toggleNewPasswordFieldType($event)" mat-flat-button item-right>
+						<mat-icon>{{isTextFieldType2 ? 'visibility_off' : 'visibility'}}</mat-icon>
+					</button>
+					<mat-error *ngIf="checkError('newPassword', 'required') && passwordForm.get('newPassword').touched">New password is required.</mat-error>
+					<mat-error *ngIf="checkError('newPassword', 'minlength') && passwordForm.get('newPassword').touched">New password must be at least 8 characters long.</mat-error>
+					<mat-error *ngIf="checkError('newPassword', 'pattern') && passwordForm.get('newPassword').touched">New password must have at least 1 uppercase, 1 alphanumeric & 1 symbol.</mat-error>
+					<mat-form-field>
+						<input [type]="isTextFieldType3 ? 'text' : 'password'" matInput formControlName="newPasswordConfirmation" placeholder="Confirm new password">
+					</mat-form-field>
+					<button (click)="toggleNewPasswordConfirmFieldType($event)" mat-flat-button item-right>
+						<mat-icon>{{isTextFieldType3 ? 'visibility_off' : 'visibility'}}</mat-icon>
+					</button>
+					<mat-error *ngIf="checkError('newPasswordConfirmation', 'required') && passwordForm.get('newPasswordConfirmation').touched">New password confirmation is required.</mat-error>
+					<mat-error *ngIf="checkError('newPasswordConfirmation', 'minlength') && passwordForm.get('newPasswordConfirmation').touched">New password confirmation must be at least 8 characters long.</mat-error>
+					<mat-error *ngIf="checkError('newPasswordConfirmation', 'pattern') && passwordForm.get('newPasswordConfirmation').touched">New password confirmation must have at least 1 uppercase, 1 alphanumeric & 1 symbol.</mat-error>
+					<mat-error *ngIf="checkError('newPasswordConfirmation', 'mustMatch') && passwordForm.get('newPasswordConfirmation').touched">Must match with new password.</mat-error>
+					<input type="email" hidden formControlName="email">
+					<button mat-flat-button color="primary" type="submit" [disabled]="passwordForm.invalid">Update my password</button>
+				</form>
+			</mat-expansion-panel>
+
+			<mat-expansion-panel>
+				<mat-expansion-panel-header>
+					<mat-panel-title>
+						Two-Factor Authentication
+					</mat-panel-title>
+					<mat-panel-description>
+						Require a key or security code in addition to your password.
+					</mat-panel-description>
+				</mat-expansion-panel-header>
+				<mat-radio-group aria-label="Select your 2FA method">
+					<mat-radio-button value="SMS" (change)="radioChange($event)">SMS</mat-radio-button>
+					<mat-radio-button value="App" (change)="radioChange($event)">Application (Google Authenticator, Authy...)</mat-radio-button>
+				  </mat-radio-group>
+
+				<form [formGroup]="twoFactorSMSForm" (ngSubmit)="onSubmitTwoFactorSMS()" *ngIf="twoFactorSMS">
+					<mat-form-field>
+						<input type="text" maxlength="10"
+							matInput 
+							ng2TelInput
+							[ng2TelInputOptions]="{initialCountry: 'fr'}"
+							formControlName="phoneNumber" />
+					  <mat-error *ngIf="!twoFactorSMSForm.get('phoneNumber').valid && twoFactorSMSForm.get('phoneNumber').touched">
+						  This is an <strong>invalid</strong> phone number.
+					  </mat-error>
+					</mat-form-field>
+					<button mat-flat-button color="primary" type="submit" [disabled]="twoFactorSMSForm.invalid">Update my phone number</button>
+				</form>
+
+				<p *ngIf="twoFactorApp">Two-Factor Application is currently selected.</p>
+			</mat-expansion-panel>
+		</mat-accordion>
+	</mat-card-content>
 </mat-card>

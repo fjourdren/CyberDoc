@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
+import { TwoFactorPageComponent } from './pages/two-factor-page/two-factor-page.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
 import { LogoutPageComponent } from './pages/logout-page/logout-page.component';
 import { FilesPageComponent } from './pages/files-page/files-page.component';
@@ -20,6 +21,7 @@ const routes: Routes = [
 
   { path: 'logout', component: LogoutPageComponent, canActivate: [LoggedInGuard] },
   { path: 'login', component: LoginPageComponent, canActivate: [LoggedOutGuard] },
+  { path: 'two-factor', component: TwoFactorPageComponent, canActivate: [LoggedOutGuard] },
   { path: 'register', component: RegisterPageComponent, canActivate: [LoggedOutGuard] },
 
   { path: 'settings', redirectTo: 'settings/profile', pathMatch: 'full' },
