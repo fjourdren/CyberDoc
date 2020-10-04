@@ -70,7 +70,7 @@ import { AppComponent } from './app.component';
 import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
 import { GlobalErrorHandler } from './global-error-handler';
 import { environment } from '../environments/environment';
-import { FilesTagsComponent } from './components/files/files-tags/files-tags.component';
+import { FilesTagsInputComponent } from './components/files/files-tags-input/files-tags-input.component';
 import { FilesCreateTagDialogComponent } from './components/files/files-create-tag-dialog/files-create-tag-dialog.component';
 
 // AoT requires an exported function for factories
@@ -122,7 +122,7 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
     SettingsProfilePageComponent,
     SettingsSecurityPageComponent,
     UnhandledErrorDialogComponent,
-    FilesTagsComponent,
+    FilesTagsInputComponent,
     FilesCreateTagDialogComponent,
   ],
   imports: [

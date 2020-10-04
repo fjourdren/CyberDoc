@@ -3,6 +3,7 @@ import { UserService } from './user-service';
 import { Observable, of } from 'rxjs';
 import { FileTag, User } from 'src/app/models/users-api-models';
 import { delay, map } from 'rxjs/operators';
+import { EventEmitter } from '@angular/core';
 
 const LOCALSTORAGE_KEY = "auth-token";
 const JWT_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8";
@@ -44,10 +45,15 @@ const USER: User = {
 export class MockUserService implements UserService {
     private _users = new Map<string, User>(); //email -> user
     private _passwords = new Map<string, string>(); //email -> password
+    private _userUpdated$ = new EventEmitter<User>();
 
     constructor() {
         localStorage.setItem(LOCALSTORAGE_KEY, JWT_TOKEN);
         this._load();
+    }
+
+    userUpdated(): Observable<User> {
+        return this._userUpdated$.asObservable();
     }
 
     getJwtToken(): string {
@@ -188,6 +194,7 @@ export class MockUserService implements UserService {
     }
 
     private _setUser(user: User) {
+        this._userUpdated$.emit(user);
         if (user) {
             localStorage.setItem("__currentUser", JSON.stringify(user));
         } else {

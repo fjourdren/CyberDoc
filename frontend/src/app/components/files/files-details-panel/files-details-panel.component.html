@@ -29,7 +29,14 @@
   </table>
 
   <mat-divider></mat-divider>
-  <app-files-tags [node]="node"></app-files-tags>
+  <div id="title-div" class="mat-h3">
+    <span id="title-span">{{'tags.tags' | translate}}</span>
+    <button id="add-tag-btn" mat-stroked-button mat-button (click)="createNewTag()">
+      {{'tags.create_new_tag' | translate}}
+    </button>
+  </div>
+
+  <app-files-tags-input [allTags]="allTags" [nodeTags]="nodeTags" (nodeTagsChange)="onNodeTagsUpdated($event)"></app-files-tags-input>
 
 </div>
 
