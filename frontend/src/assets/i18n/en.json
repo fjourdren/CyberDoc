@@ -24,7 +24,7 @@
         "-1": "Any time",
         "0": "Today",
         "1": "Yesterday",
-        "2": "Last 7 days",
+        "7": "Last 7 days",
         "30": "Last 30 days",
         "60": "Last 60 days",
         "90": "Last 90 days",
