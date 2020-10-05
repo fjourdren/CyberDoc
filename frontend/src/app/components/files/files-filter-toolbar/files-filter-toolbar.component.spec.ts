@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FilesTagsComponent } from './files-tags.component';
+import { FilesFilterToolbarComponent } from './files-filter-toolbar.component';
 
-describe('FilesTagsComponent', () => {
-  let component: FilesTagsComponent;
-  let fixture: ComponentFixture<FilesTagsComponent>;
+describe('FilesFilterToolbarComponent', () => {
+  let component: FilesFilterToolbarComponent;
+  let fixture: ComponentFixture<FilesFilterToolbarComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesTagsComponent ]
+      declarations: [ FilesFilterToolbarComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FilesTagsComponent);
+    fixture = TestBed.createComponent(FilesFilterToolbarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

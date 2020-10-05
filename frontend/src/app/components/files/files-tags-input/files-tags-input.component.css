@@ -4,16 +4,6 @@
     justify-content: space-between;
 }
 
-#title-div {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    font-weight: bold;
-}
-
-#title-span {
-    flex: 1 1 auto;
-}
 
 .tag-color-div {
     width: 20px; height: 20px;
@@ -24,14 +14,16 @@ mat-spinner {
     left: calc(50% - 24px);
   }
 
-#add-tag-btn {
-    margin: 4px;
-}
-
 mat-chip {
     user-select: none;
 }
 
 mat-form-field {
     width: 100%;
+}
+
+[matChipRemove] {
+    color: black;
+    background: white;
+    border-radius: 16px;
 }

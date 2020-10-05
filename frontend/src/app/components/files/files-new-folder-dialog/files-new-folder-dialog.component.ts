@@ -1,7 +1,7 @@
 import { Component, ElementRef, HostListener, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { CloudDirectory, DIRECTORY_MIMETYPE } from 'src/app/models/files-api-models';
+import { CloudDirectory } from 'src/app/models/files-api-models';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 
 @Component({

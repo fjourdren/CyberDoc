@@ -15,6 +15,7 @@ import { LoggedOutGuard } from './guards/logged-out/logged-out.guard';
 const routes: Routes = [
 
   { path: '', redirectTo: 'files', pathMatch: 'full' },
+  { path: 'files-search/:searchParams', component: FilesPageComponent, canActivate: [LoggedInGuard] },
   { path: 'files/:dirID', component: FilesPageComponent, canActivate: [LoggedInGuard] },
   { path: 'files', component: FilesPageComponent, canActivate: [LoggedInGuard] },
 

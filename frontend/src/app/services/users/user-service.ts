@@ -11,4 +11,6 @@ export interface UserService {
     login(email: string, password: string): Observable<User>;
     logout(): Observable<void>;
     deleteAccount(): Observable<void>;
+
+    userUpdated(): Observable<User>;
 }
