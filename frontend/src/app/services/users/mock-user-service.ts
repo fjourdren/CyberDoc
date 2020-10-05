@@ -194,12 +194,12 @@ export class MockUserService implements UserService {
     }
 
     private _setUser(user: User) {
-        this._userUpdated$.emit(user);
         if (user) {
             localStorage.setItem("__currentUser", JSON.stringify(user));
         } else {
             localStorage.setItem("__currentUser", JSON.stringify("null"));
         }
+        this._userUpdated$.emit(user);
     }
 
     private _save() {
