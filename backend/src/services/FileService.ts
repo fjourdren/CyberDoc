@@ -1,11 +1,10 @@
 import Guid from 'guid';
-import mongoose from 'mongoose';
-
+import { Mongoose, Types } from 'mongoose';
+import MongoClient, { ObjectID } from 'mongodb'
 import GridFSTalker from "../helpers/GridFSTalker";
 import { requireNonNull, requireIsNull } from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
-
 import IUser from "../models/User";
 import { IFile, File, FileType } from "../models/File";
 
@@ -104,18 +103,9 @@ class FileService {
         const parentFile: IFile = requireNonNull(await File.findById(file.parent_file_id).exec());
         FileService.requireFileIsDirectory(parentFile);
 
-        // init vars needed
-        const gridfs_id: string = Guid.raw();
-        const optionsFileGridFS: any = {
-            _id: gridfs_id,
-            filename: filename,
-            content_type: content_type
-        }
+        // push document to gridfs
+        file.document_id = GridFSTalker.create(filename, content_type, fileContent);
 
-        // build gridfs stream to write a document
-        await GridFSTalker.create(optionsFileGridFS, fileContent);
-
-        file.document_id = gridfs_id; // change IFile to set gridfs document id
         return await file.save();
     }
 
@@ -137,7 +127,7 @@ class FileService {
         FileService.requireFileIsDocument(file);
 
         // get file infos and return it
-        return await GridFSTalker.getFileInfos({ _id: file.document_id });
+        return await GridFSTalker.getFileInfos(Types.ObjectId(file.document_id));
     }
 
     // get file content from gridfs (to start a download for example)
@@ -145,9 +135,9 @@ class FileService {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
-        // get file content
-        const infos: any = await GridFSTalker.getFileInfos({ _id: file.document_id });
-        const out: any   = await GridFSTalker.getFileContent({ _id: file.document_id });
+        // get file infos & content
+        const infos: any                              = await GridFSTalker.getFileInfos(Types.ObjectId(file.document_id));
+        const out: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
 
         return { infos: infos, stream: out };
     }
@@ -157,8 +147,13 @@ class FileService {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
+        // get file name
+        const fileGridFSInfos: any = await GridFSTalker.getFileInfos(Types.ObjectId(file.document_id));
+
         // get gridfs for document_id and put data in it
-        return await GridFSTalker.create({ _id: file.document_id }, fileContent);
+        const newDocumentId: string = GridFSTalker.update(Types.ObjectId(file.document_id), fileGridFSInfos.filename, fileGridFSInfos.contentType, fileContent);
+        file.document_id = newDocumentId;
+        return await file.save();
     }
 
     // edit a document attributes
@@ -178,7 +173,7 @@ class FileService {
         FileService.requireFileIsDirectory(parentFile);
 
         // get document in GridFS to check that the document storage still existing
-        if(await GridFSTalker.exists({ _id: file.document_id }))
+        if(await GridFSTalker.exists(Types.ObjectId(file.document_id)))
             return await file.save();
         else
             throw new HTTPError(HttpCodes.NOT_FOUND, "GridFS File doesn't exist");
@@ -206,7 +201,7 @@ class FileService {
         FileService.requireFileIsDocument(file);
 
         // delete file from gridfs
-        await GridFSTalker.delete({ _id: file._id });
+        await GridFSTalker.delete(Types.ObjectId(file.document_id));
 
         // delete the from file data
         return await File.findByIdAndDelete(file._id).exec();
@@ -242,8 +237,8 @@ class FileService {
         FileService.requireFileIsDocument(file);
 
         // get document informations from gridfs
-        const fileGridFsInformations: any = await GridFSTalker.getFileInfos({ _id: file.document_id });
-        const fileReader: any             = await GridFSTalker.getFileContent({ _id: file.document_id });
+        const fileGridFsInformations: any                    = await GridFSTalker.getFileInfos(Types.ObjectId(file.document_id));
+        const fileReader: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
 
 
         // ***** generate new filename *****
@@ -269,21 +264,19 @@ class FileService {
         // ***********************
 
 
-        // generate the new gridfs informations
-        const newFileGridFsInformations      = fileGridFsInformations;
-        newFileGridFsInformations._id      = Guid.raw();
-        newFileGridFsInformations.filename = copyFileName;
-
-        // generate new file informations
-        const newFile: IFile = file;
-        newFile._id            = Guid.raw();
-        newFile.name           = copyFileName;       
-        newFile.parent_file_id = destination_id;
-        newFile.document_id    = newFileGridFsInformations._id;
-        newFile.owner_id       = user._id;
 
         // start copying
-        await GridFSTalker.create(newFileGridFsInformations, fileReader); // generate the copy of the document in grid fs
+        const objectId: string = GridFSTalker.create(copyFileName, fileGridFsInformations.contentType, fileReader); // generate the copy of the document in grid fs
+
+        // generate new file informations
+        const newFile: IFile = new File();
+        newFile._id            = Guid.raw();
+        newFile.type           = file.type;
+        newFile.name           = copyFileName;
+        newFile.document_id    = objectId;   
+        newFile.parent_file_id = destination_id;
+        newFile.owner_id       = user._id;
+
         return await newFile.save(); // save the new file
     }
 
@@ -302,8 +295,9 @@ class FileService {
 
 
         // generate new file informations
-        const newFile: IFile = file;
+        const newFile: IFile = new File();
         newFile._id            = Guid.raw();
+        newFile.type           = file.type;
         newFile.name           = copyFileName;
         newFile.parent_file_id = destination_id;
         newFile.owner_id       = user._id;
@@ -313,13 +307,15 @@ class FileService {
 
         // find all child files
         const files = await File.find({ parent_file_id: file._id }).exec();
-        files.forEach(fileToCopy => {
+        //console.log(files)
+        for(let i = 0; i < files.length; i++) {
+            const fileToCopy: IFile = files[i];
             // copy directory and document recursively
             if(fileToCopy.type == FileType.DIRECTORY)
-                FileService.copyDirectory(user, fileToCopy, out._id);
+                FileService.copyDirectory(user, fileToCopy, out._id, fileToCopy.name);
             else
-                FileService.copyDocument(user, fileToCopy, out._id);
-        });
+                FileService.copyDocument(user, fileToCopy, out._id, fileToCopy.name);
+        }
 
         return out;
     }
