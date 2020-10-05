@@ -26,6 +26,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatSelectModule } from '@angular/material/select';
 
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -72,6 +73,8 @@ import { GlobalErrorHandler } from './global-error-handler';
 import { environment } from '../environments/environment';
 import { FilesTagsInputComponent } from './components/files/files-tags-input/files-tags-input.component';
 import { FilesCreateTagDialogComponent } from './components/files/files-create-tag-dialog/files-create-tag-dialog.component';
+import { FilesFilterDialogComponent } from './components/files/files-filter-dialog/files-filter-dialog.component';
+import { FilesFilterToolbarComponent } from './components/files/files-filter-toolbar/files-filter-toolbar.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
@@ -90,7 +93,10 @@ const FILES_COMPONENTS = [
   FilesNewFolderDialogComponent,
   FilesUploadComponent,
   FilesGenericTableComponent,
-  FilesGenericTableBottomsheetComponent
+  FilesGenericTableBottomsheetComponent,
+  FilesTagsInputComponent,
+  FilesCreateTagDialogComponent,
+  FilesFilterDialogComponent,
 ]
 
 const SETTINGS_COMPONENTS = [
@@ -122,8 +128,7 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
     SettingsProfilePageComponent,
     SettingsSecurityPageComponent,
     UnhandledErrorDialogComponent,
-    FilesTagsInputComponent,
-    FilesCreateTagDialogComponent,
+    FilesFilterToolbarComponent,
   ],
   imports: [
     BrowserModule,
@@ -166,6 +171,7 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
     MatProgressSpinnerModule,
     MatChipsModule,
     MatAutocompleteModule,
+    MatSelectModule,
     NgxFilesizeModule,
     NgResizeObserverPonyfillModule,
     LayoutModule,

@@ -32,12 +32,12 @@ mat-drawer-container {
     flex: 1 1 auto;
 }
 
-#app-files-breadcrumb-container {
+.app-files-breadcrumb-container, .app-files-filter-dialog-container {
     display: block;
     overflow: auto;
 }
 
-app-files-breadcrumb {
+app-files-breadcrumb, app-files-filter-dialog{
     display: block;
     width: max-content;
     min-width: 100%;

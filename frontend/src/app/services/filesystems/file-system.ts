@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { CloudNode } from 'src/app/models/files-api-models';
+import { CloudDirectory, CloudNode, SearchParams } from 'src/app/models/files-api-models';
 
 export interface Upload {
     filename: string;
@@ -9,6 +9,7 @@ export interface Upload {
 
 export interface FileSystem {
     get(id: string): Observable<CloudNode>;
+    search(searchParams: SearchParams): Observable<CloudDirectory>;
     copy(sourceID: string, newFileName: string, destID: string): Observable<void>;
     move(sourceID: string, destID: string): Observable<void>;
     rename(fileID: string, newName: string): Observable<void>;

@@ -1,12 +1,17 @@
 <div id="filepage">
     <div *ngIf="fileDetailDrawerLocked">
-        <app-files-main-toolbar [hideAppName]="smallScreen" [hideMenuButton]="treeviewDrawerLocked"
-            (menuButtonClicked)="treeviewDrawer.toggle()">
+        <app-files-main-toolbar [routeSearchParams]="routeSearchParams" [hideAppName]="smallScreen"
+            [hideMenuButton]="treeviewDrawerLocked" (menuButtonClicked)="treeviewDrawer.toggle()">
         </app-files-main-toolbar>
 
-        <div id="app-files-breadcrumb-container">
+        <div *ngIf="!searchMode" class="app-files-breadcrumb-container">
             <app-files-breadcrumb [(currentDirectory)]="currentDirectory"></app-files-breadcrumb>
         </div>
+
+        <div *ngIf="searchMode" class="app-files-filter-dialog-container">
+            <app-files-filter-toolbar [searchParams]="routeSearchParams"></app-files-filter-toolbar>
+        </div>
+
     </div>
     <mat-drawer-container autosize>
 
@@ -29,8 +34,12 @@
                 (menuButtonClicked)="treeviewDrawer.toggle()">
             </app-files-main-toolbar>
 
-            <div id="app-files-breadcrumb-container">
+            <div *ngIf="!searchMode" class="app-files-breadcrumb-container">
                 <app-files-breadcrumb [(currentDirectory)]="currentDirectory"></app-files-breadcrumb>
+            </div>
+
+            <div *ngIf="searchMode" class="app-files-filter-dialog-container">
+                <app-files-filter-toolbar [searchParams]="routeSearchParams"></app-files-filter-toolbar>
             </div>
         </div>
 
@@ -51,7 +60,9 @@
                 {{ 'general.filedetails' | translate }}
                 <div class="take-remaining-space"></div>
             </mat-toolbar>
-            <app-files-details-panel [node]="selectedNode || currentDirectory"></app-files-details-panel>
+            <app-files-details-panel [loading]="loading"
+                [node]="selectedNode || (currentDirectory && currentDirectory.path.length === 0 ? null : currentDirectory)">
+            </app-files-details-panel>
         </mat-drawer>
 
         <app-files-upload-progress-snackbar></app-files-upload-progress-snackbar>

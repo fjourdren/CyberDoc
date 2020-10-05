@@ -36,8 +36,8 @@
     </button>
   </div>
 
-  <app-files-tags-input [allTags]="allTags" [nodeTags]="nodeTags" (nodeTagsChange)="onNodeTagsUpdated($event)"></app-files-tags-input>
+  <app-files-tags-input [allTags]="allTags" [selectedTags]="nodeTags" (nodeTagsChange)="onNodeTagsUpdated($event)"></app-files-tags-input>
 
 </div>
 
-<mat-spinner *ngIf="!node" diameter="48"></mat-spinner>
+<mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
