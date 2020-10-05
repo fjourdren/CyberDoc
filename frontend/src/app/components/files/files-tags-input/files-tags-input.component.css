@@ -21,3 +21,9 @@ mat-chip {
 mat-form-field {
     width: 100%;
 }
+
+[matChipRemove] {
+    color: black;
+    background: white;
+    border-radius: 16px;
+}
