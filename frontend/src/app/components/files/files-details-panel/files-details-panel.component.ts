@@ -15,6 +15,7 @@ import { FileTag } from 'src/app/models/users-api-models';
 export class FilesDetailsPanelComponent {
 
   private _node: CloudNode;
+  @Input() loading: boolean;
   @Input() allTags: FileTag[];
   @Input() nodeTags: FileTag[];
 

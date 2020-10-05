@@ -8,9 +8,13 @@
     </div>
     <div id="search-div">
         <mat-form-field floatLabel="never">
-            <input matInput id="search-input" type="text">
+            <input [(ngModel)]="searchInput" (change)="onSearchInputChange($event)" matInput id="search-input"
+                type="text">
         </mat-form-field>
-        <button matSuffix mat-icon-button class="search-btn">
+        <a *ngIf="routeSearchParams" [routerLink]="['/files']" matSuffix mat-icon-button class="search-btn">
+            <mat-icon>cancel</mat-icon>
+        </a>
+        <button (click)="openFilterDialog()" matSuffix mat-icon-button class="search-btn">
             <mat-icon>expand_more</mat-icon>
         </button>
     </div>

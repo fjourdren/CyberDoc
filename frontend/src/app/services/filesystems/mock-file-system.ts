@@ -2,9 +2,10 @@ import { Observable } from 'rxjs';
 import { FileSystem, Upload } from './file-system';
 import { of, } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
-import { CloudDirectory, CloudFile, CloudNode, PathItem } from 'src/app/models/files-api-models';
+import { CloudDirectory, CloudFile, CloudNode, PathItem, SearchParams } from 'src/app/models/files-api-models';
 import { EventEmitter } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { FilesUtilsService, FileType } from '../files-utils/files-utils.service';
 
 interface InternalFileElement {
     parentID?: string;
@@ -28,7 +29,7 @@ export class MockFileSystem implements FileSystem {
     private _currentUpload$ = new EventEmitter<Upload>();
     private _uploadCancelRequested = false;
 
-    constructor() {
+    constructor(private fileUtils: FilesUtilsService) {
         this._load();
     }
 
@@ -93,6 +94,51 @@ export class MockFileSystem implements FileSystem {
             }
         });
     }
+
+    search(searchParams: SearchParams): Observable<CloudDirectory> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            let directory: CloudDirectory = {
+                id: "tmp",
+                mimetype: "application/x-dir",
+                name: "Search results",
+                ownerName: "NOBODY",
+                tagIDs: [],
+                path: [],
+                directoryContent: [],
+                isDirectory: true
+            }
+
+            let nodes: InternalFileElement[] = Array.from(this.filesMap.values());
+            
+            nodes = nodes.filter(node => node.name.startsWith(searchParams.name));
+            
+            if (searchParams.type !== "any"){
+                nodes = nodes.filter(node => this.fileUtils.getFileTypeForMimetype(node.mimetype) === FileType[searchParams.type]) ;
+            }
+
+            //date is not implemented !
+            nodes = nodes.filter(node => {
+                for (const tagID of searchParams.tagIDs) {
+                    if (node.tagsIDs.indexOf(tagID) === -1) return false;
+                }
+                return true;
+            })
+            
+            directory.directoryContent = nodes.map(val => {
+                let node = { id: val.id, name: val.name, ownerName: OWNER, mimetype: val.mimetype }
+
+                if (val.mimetype === DIRECTORY_MIMETYPE) {
+                    return { ...node, directoryContent: [], path: [], mimetype: "application/x-dir", isDirectory: true, tagIDs: val.tagsIDs } as CloudDirectory;
+                } else {
+                    return { ...node, size: val.size, lastModified: val.date, isDirectory: false, tagIDs: val.tagsIDs } as CloudFile;
+                }
+            })
+            
+
+            return directory;
+        }));
+    }
+
 
     get(id: string): Observable<CloudNode> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {

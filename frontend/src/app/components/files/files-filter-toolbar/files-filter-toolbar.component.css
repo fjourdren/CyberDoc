@@ -1,0 +1,18 @@
+mat-icon {
+    font-size: 20px;
+  }
+  
+  mat-chip-list{
+      user-select: none;
+  }
+
+  mat-toolbar {
+    height: fit-content;
+    padding: 16px;
+  }
+
+  [matChipRemove] {
+    color: black;
+    background: white;
+    border-radius: 16px;
+  }

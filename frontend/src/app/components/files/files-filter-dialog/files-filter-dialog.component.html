@@ -1,0 +1,45 @@
+<h1 mat-dialog-title>
+    {{'general.filter' | translate}}
+</h1>
+
+<div mat-dialog-content>
+    <mat-form-field appearance="fill" [color]="typeControl.value">
+        <mat-label>{{'file.type' | translate}}</mat-label>
+        <mat-select [formControl]="typeControl">
+            <mat-option [value]="noTypeFilter">
+                <mat-icon fontSet="fa" fontIcon="fa-file"></mat-icon>
+                <span>Any</span>
+            </mat-option>
+            <mat-option [value]="type" *ngFor="let type of fileTypes">
+                <mat-icon fontSet="fa" [fontIcon]="getIconForFileType(type)"></mat-icon>
+                <span>{{ getTranslationForFileType(type) | translate }}</span>
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <br>
+
+    <mat-form-field appearance="fill">
+        <mat-label>{{'file.modified' | translate}}</mat-label>
+        <mat-select [formControl]="dateModifiedControl">
+            <mat-option [value]="-1">{{ "datediff.-1" | translate }}</mat-option>
+            <mat-option [value]="0">{{ "datediff.0" | translate }}</mat-option>
+            <mat-option [value]="1">{{ "datediff.1" | translate }}</mat-option>
+            <mat-option [value]="2">{{ "datediff.2" | translate }}</mat-option>
+            <mat-option [value]="30">{{ "datediff.30" | translate }}</mat-option>
+            <mat-option [value]="60">{{ "datediff.60" | translate }}</mat-option>
+            <mat-option [value]="90">{{ "datediff.90" | translate }}</mat-option>
+            <mat-option [value]="365">{{ "datediff.365" | translate }}</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <br>
+
+    <app-files-tags-input [(selectedTags)]="selectedTags" [allTags]="allTags"></app-files-tags-input>
+</div>
+
+<div mat-dialog-actions align="end">
+    <button (click)="onResetBtnClick()" mat-raised-button color="accent">{{'general.reset' | translate}}</button>
+    <button (click)="onCancelBtnClicked()" mat-raised-button>{{'general.cancel' | translate}}</button>
+    <button (click)="onSearchBtnClick()" mat-raised-button color="primary">{{'general.filter' | translate}}</button>
+</div>

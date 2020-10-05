@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FileSystem } from 'src/app/services/filesystems/file-system'
 import { MockFileSystem } from 'src/app/services/filesystems/mock-file-system'
+import { FilesUtilsService } from '../files-utils/files-utils.service';
 
 const DEFAULT_FS_PROVIDER_NAME = "mock";
 
@@ -10,7 +11,7 @@ const DEFAULT_FS_PROVIDER_NAME = "mock";
 export class FileSystemProvider {
     private _instances = new Map<string, FileSystem>();
 
-    constructor(){}
+    constructor(private fileUtils: FilesUtilsService){}
 
     default(): FileSystem {
         return this.get(DEFAULT_FS_PROVIDER_NAME);
@@ -26,7 +27,7 @@ export class FileSystemProvider {
     private _createInstance(providerName: string){
         switch (providerName){
             case "mock":
-                return new MockFileSystem();
+                return new MockFileSystem(this.fileUtils);
             default:
                 throw new Error(`Unknown FS provider : ${providerName}`);
         }

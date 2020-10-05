@@ -20,6 +20,17 @@
         "folder": "Folder"
     },
 
+    "datediff": {
+        "-1": "Any time",
+        "0": "Today",
+        "1": "Yesterday",
+        "2": "Last 7 days",
+        "30": "Last 30 days",
+        "60": "Last 60 days",
+        "90": "Last 90 days",
+        "365": "Last year"
+    },
+
     "fileaction": {
         "open": "Open",
         "details": "Details",
@@ -72,6 +83,8 @@
         "appname": "CyberDoc",
         "cancel": "Cancel",
         "search": "Search",
+        "filter": "Filter",
+        "reset": "Reset",
         "remaining": "remaining",
         "loading": "Loading...",
         "noitems": "No items",
