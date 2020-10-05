@@ -7,7 +7,6 @@ import FileService from '../services/FileService';
 
 import { IFile, File, FileType } from "../models/File";
 import { IUser, User } from "../models/User";
-import GridFSTalker from '../helpers/GridFSTalker';
 import HTTPError from '../helpers/HTTPError';
 
 class FileController {
@@ -187,10 +186,10 @@ class FileController {
 
             // check that file is a document
             if(file.type != FileType.DOCUMENT)
-                throw new HTTPError(HttpCodes.BAD_REQUEST, "File need to be a document")
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "File need to be a document");
 
             // update content in gridfs
-            await GridFSTalker.create({ _id: file.document_id }, upfile);
+            await FileService.updateContentDocument(file, upfile);
 
             // reply to client
             res.status(HttpCodes.OK);
@@ -282,8 +281,7 @@ class FileController {
             const user_id = res.locals.APP_JWT_TOKEN.user._id;
             const file_id = req.params.fileId;
         
-            // check that copyFileName, destID aren't null
-            requireNonNull(copyFileName);
+            // check that destID isn't null
             requireNonNull(destID);
 
             // find user & file
