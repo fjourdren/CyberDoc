@@ -31,7 +31,7 @@ export class CloudDirectory {
 
 export const NO_TYPE_FILTER = "any";
 export const NO_DATEDIFF_DEFAULT = -1;
-export const VALID_DATEDIFF_VALUES = [-1, 0, 1, 2, 30, 60, 90, 365];
+export const VALID_DATEDIFF_VALUES = [-1, 0, 1, 7, 30, 60, 90, 365];
 export const NO_NAME_FILTER = "";
 
 export const EMPTY_SEARCH_PARAMS: SearchParams = {
