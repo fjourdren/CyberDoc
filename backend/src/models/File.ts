@@ -17,12 +17,7 @@ export enum FileType {
  * Building typescript & Mongoose data archs
  */
 export const FileSchema = new mongoose.Schema({
-   /* _id: { //already added by mongoose
-        type                 : String,
-        //unique               : true,
-        //uniqueCaseInsensitive: true,
-		//default: () => Guid.raw()
-    },*/
+    _id: {},
     type: {
 		type    : FileType,
 		required: true

@@ -19,12 +19,7 @@ export enum Role {
  * Building typescript & Mongoose data archs
  */
 export const UserSchema = new mongoose.Schema({
-    /*_id: { already added by mongoose
-        type                 : String,
-        unique               : true,
-        uniqueCaseInsensitive: true,
-		default: () => Guid.raw()
-    },*/
+    _id: {},
     directory_id: {
 		type    : String,
 		required: true,
