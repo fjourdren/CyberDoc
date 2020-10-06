@@ -25,10 +25,13 @@ export class RegisterPageComponent implements OnInit {
   registerForm = this.fb.group({
     firstName: [null, Validators.required],
     lastName: [null, Validators.required],
-    email: [null, Validators.required],
+    email: [null, [Validators.required, Validators.email]],
     password: [null, Validators.required],
     repeat: [null, Validators.required],
     state: ['owner', Validators.required],
+  },
+  {
+    validator: MustMatch('password', 'repeat')
   });
 
   hide = true;
@@ -39,8 +42,7 @@ export class RegisterPageComponent implements OnInit {
   myDate = new Date();
   hasUnitNumber = false;
 
-  //email = new FormControl('', [Validators.required, Validators.email]);
-
+ 
   constructor(private fb: FormBuilder, private userProvider: UserServiceProvider) { }
 
   onSubmit() {
@@ -73,7 +75,7 @@ ngOnInit() {
   this.registerForm = this.fb.group({
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
-    email: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(this.passwordStrength)]],
     repeat: ['', Validators.required],
     state: ['owner', Validators.required],

@@ -65,9 +65,12 @@ h1{
 
 @media screen and (max-width: 640px) {
   .col {
-    flex: 1;
+    flex: auto;
     margin-right: 5px;
-    width: 50%;
+    width: 100%;
+  }
+  .row {
+    display: table;
   }
 }
 
