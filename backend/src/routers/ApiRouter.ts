@@ -4,8 +4,6 @@ import AuthRouter from './API/AuthRouter';
 import UserRouter from './API/UserRouter';
 import FileRouter from './API/FileRouter';
 
-import ErrorCatcherMiddleware from '../middlewares/ErrorCatcherMiddleware';
-
 // main Router
 const api = express.Router();
 

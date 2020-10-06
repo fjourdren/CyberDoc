@@ -69,12 +69,8 @@ class GridFSTalker {
     public static update(id: ObjectID, filename: string, contentType: string, readableStream: Readable): string {
         const bukket: GridFSBucket = GridFSTalker.getBucket();
 
-        console.log("1")
-
         // first delete old bucket
         bukket.delete(id);
-
-        console.log("2")
 
         // create the wrinting stream
         let writeStream: MongoClient.GridFSBucketWriteStream 
@@ -82,8 +78,6 @@ class GridFSTalker {
             writeStream = bukket.openUploadStreamWithId(id, filename, { contentType: contentType });
         else
             writeStream = bukket.openUploadStreamWithId(id, filename);
-        
-        console.log("3")
 
         // push stream into the writing stream
         readableStream.pipe(writeStream);
