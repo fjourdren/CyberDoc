@@ -29,14 +29,20 @@ export default function connectMongodb(): void {
 
     db.on('disconnected', function() {
         logger.error('MongoDB disconnected !');
-        mongoose.connect(process.env.MONGODB_URL, {server:{auto_reconnect: true}});
+        mongoose.connect(process.env.MONGODB_URL, {
+            useNewUrlParser: true
+        });
     });
 
 
 
     // first connect to mongodb
     try {
-        mongoose.connect(process.env.MONGODB_URL, {server: {auto_reconnect: true}});
+        mongoose.set('useUnifiedTopology', true);
+        mongoose.set('useCreateIndex', true);
+        mongoose.connect(process.env.MONGODB_URL, {
+            useNewUrlParser: true
+        });
     } catch(err) {
         logger.error(err);
     }
