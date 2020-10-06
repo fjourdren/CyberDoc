@@ -1,49 +1,299 @@
 openapi: 3.0.0
 info:
-  title: CyberDoc Auth API
+  title: CyberDoc Auth & Users API
   version: 1.0.0
+servers:
+  - url: http://localhost:3000/v1
+    description: Local server
+  - url: http://api.cyberdoc.fulgen.fr/v1
+    description: Prod server  
 paths:
-  /users/profile:
-    get:
-      summary: Connected user profile
-      description: Get connected user profile
+  /auth/signup:
+    post:
+      tags:
+        - Authentication
+      summary: Register user
+      description: Register user
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - firstname
+                - lastname
+                - email
+                - password
+                - role
+              properties:
+                firstname:
+                  type: string
+                lastname:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum: [owner, collaborater]
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfileResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "409":
+          description: Another user with the same email already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+
+  /auth/signin:
+    post:
+      tags:
+        - Authentication
+      summary: Login a user
+      description: Login a user
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - email
+                - password
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
       responses:
         "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/profile"
-        "500":
-          description: Internal Error
-    delete:
-      summary: Delete user's account
-      description: Delete user's account
-      responses:
-        "200":
-          description: Successful operation
+                $ref: "#/components/schemas/SignInResponse"
+        "400":
+          description: Bad request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/deleteProfile"
+                $ref: "#/components/schemas/GenericResponse"
+        "403":
+          description: Bad login/password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
         "500":
           description: Internal Error
+
+  /users/profile:
+    get:
+      security:
+        - jwtToken: []  
+      tags:
+        - Users
+      summary: Get current user
+      description: Get current user
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfileResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+                
+    post:
+      tags:
+        - Users
+      security:
+        - jwtToken: []  
+      summary: Set current user properties
+      description: Set current user properties
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example: 
+                firstname: "Flavien"
+                lastname: "JOURDREN"
+                email: "flavien.jourdren@gmail.com"
+                password: "MyPassword"
+                tags: 
+                  - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
+                    name: "TODO"
+                    hexColor: "#eeeeee"
+              type: object
+              properties:
+                firstname:
+                  type: string
+                lastname:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                file_tags:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/FileTag"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+
           
+    delete:
+      tags:
+        - Users
+      security:
+        - jwtToken: []  
+      summary: Delete active user account
+      description: Delete active user account
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
           
 components:
+  securitySchemes:
+    jwtToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 
+
   schemas:
-    profile:
+    FileTag:
+      example:
+        id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
+        name: "TODO"
+        hexColor: "#eeeeee"
+      description: File tag
+      type: object
+      required:
+        - id
+        - name
+        - hexColor
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        hexColor:
+          type: string
+          pattern: "^#(?:[0-9a-fA-F]{3}){1,2}$"
+  
+    SignInResponse:
+      example: 
+        success: true
+        msg: "Authentication token generated"
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8"
+      description: Send to user his log token
+      type: object
+      required:
+        - success
+        - msg
+        - token
+      properties:
+        success:
+          type: boolean
+          example: true
+        msg:
+          type: string
+          example: "Authentication token generated"
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8"
+          description: User JWTToken
+  
+    UserProfileResponse:
       example: 
         success: true
         msg: "Success"
         user: 
+          _id: "65af88e0-4d6f-80da-1cab-6ef5db2c719e"
           role: "collaborater"
           updated_at: "2020-09-22T11:31:20.714Z"
           created_at: "2020-09-22T11:30:54.556Z"
-          _id: "65af88e0-4d6f-80da-1cab-6ef5db2c719e"
           firstname: "Flavien"
           lastname: "JOURDREN"
           email: "flavien.jourdren@gmail.com"
+          directory_id: "65af88e0-4d6f-80da-1cab-6ef50b2c719e"
+          tags: 
+            - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
+              name: "TODO"
+              hexColor: "#eeeeee"
+
+
       description: User's profile
       type: object
       required:
@@ -53,45 +303,45 @@ components:
       properties:
         success:
           type: boolean
-          example: true
-          description: Action successed
         msg:
           type: string
-          example: "Success"
-          description: Send to HTTP client a message / an error
         user:
           type: object
           properties:
-            role:
-              description: The file to upload.
+            _id:
               type: string
-              format: binary
+              format: uuid
+            role:
+              type: string
+              enum: [owner, collaborater]
             updated_at:
-              description: User's account updated_at
               type: string
               format: date-time
             created_at:
-              description: User's account created at
               type: string
               format: date-time
-            _id:
-              description: ID
-              type: string
             firstname:
-              description: User's firstname
               type: string
             lastname:
-              description: User's lastname
               type: string
             email:
-              description: User's email
               type: string
+              format: email
+            directory_id:
+              type: string
+              format: uuid
+              description: root directory ID for current user
+            file_tags:
+              type: array
+              items:
+                $ref: "#/components/schemas/FileTag"
           description: User's profile
-    deleteProfile:
+          
+    GenericResponse:
       example: 
         success: true
-        msg: "User deleted"
-      description: Inform the user about what the server did to data
+        msg: "Success"
+      description: Generic response
       type: object
       required:
         - success
@@ -99,9 +349,7 @@ components:
       properties:
         success:
           type: boolean
-          example: true
-          description: Action successed
+          description: true if the operation succeeded, otherwise false
         msg:
           type: string
-          example: "User deleted"
-          description: Send to HTTP client a message / an error
+          description: msg
