@@ -1,0 +1,32 @@
+FROM node:14.11.0
+
+# Create app directory
+RUN mkdir /app
+WORKDIR /app
+
+# Copy application in the container
+COPY . .
+
+# Install app dependencies
+RUN npm install
+
+# Build application
+RUN npm build
+
+# Delete useless files
+RUN rm -rf .git
+RUN rm -rf src/
+RUN rm .env.example
+RUN rm .eslintignore
+RUN rm .eslintrc
+RUN rm .gitignore
+RUN rm dockerfile
+RUN rm jest.config.js
+RUN rm nodemon.json
+RUN rm tsconfig.json
+
+# Expose port 3000
+EXPOSE 3000
+
+# Run application
+CMD [ "npm", "run", "start" ]
