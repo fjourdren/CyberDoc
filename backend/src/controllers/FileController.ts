@@ -1,13 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 
 import HttpCodes from '../helpers/HttpCodes'
-import { requireNonNull } from '../helpers/DataValidation';
+import { requireIsNull, requireNonNull } from '../helpers/DataValidation';
 
 import FileService from '../services/FileService';
 
 import { IFile, File, FileType } from "../models/File";
 import { IUser, User } from "../models/User";
 import HTTPError from '../helpers/HTTPError';
+import { Readable } from 'stream';
 
 class FileController {
     // upload a new file controller
@@ -15,33 +16,49 @@ class FileController {
         try {
             // prepare vars
             const user_id = res.locals.APP_JWT_TOKEN.user._id;
-            const { upfile, name, mimetype, folderID } = req.body;
+            const { name, mimetype, folderID } = req.body;
+            let upfile = null;
+            let file: Express.Multer.File;
+            for (file of (req.files as Express.Multer.File[])) {
+                if (file.fieldname === "upfile") {
+                    upfile = file;
+                }
+            }
+
+            requireNonNull(name);
+            requireNonNull(mimetype);
+            requireNonNull(folderID);
 
             // build IFile
             const fileToSave: IFile = new File();
-            // if file is a Directory
-            if(upfile == undefined || mimetype == undefined || mimetype == "application/x-dir")
-                fileToSave.type = FileType.DIRECTORY;
-            else // otherwise file is a document
-                fileToSave.type = FileType.DOCUMENT;
 
-            fileToSave.name           = name;
+            // if file is a Directory
+            if (mimetype == "application/x-dir") {
+                fileToSave.type = FileType.DIRECTORY;
+                requireIsNull(upfile);
+            }
+            else { // otherwise file is a document
+                fileToSave.type = FileType.DOCUMENT;
+                requireNonNull(upfile);
+            }
+
+            fileToSave.name = name;
             fileToSave.parent_file_id = folderID;
-            fileToSave.owner_id       = user_id;
-            
+            fileToSave.owner_id = user_id;
+
             // check that user is owner
-            if(fileToSave.owner_id != user_id)
+            if (fileToSave.owner_id != user_id)
                 throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
 
             // check that user is owner of parent place
-            FileService.requireIsFileOwner(user_id, fileToSave.parent_file_id);
+            await FileService.requireIsFileOwner(user_id, fileToSave.parent_file_id);
 
             // check if file is a directory or a document and create it
             let out: IFile;
-            if(fileToSave.type == FileType.DIRECTORY)
+            if (fileToSave.type == FileType.DIRECTORY)
                 out = await FileService.createDirectory(fileToSave);
             else
-                out = await FileService.createDocument(fileToSave, fileToSave.name, mimetype, upfile);
+                out = await FileService.createDocument(fileToSave, fileToSave.name, mimetype, Readable.from(upfile?.buffer as any));
 
             // reply to client
             res.status(HttpCodes.OK);
@@ -50,7 +67,7 @@ class FileController {
                 msg: "File created",
                 file: out
             });
-        } catch(err) {
+        } catch (err) {
             next(err);
         }
     }
@@ -67,11 +84,11 @@ class FileController {
             const file: IFile = requireNonNull(await File.findById(fileId).exec());
 
             // check that user is owner
-            if(file.owner_id != user_id)
+            if (file.owner_id != user_id)
                 throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
 
             // if file is a directory
-            if(file.type == FileType.DIRECTORY) {
+            if (file.type == FileType.DIRECTORY) {
                 // get owner
                 const owner: IUser = requireNonNull(await User.findById(file.owner_id).exec());
 
@@ -79,10 +96,10 @@ class FileController {
                 const pathsOutput: Record<string, any> = [];
 
                 let aboveFile: IFile = file;
-                while(aboveFile.parent_file_id != undefined) {
+                while (aboveFile.parent_file_id != undefined) {
                     aboveFile = requireNonNull(await File.findById(aboveFile.parent_file_id).exec())
                     pathsOutput.push({
-                        "id":   aboveFile._id,
+                        "id": aboveFile._id,
                         "name": aboveFile.name
                     });
                 }
@@ -93,8 +110,8 @@ class FileController {
                 const directoryContentOutput: Record<string, any> = [];
 
                 const files: IFile[] = await File.find({ parent_file_id: file._id }).exec();
-                
-                for(let i = 0; i < files.length; i++) {
+
+                for (let i = 0; i < files.length; i++) {
                     const fileInDir: IFile = files[i];
 
                     // get owner
@@ -102,24 +119,24 @@ class FileController {
 
                     // get gridfs informations if it's a document
                     let gridfsInformation: any = undefined;
-                    if(fileInDir.type == FileType.DOCUMENT) {
+                    if (fileInDir.type == FileType.DOCUMENT) {
                         gridfsInformation = requireNonNull(await FileService.getFileInformations(fileInDir));
 
                         directoryContentOutput.push({
-                            "id":         fileInDir._id,
-                            "name":       fileInDir.name,
-                            "ownerName":  ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
-                            "mimetype":   gridfsInformation.contentType,
-                            "size":       gridfsInformation.length,
+                            "id": fileInDir._id,
+                            "name": fileInDir.name,
+                            "ownerName": ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
+                            "mimetype": gridfsInformation.contentType,
+                            "size": gridfsInformation.length,
                             "updated_at": fileInDir.updated_at,
                             "created_at": fileInDir.created_at
                         });
                     } else { // if it's a directory
                         directoryContentOutput.push({
-                            "id":         fileInDir._id,
-                            "name":       fileInDir.name,
-                            "ownerName":  ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
-                            "mimetype":   "application/x-dir",
+                            "id": fileInDir._id,
+                            "name": fileInDir.name,
+                            "ownerName": ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
+                            "mimetype": "application/x-dir",
                             "updated_at": fileInDir.updated_at,
                             "created_at": fileInDir.created_at
                         });
@@ -134,15 +151,15 @@ class FileController {
                     success: true,
                     msg: "File informations loaded",
                     content: {
-                        "id":               file._id,
-                        "ownerName":        owner.firstname + " " + owner.lastname,
-                        "name":             file.name,
-                        "mimetype":         "application/x-dir",
-                        "path":             pathsOutput,
+                        "id": file._id,
+                        "ownerName": owner.firstname + " " + owner.lastname,
+                        "name": file.name,
+                        "mimetype": "application/x-dir",
+                        "path": pathsOutput,
                         "directoryContent": directoryContentOutput
                     }
                 });
-                
+
             } else { // otherwise it's a document
                 const owner: IUser = requireNonNull(await User.findById(file.owner_id).exec());
                 const gridFsFileInfos: any = requireNonNull(await FileService.getFileInformations(file));
@@ -153,17 +170,17 @@ class FileController {
                     success: true,
                     msg: "File informations loaded",
                     content: {
-                        "id":         file._id,
-                        "ownerName":  owner.firstname + " " + owner.lastname,
-                        "name":       file.name,
-                        "mimetype":   gridFsFileInfos.contentType,
-                        "size":       gridFsFileInfos.length,
+                        "id": file._id,
+                        "ownerName": owner.firstname + " " + owner.lastname,
+                        "name": file.name,
+                        "mimetype": gridFsFileInfos.contentType,
+                        "size": gridFsFileInfos.length,
                         "updated_at": file.updated_at,
                         "created_at": file.updated_at
                     }
                 });
             }
-        } catch(err) {
+        } catch (err) {
             next(err);
         }
     }
@@ -176,16 +193,16 @@ class FileController {
             const { upfile } = req.body;
             const user_id = res.locals.APP_JWT_TOKEN.user._id;
             const fileId = req.params.fileId;
-        
+
             // find file
             const file: IFile = requireNonNull(await File.findById(fileId).exec());
 
             // check that user is owner
-            if(file.owner_id != user_id)
+            if (file.owner_id != user_id)
                 throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
 
             // check that file is a document
-            if(file.type != FileType.DOCUMENT)
+            if (file.type != FileType.DOCUMENT)
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "File need to be a document");
 
             // update content in gridfs
@@ -197,7 +214,7 @@ class FileController {
                 success: true,
                 msg: "File updated"
             });
-        } catch(err) {
+        } catch (err) {
             next(err);
         }
     }
@@ -210,22 +227,22 @@ class FileController {
             const { name, directoryID } = req.body;
             const user_id = res.locals.APP_JWT_TOKEN.user._id;
             const fileId = req.params.fileId;
-        
+
             // find file
             const file: IFile = requireNonNull(await File.findById(fileId).exec());
 
             // check that user is owner
-            if(file.owner_id != user_id)
+            if (file.owner_id != user_id)
                 throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
 
             // modify vars
-            if(name != undefined)
+            if (name != undefined)
                 file.name = name;
-            if(directoryID != undefined)
+            if (directoryID != undefined)
                 file.parent_file_id = directoryID;
 
             // save
-            if(file.type == FileType.DIRECTORY)
+            if (file.type == FileType.DIRECTORY)
                 await FileService.editDirectory(file);
             else
                 await FileService.editDocument(file);
@@ -236,7 +253,7 @@ class FileController {
                 success: true,
                 msg: "File informations modified"
             });
-        } catch(err) {
+        } catch (err) {
             next(err);
         }
     }
@@ -248,16 +265,16 @@ class FileController {
             // prepare vars
             const user_id = res.locals.APP_JWT_TOKEN.user._id;
             const file_id = req.params.fileId;
-        
+
             // find file
-            const file: IFile = requireNonNull(await File.findById(file_id).exec());    
+            const file: IFile = requireNonNull(await File.findById(file_id).exec());
 
             // check that user is owner
-            if(file.owner_id != user_id)
+            if (file.owner_id != user_id)
                 throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
 
             //  delete file
-            if(file.type == FileType.DIRECTORY)
+            if (file.type == FileType.DIRECTORY)
                 await FileService.deleteDirectory(file);
             else
                 await FileService.deleteDocument(file);
@@ -267,7 +284,7 @@ class FileController {
                 success: true,
                 msg: "File deleted"
             });
-        } catch(err) {
+        } catch (err) {
             next(err);
         }
     }
@@ -280,7 +297,7 @@ class FileController {
             const { copyFileName, destID } = req.body;
             const user_id = res.locals.APP_JWT_TOKEN.user._id;
             const file_id = req.params.fileId;
-        
+
             // check that destID isn't null
             requireNonNull(destID);
 
@@ -289,16 +306,16 @@ class FileController {
             const file: IFile = requireNonNull(await File.findById(file_id).exec());
 
             // check that user is owner
-            if(file.owner_id != user_id)
+            if (file.owner_id != user_id)
                 throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
 
             // run copy
             let out: IFile;
-            if(file.type == FileType.DIRECTORY)
+            if (file.type == FileType.DIRECTORY)
                 out = await FileService.copyDirectory(user, file, destID, copyFileName);
             else
                 out = await FileService.copyDocument(user, file, destID, copyFileName);
-            
+
             // reply to user
             res.status(HttpCodes.OK);
             res.json({
@@ -307,7 +324,7 @@ class FileController {
                 file: out
             });
 
-        } catch(err) {
+        } catch (err) {
             next(err);
         }
     }
@@ -327,13 +344,13 @@ class FileController {
             // if user is owner or have access
             const user_id = res.locals.APP_JWT_TOKEN.user._id;
             const file_id = req.params.fileId;
-        
+
             // find file
             const file: IFile = requireNonNull(await File.findById(file_id).exec());
-        
+
             // check if user can view the file
             FileService.requireFileCanBeViewed(user_id, file_id);
-                    
+
             // get file and start download
             const documentGridFs: any = await FileService.getFileContent(file);
             requireNonNull(documentGridFs.infos);
@@ -344,7 +361,7 @@ class FileController {
             res.set('Content-Disposition', 'attachment; filename="' + documentGridFs.infos.filename + '"');
 
             documentGridFs.stream.pipe(res);
-        } catch(err) {
+        } catch (err) {
             next(err);
         }
     }
