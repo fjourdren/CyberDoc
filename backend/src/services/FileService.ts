@@ -1,12 +1,13 @@
 import Guid from 'guid';
-import { Mongoose, Types } from 'mongoose';
-import MongoClient, { ObjectID } from 'mongodb'
+import { Types } from 'mongoose';
+import MongoClient from 'mongodb'
 import GridFSTalker from "../helpers/GridFSTalker";
 import { requireNonNull, requireIsNull } from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
 import IUser from "../models/User";
 import { IFile, File, FileType } from "../models/File";
+import { Readable } from 'stream';
 
 
 class FileService {
@@ -92,7 +93,7 @@ class FileService {
      * ACTIONS
      */
     // create file service
-    public static async createDocument(file: IFile, filename: string, content_type: string, fileContent: any): Promise<IFile> {
+    public static async createDocument(file: IFile, filename: string, content_type: string, fileContent: Readable): Promise<IFile> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
@@ -143,7 +144,7 @@ class FileService {
     }
 
     // update a document content
-    public static async updateContentDocument(file: IFile, fileContent: any): Promise<any> {
+    public static async updateContentDocument(file: IFile, fileContent: Readable): Promise<any> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
@@ -208,7 +209,7 @@ class FileService {
     }
 
     // delete a directory
-    public static async deleteDirectory(file: IFile, forceDeleteRoot: boolean = false): Promise<any> {
+    public static async deleteDirectory(file: IFile, forceDeleteRoot = false): Promise<any> {
         // be sure that file is a directory
         FileService.requireFileIsDirectory(file);
 
