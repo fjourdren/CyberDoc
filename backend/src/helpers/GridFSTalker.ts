@@ -53,22 +53,12 @@ class GridFSTalker {
     }
 
     // create a file in gridfs
-    public static create(filename: string, contentType: string, content: string | MongoClient.GridFSBucketReadStream): string {
+    public static create(filename: string, contentType: string, readableStream: Readable): string {
         const bukket: GridFSBucket = GridFSTalker.getBucket();
 
         // create the wrinting stream
         const writeStream: MongoClient.GridFSBucketWriteStream = bukket.openUploadStream(filename, { contentType: contentType });
-
-        // create a stream from input data
-        let readableStream = new Readable();
-        if(typeof(content) == "string") {
-            readableStream.push(content);
-            readableStream.push(null);
-        } else {
-            readableStream = content;
-        }
         
-
         // push stream into the writing stream
         readableStream.pipe(writeStream);
 
@@ -76,7 +66,7 @@ class GridFSTalker {
     }
 
     // update a file in gridfs
-    public static update(id: ObjectID, filename: string, contentType: string, content: any): string {
+    public static update(id: ObjectID, filename: string, contentType: string, readableStream: Readable): string {
         const bukket: GridFSBucket = GridFSTalker.getBucket();
 
         console.log("1")
@@ -94,10 +84,6 @@ class GridFSTalker {
             writeStream = bukket.openUploadStreamWithId(id, filename);
         
         console.log("3")
-        // create a stream from input data
-        const readableStream = new Readable();
-        readableStream.push(content);
-        readableStream.push(null);
 
         // push stream into the writing stream
         readableStream.pipe(writeStream);

@@ -190,9 +190,19 @@ class FileController {
     public static async updateContent(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             // prepare vars
-            const { upfile } = req.body;
+            let upfile = null;
+            let expressfile: Express.Multer.File;
+            for (expressfile of (req.files as Express.Multer.File[])) {
+                if (expressfile.fieldname === "upfile") {
+                    upfile = expressfile;
+                }
+            }
+
             const user_id = res.locals.APP_JWT_TOKEN.user._id;
             const fileId = req.params.fileId;
+
+            requireNonNull(upfile);
+            requireNonNull(fileId);
 
             // find file
             const file: IFile = requireNonNull(await File.findById(fileId).exec());
@@ -206,7 +216,7 @@ class FileController {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "File need to be a document");
 
             // update content in gridfs
-            await FileService.updateContentDocument(file, upfile);
+            await FileService.updateContentDocument(file, Readable.from(upfile?.buffer as any));
 
             // reply to client
             res.status(HttpCodes.OK);
