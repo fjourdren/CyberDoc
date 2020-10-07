@@ -75,6 +75,7 @@ import { FilesTagsInputComponent } from './components/files/files-tags-input/fil
 import { FilesCreateTagDialogComponent } from './components/files/files-create-tag-dialog/files-create-tag-dialog.component';
 import { FilesFilterDialogComponent } from './components/files/files-filter-dialog/files-filter-dialog.component';
 import { FilesFilterToolbarComponent } from './components/files/files-filter-toolbar/files-filter-toolbar.component';
+import { SettingsMainToolbarComponent } from './components/settings/settings-main-toolbar/settings-main-toolbar.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
@@ -102,7 +103,8 @@ const FILES_COMPONENTS = [
 const SETTINGS_COMPONENTS = [
   SettingsMenuComponent,
   SettingsProfileComponent,
-  SettingsSecurityComponent
+  SettingsSecurityComponent,
+  SettingsMainToolbarComponent
 ]
 
 function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
