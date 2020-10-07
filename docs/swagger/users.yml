@@ -224,7 +224,7 @@ paths:
                 $ref: "#/components/schemas/GenericResponse"
 
 
-  "/users/profile/{tagId}":
+  "/users/profile/tags/{tagId}":
     delete:
       tags:
         - Users
