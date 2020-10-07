@@ -222,6 +222,42 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GenericResponse"
+
+
+  "/users/profile/{tagId}":
+    delete:
+      tags:
+        - Users
+      security:
+        - jwtToken: []  
+      summary: delete a tag
+      description: delete a tag
+      parameters:
+        - name: tagId
+          in: path
+          description: tag ID to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
           
 components:
   securitySchemes:
