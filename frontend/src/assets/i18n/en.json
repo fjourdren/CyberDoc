@@ -94,6 +94,7 @@
         "page_not_found": "Page not found",
         "error_title": "Error",
         "error_content": "An error occured. Please check your Internet connection, then refresh the page.",
-        "go_to_homepage": "Go to homepage"
+        "go_to_homepage": "Go to homepage",
+        "back_to_app": "Back to the application"
     }
 }
