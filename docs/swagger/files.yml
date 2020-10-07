@@ -416,7 +416,7 @@ paths:
   "/files/{fileId}/tags":
     post:
       tags:
-        - Files
+        - File tags
       security:
         - jwtToken: [ ]
       summary: Add a tag
@@ -467,7 +467,7 @@ paths:
   "/files/{fileId}/tags/{tagId}":
     delete:
       tags:
-        - Files
+        - File tags
       security:
         - jwtToken: [ ]
       summary: Remove a file tag
