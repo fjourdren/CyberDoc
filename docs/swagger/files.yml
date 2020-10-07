@@ -416,7 +416,7 @@ paths:
   "/files/{fileId}/tags":
     post:
       tags:
-        - FilesTags
+        - Files
       security:
         - jwtToken: [ ]
       summary: Add a tag
@@ -467,7 +467,7 @@ paths:
   "/files/{fileId}/tags/{tagId}":
     delete:
       tags:
-        - FilesTags
+        - Files
       security:
         - jwtToken: [ ]
       summary: Remove a file tag
@@ -479,12 +479,14 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
         - name: tagId
           in: path
           description: Tag ID
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         "200":
           description: Success
@@ -527,6 +529,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         "200":
           description: Success (dynamic mimetype)
@@ -644,6 +647,7 @@ components:
           description: Select only files which its mimetype is in this list
           items:
             type: string
+            example: "application/pdf"
         startLastModifiedDate:
           type: string
           format: date
@@ -657,6 +661,8 @@ components:
           type: array
           items:
             type: string
+            format: uuid
+            example: "9b81d950-b605-471f-a654-4fffba6bcfc5"
 
     FileCopyBody:
       type: object

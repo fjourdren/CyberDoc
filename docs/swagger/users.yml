@@ -150,10 +150,6 @@ paths:
                 lastname: "JOURDREN"
                 email: "flavien.jourdren@gmail.com"
                 password: "MyPassword"
-                tags: 
-                  - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
-                    name: "TODO"
-                    hexColor: "#eeeeee"
               type: object
               properties:
                 firstname:
@@ -165,10 +161,6 @@ paths:
                   format: email
                 password:
                   type: string
-                file_tags:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/FileTag"
       responses:
         "200":
           description: Success
@@ -227,7 +219,7 @@ paths:
   "/users/tags":
     post: 
       tags:
-        - Tags
+        - File tags
       security:
         - jwtToken: []  
       summary: Create a tag
@@ -260,6 +252,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GenericResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
         "500":
           description: Server error
           content:
@@ -270,7 +268,7 @@ paths:
   "/users/tags/{tagId}":
     patch: 
       tags:
-        - Tags
+        - File tags
       security:
         - jwtToken: []  
       summary: Modify a tag
@@ -310,6 +308,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
         "500":
           description: Server error
           content:
@@ -318,7 +322,7 @@ paths:
                 $ref: "#/components/schemas/GenericResponse"
     delete:
       tags:
-        - Tags
+        - File tags
       security:
         - jwtToken: []  
       summary: Delete a tag
@@ -330,6 +334,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         "200":
           description: Success
@@ -339,6 +344,12 @@ paths:
                 $ref: "#/components/schemas/GenericResponse"
         "401":
           description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not found
           content:
             application/json:
               schema:
