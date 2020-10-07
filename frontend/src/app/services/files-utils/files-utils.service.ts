@@ -96,4 +96,13 @@ export class FilesUtilsService {
   getFontAwesomeIcon(fileType: FileType): string {
     return FILETYPE_TO_FONTAWESOME_ICON.get(fileType);
   }
+
+  isPDFExportAvailable(fileType: FileType): boolean {
+    return [
+      FileType.Document,
+      FileType.Spreadsheet,
+      FileType.Presentation,
+      FileType.PDF
+    ].indexOf(fileType) !== -1;
+  }
 }
