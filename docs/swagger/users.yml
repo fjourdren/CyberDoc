@@ -224,14 +224,105 @@ paths:
                 $ref: "#/components/schemas/GenericResponse"
 
 
-  "/users/profile/tags/{tagId}":
-    delete:
+  "/users/tags":
+    post: 
       tags:
-        - Users
+        - Tags
       security:
         - jwtToken: []  
-      summary: delete a tag
-      description: delete a tag
+      summary: Create a tag
+      description: Create a tag
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+                - color
+              properties:
+                name:
+                  description: Tag's name to create
+                  type: string
+                color:
+                  description: Tag's color to create
+                  type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+
+  "/users/tags/{tagId}":
+    patch: 
+      tags:
+        - Tags
+      security:
+        - jwtToken: []  
+      summary: Modify a tag
+      description: Modify a tag
+      parameters:
+        - name: tagId
+          in: path
+          description: tag ID to delete
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+                - color
+              properties:
+                name:
+                  description: New tag's name to create
+                  type: string
+                color:
+                  description: New tag's color to create
+                  type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+    delete:
+      tags:
+        - Tags
+      security:
+        - jwtToken: []  
+      summary: Delete a tag
+      description: Delete a tag
       parameters:
         - name: tagId
           in: path
