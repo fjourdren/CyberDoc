@@ -416,11 +416,11 @@ paths:
   "/files/{fileId}/tags":
     post:
       tags:
-        - Files
+        - FilesTags
       security:
         - jwtToken: [ ]
       summary: Add a tag
-      description: A a tag to the file
+      description: Add a tag
       parameters:
         - name: fileId
           in: path
@@ -438,8 +438,6 @@ paths:
               properties:
                 tagid:
                   type: string
-        description: tag id
-        required: true
       responses:
         "200":
           description: Success
@@ -469,7 +467,7 @@ paths:
   "/files/{fileId}/tags/{tagId}":
     delete:
       tags:
-        - Files
+        - FilesTags
       security:
         - jwtToken: [ ]
       summary: Remove a file tag
