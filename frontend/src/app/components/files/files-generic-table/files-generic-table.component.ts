@@ -1,25 +1,26 @@
-import { AfterViewInit, Component, EventEmitter, Input, NgZone, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, NgZone, Output, ViewChild } from '@angular/core';
 
-import { FilesTableRestrictions, NO_RESTRICTIONS } from './files-table-restrictions';
-import { CloudFile, CloudNode } from 'src/app/models/files-api-models';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
+
+import { NgResizeObserver, ngResizeObserverProviders } from 'ng-resize-observer';
+import { map } from 'rxjs/operators';
+
+import { FilesTableRestrictions, NO_RESTRICTIONS } from './files-table-restrictions';
+import { CloudFile, CloudNode } from 'src/app/models/files-api-models';
 import { FilesDeleteDialogComponent } from '../files-delete-dialog/files-delete-dialog.component';
 import { FilesMoveCopyDialogComponent } from '../files-move-copy-dialog/files-move-copy-dialog.component';
 import { MoveCopyDialogModel } from '../files-move-copy-dialog/move-copy-dialog-model';
 import { FilesUtilsService } from 'src/app/services/files-utils/files-utils.service';
-import { NgResizeObserver, ngResizeObserverProviders } from 'ng-resize-observer';
-import { map } from 'rxjs/operators';
 import { FilesGenericTableBottomsheetComponent, FilesGenericTableBottomsheetData } from '../files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 import { FilesRenameDialogComponent } from '../files-rename-dialog/files-rename-dialog.component';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
-import { ActionSequence } from 'protractor';
 
-export type FileAction = "open" | "download" | "rename" | "copy" | "delete" | "move" | "details";
+export type FileAction = "open" | "download" | "export" | "rename" | "copy" | "delete" | "move" | "details";
 
 @Component({
   selector: 'app-files-generic-table',
@@ -110,6 +111,11 @@ export class FilesGenericTableComponent implements AfterViewInit {
     if (node && !this._restrictions.isSelectable(node)) return;
     this.selectedNode = node;
     this.selectedNodeChange.emit(node);
+  }
+
+  isPDFExportAvailable(node: CloudNode): boolean {
+    const fileType = this.filesUtils.getFileTypeForMimetype(node.mimetype);
+    return this.filesUtils.isPDFExportAvailable(fileType);
   }
 
   getIconForMimetype(mimetype: string) {
@@ -223,9 +229,11 @@ export class FilesGenericTableComponent implements AfterViewInit {
         break;
       }
       case "download": {
-        if (!this.selectedNode.isDirectory) {
-          this.downloadFile(this.selectedNode as CloudFile);
-        }
+        this.downloadFile(this.selectedNode as CloudFile);
+        break;
+      }
+      case "export": {
+        this.exportFile(this.selectedNode as CloudFile);
         break;
       }
       case "details": {
@@ -279,6 +287,14 @@ export class FilesGenericTableComponent implements AfterViewInit {
     const anchor = document.createElement("a");
     anchor.download = file.name;
     anchor.href = this.fsProvider.default().getDownloadURL(file.id);
+    anchor.click();
+    anchor.remove();
+  }
+
+  exportFile(file: CloudFile) {
+    const anchor = document.createElement("a");
+    anchor.download = file.name;
+    anchor.href = this.fsProvider.default().getExportURL(file.id);
     anchor.click();
     anchor.remove();
   }

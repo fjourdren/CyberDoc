@@ -40,6 +40,7 @@
         "rename": "Rename",
         "delete": "Delete",
         "create": "Create",
+        "export": "PDF export",
         "delete_confirm": "Are you sure you want to delete '{{filename}}' ?"
     },
 

@@ -41,6 +41,10 @@ export class MockFileSystem implements FileSystem {
         return `/fake-download-url/${fileID}`;
     }
 
+    getExportURL(fileID: string): string {
+        return `/fake-export-url/${fileID}`;
+    }
+
     createDirectory(name: string, parentFolderID: string): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             const parentFolder = this._ensureFileExists(parentFolderID, true);
