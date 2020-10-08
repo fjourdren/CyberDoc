@@ -1,9 +1,10 @@
 import { requireNonNull } from "../helpers/DataValidation";
 
-import ITag, { Tag, TagSchema } from "../models/Tag";
+import ITag, { Tag } from "../models/Tag";
 import IUser, { User } from "../models/User";
 import IFile, {File} from "../models/File";
-import FileService from "./FileService";
+import HTTPError from "../helpers/HTTPError";
+import HttpCodes from "../helpers/HttpCodes";
 
 class TagService {
     // create a tag
@@ -20,21 +21,20 @@ class TagService {
         // add tag to user
         user.tags.push(newTag);
 
-        // save the user
-        requireNonNull(await user.save());
+        // update the user
+        requireNonNull(await User.update({ _id: user._id }, {$set: {tags: user.tags}}));
         return newTag;
     }
 
     // edit a tag
     public static async edit(user: IUser, tag: ITag, newName: string, newColor: string): Promise<void> {
         // generate updater string
-        let updateString: {} = {};
+        let updateString: Record<string, unknown> = {};
     
         if(newName)
-            updateString = Object.assign({}, { 'tags.$.name': 'updated item2' });
+            updateString = Object.assign({}, { 'tags.$.name': newName });
         if(newColor)
-            updateString = Object.assign(updateString, { 'tags.$.value': 'two updated' });
-
+            updateString = Object.assign(updateString, { 'tags.$.color': newColor });
 
         // update mondo data
         await User.updateMany({ _id: user._id, 'tags._id': tag._id }, { '$set': updateString });
@@ -47,21 +47,31 @@ class TagService {
         requireNonNull(tagId);
 
         // delete tag from all files
-        await File.update({}, { $pull: {'tags._id': tagId }}).exec();
+        await File.update({}, { $pull: { "tags": { "_id": tagId }} }, {'multi': true}).exec();
 
         // remove tag
-        return requireNonNull(await User.update( {'_id': user._id }, { $pull: {'tags._id': tagId }}).exec());
+        return requireNonNull(await User.update( {'_id': user._id }, { $pull: { "tags": { "_id": tagId }} }, {'multi': true}).exec());
     }
 
     // add a tag to a file
     public static async addToFile(file: IFile, tag: ITag): Promise<IFile> {
+        const tags: ITag[] = file.tags;
+
+        // check that the file doesn't already have the tag
+        for(let i = 0; i < tags.length; i++)
+            if(tags[i]._id == tag._id)
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "The file already has this tag")
+
+        // add to tag list
         file.tags.push(tag);
-        return requireNonNull(await file.save());
+
+        // update tag list
+        return requireNonNull(await File.update({ _id: file._id }, {$set: {tags: file.tags}}).exec());
     }
 
     // remove a tag from a file
     public static async removeFromFile(file: IFile, tagId: string): Promise<IFile> {
-        return requireNonNull(await File.update( {'_id': file._id }, { $pull: {'tags._id': tagId }}).exec());
+        return requireNonNull(await File.update( {'_id': file._id }, { $pull: { "tags": { "_id": tagId }} }).exec());
     }
 }
 

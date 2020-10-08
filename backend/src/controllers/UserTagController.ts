@@ -2,12 +2,13 @@ import { NextFunction, Request, Response } from 'express';
 
 import HttpCodes from '../helpers/HttpCodes'
 import { requireNonNull } from '../helpers/DataValidation';
+import HTTPError from '../helpers/HTTPError';
 
-import UserService from '../services/UserService';
-
-import IUser from '../models/User';
-import ITag, { Tag, TagSchema } from '../models/Tag';
 import TagService from '../services/TagService';
+
+import IUser, { User } from '../models/User';
+import ITag, { Tag } from '../models/Tag';
+
 
 class UserTagController {
 
@@ -38,7 +39,19 @@ class UserTagController {
             const newColor: string = req.body.color;
 
             // get tag
-            const tag: ITag = requireNonNull(await Tag.findById(tagId));
+            const userUpdated: IUser = requireNonNull(await User.findOne({_id: res.locals.APP_JWT_TOKEN.user._id, 'tags': { $elemMatch: { _id: tagId } } }).exec());
+
+            // find the good tag in the list
+            let tag: ITag = new Tag();
+            for(let i = 0; i < userUpdated.tags.length; i++) {
+                tag = userUpdated.tags[i];
+                if(tagId == tag.id)
+                    break;
+            }
+
+            if(tagId != tag._id)
+                throw new HTTPError(HttpCodes.INTERNAL_ERROR, "Unknow tag");
+
 
             // edit tag
             await TagService.edit(user, tag, newName, newColor);
@@ -56,7 +69,7 @@ class UserTagController {
 
     public static async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const tagId = req.params.fileId;
+            const tagId = req.params.tagId;
 
             requireNonNull(tagId);
 

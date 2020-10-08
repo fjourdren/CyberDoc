@@ -26,18 +26,16 @@ class FileController {
             }
 
             requireNonNull(name);
-            requireNonNull(mimetype);
             requireNonNull(folderID);
 
             // build IFile
             const fileToSave: IFile = new File();
 
             // if file is a Directory
-            if (mimetype == "application/x-dir") {
+            if (mimetype == "application/x-dir" || mimetype == undefined) {
                 fileToSave.type = FileType.DIRECTORY;
                 requireIsNull(upfile);
-            }
-            else { // otherwise file is a document
+            } else { // otherwise file is a document
                 fileToSave.type = FileType.DOCUMENT;
                 requireNonNull(upfile);
             }
@@ -46,6 +44,7 @@ class FileController {
             fileToSave.name = name;
             fileToSave.parent_file_id = folderID;
             fileToSave.owner_id = user_id;
+            fileToSave.tags = [];
 
             // check that user is owner
             if (fileToSave.owner_id != user_id)
@@ -56,11 +55,12 @@ class FileController {
 
             // check if file is a directory or a document and create it
             let out: IFile;
-            if (fileToSave.type == FileType.DIRECTORY)
+            if (fileToSave.type == FileType.DIRECTORY) {
+                fileToSave.mimetype = "application/x-dir";
                 out = await FileService.createDirectory(fileToSave);
-            else
+            } else {
                 out = await FileService.createDocument(fileToSave, fileToSave.name, mimetype, Readable.from(upfile?.buffer as any));
-
+            }
             // reply to client
             res.status(HttpCodes.OK);
             res.json({
@@ -77,7 +77,7 @@ class FileController {
     // search files
     public static async search(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const bodySearch: Object = req.body;
+            const bodySearch: Record<string, unknown> = req.body;
 
             const results: IFile[] = await FileService.search(res.locals.APP_JWT_TOKEN.user, bodySearch);
 

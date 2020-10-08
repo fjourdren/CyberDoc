@@ -8,7 +8,7 @@ import Guid from 'guid';
 export const TagSchema = new mongoose.Schema({
     _id: {
         type: String,
-        unique: true,
+        sparse: true,
         uniqueCaseInsensitive: true,
         default: () => Guid.raw()
     },
