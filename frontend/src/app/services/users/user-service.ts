@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs';
-import { FileTag, User } from 'src/app/models/users-api-models';
+import { FileTag } from 'src/app/models/files-api-models';
+import { User } from 'src/app/models/users-api-models';
 
 export interface UserService {
     getActiveUser(): User;

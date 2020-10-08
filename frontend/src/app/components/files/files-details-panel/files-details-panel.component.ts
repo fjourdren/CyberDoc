@@ -1,11 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { CloudNode } from 'src/app/models/files-api-models';
+import { CloudNode, FileTag } from 'src/app/models/files-api-models';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { FilesUtilsService, FileType } from 'src/app/services/files-utils/files-utils.service';
 import { FilesCreateTagDialogComponent } from '../files-create-tag-dialog/files-create-tag-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
-import { FileTag } from 'src/app/models/users-api-models';
 
 @Component({
   selector: 'app-files-details-panel',
@@ -38,13 +37,18 @@ export class FilesDetailsPanelComponent {
     this._node = node;
     if (!node) return;
 
-    this.nodeTags = this.allTags.filter(tag => {
-      return node.tagIDs.indexOf(tag.id) !== -1;
-    });
+    this.nodeTags = node.tags;
   }
 
   onNodeTagsUpdated(val: FileTag[]) {
-    this.fsProvider.default().editTags(this.node.id, val.map(tag => tag.id));
+    const newTags = val.filter(item => this.node.tags.indexOf(item) !== -1);
+    const deletedTags = this.node.tags.filter(item => val.indexOf(item) !== -1);
+
+    if (newTags && newTags.length == 1) {
+      this.fsProvider.default().addTag(this.node, newTags[0]);
+    } else if (deletedTags && deletedTags.length == 1) {
+      this.fsProvider.default().removeTag(this.node, deletedTags[0]);
+    }
   }
 
   refreshAllTags() {
@@ -52,7 +56,7 @@ export class FilesDetailsPanelComponent {
   }
 
   getFilePreviewImageURL() {
-    return this.fsProvider.default().getFilePreviewImageURL(this.node.id);
+    return this.fsProvider.default().getFilePreviewImageURL(this.node);
   }
 
   getIconForMimetype(mimetype: string) {

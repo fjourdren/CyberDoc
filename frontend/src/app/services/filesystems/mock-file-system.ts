@@ -1,11 +1,10 @@
-import { Observable } from 'rxjs';
-import { FileSystem, Upload } from './file-system';
-import { of, } from 'rxjs';
-import { delay, map } from 'rxjs/operators';
-import { CloudDirectory, CloudFile, CloudNode, PathItem, SearchParams } from 'src/app/models/files-api-models';
-import { EventEmitter } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { FilesUtilsService, FileType } from '../files-utils/files-utils.service';
+import { EventEmitter } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { delay, map } from 'rxjs/operators';
+import { CloudNode, CloudDirectory, SearchParams, FileTag, CloudFile, PathItem } from 'src/app/models/files-api-models';
+import { DIRECTORY_MIMETYPE, FilesUtilsService, FileType } from '../files-utils/files-utils.service';
+import { FileSystem, Upload } from './file-system';
 
 interface InternalFileElement {
     parentID?: string;
@@ -14,13 +13,12 @@ interface InternalFileElement {
     date?: Date;
     mimetype: string;
     size?: number;
-    tagsIDs: string[];
+    tags: FileTag[];
 }
 
 const UPLOAD_SPEED = 5000 * 1000; //5mo/s
 const DELAY = 500;
 const OWNER = "John Doe"
-const DIRECTORY_MIMETYPE = "application/x-dir";
 
 export class MockFileSystem implements FileSystem {
 
@@ -33,34 +31,32 @@ export class MockFileSystem implements FileSystem {
         this._load();
     }
 
-    getFilePreviewImageURL(fileID: string): string {
+    getFilePreviewImageURL(node: CloudNode): string {
         return `https://via.placeholder.com/300x200`;
     }
 
-    getDownloadURL(fileID: string): string {
-        return `/fake-download-url/${fileID}`;
+    getDownloadURL(node: CloudNode): string {
+        return `/fake-download-url/${node.id}`;
     }
 
-    getExportURL(fileID: string): string {
-        return `/fake-export-url/${fileID}`;
+    getExportURL(node: CloudNode): string {
+        return `/fake-export-url/${node.id}`;
     }
 
-    createDirectory(name: string, parentFolderID: string): Observable<void> {
+    createDirectory(name: string, parentFolder: CloudDirectory): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            const parentFolder = this._ensureFileExists(parentFolderID, true);
             let newEntry: InternalFileElement = {
                 id: parentFolder.name + "." + name,
                 name: name,
                 mimetype: DIRECTORY_MIMETYPE,
                 size: 0,
                 date: new Date(),
-                parentID: parentFolderID,
-                tagsIDs: [],
+                parentID: parentFolder.id,
+                tags: [],
             }
 
             this.filesMap.set(newEntry.id, newEntry);
             this._save();
-            this._refreshNeeded$.emit(null);
         }));
     }
 
@@ -77,19 +73,18 @@ export class MockFileSystem implements FileSystem {
         return this._refreshNeeded$.asObservable();
     }
 
-    startFileUpload(file: Blob, name: string, mimetype: string, parentFolderID: string): void {
-        const parentFolder = this._ensureFileExists(parentFolderID, true);
+    startFileUpload(fileBlob: Blob, destination: CloudDirectory): void {
         let newEntry: InternalFileElement = {
-            id: parentFolder.name + "." + name,
+            id: destination.name + "." + name,
             name: name,
-            mimetype: mimetype,
-            size: file ? file.size : 0,
+            mimetype: fileBlob ? fileBlob.type : DIRECTORY_MIMETYPE,
+            size: fileBlob ? fileBlob.size : 0,
             date: new Date(),
-            parentID: parentFolderID,
-            tagsIDs: [],
+            parentID: destination.id,
+            tags: [],
         }
 
-        this._uploadInternal(name, file.size).then((success) => {
+        this._uploadInternal(name, fileBlob.size).then((success) => {
             if (success) {
                 this.filesMap.set(newEntry.id, newEntry);
                 this._currentUpload$.emit(null);
@@ -104,169 +99,97 @@ export class MockFileSystem implements FileSystem {
             let directory: CloudDirectory = {
                 id: "tmp",
                 mimetype: "application/x-dir",
-                name: "Search results",
-                ownerName: "NOBODY",
-                tagIDs: [],
+                name: "tmp",
+                ownerName: "tmp",
+                tags: [],
                 path: [],
                 directoryContent: [],
                 isDirectory: true
             }
 
             let nodes: InternalFileElement[] = Array.from(this.filesMap.values());
-            
             nodes = nodes.filter(node => node.name.startsWith(searchParams.name));
-            
-            if (searchParams.type !== "any"){
-                nodes = nodes.filter(node => this.fileUtils.getFileTypeForMimetype(node.mimetype) === FileType[searchParams.type]) ;
+
+            if (searchParams.type !== "any") {
+                nodes = nodes.filter(node => this.fileUtils.getFileTypeForMimetype(node.mimetype) === FileType[searchParams.type]);
             }
 
             //date is not implemented !
             nodes = nodes.filter(node => {
                 for (const tagID of searchParams.tagIDs) {
-                    if (node.tagsIDs.indexOf(tagID) === -1) return false;
+                    if (node.tags.map(tag => tag.id).indexOf(tagID) === -1) return false;
                 }
                 return true;
             })
-            
-            directory.directoryContent = nodes.map(val => {
-                let node = { id: val.id, name: val.name, ownerName: OWNER, mimetype: val.mimetype }
 
-                if (val.mimetype === DIRECTORY_MIMETYPE) {
-                    return { ...node, directoryContent: [], path: [], mimetype: "application/x-dir", isDirectory: true, tagIDs: val.tagsIDs } as CloudDirectory;
-                } else {
-                    return { ...node, size: val.size, lastModified: val.date, isDirectory: false, tagIDs: val.tagsIDs } as CloudFile;
-                }
-            })
-            
-
+            directory.directoryContent = nodes.map(val => this._convertInternalNodeToCloudNode(val));
             return directory;
         }));
     }
 
-
-    get(id: string): Observable<CloudNode> {
+    get(nodeID: string): Observable<CloudNode> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            const internalFile = this._ensureFileExists(id);
-            let node = { id: internalFile.id, name: internalFile.name, ownerName: OWNER, mimetype: internalFile.mimetype };
-
-            if (internalFile.mimetype === DIRECTORY_MIMETYPE) {
-                const content = Array.from(this.filesMap.values()).filter(val => val.parentID === id).map(val => {
-                    let node = { id: val.id, name: val.name, ownerName: OWNER, mimetype: val.mimetype }
-
-                    if (val.mimetype === DIRECTORY_MIMETYPE) {
-                        return { ...node, directoryContent: [], path: [], mimetype: "application/x-dir", isDirectory: true, tagIDs: val.tagsIDs } as CloudDirectory;
-                    } else {
-                        return { ...node, size: val.size, lastModified: val.date, isDirectory: false, tagIDs: val.tagsIDs } as CloudFile;
-                    }
-                });
-
-                let path = [];
-                let current = internalFile;
-                while (current) {
-                    path.push({ name: current.name, id: current.id });
-                    if (current.parentID) {
-                        current = Array.from(this.filesMap.values()).filter(val => val.id === current.parentID)[0];
-                    } else {
-                        current = null;
-                    }
-                }
-
-                path = path.reverse();
-                path.pop();
-
-                this._save();
-                return { ...node, path: path, directoryContent: content, mimetype: "application/x-dir", isDirectory: true, tagIDs: internalFile.tagsIDs };
-            } else {
-                this._save();
-                return { ...node, size: internalFile.size, lastModified: internalFile.date, isDirectory: false, tagIDs: internalFile.tagsIDs };
-            }
-        }));
-    }
-
-    copy(sourceID: string, newFileName: string, destID: string): Observable<void> {
-        return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            this._ensureFileExists(sourceID);
-            this._ensureFileExists(destID, true);
-            this._copyInternal(sourceID, newFileName, destID);
-            this._save();
-            this._refreshNeeded$.emit(null);
-        }));
-    }
-
-    move(sourceID: string, destID: string): Observable<void> {
-        return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            this._ensureFileExists(sourceID);
-            this._ensureFileExists(destID, true);
-            let file = this.filesMap.get(sourceID);
-            file.parentID = destID;
-            this.filesMap.set(sourceID, file);
-            this._save();
-            this._refreshNeeded$.emit(null);
-        }));
-    }
-
-    rename(fileID: string, newName: string): Observable<void> {
-        return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            this._ensureFileExists(fileID);
-            let file = this.filesMap.get(fileID);
-            file.name = newName;
-            this.filesMap.set(fileID, file);
-            this._save();
-            this._refreshNeeded$.emit(null);
-        }));
-    }
-
-    editTags(fileID: string, tagIDs: string[]): Observable<void> {
-        return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            this._ensureFileExists(fileID);
-            let file = this.filesMap.get(fileID);
-            file.tagsIDs = tagIDs;
-            this.filesMap.set(fileID, file);
-            this._save();
-            this._refreshNeeded$.emit(null);
-        }));
-    }
-
-    delete(fileID: string): Observable<void> {
-        return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            this._ensureFileExists(fileID);
-            this._deleteInternal(fileID);
-            this._save();
-            this._refreshNeeded$.emit(null);
-        }));
-    }
-
-    private _ensureFileExists(fileID: string, onlyDirectory: boolean = null) {
-        if (!this.filesMap.has(fileID)) {
-            throw new HttpErrorResponse({
-                error: `File with id ${fileID} doesn't exist`,
-                statusText: 'NOT FOUND',
-                status: 404,
-                url: '/fake-url'
-            });
-        }
-
-        if (onlyDirectory === true) {
-            if (this.filesMap.get(fileID).mimetype !== DIRECTORY_MIMETYPE) {
+            if (!this.filesMap.has(nodeID)) {
                 throw new HttpErrorResponse({
-                    error: `BAD REQUEST [notDir]`,
-                    statusText: 'BAD REQUEST',
-                    status: 400,
+                    error: `Node with id ${nodeID} doesn't exist`,
+                    statusText: 'NOT FOUND',
+                    status: 404,
                     url: '/fake-url'
                 });
             }
-        } else if (onlyDirectory === false) {
-            if (this.filesMap.get(fileID).mimetype === DIRECTORY_MIMETYPE) {
-                throw new HttpErrorResponse({
-                    error: `BAD REQUEST [isDir]`,
-                    statusText: 'BAD REQUEST',
-                    status: 400,
-                    url: '/fake-url'
-                });
-            }
-        }
 
-        return this.filesMap.get(fileID);
+            return this._convertInternalNodeToCloudNode(this.filesMap.get(nodeID));
+        }));
+    }
+
+    copy(node: CloudNode, fileName: string, destination: CloudDirectory): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            this._copyInternal(node.id, fileName, destination.id);
+            this._save();
+        }));
+    }
+
+    move(node: CloudNode, destination: CloudDirectory): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            const internalNode = this.filesMap.get(node.id);
+            internalNode.parentID = destination.id;
+            this.filesMap.set(internalNode.id, internalNode);
+            this._save();
+        }));
+    }
+
+    rename(node: CloudNode, newName: string): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            const internalNode = this.filesMap.get(node.id);
+            internalNode.name = newName;
+            this.filesMap.set(internalNode.id, internalNode);
+            this._save();
+        }));
+    }
+
+    addTag(node: CloudNode, tag: FileTag): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            const internalNode = this.filesMap.get(node.id);
+            internalNode.tags.push(tag);
+            this.filesMap.set(internalNode.id, internalNode);
+            this._save();
+        }));
+    }
+
+    removeTag(node: CloudNode, tag: FileTag): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            const internalNode = this.filesMap.get(node.id);
+            internalNode.tags = internalNode.tags.filter(val => val.id !== tag.id);
+            this.filesMap.set(internalNode.id, internalNode);
+            this._save();
+        }));
+    }
+
+    delete(node: CloudNode): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            this._deleteInternal(node.id);
+            this._save();
+        }));
     }
 
     private _deleteInternal(fileID: string) {
@@ -288,7 +211,7 @@ export class MockFileSystem implements FileSystem {
             name: newFileName,
             date: file.date,
             size: file.size,
-            tagsIDs: file.tagsIDs,
+            tags: file.tags,
         });
 
         if (file.mimetype === DIRECTORY_MIMETYPE) {
@@ -317,8 +240,56 @@ export class MockFileSystem implements FileSystem {
             remainingTime -= 1;
             await this._wait(1);
         }
-
         return true;
+    }
+
+    private _convertInternalNodeToCloudNode(internalNode: InternalFileElement, fillDirectoryContentAndPath = true): CloudNode {
+        if (internalNode.mimetype === DIRECTORY_MIMETYPE) {
+
+            let directoryContent: CloudNode[] = [];
+            let path: PathItem[] = [];
+            if (fillDirectoryContentAndPath) {
+                directoryContent = Array.from(this.filesMap.values()).filter(val => val.parentID === internalNode.id).map(val => {
+                    return this._convertInternalNodeToCloudNode(val, false);
+                });
+
+                let current = internalNode;
+                while (current) {
+                    path.push({ name: current.name, id: current.id });
+                    if (current.parentID) {
+                        current = Array.from(this.filesMap.values()).filter(val => val.id === current.parentID)[0];
+                    } else {
+                        current = null;
+                    }
+                }
+
+                path = path.reverse();
+                path.pop();
+            }
+
+            return {
+                id: internalNode.id,
+                ownerName: OWNER,
+                name: internalNode.name,
+                mimetype: internalNode.mimetype,
+                path: path,
+                directoryContent: directoryContent,
+                tags: internalNode.tags,
+                isDirectory: true
+            } as CloudDirectory;
+
+        } else {
+            return {
+                id: internalNode.id,
+                ownerName: OWNER,
+                name: internalNode.name,
+                mimetype: internalNode.mimetype,
+                size: internalNode.size,
+                lastModified: new Date(),
+                tags: internalNode.tags,
+                isDirectory: false
+            } as CloudFile;
+        }
     }
 
     private async _wait(seconds: number) {
@@ -329,30 +300,31 @@ export class MockFileSystem implements FileSystem {
 
     private _save() {
         localStorage.setItem("__filesMap", JSON.stringify(Array.from(this.filesMap.entries())))
+        this._refreshNeeded$.emit(null);
     }
 
     private _load() {
         this.filesMap = new Map(JSON.parse(localStorage.getItem("__filesMap")));
         if (!this.filesMap || this.filesMap.size === 0) {
-            this.filesMap.set("other.root", { "name": "My safe", "mimetype": DIRECTORY_MIMETYPE, id: "other.root", tagsIDs: [] })
-            this.filesMap.set("root", { "name": "My safe", "mimetype": DIRECTORY_MIMETYPE, id: "root", tagsIDs: [] });
-            this.filesMap.set("root.sub1", { "parentID": "root", "name": "Documents", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1", tagsIDs: [] });
-            this.filesMap.set("root.sub2", { "parentID": "root", "name": "Videos", mimetype: DIRECTORY_MIMETYPE, id: "root.sub2", tagsIDs: [] });
-            this.filesMap.set("root.sub3", { "parentID": "root", "name": "Pictures", mimetype: DIRECTORY_MIMETYPE, id: "root.sub3", tagsIDs: [] });
-            this.filesMap.set("root.sub4", { "parentID": "root", "name": "Others", mimetype: DIRECTORY_MIMETYPE, id: "root.sub4", tagsIDs: [] });
-            this.filesMap.set("root.sub1.sub", { "parentID": "root.sub1", "name": "Bills", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1.sub", tagsIDs: [] });
+            this.filesMap.set("other.root", { "name": "My safe", "mimetype": DIRECTORY_MIMETYPE, id: "other.root", tags: [] })
+            this.filesMap.set("root", { "name": "My safe", "mimetype": DIRECTORY_MIMETYPE, id: "root", tags: [] });
+            this.filesMap.set("root.sub1", { "parentID": "root", "name": "Documents", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1", tags: [] });
+            this.filesMap.set("root.sub2", { "parentID": "root", "name": "Videos", mimetype: DIRECTORY_MIMETYPE, id: "root.sub2", tags: [] });
+            this.filesMap.set("root.sub3", { "parentID": "root", "name": "Pictures", mimetype: DIRECTORY_MIMETYPE, id: "root.sub3", tags: [] });
+            this.filesMap.set("root.sub4", { "parentID": "root", "name": "Others", mimetype: DIRECTORY_MIMETYPE, id: "root.sub4", tags: [] });
+            this.filesMap.set("root.sub1.sub", { "parentID": "root.sub1", "name": "Bills", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1.sub", tags: [] });
 
-            this.filesMap.set("root.f1", { "parentID": "root", name: "my_image.png", mimetype: "image/png", size: 2316471, date: new Date(), id: "root.f1", tagsIDs: [] });
-            this.filesMap.set("root.f2", { "parentID": "root", name: "my_video.mp4", mimetype: "video/mp4", size: 29904561, date: new Date(), id: "root.f2", tagsIDs: [] });
-            this.filesMap.set("root.f3", { "parentID": "root", name: "my_audio.mp3", mimetype: "audio/mp3", size: 4404561, date: new Date(), id: "root.f3", tagsIDs: [] });
+            this.filesMap.set("root.f1", { "parentID": "root", name: "my_image.png", mimetype: "image/png", size: 2316471, date: new Date(), id: "root.f1", tags: [] });
+            this.filesMap.set("root.f2", { "parentID": "root", name: "my_video.mp4", mimetype: "video/mp4", size: 29904561, date: new Date(), id: "root.f2", tags: [] });
+            this.filesMap.set("root.f3", { "parentID": "root", name: "my_audio.mp3", mimetype: "audio/mp3", size: 4404561, date: new Date(), id: "root.f3", tags: [] });
 
-            this.filesMap.set("root.sub1.f1", { "parentID": "root.sub1", name: "mydoc01.pdf", mimetype: "application/pdf", size: 846, date: new Date(), id: "root.sub1.f1", tagsIDs: [] });
-            this.filesMap.set("root.sub1.f2", { "parentID": "root.sub1", name: "mydoc02.pdf", mimetype: "application/pdf", size: 964, date: new Date(), id: "root.sub1.f2", tagsIDs: [] });
-            this.filesMap.set("root.sub1.f3", { "parentID": "root.sub1", name: "mydoc03.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.f3", tagsIDs: [] });
+            this.filesMap.set("root.sub1.f1", { "parentID": "root.sub1", name: "mydoc01.pdf", mimetype: "application/pdf", size: 846, date: new Date(), id: "root.sub1.f1", tags: [] });
+            this.filesMap.set("root.sub1.f2", { "parentID": "root.sub1", name: "mydoc02.pdf", mimetype: "application/pdf", size: 964, date: new Date(), id: "root.sub1.f2", tags: [] });
+            this.filesMap.set("root.sub1.f3", { "parentID": "root.sub1", name: "mydoc03.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.f3", tags: [] });
 
-            this.filesMap.set("root.sub1.sub.f1", { "parentID": "root.sub1.sub", name: "bill01.pdf", mimetype: "application/pdf", size: 368, date: new Date(), id: "root.sub1.sub.f1", tagsIDs: [] });
-            this.filesMap.set("root.sub1.sub.f2", { "parentID": "root.sub1.sub", name: "bill02.pdf", mimetype: "application/pdf", size: 216, date: new Date(), id: "root.sub1.sub.f2", tagsIDs: [] });
-            this.filesMap.set("root.sub1.sub.f3", { "parentID": "root.sub1.sub", name: "bill03.pdf", mimetype: "application/pdf", size: 698, date: new Date(), id: "root.sub1.sub.f3", tagsIDs: [] });
+            this.filesMap.set("root.sub1.sub.f1", { "parentID": "root.sub1.sub", name: "bill01.pdf", mimetype: "application/pdf", size: 368, date: new Date(), id: "root.sub1.sub.f1", tags: [] });
+            this.filesMap.set("root.sub1.sub.f2", { "parentID": "root.sub1.sub", name: "bill02.pdf", mimetype: "application/pdf", size: 216, date: new Date(), id: "root.sub1.sub.f2", tags: [] });
+            this.filesMap.set("root.sub1.sub.f3", { "parentID": "root.sub1.sub", name: "bill03.pdf", mimetype: "application/pdf", size: 698, date: new Date(), id: "root.sub1.sub.f3", tags: [] });
             this._save();
         }
     }

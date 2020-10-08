@@ -1,5 +1,11 @@
 import { FileType } from '../services/files-utils/files-utils.service';
 
+export class FileTag {
+  public id: string;
+  public name: string;
+  public hexColor: string;
+}
+
 export type PathItem = {
   name: string;
   id: string;
@@ -14,7 +20,7 @@ export class CloudFile {
   public mimetype: Exclude<string, "application/x-dir">;
   public size: number;
   public lastModified: Date;
-  public tagIDs: string[];
+  public tags: FileTag[];
   isDirectory: false;
 }
 
@@ -25,7 +31,7 @@ export class CloudDirectory {
   public mimetype: "application/x-dir";
   public path: PathItem[];
   public directoryContent: CloudNode[];
-  public tagIDs: string[];
+  public tags: FileTag[];
   isDirectory: true;
 }
 
