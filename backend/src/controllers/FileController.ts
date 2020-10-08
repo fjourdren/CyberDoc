@@ -42,6 +42,7 @@ class FileController {
                 requireNonNull(upfile);
             }
 
+            fileToSave.mimetype = mimetype;
             fileToSave.name = name;
             fileToSave.parent_file_id = folderID;
             fileToSave.owner_id = user_id;
@@ -66,6 +67,26 @@ class FileController {
                 success: true,
                 msg: "File created",
                 file: out
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+
+    // search files
+    public static async search(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const bodySearch: Object = req.body;
+
+            const results: IFile[] = await FileService.search(res.locals.APP_JWT_TOKEN.user, bodySearch);
+
+            // reply to client
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "Done",
+                results: results
             });
         } catch (err) {
             next(err);
@@ -126,7 +147,7 @@ class FileController {
                             "id": fileInDir._id,
                             "name": fileInDir.name,
                             "ownerName": ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
-                            "mimetype": gridfsInformation.contentType,
+                            "mimetype": fileInDir.mimetype,
                             "size": gridfsInformation.length,
                             "updated_at": fileInDir.updated_at,
                             "created_at": fileInDir.created_at
@@ -173,7 +194,7 @@ class FileController {
                         "id": file._id,
                         "ownerName": owner.firstname + " " + owner.lastname,
                         "name": file.name,
-                        "mimetype": gridFsFileInfos.contentType,
+                        "mimetype": file.mimetype,
                         "size": gridFsFileInfos.length,
                         "updated_at": file.updated_at,
                         "created_at": file.updated_at
