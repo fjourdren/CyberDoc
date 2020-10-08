@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { CloudDirectory, CloudNode, SearchParams } from 'src/app/models/files-api-models';
+import { CloudDirectory, CloudNode, FileTag, SearchParams } from 'src/app/models/files-api-models';
 
 export interface Upload {
     filename: string;
@@ -8,19 +8,24 @@ export interface Upload {
 }
 
 export interface FileSystem {
-    get(id: string): Observable<CloudNode>;
-    search(searchParams: SearchParams): Observable<CloudDirectory>;
-    copy(sourceID: string, newFileName: string, destID: string): Observable<void>;
-    move(sourceID: string, destID: string): Observable<void>;
-    rename(fileID: string, newName: string): Observable<void>;
-    editTags(fileID: string, tagIDs: string[]): Observable<void>;
-    delete(fileID: string): Observable<void>;
-    createDirectory(name: string, parentFolderID: string): Observable<void>;
-    getDownloadURL(fileID: string): string;
-    getExportURL(fileID: string): string;
-    getFilePreviewImageURL(fileID: string): string;
 
-    startFileUpload(file: Blob, name: string, mimetype: string, parentFolderID: string): void;
+    get(nodeID: string): Observable<CloudNode>;
+    createDirectory(name: string, parentFolder: CloudDirectory): Observable<void>;
+    search(searchParams: SearchParams): Observable<CloudDirectory>;
+
+    copy(node: CloudNode, fileName: string, destination: CloudDirectory): Observable<void>;
+    move(node: CloudNode, destination: CloudDirectory): Observable<void>;
+    rename(node: CloudNode, newName: string): Observable<void>;
+    delete(node: CloudNode): Observable<void>;
+
+    addTag(node: CloudNode, tag: FileTag): Observable<void>;
+    removeTag(node: CloudNode, tag: FileTag): Observable<void>;
+
+    getDownloadURL(node: CloudNode): string;
+    getExportURL(node: CloudNode): string;
+    getFilePreviewImageURL(node: CloudNode): string;
+
+    startFileUpload(fileBlob: Blob, destination: CloudDirectory): void;
     cancelFileUpload(): void;
     getCurrentFileUpload(): Observable<Upload>;
 

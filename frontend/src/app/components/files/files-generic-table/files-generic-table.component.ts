@@ -286,7 +286,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   downloadFile(file: CloudFile) {
     const anchor = document.createElement("a");
     anchor.download = file.name;
-    anchor.href = this.fsProvider.default().getDownloadURL(file.id);
+    anchor.href = this.fsProvider.default().getDownloadURL(file);
     anchor.click();
     anchor.remove();
   }
@@ -294,7 +294,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   exportFile(file: CloudFile) {
     const anchor = document.createElement("a");
     anchor.download = file.name;
-    anchor.href = this.fsProvider.default().getExportURL(file.id);
+    anchor.href = this.fsProvider.default().getExportURL(file);
     anchor.click();
     anchor.remove();
   }

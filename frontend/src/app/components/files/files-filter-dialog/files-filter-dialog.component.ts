@@ -1,8 +1,7 @@
 import { Component, HostListener, Inject } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { NO_DATEDIFF_DEFAULT, EMPTY_SEARCH_PARAMS, SearchParams, NO_TYPE_FILTER } from 'src/app/models/files-api-models';
-import { FileTag } from 'src/app/models/users-api-models';
+import { NO_DATEDIFF_DEFAULT, EMPTY_SEARCH_PARAMS, SearchParams, NO_TYPE_FILTER, FileTag } from 'src/app/models/files-api-models';
 import { FilesUtilsService, FileType } from 'src/app/services/files-utils/files-utils.service';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 

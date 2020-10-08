@@ -28,7 +28,7 @@ export class FilesDeleteDialogComponent {
   onDeleteBtnClicked(){
     this.dialogRef.disableClose = true;
     this.loading = true;
-    this.fsProvider.default().delete(this.node.id).toPromise().then(()=>{
+    this.fsProvider.default().delete(this.node).toPromise().then(()=>{
       this.dialogRef.disableClose = false;
       this.loading = false;
       this.dialogRef.close(true);

@@ -1,8 +1,7 @@
 import { Component, HostListener, Inject } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { CloudNode } from 'src/app/models/files-api-models';
-import { FileTag } from 'src/app/models/users-api-models';
+import { CloudNode, FileTag } from 'src/app/models/files-api-models';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 
 @Component({

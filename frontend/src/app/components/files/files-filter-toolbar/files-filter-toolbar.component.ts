@@ -1,8 +1,6 @@
-import { Route } from '@angular/compiler/src/core';
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
-import { NO_DATEDIFF_DEFAULT, NO_TYPE_FILTER, SearchParams } from 'src/app/models/files-api-models';
-import { FileTag } from 'src/app/models/users-api-models';
+import { FileTag, NO_DATEDIFF_DEFAULT, NO_TYPE_FILTER, SearchParams } from 'src/app/models/files-api-models';
 import { AppUtilsService } from 'src/app/services/app-utils/app-utils.service';
 import { FilesUtilsService, FileType } from 'src/app/services/files-utils/files-utils.service';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';

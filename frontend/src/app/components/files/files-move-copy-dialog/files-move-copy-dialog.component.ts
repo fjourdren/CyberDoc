@@ -41,7 +41,7 @@ export class FilesMoveCopyDialogComponent {
     this._directoryID = val;
 
     this.loading = true;
-    this.fsProvider.default().get(val).toPromise().then(node=>{
+    this.fsProvider.default().get(val).toPromise().then(node => {
       if (node.isDirectory) {
         this.currentDirectory = node;
       }
@@ -63,7 +63,7 @@ export class FilesMoveCopyDialogComponent {
   openButtonClicked(node: CloudNode) {
     if (node.isDirectory) {
       this.loading = true;
-      this.fsProvider.default().get(node.id).toPromise().then(node=>{
+      this.fsProvider.default().get(node.id).toPromise().then(node => {
         if (node.isDirectory) {
           this.currentDirectory = node;
         }
@@ -77,11 +77,11 @@ export class FilesMoveCopyDialogComponent {
     const oldRestrictions = this.filesTableRestrictions;
     this.filesTableRestrictions.isDisabled = (node: CloudNode) => true;
 
-    let destID: string;
+    let destination: CloudDirectory;
     if (this.selectedNode) {
-      destID = this.selectedNode.id;
+      destination = this.selectedNode as CloudDirectory;
     } else {
-      destID = this.directoryID;
+      destination = this.currentDirectory;
     }
 
 
@@ -89,7 +89,7 @@ export class FilesMoveCopyDialogComponent {
     this.dialogRef.disableClose = true;
     if (this.data.copy) {
       this.translate.get("file.copy_new_name", { "filename": this.data.node.name }).toPromise().then(newName => {
-        this.fsProvider.default().copy(this.data.node.id, newName, destID).toPromise().then(() => {
+        this.fsProvider.default().copy(this.data.node, newName, destination).toPromise().then(() => {
           this.loading = false;
           this.filesTableRestrictions = oldRestrictions;
           this.dialogRef.disableClose = false;
@@ -97,7 +97,7 @@ export class FilesMoveCopyDialogComponent {
         })
       })
     } else {
-      this.fsProvider.default().move(this.data.node.id, destID).toPromise().then(() => {
+      this.fsProvider.default().move(this.data.node, destination).toPromise().then(() => {
         this.loading = false;
         this.filesTableRestrictions = oldRestrictions;
         this.dialogRef.disableClose = false;

@@ -2,11 +2,11 @@ import { Component, DefaultIterableDiffer, ElementRef, EventEmitter, Input, Outp
 import { FormControl } from '@angular/forms';
 import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { Observable } from 'rxjs';
-import { FileTag } from 'src/app/models/users-api-models';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { map } from 'rxjs/operators';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { AppUtilsService } from 'src/app/services/app-utils/app-utils.service';
+import { FileTag } from 'src/app/models/files-api-models';
 
 @Component({
   selector: 'app-files-tags-input',

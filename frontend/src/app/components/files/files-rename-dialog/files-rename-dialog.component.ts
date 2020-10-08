@@ -42,7 +42,7 @@ export class FilesRenameDialogComponent implements AfterViewInit {
     this.loading = true;
     this.input.disable();
     this.dialogRef.disableClose = true;
-    this.fsProvider.default().rename(this.node.id, this.input.value).toPromise().then(() => {
+    this.fsProvider.default().rename(this.node, this.input.value).toPromise().then(() => {
       this.loading = false;
       this.input.enable();
       this.dialogRef.disableClose = false;
