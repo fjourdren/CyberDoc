@@ -11,11 +11,26 @@ class TwoFactorAuthService {
      */
     public static async sendToken(sending_way: string, authy_id: string): Promise<any> {
         try {
-            let res = await axios.post(`https://api.authy.com/protected/json/${sending_way}/${authy_id}?force=true`, null, {
-                headers: {
-                    'X-Authy-API-KEY': process.env.AUTHY_API_KEY
-                }
-            });
+            let res: any;
+            switch(sending_way) {
+                case 'email':
+                    res = await axios.post(`https://api.authy.com/protected/json/${sending_way}/${authy_id}?force=true`, null, {
+                        headers: {
+                            'X-Authy-API-KEY': process.env.AUTHY_API_KEY
+                        }
+                    });
+                    break;
+                case 'sms':
+                    res = await axios.get(`https://api.authy.com/protected/json/${sending_way}/${authy_id}?force=true`, {
+                        headers: {
+                            'X-Authy-API-KEY': process.env.AUTHY_API_KEY
+                        }
+                    });
+                    break;
+                default:
+                    break;
+            }
+            
             return res.data;
         }
         catch (err) {
@@ -137,7 +152,7 @@ class TwoFactorAuthService {
      */
     public static async delete(authy_id: string): Promise<any> {
         try {
-            let res = await axios.get(`https://api.authy.com/protected/json/users/${authy_id}/remove`, {
+            let res = await axios.post(`https://api.authy.com/protected/json/users/${authy_id}/remove`, null, {
                 headers: {
                     'X-Authy-API-KEY': process.env.AUTHY_API_KEY
                 }
