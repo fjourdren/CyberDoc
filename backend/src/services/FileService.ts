@@ -121,28 +121,28 @@ class FileService {
         return await file.save();
     }
 
-    public static async search(user: IUser, searchBody: any): Promise<IFile[]> {
-        const { name, mimetype, startLastModifiedDate, endLastModifiedDate, tagIDs } = searchBody;
+    public static async search(user: IUser, searchBody: Record<string, unknown>): Promise<IFile[]> {
+        const { name, mimetypes, startLastModifiedDate, endLastModifiedDate, tagIDs } = searchBody;
 
         // generate the mongodb search object
-        let searchArray: {} = {};
-        searchArray = Object.assign(searchBody, { 'owner_id': user._id });
+        let searchArray: Record<string, unknown> = {};
+        searchArray = Object.assign(searchArray, { 'owner_id': user._id });
 
         if(name)
-            searchArray = Object.assign(searchBody, { "name": { "$regex": name, "$options": "i" } });
+            searchArray = Object.assign(searchArray, { "name": { "$regex": name, "$options": "i" } });
 
-        if(mimetype)
-            searchArray = Object.assign(searchBody, { "mimetype": { $in: mimetype } });
+        if(mimetypes)
+            searchArray = Object.assign(searchArray, { "mimetype": { "$in": mimetypes } });
         
         if(startLastModifiedDate && endLastModifiedDate)
-            searchArray = Object.assign(searchBody, { "updated_at": { $gt: startLastModifiedDate, $lt: endLastModifiedDate } });
+            searchArray = Object.assign(searchArray, { "updated_at": { "$gt": startLastModifiedDate, "$lt": endLastModifiedDate } });
         else if(startLastModifiedDate)
-            searchArray = Object.assign(searchBody, { "updated_at": { $gt: startLastModifiedDate } });
+            searchArray = Object.assign(searchArray, { "updated_at": { "$gt": startLastModifiedDate } });
         else if(endLastModifiedDate)
-            searchArray = Object.assign(searchBody, { "updated_at": { $lt: endLastModifiedDate } });
+            searchArray = Object.assign(searchArray, { "updated_at": { "$lt": endLastModifiedDate } });
 
         if(tagIDs)
-            searchArray = Object.assign(searchBody, { "tags._id": tagIDs });
+            searchArray = Object.assign(searchArray, { "tags": { $elemMatch: { "_id": { $in: tagIDs } }} });
 
         // run the search
         return await File.find(searchArray).exec();
@@ -299,6 +299,7 @@ class FileService {
         const newFile: IFile = new File();
         newFile._id            = Guid.raw();
         newFile.type           = file.type;
+        newFile.mimetype       = file.mimetype;
         newFile.name           = copyFileName;
         newFile.document_id    = objectId;   
         newFile.parent_file_id = destination_id;
@@ -334,7 +335,6 @@ class FileService {
 
         // find all child files
         const files = await File.find({ parent_file_id: file._id }).exec();
-        //console.log(files)
         for(let i = 0; i < files.length; i++) {
             const fileToCopy: IFile = files[i];
             // copy directory and document recursively

@@ -33,8 +33,10 @@ class AuthService {
         const root_user_dir: IFile = new File();
         root_user_dir._id = Guid.raw();
         root_user_dir.type = FileType.DIRECTORY;
+        root_user_dir.mimetype = "application/x-dir"
         root_user_dir.name = "Root";
         root_user_dir.owner_id = newUser._id;
+        root_user_dir.tags = [];
 
         newUser.directory_id = root_user_dir._id;
         requireNonNull(await root_user_dir.save());

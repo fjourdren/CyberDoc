@@ -30,7 +30,8 @@ export const FileSchema = new mongoose.Schema({
 		required: true
     },
     mimetype: {
-        type: String
+        type: String,
+        required: true
     },
     name: {
         type    : String,

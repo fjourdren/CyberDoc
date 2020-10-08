@@ -62,7 +62,7 @@ export const UserSchema = new mongoose.Schema({
             validator: function(value: string) {
                 return (/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$._\-!%*?&])[A-Za-z\d$@$!%*?&].{8,}/.test(value));
             },
-            message: props => `Password doesn't respect the recommended format`
+            message: () => `Password doesn't respect the recommended format`
         },
     },
     role: {
