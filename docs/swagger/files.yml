@@ -687,8 +687,10 @@ components:
         mimetype: "application/pdf"
         size: 666
         lastModified: "2017-07-21T17:32:28Z"
-        tagIDs:
-          - 9b81d950-b6F5-471f-a654-4fffba6bcfc1
+        tags:
+          - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
+            name: "TODO"
+            hexColor: "#eeeeee"
       description: Represents a classic file, sent by the server
       type: object
       required:
@@ -698,6 +700,7 @@ components:
         - mimetype
         - size
         - lastModified
+        - tags
       properties:
         id:
           type: string
@@ -717,11 +720,11 @@ components:
           type: string
           example: application/pdf
           description: File type
-        tagIDs:
+        tags:
           type: array
           items:
-            type: string
-          description: ID of file tags (tags are stored on the user profile)
+            $ref: "#/components/schemas/FileTag"
+          description: File tag
         size:
           type: integer
           example: "666"
@@ -737,8 +740,10 @@ components:
         ownerName: John Doe
         name: subsubdir
         mimetype: application/x-dir
-        tagIDs:
-          - 9b81d950-b6F5-471f-a654-4fffba6bcfc1
+        tags:
+          - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
+            name: "TODO"
+            hexColor: "#eeeeee"
         path:
           - id: 9b81d950-b605-471f-a654-4fffba6bcfc1
             name: root
@@ -766,6 +771,7 @@ components:
         - mimetype
         - path
         - directoryContent
+        - tags
       properties:
         id:
           type: string
@@ -787,11 +793,11 @@ components:
             - application/x-dir
           example: application/x-dir
           description: application/x-dir for a directory
-        tagIDs:
+        tags:
           type: array
           items:
-            type: string
-          description: ID of file tags (tags are stored on the user profile)
+            $ref: "#/components/schemas/FileTag"
+          description: File tag
         path:
           type: array
           description: Tree structure to access this folder, excluding the folder itself.
@@ -816,8 +822,10 @@ components:
           mimetype: "application/pdf"
           size: 666
           lastModified: "2017-07-21T17:32:28Z"
-          tagIDs:
-            - 9b81d950-b6F5-471f-a654-4fffba6bcfc1
+          tags:
+            - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
+              name: "TODO"
+              hexColor: "#eeeeee"
       type: object
       required:
         - success
@@ -845,8 +853,10 @@ components:
             mimetype: "application/pdf"
             size: 666
             lastModified: "2017-07-21T17:32:28Z"
-            tagIDs:
-              - 9b81d950-b6F5-471f-a654-4fffba6bcfc1
+            tags:
+              - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
+                name: "TODO"
+                hexColor: "#eeeeee"
       type: object
       required:
         - success
@@ -879,3 +889,24 @@ components:
         msg:
           type: string
           description: msg
+
+    FileTag:
+      example:
+        id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
+        name: "TODO"
+        hexColor: "#eeeeee"
+      description: File tag
+      type: object
+      required:
+        - id
+        - name
+        - hexColor
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        hexColor:
+          type: string
+          pattern: "^#(?:[0-9a-fA-F]{3}){1,2}$"
