@@ -25,8 +25,10 @@ components:
           name: root
         - id: 9b81d950-b605-471f-a654-4fffba6bcfc2
           name: subdir
-        tagIDs:
-        - 9b81d950-b6F5-471f-a654-4fffba6bcfc1
+        tags:
+        - hexColor: '#eeeeee'
+          id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+          name: TODO
       properties:
         directoryContent:
           description: Content of the directory (if returns CloudDirectory, the directoryContent
@@ -62,10 +64,10 @@ components:
           items:
             $ref: '#/components/schemas/Path'
           type: array
-        tagIDs:
-          description: ID of file tags (tags are stored on the user profile)
+        tags:
+          description: File tag
           items:
-            type: string
+            $ref: '#/components/schemas/FileTag'
           type: array
       required:
       - id
@@ -74,6 +76,7 @@ components:
       - mimetype
       - path
       - directoryContent
+      - tags
       type: object
     CloudFile:
       description: Represents a classic file, sent by the server
@@ -84,8 +87,10 @@ components:
         name: File.pdf
         ownerName: John Doe
         size: 666
-        tagIDs:
-        - 9b81d950-b6F5-471f-a654-4fffba6bcfc1
+        tags:
+        - hexColor: '#eeeeee'
+          id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+          name: TODO
       properties:
         id:
           description: File ID
@@ -113,10 +118,10 @@ components:
           description: File size
           example: '666'
           type: integer
-        tagIDs:
-          description: ID of file tags (tags are stored on the user profile)
+        tags:
+          description: File tag
           items:
-            type: string
+            $ref: '#/components/schemas/FileTag'
           type: array
       required:
       - id
@@ -125,6 +130,7 @@ components:
       - mimetype
       - size
       - lastModified
+      - tags
       type: object
     FileCopyBody:
       properties:
@@ -149,8 +155,10 @@ components:
           name: File.pdf
           ownerName: John Doe
           size: 666
-          tagIDs:
-          - 9b81d950-b6F5-471f-a654-4fffba6bcfc1
+          tags:
+          - hexColor: '#eeeeee'
+            id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+            name: TODO
         msg: File created
         success: true
       properties:
@@ -259,8 +267,10 @@ components:
           name: File.pdf
           ownerName: John Doe
           size: 666
-          tagIDs:
-          - 9b81d950-b6F5-471f-a654-4fffba6bcfc1
+          tags:
+          - hexColor: '#eeeeee'
+            id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+            name: TODO
         success: true
       properties:
         msg:
