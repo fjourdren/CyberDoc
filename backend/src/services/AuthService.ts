@@ -20,9 +20,8 @@ class AuthService {
 
     // register service
     public static async signup(firstname: string, lastname: string, email: string, password: string, role: Role): Promise<IUser> {
-        const newUser: IUser = new User();
-        
         // build object
+        const newUser: IUser = new User();
         newUser._id       = Guid.raw()
         newUser.firstname = firstname;
         newUser.lastname  = lastname;

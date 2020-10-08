@@ -11,7 +11,6 @@ import { Readable } from 'stream';
 
 
 class FileService {
-
     /**
      * PERMISSIONS FILE HELPERS
      */
@@ -120,6 +119,33 @@ class FileService {
 
         // save the directory
         return await file.save();
+    }
+
+    public static async search(user: IUser, searchBody: any): Promise<IFile[]> {
+        const { name, mimetype, startLastModifiedDate, endLastModifiedDate, tagIDs } = searchBody;
+
+        // generate the mongodb search object
+        let searchArray: {} = {};
+        searchArray = Object.assign(searchBody, { 'owner_id': user._id });
+
+        if(name)
+            searchArray = Object.assign(searchBody, { "name": { "$regex": name, "$options": "i" } });
+
+        if(mimetype)
+            searchArray = Object.assign(searchBody, { "mimetype": { $in: mimetype } });
+        
+        if(startLastModifiedDate && endLastModifiedDate)
+            searchArray = Object.assign(searchBody, { "updated_at": { $gt: startLastModifiedDate, $lt: endLastModifiedDate } });
+        else if(startLastModifiedDate)
+            searchArray = Object.assign(searchBody, { "updated_at": { $gt: startLastModifiedDate } });
+        else if(endLastModifiedDate)
+            searchArray = Object.assign(searchBody, { "updated_at": { $lt: endLastModifiedDate } });
+
+        if(tagIDs)
+            searchArray = Object.assign(searchBody, { "tags._id": tagIDs });
+
+        // run the search
+        return await File.find(searchArray).exec();
     }
 
     // get file informations from gridfs

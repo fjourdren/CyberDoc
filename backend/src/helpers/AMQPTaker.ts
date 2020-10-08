@@ -22,10 +22,10 @@ class AMQPTalker {
         const { channel } = await AMQPTalker.getConnection();
 
         await channel.assertExchange(queueName, {
-            durable: false
+            durable: true
         });
-        
-        channel.publish(queueName, Buffer.from(msg));
+
+        channel.sendToQueue(queueName, Buffer.from(msg), { persistent: true });
     }
 
 
@@ -35,13 +35,14 @@ class AMQPTalker {
             const { channel, queue }: Record<any, any> = AMQPTalker.consumer("queue");
             channel.consume(queue.queue, function(msg: string) {
                 console.log(msg);
+                channel.ack(msg);
             });
         ****/
 
         const { channel } = await AMQPTalker.getConnection();
 
         const q = await channel.assertQueue(queueName, {
-            durable: false
+            durable: true
         });
 
         return { channel: channel, queue: q }
