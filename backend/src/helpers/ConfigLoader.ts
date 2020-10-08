@@ -32,6 +32,7 @@ declare global {
             APP_PORT: number;
             JWT_SECRET: string;
             JWT_ALGORITHM: string;
+            AUTHY_API_KEY: string;
             MONGODB_URL: string;
         }
     }
