@@ -78,7 +78,7 @@ class App {
             res.status(HttpCodes.NOT_FOUND);
             res.json({
                 success: false,
-                msg: "Unknow action"
+                msg: "Unknown action"
             });
         });        
     }
