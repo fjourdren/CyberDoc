@@ -1,7 +1,10 @@
 {
-  "name": "backend",
+  "name": "cyberdoc-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "cyberdoc-backend",
+  "private": true,
+  "author": "Fulgen Corp",
+  "license": "UNLICENSED",
   "main": "server.js",
   "scripts": {
     "test": "jest --forceExit --coverage --verbose",
@@ -13,8 +16,6 @@
     "lint": "eslint . --ext .ts",
     "start": "cross-env APP_ENV=prod node dist/server.js"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "amqplib": "^0.6.0",
     "bcryptjs": "^2.4.3",
