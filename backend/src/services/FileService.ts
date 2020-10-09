@@ -1,16 +1,16 @@
 import Guid from 'guid';
-import { Mongoose, Types } from 'mongoose';
-import MongoClient, { ObjectID } from 'mongodb'
+import { Types } from 'mongoose';
+import MongoClient from 'mongodb'
 import GridFSTalker from "../helpers/GridFSTalker";
 import { requireNonNull, requireIsNull } from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
 import IUser from "../models/User";
 import { IFile, File, FileType } from "../models/File";
+import { Readable } from 'stream';
 
 
 class FileService {
-
     /**
      * PERMISSIONS FILE HELPERS
      */
@@ -92,7 +92,7 @@ class FileService {
      * ACTIONS
      */
     // create file service
-    public static async createDocument(file: IFile, filename: string, content_type: string, fileContent: any): Promise<IFile> {
+    public static async createDocument(file: IFile, filename: string, content_type: string, fileContent: Readable): Promise<IFile> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
@@ -121,6 +121,33 @@ class FileService {
         return await file.save();
     }
 
+    public static async search(user: IUser, searchBody: Record<string, unknown>): Promise<IFile[]> {
+        const { name, mimetypes, startLastModifiedDate, endLastModifiedDate, tagIDs } = searchBody;
+
+        // generate the mongodb search object
+        let searchArray: Record<string, unknown> = {};
+        searchArray = Object.assign(searchArray, { 'owner_id': user._id });
+
+        if(name)
+            searchArray = Object.assign(searchArray, { "name": { "$regex": name, "$options": "i" } }); //"$options": "i" remove the need to manage uppercase in the user search
+
+        if(mimetypes)
+            searchArray = Object.assign(searchArray, { "mimetype": { "$in": mimetypes } });
+        
+        if(startLastModifiedDate && endLastModifiedDate)
+            searchArray = Object.assign(searchArray, { "updated_at": { "$gt": startLastModifiedDate, "$lt": endLastModifiedDate } });
+        else if(startLastModifiedDate)
+            searchArray = Object.assign(searchArray, { "updated_at": { "$gt": startLastModifiedDate } });
+        else if(endLastModifiedDate)
+            searchArray = Object.assign(searchArray, { "updated_at": { "$lt": endLastModifiedDate } });
+
+        if(tagIDs)
+            searchArray = Object.assign(searchArray, { "tags": { $elemMatch: { "_id": { $in: tagIDs } }} });
+
+        // run the search
+        return await File.find(searchArray).exec();
+    }
+
     // get file informations from gridfs
     public static async getFileInformations(file: IFile): Promise<any> {
         // be sure that file is a document
@@ -143,7 +170,7 @@ class FileService {
     }
 
     // update a document content
-    public static async updateContentDocument(file: IFile, fileContent: any): Promise<any> {
+    public static async updateContentDocument(file: IFile, fileContent: Readable): Promise<any> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
@@ -208,7 +235,7 @@ class FileService {
     }
 
     // delete a directory
-    public static async deleteDirectory(file: IFile, forceDeleteRoot: boolean = false): Promise<any> {
+    public static async deleteDirectory(file: IFile, forceDeleteRoot = false): Promise<any> {
         // be sure that file is a directory
         FileService.requireFileIsDirectory(file);
 
@@ -272,6 +299,7 @@ class FileService {
         const newFile: IFile = new File();
         newFile._id            = Guid.raw();
         newFile.type           = file.type;
+        newFile.mimetype       = file.mimetype;
         newFile.name           = copyFileName;
         newFile.document_id    = objectId;   
         newFile.parent_file_id = destination_id;
@@ -307,7 +335,6 @@ class FileService {
 
         // find all child files
         const files = await File.find({ parent_file_id: file._id }).exec();
-        //console.log(files)
         for(let i = 0; i < files.length; i++) {
             const fileToCopy: IFile = files[i];
             // copy directory and document recursively
