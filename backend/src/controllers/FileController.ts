@@ -26,8 +26,8 @@ class FileController {
             }
 
             requireNonNull(name);
-            requireNonNull(mimetype);
             requireNonNull(folderID);
+            requireNonNull(mimetype);
 
             // build IFile
             const fileToSave: IFile = new File();
@@ -36,15 +36,16 @@ class FileController {
             if (mimetype == "application/x-dir") {
                 fileToSave.type = FileType.DIRECTORY;
                 requireIsNull(upfile);
-            }
-            else { // otherwise file is a document
+            } else { // otherwise file is a document
                 fileToSave.type = FileType.DOCUMENT;
                 requireNonNull(upfile);
             }
 
+            fileToSave.mimetype = mimetype;
             fileToSave.name = name;
             fileToSave.parent_file_id = folderID;
             fileToSave.owner_id = user_id;
+            fileToSave.tags = [];
 
             // check that user is owner
             if (fileToSave.owner_id != user_id)
@@ -55,17 +56,38 @@ class FileController {
 
             // check if file is a directory or a document and create it
             let out: IFile;
-            if (fileToSave.type == FileType.DIRECTORY)
+            if (fileToSave.type == FileType.DIRECTORY) {
+                fileToSave.mimetype = "application/x-dir";
                 out = await FileService.createDirectory(fileToSave);
-            else
+            } else {
                 out = await FileService.createDocument(fileToSave, fileToSave.name, mimetype, Readable.from(upfile?.buffer as any));
-
+            }
             // reply to client
             res.status(HttpCodes.OK);
             res.json({
                 success: true,
                 msg: "File created",
                 file: out
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+
+    // search files
+    public static async search(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const bodySearch: Record<string, unknown> = req.body;
+
+            const results: IFile[] = await FileService.search(res.locals.APP_JWT_TOKEN.user, bodySearch);
+
+            // reply to client
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "Done",
+                results: results
             });
         } catch (err) {
             next(err);
@@ -126,7 +148,7 @@ class FileController {
                             "id": fileInDir._id,
                             "name": fileInDir.name,
                             "ownerName": ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
-                            "mimetype": gridfsInformation.contentType,
+                            "mimetype": fileInDir.mimetype,
                             "size": gridfsInformation.length,
                             "updated_at": fileInDir.updated_at,
                             "created_at": fileInDir.created_at
@@ -173,7 +195,7 @@ class FileController {
                         "id": file._id,
                         "ownerName": owner.firstname + " " + owner.lastname,
                         "name": file.name,
-                        "mimetype": gridFsFileInfos.contentType,
+                        "mimetype": file.mimetype,
                         "size": gridFsFileInfos.length,
                         "updated_at": file.updated_at,
                         "created_at": file.updated_at

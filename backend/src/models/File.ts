@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import uniqueValidator from 'mongoose-unique-validator';
 import Guid from 'guid';
 
+import ITag, { Tag } from './Tag';
+
 
 /**
  * File Type enum
@@ -26,7 +28,11 @@ export const FileSchema = new mongoose.Schema({
     type: {
 		type    : FileType,
 		required: true
-	},
+    },
+    mimetype: {
+        type: String,
+        required: true
+    },
     name: {
         type    : String,
         required: true,
@@ -42,6 +48,9 @@ export const FileSchema = new mongoose.Schema({
 		type     : String,
         required : true
     },
+    tags: {
+        type: [Tag.schema]
+    },
     updated_at: {
         type   : Date,
         default: new Date().getTime()
@@ -53,17 +62,19 @@ export const FileSchema = new mongoose.Schema({
 },
 {
     collection: 'File',
-})
+});
 
 
 // DO NOT export this, Type script validation (= Mongoose raw model)
 export interface IFile extends mongoose.Document {
     _id           : string;
     type          : FileType;
+    mimetype      : string;
     name          : string;
     document_id   : string;
     parent_file_id: string;
     owner_id      : string;
+    tags          : ITag[];
     updated_at    : string;
     created_at    : string;
 }

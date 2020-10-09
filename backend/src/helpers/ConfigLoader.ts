@@ -33,6 +33,7 @@ declare global {
             JWT_SECRET: string;
             JWT_ALGORITHM: string;
             MONGODB_URL: string;
+            AMQP_URL: string;
         }
     }
 }
