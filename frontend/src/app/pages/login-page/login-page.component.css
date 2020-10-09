@@ -11,6 +11,13 @@
   margin: 20px auto;
 }
 
+.shipping-card-error {
+  min-width: 120px;
+  margin: 20px auto;
+  background-color: #f8d7da;
+  color:#721c24;
+}
+
 .mat-radio-button {
   display: block;
   margin: 5px 0;
