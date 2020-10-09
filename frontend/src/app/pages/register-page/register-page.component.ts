@@ -4,6 +4,7 @@ import { UserServiceProvider } from '../../services/users/user-service-provider'
 import { User } from 'src/app/models/users-api-models';
 import { DatePipe } from '@angular/common';
 import { MustMatch } from 'src/app/components/settings/settings-security/_helpers/must-match.validator';
+import { HttpErrorResponse } from '@angular/common/http';
 
 /*const USER: User = {
   "role": "owner",
@@ -42,12 +43,15 @@ export class RegisterPageComponent implements OnInit {
   myDate = new Date();
   hasUnitNumber = false;
 
+  //gestion d'erreurs :
+  errorValidator = false;
+  errorServer = false;
+
  
   constructor(private fb: FormBuilder, private userProvider: UserServiceProvider) { }
 
   onSubmit() {
     if (this.registerForm.invalid) {
-      //alert('Error !');
       return;
     }
 
@@ -58,16 +62,40 @@ export class RegisterPageComponent implements OnInit {
       "email": this.registerForm.controls.email.value,
     } as User;
 
-    //this.userProvider.default().register(this.user);
+    this.userProvider.default().register(this.user, this.registerForm.controls.password.value).toPromise().then(value => {
+      console.log(value);
+    },value => {
+       //In prod
+       if(value instanceof HttpErrorResponse)
+       { 
+         this.onError(value);
+       }
+       //In mock :
+       if(value instanceof Error)
+       { 
+         this.onErrorMock(value);
+       }
+    });
   }
 
-/*getErrorMessage() {
-  if (this.email.hasError('required')) {
-    return 'You must enter a value';
+  onError(value:HttpErrorResponse){
+    if(value.status==409){
+      this.errorValidator=true;
+    }
+    else{
+      this.errorServer=true;
+    }
   }
 
-  return this.email.hasError('email') ? 'Not a valid email' : '';
-}*/
+  onErrorMock(value:Error){
+    console.log("In mock");
+    if(value.message.includes("409")){
+      this.errorValidator=true;
+    }else
+   {
+      this.errorServer=true;
+    }
+  }
 
 passwordStrength = '(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&].{8,}';
 ngOnInit() {
