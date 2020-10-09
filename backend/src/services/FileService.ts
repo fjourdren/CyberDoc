@@ -129,7 +129,7 @@ class FileService {
         searchArray = Object.assign(searchArray, { 'owner_id': user._id });
 
         if(name)
-            searchArray = Object.assign(searchArray, { "name": { "$regex": name } });
+            searchArray = Object.assign(searchArray, { "name": { "$regex": name, "$options": "i" } }); //"$options": "i" remove the need to manage uppercase in the user search
 
         if(mimetypes)
             searchArray = Object.assign(searchArray, { "mimetype": { "$in": mimetypes } });
