@@ -1,0 +1,414 @@
+openapi: 3.0.0
+info:
+  title: CyberDoc 2FA API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/v1
+    description: Local server
+  - url: http://api.cyberdoc.fulgen.fr/v1
+    description: Prod server  
+paths:
+  /2fa/send/email:
+    post:
+      summary: Send token by email
+      description: Send token by email
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - authy_id
+              properties:
+                authy_id:
+                  type: string
+      responses:
+        "200":
+          description: Token sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Email token will be sent
+                  email:
+                    type: string
+                    example: nicolhas.delvoye@gmail.com
+                  email_id:
+                    type: string
+                    example: ID of sent email EMa8b6154fe52d3d9f612137d397fa3628
+                    
+  /2fa/send/sms:
+    post:
+      summary: Send token by SMS
+      description: Send token by SMS
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - authy_id
+              properties:
+                authy_id:
+                  type: string
+      responses:
+        "200":
+          description: Token sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: SMS token was sent
+                  cellphone:
+                    type: string
+                    example: +33-XXX-XXX-XX77
+                    
+  /2fa/send/push:
+    post:
+      summary: Send Push Notification
+      description: Send Push Notification
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - authy_id
+                - email
+              properties:
+                authy_id:
+                  type: string
+                email:
+                  type: string
+      responses:
+        "200":
+          description: Notification pushed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  approval_request: 
+                    type: object
+                    properties: 
+                      uuid:
+                        type: string
+                        example: 149f6f90-ebe4-0138-b11c-0aaac0a1e641
+                  success:
+                    type: boolean
+                    example: true
+                    
+  /2fa/verify/token:
+    post:
+      summary: Verify Token validity
+      description: Verify Token validity
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - type
+                - authy_id
+                - token
+              properties:
+                type:
+                  type: string
+                authy_id:
+                  type: string
+                token:
+                  type: string
+      responses:
+        "200":
+          description: Token is valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: Token is valid
+                  token:
+                    type: string
+                    example: is valid
+                  success:
+                    type: boolean
+                    example: true
+                  device:
+                    type: object
+                    properties: 
+                      id:
+                        type: string
+                        example: null 
+                      os_type:
+                        type: string
+                        example: sms
+                      registration_date:
+                        type: integer
+                        example: 1601835487
+                      registration_method:
+                        type: string
+                        example: null
+                      registration_country:
+                        type: string
+                        example: null
+                      registration_region:
+                        type: string
+                        example: null
+                      registration_city:
+                        type: string
+                        example: null
+                      country:
+                        type: string
+                        example: null
+                      region:
+                        type: string
+                        example: null
+                      city:
+                        type: string
+                        example: null
+                      ip:
+                        type: string
+                        example: null
+                      last_account_recovery_at:
+                        type: string
+                        example: null
+                      last_sync_date:
+                        type: string
+                        example: null
+
+  /2fa/verify/push:
+    post:
+      summary: Verify Push Notification
+      description: Verify Push Notification
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - authy_id
+                - token
+              properties:
+                authy_id:
+                  type: string
+                token:
+                  type: string
+      responses:
+        "200":
+          description: Push Notification is valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  approval_request: 
+                    type: object
+                    properties: 
+                      _app_name:
+                        type: string
+                        example: CyberDoc
+                      _app_serial_id:
+                        type: integer
+                        example:
+                      _authy_id:
+                        type: integer
+                        example: 153514163
+                      _id:
+                        type: string
+                        example: 5f7f9380bf75fa3a41045fcf
+                      _user_email:
+                        type: string
+                        example: nicolhas.delvoye@gmail.com
+                      app_id:
+                        type: string
+                        example: 5f7a11c4dd0e283de0e1db58
+                      created_at:
+                        type: string
+                        example: 2020-10-08T22:35:14Z
+                      notified:
+                        type: boolean
+                        example: false
+                      processed_at:
+                        type: string
+                        example: 2020-10-08T22:35:14Z
+                      seconds_to_expire:
+                        type: integer
+                        example: 120
+                      status:
+                        type: string
+                        example: "expired"
+                      updated_at:
+                        type: string
+                        example: 2020-10-08T22:35:14Z
+                      user_id:
+                        type: string
+                        example: 5ce9652e6242fb405c265bfa
+                      uuid:
+                        type: string
+                        example: 149f6f90-ebe4-0138-b11c-0aaac0a1e641
+                      hidden_details: 
+                        type: object
+                        example: null
+                  success:
+                    type: boolean
+                    example: true
+
+  /2fa/add:
+    post:
+      summary: Add 2FA
+      description: Add 2FA
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - email
+                - phone_number
+                - country_code
+              properties:
+                email:
+                  type: string
+                phone_number:
+                  type: string
+                country_code:
+                  type: string
+      responses:
+        "200":
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User created successfully.
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 299233279
+                  success:
+                    type: boolean
+                    example: true
+
+  /2fa/disable:
+    post:
+      summary: Disable 2FA
+      description: Disable 2FA
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - authy_id
+              properties:
+                authy_id:
+                  type: string
+      responses:
+        "200":
+          description: 2FA disabled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 2FA disabled successfully
+                  success:
+                    type: boolean
+                    example: true
+
+  /2fa/delete:
+    post:
+      summary: Delete 2FA
+      description: Delete 2FA
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - authy_id
+              properties:
+                authy_id:
+                  type: string
+      responses:
+        "200":
+          description: 2FA removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User removed from application
+                  success:
+                    type: boolean
+                    example: true
+
+  /2fa/qrcode:
+    post:
+      summary: Generate QR Code
+      description: Generate QR Code
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - email
+                - authy_id
+              properties:
+                email:
+                  type: string
+                authy_id:
+                  type: string
+      responses:
+        "200":
+          description: QrCode generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  msg:
+                    type: string
+                    example: QrCode generated
+                  qrcode:
+                    type: object
+                    properties:
+                      issuer:
+                        type: string
+                        example: CyberDoc
+                      label:
+                        type: string
+                        example: nicolhas.delvoye@gmail.com
+                      qr_code:
+                        type: string
+                        example: https://s3.amazonaws.com/qr-codes-9f266de4dd32a7244bf6862baea01379/xM52diqGkqRJFA726ywzldMJ-SlS32MCKVlh2l_inxA.png
+                      success:
+                        type: boolean
+                        example: true
