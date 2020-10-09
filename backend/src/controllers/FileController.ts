@@ -27,12 +27,13 @@ class FileController {
 
             requireNonNull(name);
             requireNonNull(folderID);
+            requireNonNull(mimetype);
 
             // build IFile
             const fileToSave: IFile = new File();
 
             // if file is a Directory
-            if (mimetype == "application/x-dir" || mimetype == undefined) {
+            if (mimetype == "application/x-dir") {
                 fileToSave.type = FileType.DIRECTORY;
                 requireIsNull(upfile);
             } else { // otherwise file is a document

@@ -20,15 +20,13 @@ export const TagSchema = new mongoose.Schema({
         type: String,
         required: true,
         uniqueCaseInsensitive: true,
-        trim: true
-    },
-    updated_at: {
-        type: Date,
-        default: new Date().getTime()
-    },
-    created_at: {
-        type: Date,
-        default: new Date().getTime()
+        trim: true,
+        validate: {
+            validator: function(value: string) {
+                return (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(value));
+            },
+            message: () => `Color needs to be a hexadecimal value`
+        }
     }
 });
 
@@ -38,20 +36,7 @@ export interface ITag extends mongoose.Document {
     _id: string;
     name: string;
     color: string;
-    updated_at: string;
-    created_at: string;
 }
-
-
-
-
-/**
- * Processing model data
- */
-TagSchema.pre<ITag>("update", function (next: mongoose.HookNextFunction): void {
-    this.updated_at = new Date().getTime().toString();
-    next();
-});
 
 export const Tag: mongoose.Model<ITag> = mongoose.model<ITag>('Tag', TagSchema);
 export default ITag;

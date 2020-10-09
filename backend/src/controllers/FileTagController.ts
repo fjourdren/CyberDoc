@@ -34,7 +34,7 @@ class FileTagController {
             }
 
             if(tagId != tag._id)
-                throw new HTTPError(HttpCodes.INTERNAL_ERROR, "Unknow tag");
+                throw new HTTPError(HttpCodes.NOT_FOUND, "Unknown tag");
 
             // check that user is owner
             if (file.owner_id != res.locals.APP_JWT_TOKEN.user._id)

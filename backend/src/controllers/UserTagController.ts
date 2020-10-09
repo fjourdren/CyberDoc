@@ -50,7 +50,7 @@ class UserTagController {
             }
 
             if(tagId != tag._id)
-                throw new HTTPError(HttpCodes.INTERNAL_ERROR, "Unknow tag");
+                throw new HTTPError(HttpCodes.NOT_FOUND, "Unknown tag");
 
 
             // edit tag
