@@ -18,11 +18,11 @@ export class LoginPageComponent {
 
   hidePassword = true;
   loading = false;
-  errorValidator = false;
-  errorServer = false;
+  wrongCredentialError = false;
+  genericError = false;
 
   constructor(private fb: FormBuilder,
-    private user: UserServiceProvider,
+    private userServiceProvider: UserServiceProvider,
     private router: Router) { }
 
   onSubmit() {
@@ -31,12 +31,12 @@ export class LoginPageComponent {
     }
 
     this.loading = true;
-    this.errorServer = false;
-    this.errorValidator = false;
+    this.genericError = false;
+    this.wrongCredentialError = false;
     this.loginForm.get("email").disable();
     this.loginForm.get("password").disable();
 
-    this.user.default().login(this.loginForm.controls.email.value, this.loginForm.controls.password.value).toPromise().then(value => {
+    this.userServiceProvider.default().login(this.loginForm.controls.email.value, this.loginForm.controls.password.value).toPromise().then(value => {
       this.loading = false;
       this.router.navigate(["/files"]);
     }, error => {
@@ -45,9 +45,9 @@ export class LoginPageComponent {
       this.loginForm.get("password").enable();
   
       if (error instanceof HttpErrorResponse && error.status == 404) {
-        this.errorValidator = true;
+        this.wrongCredentialError = true;
       } else {
-        this.errorServer = true;
+        this.genericError = true;
       }
     });
   }
