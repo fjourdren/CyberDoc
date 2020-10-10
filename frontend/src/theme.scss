@@ -5,6 +5,7 @@
 $primary: mat-palette($mat-indigo);
 $accent:  mat-palette($mat-pink, A200, A100, A400);
 $selected: $dark-dividers;
+$warn: red;
 
 $theme: mat-light-theme((
   color: (
