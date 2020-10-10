@@ -1,3 +1,5 @@
+@import "../../../theme.scss";
+
 .full-width {
   width: 100%;
 }
@@ -19,10 +21,7 @@ form {
 }
 
 #root-div {
-  
-  /*todo scss var*/
-  background-color: #3f51b5;
-  width: 100vw;
+  background-color: mat-color($primary);
   height: 100vh;
 }
 
@@ -47,7 +46,7 @@ form {
 }
 
 .error-txt {
-  color: red;
+  color: $warn;
   font-weight: bold;
   padding-bottom: 12px;
 }
@@ -56,13 +55,13 @@ form {
   #card {
     width: unset;
     min-height: unset;
-    max-height: 100vh;
+    height: calc(100vh - 32px); /* mat-card padding (16px) *2 */
   }
 
   form {
     width: 100vw;
     min-width: unset;
-    max-height: 100vh;
+    height: 100vh;
   }
 }
 
