@@ -5,7 +5,7 @@
 }
 
 #card {
-  max-width: 400px;
+  max-width: 550px;
 }
 
 .center {
@@ -16,8 +16,12 @@
   transform: translate(-50%, -50%);
 }
 
+mat-radio-group > * {
+  padding: 8px;
+}
+
 form {
-  min-width: 400px;
+  min-width: 550px;
 }
 
 #root-div {
@@ -32,6 +36,18 @@ form {
   align-items: center;
   text-align: center;
   height: 100vh;
+}
+
+.one-line-if-big-screen{
+  display: flex;
+}
+
+.one-line-if-big-screen mat-form-field:first-child {
+  margin-right: 16px;
+}
+
+#role-group-label {
+  font-weight: bold;
 }
 
 #app-title {
@@ -51,7 +67,7 @@ form {
   padding-bottom: 12px;
 }
 
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 550px) {
   #card {
     width: unset;
     height: unset;
@@ -61,6 +77,18 @@ form {
     width: 100vw;
     min-width: unset;
     height: 100vh;
+  }
+
+  .one-line-if-big-screen {
+    display: block;
+  }
+
+  .one-line-if-big-screen mat-form-field:first-child {
+    margin-right: 0;
+  }
+
+  #password-form-field {
+    margin-bottom: 16px;
   }
 }
 
