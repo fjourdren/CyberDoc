@@ -52,7 +52,11 @@ export class FilesDetailsPanelComponent {
   }
 
   refreshAllTags() {
-    this.allTags = this.userServiceProvider.default().getActiveUser().fileTags;
+    if (this.userServiceProvider.default().getActiveUser()){
+      this.allTags = this.userServiceProvider.default().getActiveUser().fileTags;
+    } else {
+      this.allTags = [];
+    }
   }
 
   getFilePreviewImageURL() {
