@@ -58,7 +58,7 @@ class GridFSTalker {
 
         // create the wrinting stream
         const writeStream: MongoClient.GridFSBucketWriteStream = bukket.openUploadStream(filename, { contentType: contentType });
-        
+
         // push stream into the writing stream
         readableStream.pipe(writeStream);
 

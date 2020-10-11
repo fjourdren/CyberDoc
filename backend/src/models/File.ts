@@ -51,6 +51,11 @@ export const FileSchema = new mongoose.Schema({
     tags: {
         type: [Tag.schema]
     },
+    preview: {
+        type: Boolean,
+        required: true,
+        default: true
+    },
     updated_at: {
         type   : Date,
         default: new Date().getTime()
@@ -75,6 +80,7 @@ export interface IFile extends mongoose.Document {
     parent_file_id: string;
     owner_id      : string;
     tags          : ITag[];
+    preview       : Boolean;
     updated_at    : string;
     created_at    : string;
 }
