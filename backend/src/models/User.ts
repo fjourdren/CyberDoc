@@ -57,6 +57,19 @@ export const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    phone_number: {
+        type: String,
+        default: '+33123456789',
+        trim: true,
+        validate: {
+            validator: (value: string) => validator.isMobilePhone(value),
+            message: '{VALUE} is not a valid phone number'
+        }
+    },
+    authy_id: {
+        type: String,
+        trim: true
+    },
     role: {
         type: String,
         enum: Object.values(Role),
@@ -84,6 +97,8 @@ export interface IUser extends mongoose.Document {
     lastname: string;
     email: string;
     password: string;
+    phone_number: string;
+    authy_id: string;
     role: Role;
     updated_at: string;
     created_at: string;

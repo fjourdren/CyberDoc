@@ -27,9 +27,9 @@ class UserController {
         try {
             const user_id = res.locals.APP_JWT_TOKEN.user._id;
 
-            const { firstname, lastname, email, password } = req.body;
+            const { firstname, lastname, email, password, phone_number, authy_id } = req.body;
 
-            const output: Record<string, IUser | string> = requireNonNull(await UserService.updateProfile(user_id, firstname, lastname, email, password));
+            const output: Record<string, IUser | string> = requireNonNull(await UserService.updateProfile(user_id, firstname, lastname, email, password, phone_number, authy_id));
             
             res.status(HttpCodes.OK);
             res.json({

@@ -11,7 +11,6 @@ TwoFactorAuthRouter.post('/send/push', TwoFactorAuthMiddleware.isTwoFactorActiva
 TwoFactorAuthRouter.post('/verify/token', TwoFactorAuthMiddleware.isTwoFactorActivated, TwoFactorAuthController.verifyToken);
 TwoFactorAuthRouter.post('/verify/push', TwoFactorAuthMiddleware.isTwoFactorActivated, TwoFactorAuthController.verifyPushNotification);
 TwoFactorAuthRouter.post('/add', TwoFactorAuthController.add);
-TwoFactorAuthRouter.post('/disable', TwoFactorAuthMiddleware.isTwoFactorActivated, TwoFactorAuthController.disable);
 TwoFactorAuthRouter.post('/delete', TwoFactorAuthMiddleware.isTwoFactorActivated, TwoFactorAuthController.delete);
 TwoFactorAuthRouter.post('/qrcode', TwoFactorAuthMiddleware.isTwoFactorActivated, TwoFactorAuthController.generateQrCode);
 

@@ -19,7 +19,7 @@ class UserService {
     }
 
     // profile update
-    public static async updateProfile(user_id: string | undefined, firstname: string | undefined, lastname: string | undefined, email: string | undefined, password: string | undefined): Promise<Record<string, IUser | string>> {
+    public static async updateProfile(user_id: string | undefined, firstname: string | undefined, lastname: string | undefined, email: string | undefined, password: string | undefined, phone_number: string | undefined, authy_id: string | undefined): Promise<Record<string, IUser | string>> {
         let user = requireNonNull(await User.findById(user_id).exec());
     
         if(firstname != undefined)
@@ -30,6 +30,10 @@ class UserService {
             user.email = email;
         if(password != undefined)
             user.password = password;
+        if(phone_number != undefined)
+            user.phone_number = phone_number;
+        if(authy_id != undefined)
+            user.authy_id = authy_id;
 
         user = requireNonNull(await user.save());
 
