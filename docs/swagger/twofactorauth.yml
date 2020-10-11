@@ -42,6 +42,23 @@ paths:
                   email_id:
                     type: string
                     example: ID of sent email EMa8b6154fe52d3d9f612137d397fa3628
+        "401":
+          description: User doesn't exist
+          content:
+            application/json:
+              schema:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: User doesn't exist
+                errors:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: User doesn't exist
                     
   /2fa/send/sms:
     post:
@@ -74,6 +91,23 @@ paths:
                   cellphone:
                     type: string
                     example: +33-XXX-XXX-XX77
+        "401":
+          description: User doesn't exist
+          content:
+            application/json:
+              schema:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: User doesn't exist
+                errors:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: User doesn't exist
                     
   /2fa/send/push:
     post:
@@ -109,6 +143,23 @@ paths:
                   success:
                     type: boolean
                     example: true
+        "401":
+          description: User doesn't exist
+          content:
+            application/json:
+              schema:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: User doesn't exist
+                errors:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: User doesn't exist
                     
   /2fa/verify/token:
     post:
@@ -189,6 +240,41 @@ paths:
                       last_sync_date:
                         type: string
                         example: null
+        "401":
+          description: User doesn't exist
+          content:
+            application/json:
+              schema:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: User doesn't exist
+                errors:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: User doesn't exist
+        "401":
+          description: Token is invalid
+          content:
+            application/json:
+              schema:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Token is invalid
+                errors:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: Token is invalid
+
 
   /2fa/verify/push:
     post:
@@ -266,6 +352,23 @@ paths:
                   success:
                     type: boolean
                     example: true
+        "401":
+          description: User doesn't exist
+          content:
+            application/json:
+              schema:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: User doesn't exist
+                errors:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: User doesn't exist
 
   /2fa/add:
     post:
@@ -307,35 +410,32 @@ paths:
                   success:
                     type: boolean
                     example: true
-
-  /2fa/disable:
-    post:
-      summary: Disable 2FA
-      description: Disable 2FA
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - authy_id
-              properties:
-                authy_id:
-                  type: string
-      responses:
-        "200":
-          description: 2FA disabled successfully
+        "400":
+          description: Bad Request
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: 2FA disabled successfully
-                  success:
-                    type: boolean
-                    example: true
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: User was not valid
+                errors:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      example: is invalid and can't be blank
+                    country_code:
+                      type: string
+                      example: is invalid
+                    cellphone:
+                      type: string
+                      example: is invalid
+                    message:
+                      type: string
+                      example: User was not valid
 
   /2fa/delete:
     post:
@@ -365,6 +465,23 @@ paths:
                   success:
                     type: boolean
                     example: true
+        "401":
+          description: User doesn't exist
+          content:
+            application/json:
+              schema:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: User doesn't exist
+                errors:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: User doesn't exist
 
   /2fa/qrcode:
     post:
@@ -412,3 +529,20 @@ paths:
                       success:
                         type: boolean
                         example: true
+        "401":
+          description: User doesn't exist
+          content:
+            application/json:
+              schema:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: User doesn't exist
+                errors:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: User doesn't exist
