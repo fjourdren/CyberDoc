@@ -6,17 +6,22 @@ import { CloudNode, CloudDirectory, SearchParams, FileTag } from 'src/app/models
 import { DIRECTORY_MIMETYPE } from '../files-utils/files-utils.service';
 import { FileSystem, Upload } from './file-system';
 
-const BASE_URL = "http://localhost:3000/v1";
-
 export class RealFileSystem implements FileSystem {
 
     private _refreshNeeded$ = new EventEmitter<void>();
     private _currentUpload$ = new EventEmitter<Upload>();
+    private _baseUrl: string;
 
-    constructor(private httpClient: HttpClient) { }
+    constructor(private httpClient: HttpClient) {
+        if (location.toString().indexOf("localhost") > -1){
+            this._baseUrl = "http://localhost:3000/v1";
+        } else {
+            this._baseUrl = "http://api.cyberdoc.fulgen.fr/v1";
+        }
+    }
 
     get(nodeID: string): Observable<CloudNode> {
-        return this.httpClient.get<any>(`${BASE_URL}/files/${nodeID}`, {withCredentials: true}).pipe(map(response => {
+        return this.httpClient.get<any>(`${this._baseUrl}/files/${nodeID}`, {withCredentials: true}).pipe(map(response => {
             const node: CloudNode = response.content;
             node.isDirectory = node.mimetype === DIRECTORY_MIMETYPE;
             if (node.isDirectory) {
@@ -29,7 +34,7 @@ export class RealFileSystem implements FileSystem {
     }
 
     createDirectory(name: string, parentFolder: CloudDirectory): Observable<void> {
-        return this.httpClient.post<any>(`${BASE_URL}/files`, {
+        return this.httpClient.post<any>(`${this._baseUrl}/files`, {
             "folderID": parentFolder.id,
             "mimetype": DIRECTORY_MIMETYPE,
             "name": name
@@ -54,7 +59,7 @@ export class RealFileSystem implements FileSystem {
             endDate.setSeconds(59);
         }
 
-        return this.httpClient.post<any>(`${BASE_URL}/files/search`, {
+        return this.httpClient.post<any>(`${this._baseUrl}/files/search`, {
             "tagIDs": searchParams.tagIDs.length > 0 ? searchParams.tagIDs : null,
             "name": searchParams.name,
            /* "mimetypes": [searchParams.type], */
@@ -78,51 +83,51 @@ export class RealFileSystem implements FileSystem {
     }
 
     copy(node: CloudNode, fileName: string, destination: CloudDirectory): Observable<void> {
-        return this.httpClient.post<any>(`${BASE_URL}/files/${node.id}/copy`, {
+        return this.httpClient.post<any>(`${this._baseUrl}/files/${node.id}/copy`, {
             "copyFileName": fileName,
             "destID": destination.id
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     move(node: CloudNode, destination: CloudDirectory): Observable<void> {
-        return this.httpClient.patch<any>(`${BASE_URL}/files/${node.id}`, {
+        return this.httpClient.patch<any>(`${this._baseUrl}/files/${node.id}`, {
             "directoryID": destination.id,
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     rename(node: CloudNode, newName: string): Observable<void> {
-        return this.httpClient.patch<any>(`${BASE_URL}/files/${node.id}`, {
+        return this.httpClient.patch<any>(`${this._baseUrl}/files/${node.id}`, {
             "name": newName
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     delete(node: CloudNode): Observable<void> {
-        return this.httpClient.delete<any>(`${BASE_URL}/files/${node.id}`, {withCredentials: true})
+        return this.httpClient.delete<any>(`${this._baseUrl}/files/${node.id}`, {withCredentials: true})
             .pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     addTag(node: CloudNode, tag: FileTag): Observable<void> {
         console.warn(tag);
-        return this.httpClient.post<any>(`${BASE_URL}/files/${node.id}/tags`, {
+        return this.httpClient.post<any>(`${this._baseUrl}/files/${node.id}/tags`, {
             "tagId": tag._id
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     removeTag(node: CloudNode, tag: FileTag): Observable<void> {
-        return this.httpClient.delete<any>(`${BASE_URL}/files/${node.id}/${tag._id}`, {withCredentials: true})
+        return this.httpClient.delete<any>(`${this._baseUrl}/files/${node.id}/${tag._id}`, {withCredentials: true})
             .pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     getDownloadURL(node: CloudNode): string {
-        return `${BASE_URL}/files/${node.id}/download`;
+        return `${this._baseUrl}/files/${node.id}/download`;
     }
 
     getExportURL(node: CloudNode): string {
-        return `${BASE_URL}/files/${node.id}/export`;
+        return `${this._baseUrl}/files/${node.id}/export`;
     }
 
     getFilePreviewImageURL(node: CloudNode): string {
-        return `${BASE_URL}/files/${node.id}/preview`;
+        return `${this._baseUrl}/files/${node.id}/preview`;
     }
 
     startFileUpload(file: File, destination: CloudDirectory): void {
@@ -132,7 +137,7 @@ export class RealFileSystem implements FileSystem {
         formData.append("name", file.name);
         formData.append("upfile", file);
 
-        this.httpClient.post<any>(`${BASE_URL}/files`, formData, {
+        this.httpClient.post<any>(`${this._baseUrl}/files`, formData, {
             reportProgress: true,
             observe: 'events',
             withCredentials: true
