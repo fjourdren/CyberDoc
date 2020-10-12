@@ -464,6 +464,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GenericResponse"
+  
   "/files/{fileId}/tags/{tagId}":
     delete:
       tags:
@@ -570,7 +571,7 @@ paths:
       security:
         - jwtToken: [ ]
       summary: Export file in PDF format
-      description: Export file in PDF format (only for docs, spreasheets and presentations)
+      description: Export file in PDF format
       parameters:
         - name: fileId
           in: path
