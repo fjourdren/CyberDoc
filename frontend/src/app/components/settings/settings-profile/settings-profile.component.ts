@@ -15,6 +15,11 @@ export class SettingsProfileComponent {
     newEmail: new FormControl(''),
     oldEmail: new FormControl('')
   });
+  
+  phoneNumberForm = new FormGroup({
+    phoneNumber: new FormControl('')
+  });
+  
 
   constructor(private userServiceProvider: UserServiceProvider, private fb: FormBuilder, private snackBar: MatSnackBar) { }
 
@@ -25,11 +30,23 @@ export class SettingsProfileComponent {
       newEmail: [this.userServiceProvider.default().getActiveUser().email, [Validators.required, Validators.email]],
       oldEmail: [this.userServiceProvider.default().getActiveUser().email, [Validators.required, Validators.email]]
     });
+
+    this.phoneNumberForm = this.fb.group({
+      phoneNumber: [this.userServiceProvider.default().getActiveUser().phone_number, [Validators.required, Validators.pattern('[0-9]{10}')]]
+    });
+    console.log(this.userServiceProvider.default().getActiveUser());
   }
 
-  onSubmit() {
+  onSubmitProfileForm() {
     console.warn(this.profileForm.value);
     this.updateProfile()
+  }
+
+  onSubmitPhoneNumberForm() {
+    console.warn(this.phoneNumberForm.value);
+    // Ouvrir Dialog pour valider le token reçu par SMS
+    // Attention, le fait de changer de numéro de téléphone va (peut-être) modifier l'authy_id
+    // /!\ à tester /!\
   }
 
   updateProfile() {
@@ -43,6 +60,17 @@ export class SettingsProfileComponent {
         this.snackBar.open('Profile updated', null, { duration: 1500 });
       }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
     })
+  }
+
+  updatePhoneNumber() {
+    this.userServiceProvider.default().updatePhoneNumber(
+      this.userServiceProvider.default().getActiveUser().email,
+      this.phoneNumberForm.get('phoneNumber').value
+    ).toPromise().then(() => {
+      this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+        this.snackBar.open('Phone number updated', null, { duration: 1500 });
+      }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
+    });
   }
 
   deleteAccount() {

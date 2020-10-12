@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Authenticate with an application</h1>
+<div mat-dialog-content>
+  <p>Scan this QR Code</p>
+  <img src={{data.qrCodeUrl}} alt="generatedQrCode" width="300" style="justify-content: center;" />
+  <form [formGroup]="tokenForm" (ngSubmit)="onSubmitToken()" autocomplete="off">
+    <mat-form-field>
+      <mat-label>Enter your generated token</mat-label>
+      <input type="number" matInput formControlName="token">
+    </mat-form-field>
+    <button mat-flat-button color="primary" type="submit" [disabled]="tokenForm.invalid">Verify my token</button>
+  </form>
+</div>
+<div mat-dialog-actions>
+  <button mat-button cdkFocusInitial>Ok</button>
+</div>

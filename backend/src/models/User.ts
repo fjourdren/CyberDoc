@@ -67,7 +67,6 @@ export const UserSchema = new mongoose.Schema({
     },
     phone_number: {
         type: String,
-        default: '+33123456789',
         trim: true,
         validate: {
             validator: (value: string) => validator.isMobilePhone(value),

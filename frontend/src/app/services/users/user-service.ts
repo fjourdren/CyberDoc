@@ -14,7 +14,8 @@ export interface UserService {
 
     register(user: User, password: string): Observable<User>;
     updateProfile(firstName: string, lastName: string, newEmail: string, oldEmail: string): Observable<void>;
-    updatePassword(oldPassword: string, newPassword: string, email: string)
+    updatePhoneNumber(email: string, phoneNumber: string);
+    updatePassword(oldPassword: string, newPassword: string, email: string);
     login(email: string, password: string): Observable<User>;
     logout(): Observable<void>;
     deleteAccount(): Observable<void>;

@@ -1,11 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { Form, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, Inject, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
-import { Ng2TelInputModule } from 'ng2-tel-input';
 import { MustMatch } from './_helpers/must-match.validator';
-import { MatRadioChange, MatRadioModule } from '@angular/material/radio';
+import { MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+
+export interface DialogData {
+  qrCodeUrl: string;
+  phoneNumber: string;
+  email: string;
+}
 
 @Component({
   selector: 'app-settings-security',
@@ -13,18 +17,24 @@ import { MatRadioChange, MatRadioModule } from '@angular/material/radio';
   styleUrls: ['./settings-security.component.css']
 })
 export class SettingsSecurityComponent implements OnInit {
+  // Forms
   passwordForm: FormGroup;
-  twoFactorSMSForm: FormGroup;
+
+  // Passwords
   isTextFieldType: boolean;
   isTextFieldType2: boolean;
   isTextFieldType3: boolean;
-  twoFactorSMS: boolean;
-  twoFactorApp: boolean;
-  filter: any;
 
-  constructor(private userServiceProvider: UserServiceProvider, private fb: FormBuilder, private snackBar: MatSnackBar) { }
+  // Dialog
+  dialogConfig: any;
+  qrCodeUrl: string;
+  phoneNumber: string;
+  email: string;
+
+  constructor(private userServiceProvider: UserServiceProvider, private fb: FormBuilder, private snackBar: MatSnackBar, private dialog: MatDialog) { }
 
   passwordStrength = '(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&].{8,}';
+  
   ngOnInit() {
     this.passwordForm = this.fb.group({
       oldPassword: ['', Validators.required],
@@ -34,9 +44,8 @@ export class SettingsSecurityComponent implements OnInit {
     }, {
       validator: MustMatch('newPassword', 'newPasswordConfirmation')
     });
-    this.twoFactorSMSForm = this.fb.group({
-      phoneNumber: [null, [Validators.required, Validators.pattern('[0-9]{10}')]]
-    });
+
+    this.dialogConfig = new MatDialogConfig();
   }
 
   get f() { return this.passwordForm.controls; }
@@ -49,10 +58,6 @@ export class SettingsSecurityComponent implements OnInit {
     }
   }
 
-  onSubmitTwoFactorSMS() {
-    this.snackBar.open('An SMS has been sent to your phone number.', null, { duration: 3000 });
-  }
-
   updatePassword() {
     if (this.passwordForm.get('newPassword').value != this.passwordForm.get('newPasswordConfirmation').value) {
       console.log('Passwords must match')
@@ -61,11 +66,7 @@ export class SettingsSecurityComponent implements OnInit {
         this.passwordForm.get('oldPassword').value,
         this.passwordForm.get('newPassword').value,
         this.userServiceProvider.default().getActiveUser().email
-      ).toPromise().then(() => {
-        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-          this.snackBar.open('Password updated', null, { duration: 1500 });
-        })
-      }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
+      ).toPromise().then(() => this.snackBar.open('Password updated', null, { duration: 1500 })).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
     }
   }
 
@@ -86,19 +87,50 @@ export class SettingsSecurityComponent implements OnInit {
     return this.passwordForm.controls[controlName].hasError(errorName);
   }
 
-  radioChange(event: MatRadioChange) {
-    switch(event.value) {
-      case "SMS":
-        this.twoFactorApp = false;
-        this.twoFactorSMS = true;
-        break;
-      case "App":
-        this.twoFactorSMS = false;
-        this.twoFactorApp = true;
-        break;
-      default:
-        console.log('Impossible case');
-        break;
-    }
+  // Dialogs
+  openDialogQrCode(): void {
+    this.dialog.open(SettingsSecurityDialogComponent, {
+      width: '500px',
+      data: { qrCodeUrl: this.qrCodeUrl }
+    });
+  }
+
+  openDialogSms(): void {
+    this.dialog.open(SettingsSecurityDialogComponent, {
+      width: '500px',
+      data: { phoneNumber: this.phoneNumber }
+    });
+  }
+
+  openDialogEmail(): void {
+    this.dialog.open(SettingsSecurityDialogComponent, {
+      width: '500px',
+      data: { email: this.email }
+    });
+  }
+}
+
+@Component({
+  selector: 'settings-security-dialog',
+  templateUrl: 'settings-security-dialog.component.html',
+})
+export class SettingsSecurityDialogComponent {
+  tokenForm: FormGroup;
+
+  constructor(private fb: FormBuilder, 
+    public dialogRef: MatDialogRef<SettingsSecurityDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: DialogData) {}
+
+  ngOnInit() {
+    this.tokenForm = this.fb.group({
+      token: [null, [Validators.required, Validators.minLength(7), Validators.maxLength(7)]]
+    });
+  }
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
+  onSubmitToken() {
+    console.warn(this.tokenForm.value);
   }
 }
