@@ -37,7 +37,44 @@ export class RealFileSystem implements FileSystem {
     }
 
     search(searchParams: SearchParams): Observable<CloudDirectory> {
-        throw new Error('Method not implemented.');
+        const currentDate = new Date();
+        let startDate: Date;
+        let endDate: Date;
+
+        if (searchParams.dateDiff !== -1){
+            startDate = new Date(currentDate);
+            startDate.setHours(0);
+            startDate.setMinutes(0);
+            startDate.setSeconds(0);
+            startDate.setDate(startDate.getDate() - searchParams.dateDiff);
+
+            endDate = new Date(currentDate);
+            endDate.setHours(23);
+            endDate.setMinutes(59);
+            endDate.setSeconds(59);
+        }
+
+        return this.httpClient.post<any>(`${BASE_URL}/files/search`, {
+            "tagIDs": searchParams.tagIDs.length > 0 ? searchParams.tagIDs : null,
+            "name": searchParams.name,
+           /* "mimetypes": [searchParams.type], */
+            "startLastModifiedDate": startDate,
+            "endLastModifiedDate": endDate
+        }, {withCredentials: true}).pipe(map(response => {
+            const folder = new CloudDirectory();
+
+            folder.directoryContent = response.results;
+            folder.id = "you-should-not-see-this";
+            folder.name = "you-should-not-see-this";
+            folder.isDirectory = true;
+            folder.mimetype = DIRECTORY_MIMETYPE;
+            folder.ownerName = "you-should-not-see-this";
+            folder.path = [];
+            folder.tags = [];
+
+            return folder;
+        }));
+
     }
 
     copy(node: CloudNode, fileName: string, destination: CloudDirectory): Observable<void> {
