@@ -6,6 +6,7 @@ import HttpCodes from '../helpers/HttpCodes'
 import AuthService from '../services/AuthService';
 
 import IUser from '../models/User';
+import HTTPError from '../helpers/HTTPError';
 
 class AuthController {
 
@@ -47,9 +48,26 @@ class AuthController {
 
 
     // forgotten password controller
-    /*public static forgottenPassword(req: Request, res: Response) {
-        // TODO
-    }*/
+    public static async forgottenPassword(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { email } = req.body;
+
+            requireNonNull(email);
+
+            // use try catch to not say to the user if an account exist with this email or not
+            try {
+                await AuthService.forgottenPassword(email);
+            } finally {
+                res.status(HttpCodes.OK);
+                res.json({
+                    success: true,
+                    msg: "An email to change your password has been sent"
+                });
+            }
+        } catch(err) {
+            next(err);
+        }
+    }
 }
 
 export default AuthController;
