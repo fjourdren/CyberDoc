@@ -73,7 +73,7 @@ Team
 ------------
 | <a href="https://github.com/ndelvoye" target="_blank">**DELVOYE Nicolhas**</a> | <a href="https://github.com/cforgeard" target="_blank">**FORGEARD Clément**</a> | <a href="https://fjourdren.com/" target="_blank">**JOURDREN Flavien**</a> | <a href="https://github.com/galeadon" target="_blank">**LE GAL Alexis**</a> | <a href="https://maeg.fr/index" target="_blank">**MORIN--COZANNET MAEG**</a> |
 | :---: |:---:| :---:| :---:| :---:|
-| [![ndelvoye](https://avatars0.githubusercontent.com/u/33501606?v3&s=200)](#) | [![cforgeard](https://avatars2.githubusercontent.com/u/19496563?v3&s=200)](#) | [![fjourdren](https://avatars2.githubusercontent.com/u/22824594?v3&s=200)](https://fjourdren.com/) | [![alegal](https://avatars2.githubusercontent.com/u/51356870?v3&s=100)](#) | [![mmorin](https://avatars1.githubusercontent.com/u/37983763?v3&s=200)](https://maeg.fr/) |
+| [![ndelvoye](https://avatars0.githubusercontent.com/u/33501606?v3&s=200)](#) | [![cforgeard](https://avatars2.githubusercontent.com/u/19496563?v3&s=200)](#) | [![fjourdren](https://avatars2.githubusercontent.com/u/22824594?v3&s=200)](https://fjourdren.com/) | [![alegal](https://avatars2.githubusercontent.com/u/51356870?v3&s=100)](#) | [![mmorin](https://avatars1.githubusercontent.com/u/37983763?v3&s=200)](https://maeg.fr) |
 | Back-end developer | Front-end developer | Back-end developer & System Engineer | Front-end developer | Back-end developer & DevOps Engineer |
 
 License
