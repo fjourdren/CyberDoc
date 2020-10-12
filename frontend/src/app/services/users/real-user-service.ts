@@ -79,11 +79,21 @@ export class RealUserService implements UserService {
     }
 
     updateProfile(firstName: string, lastName: string, newEmail: string, oldEmail: string): Observable<void> {
-        throw new Error('Method not implemented.');
+        return this.httpClient.post<any>(`${BASE_URL}/users/profile`, {
+            "email": newEmail,
+            "firstname": firstName,
+            "lastname": lastName
+        }, { withCredentials: true }).pipe(map(response => {
+            return null;
+        }));
     }
 
     updatePassword(oldPassword: string, newPassword: string, email: string) {
-        throw new Error('Method not implemented.');
+        return this.httpClient.post<any>(`${BASE_URL}/users/profile`, {
+            "password": newPassword
+        }, { withCredentials: true }).pipe(map(response => {
+            return null;
+        }));
     }
 
     login(email: string, password: string): Observable<User> {
@@ -91,7 +101,6 @@ export class RealUserService implements UserService {
             "email": email,
             "password": password
         }).pipe(map(response => {
-            this._userUpdated$.emit();
             this.cookieService.set(JWT_COOKIE_NAME, response.token, this._jwtHelper.getTokenExpirationDate(response.token));
             this._setUser(this._jwtHelper.decodeToken(response.token).user);
             return this.getActiveUser();
