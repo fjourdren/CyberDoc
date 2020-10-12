@@ -53,7 +53,7 @@ export class FilesPageComponent implements AfterViewInit {
           if (this.route.toString().indexOf("files-search") !== -1) {
             this.searchMode = true;
             this.routeSearchParams = JSON.parse(val.get("searchParams"));
-            if (!isValidSearchParams(this.routeSearchParams, this.userServiceProvider.default().getActiveUser().fileTags.map(tag => tag.id))) {
+            if (!isValidSearchParams(this.routeSearchParams, this.userServiceProvider.default().getActiveUser().tags.map(tag => tag._id))) {
               this.router.navigate(['/files']);
               return;
             }
@@ -83,10 +83,10 @@ export class FilesPageComponent implements AfterViewInit {
             let currentDirectoryID: string;
             if (val.has("dirID")) {
               currentDirectoryID = val.get("dirID");
+              this.refresh(currentDirectoryID);
             } else {
-              currentDirectoryID = this.userServiceProvider.default().getActiveUser().rootDirectoryID;
+              this.router.navigate(['/files', this.userServiceProvider.default().getActiveUser().directory_id]);
             }
-            this.refresh(currentDirectoryID);
           }
         });
 
@@ -95,6 +95,8 @@ export class FilesPageComponent implements AfterViewInit {
   }
 
   refresh(directoryID: string | null = null) {
+    if (!this.currentDirectory && !directoryID) return; //FIXME
+
     this.loading = true;
     const id = directoryID || this.currentDirectory.id;
     const selectedNodeID = this.selectedNode ? this.selectedNode.id : null;

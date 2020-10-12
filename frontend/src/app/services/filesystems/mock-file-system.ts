@@ -73,18 +73,18 @@ export class MockFileSystem implements FileSystem {
         return this._refreshNeeded$.asObservable();
     }
 
-    startFileUpload(fileBlob: Blob, destination: CloudDirectory): void {
+    startFileUpload(file: File, destination: CloudDirectory): void {
         let newEntry: InternalFileElement = {
             id: destination.name + "." + name,
             name: name,
-            mimetype: fileBlob ? fileBlob.type : DIRECTORY_MIMETYPE,
-            size: fileBlob ? fileBlob.size : 0,
+            mimetype: file ? file.type : DIRECTORY_MIMETYPE,
+            size: file ? file.size : 0,
             date: new Date(),
             parentID: destination.id,
             tags: [],
         }
 
-        this._uploadInternal(name, fileBlob.size).then((success) => {
+        this._uploadInternal(name, file.size).then((success) => {
             if (success) {
                 this.filesMap.set(newEntry.id, newEntry);
                 this._currentUpload$.emit(null);
@@ -117,7 +117,7 @@ export class MockFileSystem implements FileSystem {
             //date is not implemented !
             nodes = nodes.filter(node => {
                 for (const tagID of searchParams.tagIDs) {
-                    if (node.tags.map(tag => tag.id).indexOf(tagID) === -1) return false;
+                    if (node.tags.map(tag => tag._id).indexOf(tagID) === -1) return false;
                 }
                 return true;
             })
@@ -179,7 +179,7 @@ export class MockFileSystem implements FileSystem {
     removeTag(node: CloudNode, tag: FileTag): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             const internalNode = this.filesMap.get(node.id);
-            internalNode.tags = internalNode.tags.filter(val => val.id !== tag.id);
+            internalNode.tags = internalNode.tags.filter(val => val._id !== tag._id);
             this.filesMap.set(internalNode.id, internalNode);
             this._save();
         }));

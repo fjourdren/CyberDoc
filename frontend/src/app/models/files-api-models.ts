@@ -1,7 +1,7 @@
 import { FileType } from '../services/files-utils/files-utils.service';
 
 export class FileTag {
-  public id: string;
+  public _id: string;
   public name: string;
   public hexColor: string;
 }

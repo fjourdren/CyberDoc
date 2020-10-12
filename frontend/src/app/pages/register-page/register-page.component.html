@@ -1,88 +1,100 @@
-<div class="center_header">
-<form [formGroup]="registerForm" novalidate (ngSubmit)="onSubmit()">
-  <mat-card class="shipping-card">
-    <h1><img src="../../../../assets/icons/icon-192x192.png" alt="Fulgen"  width="100" height="100" /><b>CyberDoc</b></h1>
-    
-    
-    <mat-card-header>
-      <mat-card-title class="full-width">Register</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="row">
-        <div class="col">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>First name</mat-label>
-            <input matInput formControlName="firstName">
-            <mat-error *ngIf="registerForm.controls['firstName'].hasError('required')">
-              First name <strong>required</strong>
-            </mat-error>
-          </mat-form-field>
+<div id="root-div">
+  <div id="form-container">
+    <form [formGroup]="registerForm" novalidate (ngSubmit)="onSubmit()">
+      <mat-card id="card">
+        <h1 id='app-title'>
+          <img src="/assets/icons/icon-192x192.png" width="100" height="100" />
+          <b>{{ 'general.appname' | translate }}</b>
+        </h1>
+
+        <mat-card-header>
+          <mat-card-title>{{ 'general.register' | translate }}</mat-card-title>
+        </mat-card-header>
+
+        <div class="error-txt" *ngIf="emailAlreadyExistsError">
+          {{ 'accounts.email_already_exists' | translate }}
+          <a style="margin-left: 4px;" routerLink="/login" mat-stroked-button color="primary">{{ 'general.login' | translate }}</a>
         </div>
-        <div class="col">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Last name</mat-label>
-            <input matInput formControlName="lastName">
-            <mat-error *ngIf="registerForm.controls['lastName'].hasError('required')">
-              Last name is <strong>required</strong>
-            </mat-error>
-          </mat-form-field>
+
+        <div class="error-txt" *ngIf="genericError">
+          {{ 'general.generic_error' | translate }}
         </div>
-      </div>
-      <div class="row">
-        <div class="col">
+
+        <mat-card-content>
+
+          <div class="one-line-if-big-screen">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'accounts.first_name' | translate }}</mat-label>
+              <input autocomplete="given-name" matInput formControlName="firstName" required>
+              <mat-error *ngIf="registerForm.controls['firstName'].hasError('required')">
+                {{ 'general.no_empty' | translate }}
+              </mat-error>
+            </mat-form-field>
+
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'accounts.last_name' | translate }}</mat-label>
+              <input autocomplete="family-name" matInput formControlName="lastName" required>
+              <mat-error *ngIf="registerForm.controls['lastName'].hasError('required')">
+                {{ 'general.no_empty' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Enter your email</mat-label>
-            <input matInput formControlName="email" required>
+            <mat-label>{{ 'general.email' | translate }}</mat-label>
+            <input autocomplete="email" matInput formControlName="email" required>
             <mat-error *ngIf="registerForm.controls['email'].hasError('required')">
-              Email is <strong>required. </strong>
+              {{ 'general.no_empty' | translate }}
             </mat-error>
           </mat-form-field>
-        </div>
-        
-      </div>
-      <div class="row">
-        <div class="col">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Enter your password</mat-label>
-            <input matInput [type]="hide ? 'password' : 'text'" placeholder="password" formControlName="password">
-            <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
-            <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-            </button>
-            <mat-error *ngIf="registerForm.controls['password'].hasError('required')">
-              Password is <strong>required</strong>
-            </mat-error>
-            <mat-error *ngIf="registerForm.controls['password'].hasError('minLength')">Password must be at least 8 characters long.</mat-error>
-            <mat-error *ngIf="registerForm.controls['password'].hasError('pattern')">Password must have at least 1 uppercase, 1 alphanumeric & 1 symbol.</mat-error>
-            <mat-error *ngIf="registerForm.controls['password'].hasError('mustMatch')">Passwords must match</mat-error>
-          </mat-form-field>
+
+          <div class="one-line-if-big-screen">
+            <mat-form-field id="password-form-field" appearance="outline" class="full-width">
+              <mat-label>{{ 'general.password' | translate }}</mat-label>
+              <input autocomplete="new-password" matInput [type]="hidePassword ? 'password' : 'text'"
+                placeholder="password" formControlName="password" required>
+              <button type="button" mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
+                <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+              </button>
+              <mat-error *ngIf="registerForm.controls['password'].hasError('required')">
+                {{ 'general.no_empty' | translate }}</mat-error>
+              <mat-error *ngIf="registerForm.controls['password'].hasError('pattern')">
+                {{ 'accounts.password_restrictions' | translate }}</mat-error>
+              <mat-hint>{{ 'accounts.password_restrictions' | translate }}</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'accounts.repeat_password' | translate }}</mat-label>
+              <input autocomplete="new-password" matInput [type]="hidePassword ? 'password' : 'text'"
+                formControlName="repeat" required>
+              <button type="button" mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
+                <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+              </button>
+              <mat-error *ngIf="registerForm.controls['repeat'].hasError('required')">
+                {{ 'general.no_empty' | translate }}</mat-error>
+              <mat-error *ngIf="registerForm.controls['repeat'].hasError('mustMatch')">
+                {{ 'accounts.passwords_must_match' | translate }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <br>
+
+          <label id="role-group-label">{{ 'accounts.role' | translate }} : &nbsp;</label>
+          <mat-radio-group aria-labelledby="role-group-label" formControlName="role">
+            <mat-radio-button value="owner">{{ 'accounts.owner' | translate }}</mat-radio-button>
+            <mat-radio-button value="collaborator">{{ 'accounts.collaborator' | translate }}</mat-radio-button>
+          </mat-radio-group>
+        </mat-card-content>
+
+        <div id="button-container">
+          <button [disabled]="loading" mat-raised-button color="primary"
+            type="submit">{{ 'general.register' | translate }}</button>
+          <br>
+          <a routerLink="/login" mat-stroked-button color="primary">{{ 'accounts.already_register' | translate }}</a>
         </div>
 
-
-        <div class="col">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Repeat your password</mat-label>
-            <input matInput [type]="hide ? 'password' : 'text'" formControlName="repeat">
-            <button type="button" mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
-            <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-            </button>
-            <mat-error *ngIf="registerForm.controls['repeat'].hasError('required')">
-              Repeat password please
-            </mat-error>
-          </mat-form-field>
-        </div>
-      </div>
-      <div class="row">
-        <mat-radio-group formControlName="state" aria-label="Select your rank" disabled>
-          <mat-radio-button value="owner">Owner</mat-radio-button>
-          <mat-radio-button value="collaborator">Collaborator</mat-radio-button>
-        </mat-radio-group>
-      </div>
-    </mat-card-content>
-    <mat-card-actions>
-      <button mat-raised-button color="primary" type="submit" class="submit">Submit</button>
-      &nbsp;&nbsp;&nbsp;
-      <a routerLink="/login"><button mat-raised-button color="primary" class="submit">Already register ?</button></a>
-    </mat-card-actions> 
-  </mat-card>
-</form>
+      </mat-card>
+    </form>
+  </div>
 </div>

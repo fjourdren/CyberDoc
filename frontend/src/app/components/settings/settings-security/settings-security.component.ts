@@ -61,7 +61,11 @@ export class SettingsSecurityComponent implements OnInit {
         this.passwordForm.get('oldPassword').value,
         this.passwordForm.get('newPassword').value,
         this.userServiceProvider.default().getActiveUser().email
-      ).toPromise().then(() => this.snackBar.open('Password updated', null, { duration: 1500 })).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
+      ).toPromise().then(() => {
+        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+          this.snackBar.open('Password updated', null, { duration: 1500 });
+        })
+      }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
     }
   }
 

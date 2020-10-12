@@ -15,8 +15,8 @@ import { FileTag } from 'src/app/models/files-api-models';
 })
 export class FilesTagsInputComponent {
 
-  private _allTags: FileTag[];
-  private _selectedTags: FileTag[];
+  private _allTags: FileTag[] = [];
+  private _selectedTags: FileTag[] = [];
 
   filteredTags$: Observable<FileTag[]>;
   separatorKeysCodes: number[] = [ENTER, COMMA];
@@ -25,7 +25,8 @@ export class FilesTagsInputComponent {
   @ViewChild('tagInput') tagInput: ElementRef<HTMLInputElement>;
   @ViewChild('auto') matAutocomplete: MatAutocomplete;
 
-  @Output() nodeTagsChange = new EventEmitter<FileTag[]>();
+  @Output() tagAdded = new EventEmitter<FileTag>();
+  @Output() tagRemoved = new EventEmitter<FileTag>();
 
   get selectedTags() {
     return this._selectedTags;
@@ -33,7 +34,7 @@ export class FilesTagsInputComponent {
 
   @Input()
   set selectedTags(val: FileTag[]) {
-    this._selectedTags = val;
+    this._selectedTags = val || [];
     this._filter("");
   }
 
@@ -43,7 +44,7 @@ export class FilesTagsInputComponent {
 
   @Input()
   set allTags(val: FileTag[]) {
-    this._allTags = val;
+    this._allTags = val || [];
     this._filter("");
   }
 
@@ -60,15 +61,16 @@ export class FilesTagsInputComponent {
   remove(tag: FileTag): void {
     const index = this._selectedTags.indexOf(tag);
     if (index >= 0) {
+      this.tagRemoved.emit(tag);
       this._selectedTags.splice(index, 1);
-      this.nodeTagsChange.emit(this._selectedTags);
     }
     this._filter("");
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {
-    this._selectedTags.push(this._findTag(event.option.viewValue));
-    this.nodeTagsChange.emit(this._selectedTags);
+    const tag = this._findTag(event.option.viewValue);
+    this.tagAdded.emit(tag);
+    this._selectedTags.push(tag);
     this.tagInput.nativeElement.value = '';
     this.tagsCtrl.setValue(null);
     this._filter("");
@@ -88,7 +90,7 @@ export class FilesTagsInputComponent {
       return this.allTags.filter(tag => tag.name.toLowerCase().indexOf(filterValue) === 0);
     } else {
       const tags = this.allTags.filter(tag => this.selectedTags.find(item => {
-        return item.id === tag.id
+        return item._id === tag._id
       }) == null);
 
       return tags.filter(tag => tag.name.toLowerCase().indexOf(filterValue) === 0);

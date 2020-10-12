@@ -6,7 +6,6 @@
         "delim": ", ",
         "empty": ""
     },
-
     "filetype": {
         "audio": "Audio",
         "video": "Video",
@@ -19,7 +18,6 @@
         "presentation": "Presentation",
         "folder": "Folder"
     },
-
     "datediff": {
         "-1": "Any time",
         "0": "Today",
@@ -30,7 +28,6 @@
         "90": "Last 90 days",
         "365": "Last year"
     },
-
     "fileaction": {
         "open": "Open",
         "details": "Details",
@@ -43,7 +40,6 @@
         "export": "PDF export",
         "delete_confirm": "Are you sure you want to delete '{{filename}}' ?"
     },
-
     "file": {
         "preview": "Preview",
         "modified": "Modified",
@@ -53,7 +49,6 @@
         "owner": "Owner",
         "copy_new_name": "Copy of {{filename}}"
     },
-
     "upload": {
         "import_file": "Import file",
         "new_directory": "New directory",
@@ -61,14 +56,28 @@
         "success": "File successfully uploaded",
         "canceled": "Upload canceled"
     },
-
     "tags": {
         "create_new_tag": "Create a new tag",
         "tags": "Tags",
         "enter_tag": "Enter a tag..."
     },
-
+    "accounts": {
+        "first_name": "First name",
+        "last_name": "Last name",
+        "role": "Role",
+        "owner": "Owner",
+        "collaborator": "Collaborator",
+        "create_account": "Create new account",
+        "email_already_exists": "An user with this email already exists",
+        "forgot_password": "Forgot your password ?",
+        "already_register": "Already register ?",
+        "login_error": "Wrong login or password",
+        "repeat_password": "Repeat your password",
+        "passwords_must_match": "Passwords must match",
+        "password_restrictions": "Use at least eight characters with letters, numbers and symbols."
+    },
     "general": {
+        "generic_error": "Error. Please wait some time then retry",
         "new_name": "New name",
         "name": "Name",
         "mysafe": "My safe",
@@ -80,7 +89,11 @@
         "add": "Add",
         "settings": "Settings",
         "refresh": "Refresh",
+        "login": "Login",
+        "register": "Register",
         "logout": "Logout",
+        "email": "Email",
+        "password": "Password",
         "appname": "CyberDoc",
         "cancel": "Cancel",
         "search": "Search",
