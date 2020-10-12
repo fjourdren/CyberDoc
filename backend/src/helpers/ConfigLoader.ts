@@ -34,6 +34,7 @@ declare global {
             JWT_ALGORITHM: string;
             AUTHY_API_KEY: string;
             MONGODB_URL: string;
+            AMQP_URL: string;
         }
     }
 }

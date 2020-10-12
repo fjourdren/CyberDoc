@@ -5,6 +5,8 @@ import bcrypt from 'bcryptjs';
 import validator from 'validator';
 import Guid from 'guid';
 
+import ITag, { Tag } from './Tag';
+
 
 /**
  * Users role enum
@@ -55,7 +57,13 @@ export const UserSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        validate: {
+            validator: function(value: string) {
+                return (/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$._\-!%*?&])[A-Za-z\d$@$!%*?&].{8,}/.test(value));
+            },
+            message: () => `Password doesn't respect the required format`
+        },
     },
     phone_number: {
         type: String,
@@ -75,6 +83,9 @@ export const UserSchema = new mongoose.Schema({
         enum: Object.values(Role),
         default: Role.COLLABORATER
     },
+    tags: {
+        type: [Tag.schema]
+    },
     updated_at: {
         type: Date,
         default: new Date().getTime()
@@ -84,9 +95,9 @@ export const UserSchema = new mongoose.Schema({
         default: new Date().getTime()
     }
 },
-    {
-        collection: 'User',
-    })
+{
+    collection: 'User',
+});
 
 
 // DO NOT export this, Type script validation (= Mongoose raw model)
@@ -100,6 +111,7 @@ export interface IUser extends mongoose.Document {
     phone_number: string;
     authy_id: string;
     role: Role;
+    tags: ITag[];
     updated_at: string;
     created_at: string;
 }

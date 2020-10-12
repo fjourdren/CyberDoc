@@ -5,7 +5,7 @@ import HttpCodes from '../helpers/HttpCodes'
 
 import AuthService from '../services/AuthService';
 
-import IUser, { Role } from '../models/User';
+import IUser from '../models/User';
 
 class AuthController {
 

@@ -7,7 +7,7 @@ import HTTPError from "../helpers/HTTPError";
 class ErrorCatcherMiddleware {
 
     // log errors
-    public static async logErrorHandler(err: any, req: Request, res: Response, next: NextFunction): Promise<void> {
+    public static async logErrorHandler(err: Error, req: Request, res: Response, next: NextFunction): Promise<void> {
         logger.error(err.stack);
         next(err);
     }
@@ -15,7 +15,7 @@ class ErrorCatcherMiddleware {
     // catch all errors and reply to the client
     public static async clientErrorHandler(err: Error, req: Request, res: Response, next: NextFunction): Promise<void> {
         let httpcode: number    = HttpCodes.INTERNAL_ERROR
-        let httpmessage: string = "An error occured"
+        let httpmessage = "An error occured"
     
         const errHttp: HTTPError = err as HTTPError;
         if(errHttp.statusCode) {
@@ -31,8 +31,6 @@ class ErrorCatcherMiddleware {
             success: false,
             msg: httpmessage
         });
-
-        next();
     }
 
 }

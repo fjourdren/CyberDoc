@@ -3,6 +3,8 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import log4js from 'log4js';
 import multer from 'multer';
+import cookieParser from 'cookie-parser';
+
 
 import {default as routers} from './routers/ApiRouter';
 
@@ -49,11 +51,14 @@ class App {
         const multerInstance = multer();
         this.expressApp.use(multerInstance.any()); 
 
+        // cookies support
+        this.expressApp.use(cookieParser());
 
         // OTHERS
         this.expressApp.use((req, res, next) => {
-            res.header('Access-Control-Allow-Origin', '*'); // dev only
-            res.header('Access-Control-Allow-Methods', 'OPTIONS,GET,PUT,POST,DELETE');
+            res.header('Access-Control-Allow-Credentials','true');
+            res.header('Access-Control-Allow-Origin', 'http://localhost:4200'); // dev only
+            res.header('Access-Control-Allow-Methods', 'OPTIONS,GET,PUT,POST,PATCH,DELETE');
             res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
             if(req.method === 'OPTIONS') {
                 res.status(200).send();

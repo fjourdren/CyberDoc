@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import MongoClient, { ObjectID, GridFSBucket } from 'mongodb'
 import { Readable } from 'stream';
+import streamToPromise from 'stream-to-promise';
 
 import HTTPError from './HTTPError';
 import HttpCodes from './HttpCodes';
@@ -53,28 +54,27 @@ class GridFSTalker {
     }
 
     // create a file in gridfs
-    public static create(filename: string, contentType: string, readableStream: Readable): string {
+    public static async create(filename: string, contentType: string, readableStream: Readable): Promise<string> {
         const bukket: GridFSBucket = GridFSTalker.getBucket();
 
         // create the wrinting stream
         const writeStream: MongoClient.GridFSBucketWriteStream = bukket.openUploadStream(filename, { contentType: contentType });
-        
+
         // push stream into the writing stream
         readableStream.pipe(writeStream);
 
-        return writeStream.id.toString();
+        return Promise.all([
+            streamToPromise(readableStream),
+            streamToPromise(writeStream)
+        ]).then(() => writeStream.id.toString());
     }
 
     // update a file in gridfs
-    public static update(id: ObjectID, filename: string, contentType: string, readableStream: Readable): string {
+    public static async update(id: ObjectID, filename: string, contentType: string, readableStream: Readable): Promise<string> {
         const bukket: GridFSBucket = GridFSTalker.getBucket();
-
-        console.log("1")
 
         // first delete old bucket
         bukket.delete(id);
-
-        console.log("2")
 
         // create the wrinting stream
         let writeStream: MongoClient.GridFSBucketWriteStream 
@@ -82,13 +82,14 @@ class GridFSTalker {
             writeStream = bukket.openUploadStreamWithId(id, filename, { contentType: contentType });
         else
             writeStream = bukket.openUploadStreamWithId(id, filename);
-        
-        console.log("3")
 
         // push stream into the writing stream
         readableStream.pipe(writeStream);
 
-        return writeStream.id.toString();
+        return Promise.all([
+            streamToPromise(readableStream),
+            streamToPromise(writeStream)
+        ]).then(() => writeStream.id.toString());
     }
 
     // delete a file from the gridfs storage

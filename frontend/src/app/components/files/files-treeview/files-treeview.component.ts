@@ -23,7 +23,7 @@ export class FilesTreeviewComponent {
     this.treeControl = new FlatTreeControl<FilesTreeviewNode>(this.getLevel, this.isExpandable);
     this.dataSource = new FilesTreeviewDataSource(this.treeControl, fsProvider);
     this._loading = true;
-    fsProvider.default().get(userServiceProvider.default().getActiveUser().rootDirectoryID).toPromise().then(root => {
+    fsProvider.default().get(userServiceProvider.default().getActiveUser().directory_id).toPromise().then(root => {
       if (root.isDirectory) {
         this.dataSource.data = [new FilesTreeviewNode(root, 0, [], true, true)];
       }

@@ -34,8 +34,7 @@ import { NgResizeObserverPonyfillModule } from 'ng-resize-observer';
 import { LayoutModule } from '@angular/cdk/layout';
 import { NgxFilesizeModule } from 'ngx-filesize';
 import { Ng2TelInputModule } from 'ng2-tel-input';
-import { JwtModule, JWT_OPTIONS } from "@auth0/angular-jwt";
-
+import { CookieService } from 'ngx-cookie-service';
 import { FilesDetailsPanelComponent } from './components/files/files-details-panel/files-details-panel.component';
 import { FilesTreeviewComponent } from './components/files/files-treeview/files-treeview.component';
 import { FilesMainToolbarComponent } from './components/files/files-main-toolbar/files-main-toolbar.component';
@@ -109,15 +108,6 @@ const SETTINGS_COMPONENTS = [
   SettingsMainToolbarComponent
 ]
 
-function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
-  return {
-    tokenGetter: () => {
-      return userServiceProvider.default().getJwtToken();
-    },
-    allowedDomains: ["localhost:4200"]
-  }
-}
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -143,13 +133,6 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,
         deps: [HttpClient]
-      }
-    }),
-    JwtModule.forRoot({
-      jwtOptionsProvider: {
-        provide: JWT_OPTIONS,
-        useFactory: jwtOptionsFactory,
-        deps: [UserServiceProvider]
       }
     }),
     FormsModule,
@@ -190,6 +173,7 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
   ],
   providers: [
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    CookieService,
     FileSystemProvider,
     UserServiceProvider,
     FilesUtilsService
