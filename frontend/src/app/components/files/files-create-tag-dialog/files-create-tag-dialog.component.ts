@@ -33,16 +33,16 @@ export class FilesCreateTagDialogComponent {
 
     this.dialogRef.disableClose = true;
     this.loading = true;
-    const tags = this.userServiceProvider.default().getActiveUser().fileTags || [];
     const newTag = new FileTag();
     newTag.hexColor = this.color.value;
     newTag.name = this.name.value;
-    tags.push(newTag);
 
-    this.userServiceProvider.default().updateTags(tags).toPromise().then(() => {
-      this.dialogRef.disableClose = false;
-      this.loading = false;
-      this.dialogRef.close(true);
+    this.userServiceProvider.default().addTag(newTag).toPromise().then(() => {
+      this.userServiceProvider.default().refreshActiveUser().toPromise().then(()=>{
+        this.dialogRef.disableClose = false;
+        this.loading = false;
+        this.dialogRef.close(true);  
+      })
     })
   }
 
