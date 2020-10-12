@@ -29,7 +29,7 @@ export class SettingsProfileComponent {
 
   onSubmit() {
     console.warn(this.profileForm.value);
-    this.updateProfile();
+    this.updateProfile()
   }
 
   updateProfile() {
@@ -38,7 +38,11 @@ export class SettingsProfileComponent {
       this.profileForm.get('lastName').value,
       this.profileForm.get('newEmail').value,
       this.userServiceProvider.default().getActiveUser().email
-    ).toPromise().then(() => this.snackBar.open('Profile updated', null, { duration: 1500 })).catch(err => console.error(err));
+    ).toPromise().then(() => {
+      this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+        this.snackBar.open('Profile updated', null, { duration: 1500 });
+      }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
+    })
   }
 
   deleteAccount() {
