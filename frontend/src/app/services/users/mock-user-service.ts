@@ -17,6 +17,8 @@ const USER: User = {
     "firstname": "Flavien",
     "lastname": "JOURDREN",
     "email": "flavien.jourdren@gmail.com",
+    "phone_number": "+33660571777",
+    "authy_id": "",
     "directory_id": "root",
     "tags": [
         {
@@ -135,6 +137,21 @@ export class MockUserService implements UserService {
             this._passwords.delete(oldEmail);
             this._users.set(newEmail, user);
             this._passwords.set(newEmail, pass);
+            this._save();
+            this._setUser(user);
+        }));
+    }
+
+    updatePhoneNumber(email: string, phoneNumber: string) {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            if (!this.getActiveUser()) {
+                this._throw403("already logged in");
+            }
+
+            const user = this._users.get(email);
+            user.phone_number = phoneNumber;
+            this._users.delete(email);
+            this._users.set(email, user);
             this._save();
             this._setUser(user);
         }));

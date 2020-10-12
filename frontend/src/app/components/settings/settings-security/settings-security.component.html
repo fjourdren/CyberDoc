@@ -41,36 +41,29 @@
 					<button mat-flat-button color="primary" type="submit" [disabled]="passwordForm.invalid">Update my password</button>
 				</form>
 			</mat-expansion-panel>
-
 			<mat-expansion-panel>
 				<mat-expansion-panel-header>
 					<mat-panel-title>
 						Two-Factor Authentication
 					</mat-panel-title>
 					<mat-panel-description>
-						Require a key or security code in addition to your password.
+						Require a key in addition to your password.
 					</mat-panel-description>
 				</mat-expansion-panel-header>
-				<mat-radio-group aria-label="Select your 2FA method">
-					<mat-radio-button value="SMS" (change)="radioChange($event)">SMS</mat-radio-button>
-					<mat-radio-button value="App" (change)="radioChange($event)">Application (Google Authenticator, Authy...)</mat-radio-button>
-				  </mat-radio-group>
-
-				<form [formGroup]="twoFactorSMSForm" (ngSubmit)="onSubmitTwoFactorSMS()" *ngIf="twoFactorSMS">
-					<mat-form-field>
-						<input type="text" maxlength="10"
-							matInput 
-							ng2TelInput
-							[ng2TelInputOptions]="{initialCountry: 'fr'}"
-							formControlName="phoneNumber" />
-					  <mat-error *ngIf="!twoFactorSMSForm.get('phoneNumber').valid && twoFactorSMSForm.get('phoneNumber').touched">
-						  This is an <strong>invalid</strong> phone number.
-					  </mat-error>
-					</mat-form-field>
-					<button mat-flat-button color="primary" type="submit" [disabled]="twoFactorSMSForm.invalid">Update my phone number</button>
-				</form>
-
-				<p *ngIf="twoFactorApp">Two-Factor Application is currently selected.</p>
+				<mat-list>
+                    <mat-list-item>
+						<button mat-flat-button color="success">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
+                        <button mat-raised-button color="primary" (click)="openDialogQrCode()">Disable 2FA with Apps</button>
+                    </mat-list-item>
+                    <mat-list-item>
+						<button mat-flat-button color="warn">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
+                        <button mat-raised-button color="primary" (click)="openDialogSms()">Enable 2FA sent by SMS</button>
+                    </mat-list-item>
+                    <mat-list-item>
+						<button mat-flat-button color="warn">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
+                        <button mat-raised-button color="primary" (click)="openDialogEmail()">Enable 2FA sent by emails</button>
+                    </mat-list-item>
+                </mat-list>
 			</mat-expansion-panel>
 		</mat-accordion>
 	</mat-card-content>

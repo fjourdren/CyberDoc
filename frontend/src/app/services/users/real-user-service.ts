@@ -93,6 +93,15 @@ export class RealUserService implements UserService {
         }));
     }
 
+    updatePhoneNumber(email: string, phone_number: string) {
+        return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
+            "email": email,
+            "phone_number": phone_number
+        }, { withCredentials: true }).pipe(map(response => {
+            return null;
+        }));
+    }
+
     updatePassword(oldPassword: string, newPassword: string, email: string) {
         return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
             "password": newPassword
