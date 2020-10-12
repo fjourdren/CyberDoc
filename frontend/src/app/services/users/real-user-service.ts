@@ -8,7 +8,6 @@ import { UserService } from './user-service';
 import { JwtHelperService } from "@auth0/angular-jwt";
 import { CookieService } from 'ngx-cookie-service';
 
-const BASE_URL = "http://localhost:3000/v1";
 const JWT_COOKIE_NAME = "access_token";
 const LOCALSTORAGE_USER_KEY = "real_user";
 
@@ -16,8 +15,14 @@ export class RealUserService implements UserService {
 
     private _userUpdated$ = new EventEmitter<User>();
     private _jwtHelper = new JwtHelperService();
+    private _baseUrl: string;
 
     constructor(private httpClient: HttpClient, private cookieService: CookieService) {
+        if (location.toString().indexOf("localhost") > -1){
+            this._baseUrl = "http://localhost:3000/v1";
+        } else {
+            this._baseUrl = "http://api.cyberdoc.fulgen.fr/v1";
+        }
     }
 
     getActiveUser(): User {
@@ -36,7 +41,7 @@ export class RealUserService implements UserService {
     }
 
     register(user: User, password: string): Observable<User> {
-        return this.httpClient.post<any>(`${BASE_URL}/auth/signup`, {
+        return this.httpClient.post<any>(`${this._baseUrl}/auth/signup`, {
             "email": user.email,
             "firstname": user.firstname,
             "lastname": user.lastname,
@@ -48,7 +53,7 @@ export class RealUserService implements UserService {
     }
 
     addTag(tag: FileTag): Observable<void> {
-        return this.httpClient.post<any>(`${BASE_URL}/users/tags`, {
+        return this.httpClient.post<any>(`${this._baseUrl}/users/tags`, {
             "name": tag.name,
             "color": tag.hexColor,
         }, { withCredentials: true }).pipe(map(response => {
@@ -57,7 +62,7 @@ export class RealUserService implements UserService {
     }
 
     editTag(tag: FileTag): Observable<void> {
-        return this.httpClient.patch<any>(`${BASE_URL}/users/tags/${tag._id}`, {
+        return this.httpClient.patch<any>(`${this._baseUrl}/users/tags/${tag._id}`, {
             "name": tag.name,
             "color": tag.hexColor,
         }, { withCredentials: true }).pipe(map(response => {
@@ -66,20 +71,20 @@ export class RealUserService implements UserService {
     }
 
     removeTag(tag: FileTag): Observable<void> {
-        return this.httpClient.delete<any>(`${BASE_URL}/users/tags/${tag._id}`, { withCredentials: true }).pipe(map(response => {
+        return this.httpClient.delete<any>(`${this._baseUrl}/users/tags/${tag._id}`, { withCredentials: true }).pipe(map(response => {
             return null;
         }));
     }
 
     refreshActiveUser(): Observable<User> {
-        return this.httpClient.get<any>(`${BASE_URL}/users/profile`, { withCredentials: true }).pipe(map(response => {
+        return this.httpClient.get<any>(`${this._baseUrl}/users/profile`, { withCredentials: true }).pipe(map(response => {
             this._setUser(response.user);
             return response.user;
         }));
     }
 
     updateProfile(firstName: string, lastName: string, newEmail: string, oldEmail: string): Observable<void> {
-        return this.httpClient.post<any>(`${BASE_URL}/users/profile`, {
+        return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
             "email": newEmail,
             "firstname": firstName,
             "lastname": lastName
@@ -89,7 +94,7 @@ export class RealUserService implements UserService {
     }
 
     updatePassword(oldPassword: string, newPassword: string, email: string) {
-        return this.httpClient.post<any>(`${BASE_URL}/users/profile`, {
+        return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
             "password": newPassword
         }, { withCredentials: true }).pipe(map(response => {
             return null;
@@ -97,11 +102,11 @@ export class RealUserService implements UserService {
     }
 
     login(email: string, password: string): Observable<User> {
-        return this.httpClient.post<any>(`${BASE_URL}/auth/signin`, {
+        return this.httpClient.post<any>(`${this._baseUrl}/auth/signin`, {
             "email": email,
             "password": password
         }).pipe(map(response => {
-            this.cookieService.set(JWT_COOKIE_NAME, response.token, this._jwtHelper.getTokenExpirationDate(response.token));
+            this.cookieService.set(JWT_COOKIE_NAME, response.token, this._jwtHelper.getTokenExpirationDate(response.token), "/");
             this._setUser(this._jwtHelper.decodeToken(response.token).user);
             return this.getActiveUser();
         }));
@@ -115,7 +120,7 @@ export class RealUserService implements UserService {
     }
 
     deleteAccount(): Observable<void> {
-        return this.httpClient.delete<any>(`${BASE_URL}/users/profile`, { withCredentials: true })
+        return this.httpClient.delete<any>(`${this._baseUrl}/users/profile`, { withCredentials: true })
             .pipe(map(response => {
                 this.cookieService.delete(JWT_COOKIE_NAME);
                 this._setUser(null);
