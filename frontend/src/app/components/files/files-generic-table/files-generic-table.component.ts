@@ -114,6 +114,8 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   isPDFExportAvailable(node: CloudNode): boolean {
+    if (!node) return;
+
     const fileType = this.filesUtils.getFileTypeForMimetype(node.mimetype);
     return this.filesUtils.isPDFExportAvailable(fileType);
   }

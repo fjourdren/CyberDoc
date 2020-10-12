@@ -95,6 +95,8 @@ export class FilesPageComponent implements AfterViewInit {
   }
 
   refresh(directoryID: string | null = null) {
+    if (!this.currentDirectory && !directoryID) return; //FIXME
+
     this.loading = true;
     const id = directoryID || this.currentDirectory.id;
     const selectedNodeID = this.selectedNode ? this.selectedNode.id : null;
