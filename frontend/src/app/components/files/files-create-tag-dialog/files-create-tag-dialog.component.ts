@@ -33,7 +33,7 @@ export class FilesCreateTagDialogComponent {
 
     this.dialogRef.disableClose = true;
     this.loading = true;
-    const tags = this.userServiceProvider.default().getActiveUser().fileTags;
+    const tags = this.userServiceProvider.default().getActiveUser().fileTags || [];
     const newTag = new FileTag();
     newTag.hexColor = this.color.value;
     newTag.name = this.name.value;

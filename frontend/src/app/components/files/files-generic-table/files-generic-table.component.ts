@@ -275,7 +275,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   moveOrCopyNode(node: CloudNode, isCopy: boolean) {
-    let initialDirectoryID = this.currentDirectoryID || this.userServiceProvider.default().getActiveUser().rootDirectoryID;
+    let initialDirectoryID = this.currentDirectoryID || this.userServiceProvider.default().getActiveUser().directory_id;
     this.dialog.open(FilesMoveCopyDialogComponent, {
       width: "400px",
       height: "400px",

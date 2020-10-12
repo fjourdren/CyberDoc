@@ -19,7 +19,7 @@ const USER: User = {
     "firstname": "Flavien",
     "lastname": "JOURDREN",
     "email": "flavien.jourdren@gmail.com",
-    "rootDirectoryID": "root",
+    "directory_id": "root",
     "fileTags": [
         {
             "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7188",
