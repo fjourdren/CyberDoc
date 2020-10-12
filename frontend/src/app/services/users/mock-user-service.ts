@@ -7,8 +7,6 @@ import { EventEmitter } from '@angular/core';
 import { FileTag } from 'src/app/models/files-api-models';
 import { HttpErrorResponse } from '@angular/common/http';
 
-const LOCALSTORAGE_KEY = "auth-token";
-const JWT_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8";
 const DELAY = 500;
 let nextID = 0;
 const USER: User = {
@@ -50,7 +48,6 @@ export class MockUserService implements UserService {
     private _userUpdated$ = new EventEmitter<User>();
 
     constructor() {
-        localStorage.setItem(LOCALSTORAGE_KEY, JWT_TOKEN);
         this._load();
     }
 
@@ -59,7 +56,7 @@ export class MockUserService implements UserService {
     }
 
     getJwtToken(): string {
-        return localStorage.getItem(LOCALSTORAGE_KEY);
+        return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8"
     }
 
     getActiveUser(): User {
