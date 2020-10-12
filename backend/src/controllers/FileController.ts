@@ -169,7 +169,8 @@ class FileController {
                             "mimetype": fileInDir.mimetype,
                             "size": gridfsInformation.length,
                             "updated_at": fileInDir.updated_at,
-                            "created_at": fileInDir.created_at
+                            "created_at": fileInDir.created_at,
+                            "tags": fileInDir.tags
                         });
                     } else { // if it's a directory
                         directoryContentOutput.push({
@@ -178,7 +179,8 @@ class FileController {
                             "ownerName": ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
                             "mimetype": "application/x-dir",
                             "updated_at": fileInDir.updated_at,
-                            "created_at": fileInDir.created_at
+                            "created_at": fileInDir.created_at,
+                            "tags": fileInDir.tags
                         });
                     }
                 }
@@ -196,7 +198,8 @@ class FileController {
                         "name": file.name,
                         "mimetype": "application/x-dir",
                         "path": pathsOutput,
-                        "directoryContent": directoryContentOutput
+                        "directoryContent": directoryContentOutput,
+                        "tags": file.tags
                     }
                 });
 
@@ -216,7 +219,8 @@ class FileController {
                         "mimetype": file.mimetype,
                         "size": gridFsFileInfos.length,
                         "updated_at": file.updated_at,
-                        "created_at": file.updated_at
+                        "created_at": file.updated_at,
+                        "tags": file.tags
                     }
                 });
             }
