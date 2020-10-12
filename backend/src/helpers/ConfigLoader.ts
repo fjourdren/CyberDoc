@@ -34,6 +34,8 @@ declare global {
             JWT_ALGORITHM: string;
             MONGODB_URL: string;
             AMQP_URL: string;
+            SENDGRID_API_KEY: string;
+            SONARQUBE_TOKEN: string;
         }
     }
 }
