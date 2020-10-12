@@ -1,14 +1,21 @@
 import Guid from 'guid';
 import { Types } from 'mongoose';
 import MongoClient from 'mongodb'
+import { Readable } from 'stream';
+import fs from "fs";
+import path from 'path';
+import sharp from 'sharp'
+const filepreview = require('pngenerator');
+const libre = require("libreoffice-convert");
+
 import GridFSTalker from "../helpers/GridFSTalker";
 import { requireNonNull, requireIsNull } from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
+import { streamToBuffer } from '../helpers/Conversions';
+
 import IUser from "../models/User";
 import { IFile, File, FileType } from "../models/File";
-import { Readable } from 'stream';
-
 
 class FileService {
     /**
@@ -92,7 +99,7 @@ class FileService {
      * ACTIONS
      */
     // create file service
-    public static async createDocument(file: IFile, filename: string, content_type: string, fileContent: Readable): Promise<IFile> {
+    public static async createDocument(file: IFile, filename: string, content_type: string, fileContentBuffer: Buffer): Promise<IFile> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
@@ -103,8 +110,14 @@ class FileService {
         const parentFile: IFile = requireNonNull(await File.findById(file.parent_file_id).exec());
         FileService.requireFileIsDirectory(parentFile);
 
+        // create readable
+        const readablefileContent = new Readable()
+        readablefileContent._read = () => {} // _read is required but you can noop it
+        readablefileContent.push(fileContentBuffer)
+        readablefileContent.push(null)
+
         // push document to gridfs
-        file.document_id = GridFSTalker.create(filename, content_type, fileContent);
+        file.document_id = GridFSTalker.create(filename, content_type, readablefileContent);
 
         return await file.save();
     }
@@ -158,7 +171,7 @@ class FileService {
     }
 
     // get file content from gridfs (to start a download for example)
-    public static async getFileContent(file: IFile): Promise<any> {
+    public static async getFileContent(file: IFile): Promise<Record<any, MongoClient.GridFSBucketReadStream>> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
@@ -170,15 +183,21 @@ class FileService {
     }
 
     // update a document content
-    public static async updateContentDocument(file: IFile, fileContent: Readable): Promise<any> {
+    public static async updateContentDocument(file: IFile, fileContentBuffer: Buffer): Promise<any> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
         // get file name
         const fileGridFSInfos: any = await GridFSTalker.getFileInfos(Types.ObjectId(file.document_id));
 
+        // prepare readable
+        const readablefileContent = new Readable()
+        readablefileContent._read = () => {} // _read is required but you can noop it
+        readablefileContent.push(fileContentBuffer)
+        readablefileContent.push(null)
+
         // get gridfs for document_id and put data in it
-        const newDocumentId: string = GridFSTalker.update(Types.ObjectId(file.document_id), fileGridFSInfos.filename, fileGridFSInfos.contentType, fileContent);
+        const newDocumentId: string = GridFSTalker.update(Types.ObjectId(file.document_id), fileGridFSInfos.filename, fileGridFSInfos.contentType, readablefileContent);
         file.document_id = newDocumentId;
         return await file.save();
     }
@@ -347,12 +366,86 @@ class FileService {
         return out;
     }
 
+
+    // generate pdf file
+    public static async generatePDF(file: IFile): Promise<Readable> {
+        return new Promise(async (resolve, reject) => {
+            // be sure that file is a document
+            FileService.requireFileIsDocument(file);
+
+            // go take content in gridfs and build content buffer
+            const content: any = await FileService.getFileContent(file);
+            const buffer: Buffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
+
+            // convert content
+            libre.convert(buffer, "pdf", undefined, (err: Error, data: any) => {
+                if(err)
+                    reject(err);
+
+                // create readable
+                const readablePDF = new Readable()
+                readablePDF._read = () => {} // _read is required but you can noop it
+                readablePDF.push(data)
+                readablePDF.push(null)
+
+                resolve(readablePDF);
+            });
+        });
+    }
+
     // ask to preview a file
-    public static previewFile(file: IFile): void {
+    public static async generatePreview(file: IFile): Promise<Readable> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
-        // TODO
+
+        // go take content in gridfs and build content buffer
+        const content: any = await FileService.getFileContent(file);
+        const buffer: Buffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
+
+        // generate temp directory tree
+        fs.mkdirSync(path.join('tmp', 'input'), { recursive: true });
+        fs.mkdirSync(path.join('tmp', 'output'), { recursive: true });
+
+        // calculate temp files paths
+        const extension: string = path.extname(file.name); // calculate extension
+        const tmpFilename: string = file._id + extension;
+        const tempInputFile: string = path.join("tmp", "input", tmpFilename);
+        const tempOutputImage: string = path.join("tmp", "output", file._id + ".png");
+
+        // save input file in temp file
+        fs.writeFileSync(tempInputFile, buffer);
+
+        // generate image and save it in a temp directory
+        let options = {
+            quality: 100,
+            background: '#ffffff',
+            pagerange: '1'
+        };
+
+        // generate image
+        try {
+            filepreview.generateSync(tempInputFile, tempOutputImage, options);
+        } catch(e) {
+            throw e;
+        }
+
+        //const contentOutputFile: Buffer = fs.readFileSync(tempOutputImage);
+
+        // resize
+        const contentOutputFile: Buffer = await sharp(tempOutputImage).resize({ width: 200 }).extract({ left: 0, top: 0, width: 200, height: 130 }).png().toBuffer();
+
+        // create readable
+        const readableOutput = new Readable()
+        readableOutput._read = () => {} // _read is required but you can noop it
+        readableOutput.push(contentOutputFile)
+        readableOutput.push(null)
+
+        // delete two temp files
+        fs.unlinkSync(tempInputFile);
+        fs.unlinkSync(tempOutputImage);
+
+        return readableOutput;
     }
 
 }
