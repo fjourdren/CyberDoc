@@ -18,24 +18,24 @@ const USER: User = {
     "lastname": "JOURDREN",
     "email": "flavien.jourdren@gmail.com",
     "directory_id": "root",
-    "fileTags": [
+    "tags": [
         {
-            "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7188",
+            "_id": "65af88e0-4d6f-80da-1cab-6ef5db2c7188",
             "name": "TODO",
             "hexColor": "#FF0000"
         },
         {
-            "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7177",
+            "_id": "65af88e0-4d6f-80da-1cab-6ef5db2c7177",
             "name": "In progress",
             "hexColor": "#00FF00"
         },
         {
-            "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7199",
+            "_id": "65af88e0-4d6f-80da-1cab-6ef5db2c7199",
             "name": "In test",
             "hexColor": "#0000FF"
         },
         {
-            "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7166",
+            "_id": "65af88e0-4d6f-80da-1cab-6ef5db2c7166",
             "name": "Done",
             "hexColor": "#cccccc"
         },
@@ -49,6 +49,35 @@ export class MockUserService implements UserService {
 
     constructor() {
         this._load();
+    }
+
+    addTag(tag: FileTag): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            const user = this._getUser();
+            user.tags.push(tag);
+            this._setUser(user);
+        }));
+    }
+
+    editTag(tag: FileTag): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            const user = this._getUser();
+            user.tags = user.tags.filter(item => item._id !== tag._id);
+            user.tags.push(tag);
+            this._setUser(user);
+        }));
+    }
+
+    removeTag(tag: FileTag): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            const user = this._getUser();
+            user.tags = user.tags.filter(item => item._id !== tag._id);
+            this._setUser(user);
+        }));
+    }
+    
+    refreshActiveUser(): Observable<User> {
+        return of(this._getUser());
     }
 
     userUpdated(): Observable<User> {
@@ -106,20 +135,6 @@ export class MockUserService implements UserService {
             this._passwords.delete(oldEmail);
             this._users.set(newEmail, user);
             this._passwords.set(newEmail, pass);
-            this._save();
-            this._setUser(user);
-        }));
-    }
-
-    updateTags(tags: FileTag[]) {
-        return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            if (!this.getActiveUser()) {
-                this._throw403("already logged in");
-            }
-
-            const user = this.getActiveUser();
-            user.fileTags = tags;
-            this._users.set(user.email, user);
             this._save();
             this._setUser(user);
         }));

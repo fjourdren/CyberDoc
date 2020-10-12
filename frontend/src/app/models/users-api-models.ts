@@ -11,5 +11,5 @@ export class User {
     public created_at: string;
     public role: string;
     public directory_id: string;
-    public fileTags: FileTag[];
+    public tags: FileTag[];
 }

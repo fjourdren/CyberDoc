@@ -44,13 +44,13 @@ export class FilesFilterDialogComponent {
   }
 
   refreshAllTags() {
-    this.allTags = this.userServiceProvider.default().getActiveUser().fileTags;
+    this.allTags = this.userServiceProvider.default().getActiveUser().tags;
   }
 
   updateForm() {
     this.typeControl.setValue(this.searchParams.type);
     this.dateModifiedControl.setValue(this.searchParams.dateDiff);
-    this.selectedTags = this.allTags.filter(tag => this.searchParams.tagIDs.indexOf(tag.id) !== -1);
+    this.selectedTags = this.allTags.filter(tag => this.searchParams.tagIDs.indexOf(tag._id) !== -1);
   }
 
   getIconForFileType(type: string) {
@@ -71,7 +71,7 @@ export class FilesFilterDialogComponent {
       name: this.searchParams.name,
       dateDiff: this.dateModifiedControl.value,
       type: this.typeControl.value,
-      tagIDs: this.selectedTags.map(tag => tag.id)
+      tagIDs: this.selectedTags.map(tag => tag._id)
     }
     this.dialogRef.close(this.searchParams);
   }

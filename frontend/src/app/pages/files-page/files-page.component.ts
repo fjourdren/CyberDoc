@@ -53,7 +53,7 @@ export class FilesPageComponent implements AfterViewInit {
           if (this.route.toString().indexOf("files-search") !== -1) {
             this.searchMode = true;
             this.routeSearchParams = JSON.parse(val.get("searchParams"));
-            if (!isValidSearchParams(this.routeSearchParams, this.userServiceProvider.default().getActiveUser().fileTags.map(tag => tag.id))) {
+            if (!isValidSearchParams(this.routeSearchParams, this.userServiceProvider.default().getActiveUser().tags.map(tag => tag._id))) {
               this.router.navigate(['/files']);
               return;
             }
