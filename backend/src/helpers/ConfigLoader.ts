@@ -29,7 +29,9 @@ declare global {
     namespace NodeJS {
         interface ProcessEnv {
             APP_ENV: string;
+            APP_FRONTEND_URL: string;
             APP_PORT: number;
+            APP_MAIL_FROM: string;
             JWT_SECRET: string;
             JWT_ALGORITHM: string;
             MONGODB_URL: string;
