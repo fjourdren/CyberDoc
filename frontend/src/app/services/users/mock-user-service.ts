@@ -82,7 +82,7 @@ export class MockUserService implements UserService {
             }
 
             user._id = `${nextID++}`;
-            user.rootDirectoryID = "other.root";
+            user.directory_id = "other.root";
             user.created_at = new Date().toISOString();
             user.updated_at = new Date().toISOString();
 
@@ -154,7 +154,7 @@ export class MockUserService implements UserService {
                 if (user.email === email) {
                     const pass = this._passwords.get(email);
                     if (pass !== password) {
-                        this._throw404("wrong email or password");
+                        this._throw401("wrong email or password");
                     }
                     this._setUser(user);
                     this._save();
@@ -162,7 +162,7 @@ export class MockUserService implements UserService {
                 }
             }
 
-            this._throw404("wrong email or password");
+            this._throw401("wrong email or password");
         }));
     }
 
@@ -244,5 +244,15 @@ export class MockUserService implements UserService {
             url: '/fake-url'
         });
     }
+
+    private _throw401(error: string){
+        throw new HttpErrorResponse({
+            error: error,
+            statusText: 'FORBIDDEN',
+            status: 401,
+            url: '/fake-url'
+        });
+    }
+
 
 }
