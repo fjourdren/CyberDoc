@@ -73,18 +73,18 @@ export class MockFileSystem implements FileSystem {
         return this._refreshNeeded$.asObservable();
     }
 
-    startFileUpload(fileBlob: Blob, destination: CloudDirectory): void {
+    startFileUpload(file: File, destination: CloudDirectory): void {
         let newEntry: InternalFileElement = {
             id: destination.name + "." + name,
             name: name,
-            mimetype: fileBlob ? fileBlob.type : DIRECTORY_MIMETYPE,
-            size: fileBlob ? fileBlob.size : 0,
+            mimetype: file ? file.type : DIRECTORY_MIMETYPE,
+            size: file ? file.size : 0,
             date: new Date(),
             parentID: destination.id,
             tags: [],
         }
 
-        this._uploadInternal(name, fileBlob.size).then((success) => {
+        this._uploadInternal(name, file.size).then((success) => {
             if (success) {
                 this.filesMap.set(newEntry.id, newEntry);
                 this._currentUpload$.emit(null);
