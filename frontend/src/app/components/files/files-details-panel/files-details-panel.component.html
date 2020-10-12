@@ -36,7 +36,7 @@
     </button>
   </div>
 
-  <app-files-tags-input [allTags]="allTags" [selectedTags]="nodeTags" (nodeTagsChange)="onNodeTagsUpdated($event)"></app-files-tags-input>
+  <app-files-tags-input [allTags]="allTags" [selectedTags]="nodeTags" (tagAdded)="onTagAdded($event)" (tagRemoved)="onTagRemoved($event)"></app-files-tags-input>
 
 </div>
 

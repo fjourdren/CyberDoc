@@ -8,15 +8,15 @@ import HttpCodes from "../helpers/HttpCodes";
 
 class TagService {
     // create a tag
-    public static async create(user: IUser, name: string, color: string): Promise<ITag> {
+    public static async create(user: IUser, name: string, hexColor: string): Promise<ITag> {
         // check that both variable aren't null
         requireNonNull(name);
-        requireNonNull(color);
+        requireNonNull(hexColor);
 
         // create tag object
         const newTag: ITag = new Tag();
         newTag.name  = name;
-        newTag.color = color;
+        newTag.hexColor = hexColor;
 
         // add tag to user
         user.tags.push(newTag);
