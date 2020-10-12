@@ -77,6 +77,7 @@ import { FilesCreateTagDialogComponent } from './components/files/files-create-t
 import { FilesFilterDialogComponent } from './components/files/files-filter-dialog/files-filter-dialog.component';
 import { FilesFilterToolbarComponent } from './components/files/files-filter-toolbar/files-filter-toolbar.component';
 import { SettingsMainToolbarComponent } from './components/settings/settings-main-toolbar/settings-main-toolbar.component';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
@@ -159,11 +160,8 @@ const SETTINGS_COMPONENTS = [
     MatProgressSpinnerModule,
     MatChipsModule,
     MatAutocompleteModule,
-<<<<<<< HEAD
     MatSelectModule,
-=======
     MatExpansionModule,
->>>>>>> cd03_TwoFactorAuth_Front
     NgxFilesizeModule,
     NgResizeObserverPonyfillModule,
     LayoutModule,
