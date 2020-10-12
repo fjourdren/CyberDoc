@@ -32,6 +32,7 @@
     "@ngx-translate/http-loader": "^6.0.0",
     "classlist.js": "^1.1.20150312",
     "ng-resize-observer": "^1.0.1",
+    "ngx-cookie-service": "^10.1.1",
     "ngx-filesize": "^2.0.16",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",

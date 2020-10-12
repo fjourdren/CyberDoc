@@ -18,9 +18,11 @@ class FileController {
             const { name, mimetype, folderID, preview } = req.body;
             let upfile = null;
             let file: Express.Multer.File;
-            for (file of (req.files as Express.Multer.File[])) {
-                if (file.fieldname === "upfile") {
-                    upfile = file;
+            if (req.files) {
+                for (file of (req.files as Express.Multer.File[])) {
+                    if (file.fieldname === "upfile") {
+                        upfile = file;
+                    }
                 }
             }
 
@@ -31,8 +33,8 @@ class FileController {
             // build IFile
             const fileToSave: IFile = new File();
 
-            
-    
+
+
             // if file is a Directory
             if (mimetype == "application/x-dir") {
                 fileToSave.type = FileType.DIRECTORY;
@@ -40,7 +42,7 @@ class FileController {
                 requireIsNull(upfile);
 
                 // check that preview isn't turning on on a directory
-                if(preview)
+                if (preview)
                     throw new HTTPError(HttpCodes.BAD_REQUEST, "You can't turn on preview on a directory.");
 
                 // force preview value to false
@@ -49,7 +51,7 @@ class FileController {
                 fileToSave.type = FileType.DOCUMENT;
                 requireNonNull(upfile);
 
-                if(preview)
+                if (preview)
                     fileToSave.preview = preview;
             }
 
@@ -72,9 +74,9 @@ class FileController {
                 fileToSave.mimetype = "application/x-dir";
                 out = await FileService.createDirectory(fileToSave);
             } else {
-                if(upfile == undefined)
+                if (upfile == undefined)
                     throw new HTTPError(HttpCodes.BAD_REQUEST, "upfile empty");
-        
+
                 out = await FileService.createDocument(fileToSave, fileToSave.name, mimetype, upfile.buffer);
             }
 
@@ -167,7 +169,8 @@ class FileController {
                             "mimetype": fileInDir.mimetype,
                             "size": gridfsInformation.length,
                             "updated_at": fileInDir.updated_at,
-                            "created_at": fileInDir.created_at
+                            "created_at": fileInDir.created_at,
+                            "tags": fileInDir.tags
                         });
                     } else { // if it's a directory
                         directoryContentOutput.push({
@@ -176,7 +179,8 @@ class FileController {
                             "ownerName": ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
                             "mimetype": "application/x-dir",
                             "updated_at": fileInDir.updated_at,
-                            "created_at": fileInDir.created_at
+                            "created_at": fileInDir.created_at,
+                            "tags": fileInDir.tags
                         });
                     }
                 }
@@ -194,7 +198,8 @@ class FileController {
                         "name": file.name,
                         "mimetype": "application/x-dir",
                         "path": pathsOutput,
-                        "directoryContent": directoryContentOutput
+                        "directoryContent": directoryContentOutput,
+                        "tags": file.tags
                     }
                 });
 
@@ -214,7 +219,8 @@ class FileController {
                         "mimetype": file.mimetype,
                         "size": gridFsFileInfos.length,
                         "updated_at": file.updated_at,
-                        "created_at": file.updated_at
+                        "created_at": file.updated_at,
+                        "tags": file.tags
                     }
                 });
             }
@@ -230,9 +236,11 @@ class FileController {
             // prepare vars
             let upfile = null;
             let expressfile: Express.Multer.File;
-            for (expressfile of (req.files as Express.Multer.File[])) {
-                if (expressfile.fieldname === "upfile") {
-                    upfile = expressfile;
+            if (req.files) {
+                for (expressfile of (req.files as Express.Multer.File[])) {
+                    if (expressfile.fieldname === "upfile") {
+                        upfile = expressfile;
+                    }
                 }
             }
 
@@ -254,9 +262,9 @@ class FileController {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "File need to be a document");
 
             // update content in gridfs
-            if(upfile == undefined)
+            if (upfile == undefined)
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "upfile empty");
-        
+
             await FileService.updateContentDocument(file, upfile.buffer);
 
             // reply to client
@@ -287,14 +295,14 @@ class FileController {
                 throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
 
             // modify vars
-            if(name != undefined)
+            if (name != undefined)
                 file.name = name;
-            if(directoryID != undefined)
+            if (directoryID != undefined)
                 file.parent_file_id = directoryID;
-            if(preview != undefined) {
-                if(file.type == FileType.DIRECTORY) {
+            if (preview != undefined) {
+                if (file.type == FileType.DIRECTORY) {
                     // check that preview isn't turning on on a directory
-                    if(preview)
+                    if (preview)
                         throw new HTTPError(HttpCodes.BAD_REQUEST, "You can't turn on preview on a directory.");
 
                     file.preview = false;
@@ -409,7 +417,7 @@ class FileController {
                 throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
 
             // check that preview is enable & available on that file
-            if(!file.preview) {
+            if (!file.preview) {
                 throw new HTTPError(HttpCodes.FORBIDDEN, "Preview feature needs to be enable on the file")
             }
 

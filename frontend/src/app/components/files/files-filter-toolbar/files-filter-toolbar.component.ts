@@ -23,8 +23,8 @@ export class FilesFilterToolbarComponent {
     this._searchParams = val;
 
     this.tags = [];
-    for (const tag of this.userServiceProvider.default().getActiveUser().fileTags) {
-      if (val.tagIDs.indexOf(tag.id) !== -1) {
+    for (const tag of this.userServiceProvider.default().getActiveUser().tags) {
+      if (val.tagIDs.indexOf(tag._id) !== -1) {
         this.tags.push(tag);
       }
     }

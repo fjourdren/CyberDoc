@@ -31,8 +31,6 @@ class ErrorCatcherMiddleware {
             success: false,
             msg: httpmessage
         });
-
-        next();
     }
 
 }

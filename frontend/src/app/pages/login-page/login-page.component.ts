@@ -44,7 +44,7 @@ export class LoginPageComponent {
       this.loginForm.get("email").enable();
       this.loginForm.get("password").enable();
   
-      if (error instanceof HttpErrorResponse && error.status == 404) {
+      if (error instanceof HttpErrorResponse && error.status == 401) {
         this.wrongCredentialError = true;
       } else {
         this.genericError = true;

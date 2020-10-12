@@ -25,7 +25,7 @@ export interface FileSystem {
     getExportURL(node: CloudNode): string;
     getFilePreviewImageURL(node: CloudNode): string;
 
-    startFileUpload(fileBlob: Blob, destination: CloudDirectory): void;
+    startFileUpload(file: File, destination: CloudDirectory): void;
     cancelFileUpload(): void;
     getCurrentFileUpload(): Observable<Upload>;
 

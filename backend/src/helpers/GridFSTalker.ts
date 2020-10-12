@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import MongoClient, { ObjectID, GridFSBucket } from 'mongodb'
 import { Readable } from 'stream';
+import streamToPromise from 'stream-to-promise';
 
 import HTTPError from './HTTPError';
 import HttpCodes from './HttpCodes';
@@ -53,7 +54,7 @@ class GridFSTalker {
     }
 
     // create a file in gridfs
-    public static create(filename: string, contentType: string, readableStream: Readable): string {
+    public static async create(filename: string, contentType: string, readableStream: Readable): Promise<string> {
         const bukket: GridFSBucket = GridFSTalker.getBucket();
 
         // create the wrinting stream
@@ -62,11 +63,14 @@ class GridFSTalker {
         // push stream into the writing stream
         readableStream.pipe(writeStream);
 
-        return writeStream.id.toString();
+        return Promise.all([
+            streamToPromise(readableStream),
+            streamToPromise(writeStream)
+        ]).then(() => writeStream.id.toString());
     }
 
     // update a file in gridfs
-    public static update(id: ObjectID, filename: string, contentType: string, readableStream: Readable): string {
+    public static async update(id: ObjectID, filename: string, contentType: string, readableStream: Readable): Promise<string> {
         const bukket: GridFSBucket = GridFSTalker.getBucket();
 
         // first delete old bucket
@@ -82,7 +86,10 @@ class GridFSTalker {
         // push stream into the writing stream
         readableStream.pipe(writeStream);
 
-        return writeStream.id.toString();
+        return Promise.all([
+            streamToPromise(readableStream),
+            streamToPromise(writeStream)
+        ]).then(() => writeStream.id.toString());
     }
 
     // delete a file from the gridfs storage
