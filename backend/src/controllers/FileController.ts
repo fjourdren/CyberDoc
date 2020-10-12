@@ -8,7 +8,6 @@ import FileService from '../services/FileService';
 import { IFile, File, FileType } from "../models/File";
 import { IUser, User } from "../models/User";
 import HTTPError from '../helpers/HTTPError';
-import { Readable } from 'stream';
 
 class FileController {
     // upload a new file controller
@@ -16,7 +15,7 @@ class FileController {
         try {
             // prepare vars
             const user_id = res.locals.APP_JWT_TOKEN.user._id;
-            const { name, mimetype, folderID } = req.body;
+            const { name, mimetype, folderID, preview } = req.body;
             let upfile = null;
             let file: Express.Multer.File;
             for (file of (req.files as Express.Multer.File[])) {
@@ -32,13 +31,26 @@ class FileController {
             // build IFile
             const fileToSave: IFile = new File();
 
+            
+    
             // if file is a Directory
             if (mimetype == "application/x-dir") {
                 fileToSave.type = FileType.DIRECTORY;
+
                 requireIsNull(upfile);
+
+                // check that preview isn't turning on on a directory
+                if(preview)
+                    throw new HTTPError(HttpCodes.BAD_REQUEST, "You can't turn on preview on a directory.");
+
+                // force preview value to false
+                fileToSave.preview = false;
             } else { // otherwise file is a document
                 fileToSave.type = FileType.DOCUMENT;
                 requireNonNull(upfile);
+
+                if(preview)
+                    fileToSave.preview = preview;
             }
 
             fileToSave.mimetype = mimetype;
@@ -60,8 +72,12 @@ class FileController {
                 fileToSave.mimetype = "application/x-dir";
                 out = await FileService.createDirectory(fileToSave);
             } else {
-                out = await FileService.createDocument(fileToSave, fileToSave.name, mimetype, Readable.from(upfile?.buffer as any));
+                if(upfile == undefined)
+                    throw new HTTPError(HttpCodes.BAD_REQUEST, "upfile empty");
+        
+                out = await FileService.createDocument(fileToSave, fileToSave.name, mimetype, upfile.buffer);
             }
+
             // reply to client
             res.status(HttpCodes.OK);
             res.json({
@@ -238,7 +254,10 @@ class FileController {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "File need to be a document");
 
             // update content in gridfs
-            await FileService.updateContentDocument(file, Readable.from(upfile?.buffer as any));
+            if(upfile == undefined)
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "upfile empty");
+        
+            await FileService.updateContentDocument(file, upfile.buffer);
 
             // reply to client
             res.status(HttpCodes.OK);
@@ -256,7 +275,7 @@ class FileController {
     public static async edit(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             // prepare vars
-            const { name, directoryID } = req.body;
+            const { name, directoryID, preview } = req.body;
             const user_id = res.locals.APP_JWT_TOKEN.user._id;
             const fileId = req.params.fileId;
 
@@ -268,11 +287,21 @@ class FileController {
                 throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
 
             // modify vars
-            if (name != undefined)
+            if(name != undefined)
                 file.name = name;
-            if (directoryID != undefined)
+            if(directoryID != undefined)
                 file.parent_file_id = directoryID;
+            if(preview != undefined) {
+                if(file.type == FileType.DIRECTORY) {
+                    // check that preview isn't turning on on a directory
+                    if(preview)
+                        throw new HTTPError(HttpCodes.BAD_REQUEST, "You can't turn on preview on a directory.");
 
+                    file.preview = false;
+                } else {
+                    file.preview = preview;
+                }
+            }
             // save
             if (file.type == FileType.DIRECTORY)
                 await FileService.editDirectory(file);
@@ -363,11 +392,70 @@ class FileController {
 
 
     // ask to generate a preview of a file controller
-    /*public static preview(req: Request, res: Response) {
-        // if user is owner or have access
+    public static async preview(req: Request, res: Response, next: NextFunction) {
+        try {
+            // prepare vars
+            const user_id = res.locals.APP_JWT_TOKEN.user._id;
+            const file_id = req.params.fileId;
 
-        // TODO
-    }*/
+            // check that file_id isn't null
+            requireNonNull(file_id);
+
+            // find file
+            const file: IFile = requireNonNull(await File.findById(file_id).exec());
+
+            // check that user is owner
+            if (file.owner_id != user_id)
+                throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
+
+            // check that preview is enable & available on that file
+            if(!file.preview) {
+                throw new HTTPError(HttpCodes.FORBIDDEN, "Preview feature needs to be enable on the file")
+            }
+
+            // get preview
+            const previewImg: any = await FileService.generatePreview(file);
+
+            // reply to user
+            res.set('Content-Type', 'image/png');
+            res.set('Content-Disposition', 'attachment; filename="' + file.name + '"');
+
+            previewImg.pipe(res);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+
+    // generate file pdf
+    public static async exportPDF(req: Request, res: Response, next: NextFunction) {
+        try {
+            // prepare vars
+            const user_id = res.locals.APP_JWT_TOKEN.user._id;
+            const file_id = req.params.fileId;
+
+            // check that file_id isn't null
+            requireNonNull(file_id);
+
+            // find file
+            const file: IFile = requireNonNull(await File.findById(file_id).exec());
+
+            // check that user is owner
+            if (file.owner_id != user_id)
+                throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
+
+            // get preview
+            const pdfStream: any = await FileService.generatePDF(file);
+
+            // reply to user
+            res.set('Content-Type', 'application/pdf');
+            res.set('Content-Disposition', 'attachment; filename="' + file.name + '.pdf"');
+
+            pdfStream.pipe(res);
+        } catch (err) {
+            next(err);
+        }
+    }
 
 
     // start downloading a file controller
@@ -390,7 +478,7 @@ class FileController {
 
             // start the download
             res.set('Content-Type', documentGridFs.infos.contentType);
-            res.set('Content-Disposition', 'attachment; filename="' + documentGridFs.infos.filename + '"');
+            res.set('Content-Disposition', 'attachment; filename="' + file.name + '"');
 
             documentGridFs.stream.pipe(res);
         } catch (err) {

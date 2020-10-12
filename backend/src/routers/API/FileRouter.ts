@@ -17,7 +17,8 @@ FileRouter.delete('/:fileId', AuthMiddleware.isAuthenticate, FileController.dele
 
 FileRouter.post('/:fileId/copy', AuthMiddleware.isAuthenticate, FileController.copy);
 
-//FileRouter.get('/:fileId/preview', AuthMiddleware.isAuthenticate, FileController.preview);
+FileRouter.get('/:fileId/preview', AuthMiddleware.isAuthenticate, FileController.preview);
+FileRouter.get('/:fileId/exportPDF', AuthMiddleware.isAuthenticate, FileController.exportPDF);
 FileRouter.get('/:fileId/download', AuthMiddleware.isAuthenticate, FileController.download);
 
 // tag management
