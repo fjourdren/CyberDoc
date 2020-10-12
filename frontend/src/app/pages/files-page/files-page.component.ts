@@ -83,10 +83,10 @@ export class FilesPageComponent implements AfterViewInit {
             let currentDirectoryID: string;
             if (val.has("dirID")) {
               currentDirectoryID = val.get("dirID");
+              this.refresh(currentDirectoryID);
             } else {
-              currentDirectoryID = this.userServiceProvider.default().getActiveUser().rootDirectoryID;
+              this.router.navigate(['/files', this.userServiceProvider.default().getActiveUser().directory_id]);
             }
-            this.refresh(currentDirectoryID);
           }
         });
 
