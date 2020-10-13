@@ -133,7 +133,7 @@ export class RealFileSystem implements FileSystem {
     startFileUpload(file: File, destination: CloudDirectory): void {
         const formData = new FormData();
         formData.append("folderID", destination.id);
-        formData.append("mimetype", file.type);
+        formData.append("mimetype", file.type || "application/octet-stream");
         formData.append("name", file.name);
         formData.append("upfile", file);
 
