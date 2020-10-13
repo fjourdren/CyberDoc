@@ -2,7 +2,7 @@ import sgMail from '@sendgrid/mail';
 
 class Mailler {
 
-    public static async sendEmailFromArray(msg: sgMail.MailDataRequired[]) {
+    public static async sendEmailFromArray(msg: sgMail.MailDataRequired[]): Promise<void> {
         sgMail.setApiKey(process.env.SONARQUBE_TOKEN);
         await sgMail.send(msg);
     }
@@ -17,7 +17,7 @@ class Mailler {
             html: html
         }
     
-        await Mailler.sendEmailFromArray(msg)
+        await Mailler.sendEmailFromArray(msg);
     }
 
 
@@ -30,7 +30,7 @@ class Mailler {
             dynamicTemplateData: dynamicTemplateData
         }
     
-        await Mailler.sendEmailFromArray(msg)
+        await Mailler.sendEmailFromArray(msg);
     }
 
 }

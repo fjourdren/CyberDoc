@@ -8,7 +8,7 @@ class AuthMiddleware {
     public static isAuthenticate(req: Request, res: Response, next: NextFunction): void {
         try {
             // if user is disconnected, we send an error
-            if(res.locals.APP_JWT_TOKEN != undefined && res.locals.user.APP_JWT_TOKEN != undefined) {
+            if(res.locals.APP_JWT_TOKEN != undefined && res.locals.APP_JWT_TOKEN.user != undefined) {
                 // otherwise we continue the route execution
                 next();
             } else {
@@ -23,7 +23,7 @@ class AuthMiddleware {
     public static isntAuthenticate(req: Request, res: Response, next: NextFunction): void {
         try {
             // if user is connected, we send an error
-            if(res.locals.APP_JWT_TOKEN == undefined || res.locals.user.APP_JWT_TOKEN.user == undefined) {
+            if(res.locals.APP_JWT_TOKEN == undefined || res.locals.APP_JWT_TOKEN.user == undefined) {
                 // otherwise we continue the route execution
                 next();
             } else {
@@ -39,7 +39,7 @@ class AuthMiddleware {
     public static isAuthenticateOrEditToken(req: Request, res: Response, next: NextFunction): void {
         try {
             // if user is disconnected, we send an error
-            if(res.locals.APP_JWT_TOKEN != undefined && res.locals.user.APP_JWT_TOKEN != undefined) {
+            if(res.locals.APP_JWT_TOKEN != undefined && res.locals.APP_JWT_TOKEN.user != undefined) {
                 // otherwise we continue the route execution
                 next();
             } else {
