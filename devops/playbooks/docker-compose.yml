@@ -64,53 +64,16 @@ services:
       - "traefik.http.routers.sonarquberouter.rule=Host(`sonarqube.fulgen.fr`)"
       - "traefik.http.services.sonarqubeservice.loadbalancer.server.port=9000" 
 
-  #redoc:
-  #  image: redocly/redoc
-  #  restart: always
-  #  volumes:
-  #    - /etc/redoc/swagger.yml:/usr/share/nginx/html/swagger.yaml 
-  #  labels:
-  #    - "traefik.enable=true"
-  #    - "traefik.http.routers.redocrouter.rule=Host(`redoc.fulgen.fr`)"
-  #    - "traefik.http.services.redocservice.loadbalancer.server.port=80" 
-  
-  ### soon swagger
-  #swagger:
-  #  image: swaggerapi/swagger-ui
-  #  volumes:
-  #    - /etc/swagger/swagger.yml:/app/swagger.json 
-  #  labels:
-  #    - "traefik.enable=true"
-  #    - "traefik.http.routers.swaggerrouter.rule=Host(`swagger.fulgen.fr`)"
-  #    - "traefik.http.services.swaggerservice.loadbalancer.server.port=8080" 
-
   mongodb:
     image: mongo
     restart: always
-    # environnement, login and password
+    # EXAMPLE
+    #environment:
+    #  MONGO_INITDB_ROOT_USERNAME: login
+    #  MONGO_INITDB_ROOT_PASSWORD: password
     labels:
       - "traefik.enable=true"
       # ONLY IF FRONT SERVICES ON IT - ONLY FOR DEV
       #- "traefik.http.routers.mongodbrouter.rule=Host(`mongodb.fulgen.fr`)"
       #- "traefik.http.services.mongodb.loadbalancer.server.port=27017" 
-
-  rabbitmq:
-    image: 'docker.io/bitnami/rabbitmq:3.8-debian-10'
-    restart: always
-    #volumes:
-    #  - '/etc/rabbitmq:/bitnami'
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.rabbitmqrouter.rule=Host(`rabbitmq.fulgen.fr`)"
-      # ONLY IF FRONT SERVICES ON IT - ONLY FOR DEV
-      #- "traefik.http.services.redocservice.loadbalancer.server.port=80" 
-
-  mercure:
-    image: dunglas/mercure
-    restart: always
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.mercurerouter.rule=Host(`mercure.fulgen.fr`)"
-      # ONLY IF FRONT SERVICES ON IT - ONLY FOR DEV
-      #- "traefik.http.services.mercurerouter.loadbalancer.server.port=80" 
 
