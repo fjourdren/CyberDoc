@@ -142,9 +142,9 @@ export class MockFileSystem implements FileSystem {
         }));
     }
 
-    copy(node: CloudNode, fileName: string, destination: CloudDirectory): Observable<void> {
+    copy(file: CloudFile, fileName: string, destination: CloudDirectory): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            this._copyInternal(node.id, fileName, destination.id);
+            this._copyInternal(file.id, fileName, destination.id);
             this._save();
         }));
     }
