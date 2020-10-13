@@ -186,6 +186,12 @@ export class MockFileSystem implements FileSystem {
         }));
     }
 
+    share(fileID: String, email: string, state:String): Observable<void>{
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            this._save();
+        }));
+    }
+
     private _ensureFileExists(fileID: string, onlyDirectory: boolean = null) {
         if (!this.filesMap.has(fileID)) {
             throw new HttpErrorResponse({
