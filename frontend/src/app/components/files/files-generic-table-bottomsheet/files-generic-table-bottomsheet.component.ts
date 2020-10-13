@@ -33,7 +33,7 @@ export class FilesGenericTableBottomsheetComponent {
   }
 
   isCopyAvailable(node: CloudNode): boolean {
-    return !this.data.readonlyMode && node.isDirectory;
+    return !this.data.readonlyMode && !node.isDirectory;
   }
 
   isPDFExportAvailable(node: CloudNode): boolean {
