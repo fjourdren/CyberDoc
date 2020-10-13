@@ -39,7 +39,7 @@ class AuthMiddleware {
     public static isAuthenticateOrEditToken(req: Request, res: Response, next: NextFunction): void {
         try {
             // if user is disconnected, we send an error
-            if(res.locals.APP_JWT_TOKEN != undefined && res.locals.APP_JWT_TOKEN.user != undefined) {
+            if(res.locals.APP_JWT_TOKEN != undefined && (res.locals.APP_JWT_TOKEN.user != undefined || res.locals.APP_JWT_TOKEN.email != undefined)) {
                 // otherwise we continue the route execution
                 next();
             } else {

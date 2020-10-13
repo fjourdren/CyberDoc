@@ -67,8 +67,9 @@ class AuthService {
         });
 
         const url: string = process.env.APP_FRONTEND_URL + "/forgottenpassword?token=" + token;
-
-        Mailler.sendTemplateEmail(email, process.env.APP_MAIL_FROM, "TEMPLATEID", { url: url })
+        
+        //await Mailler.sendTextEmail(email, process.env.SENDGRID_MAIL_FROM, "hello", "hello", "hello");
+        await Mailler.sendTemplateEmail(email, process.env.SENDGRID_MAIL_FROM, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, { url: url });
     }
 
     // validate that the token is correct

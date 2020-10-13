@@ -1,9 +1,10 @@
 import sgMail from '@sendgrid/mail';
+import { cpuUsage } from 'process';
 
 class Mailler {
 
     public static async sendEmailFromArray(msg: sgMail.MailDataRequired[]): Promise<void> {
-        sgMail.setApiKey(process.env.SONARQUBE_TOKEN);
+        sgMail.setApiKey(process.env.SENDGRID_API_KEY);
         await sgMail.send(msg);
     }
 
@@ -22,14 +23,14 @@ class Mailler {
 
 
     // send Transactional email
-    public static async sendTemplateEmail(to: string, from: string, templateId: string, dynamicTemplateData: Record<string, string>): Promise<void> {
+    public static async sendTemplateEmail(to: string, from: string, templateId: string, dynamicTemplateData: any): Promise<void> {      
         const msg: any = {
             to: to,
             from: from,
             templateId: templateId,
             dynamicTemplateData: dynamicTemplateData
-        }
-    
+        };
+
         await Mailler.sendEmailFromArray(msg);
     }
 
