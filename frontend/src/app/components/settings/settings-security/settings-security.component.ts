@@ -4,6 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { MustMatch } from './_helpers/must-match.validator';
 import { MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { TwoFactorServiceProvider } from 'src/app/services/twofactor/twofactor-service-provider';
 
 export interface DialogData {
   qrCodeUrl: string;
@@ -30,22 +31,29 @@ export class SettingsSecurityComponent implements OnInit {
   qrCodeUrl: string;
   phoneNumber: string;
   email: string;
+  authy_id: string;
 
-  constructor(private userServiceProvider: UserServiceProvider, private fb: FormBuilder, private snackBar: MatSnackBar, private dialog: MatDialog) { }
+  constructor(private userServiceProvider: UserServiceProvider, 
+    private twoFactorServiceProvider: TwoFactorServiceProvider,
+    private fb: FormBuilder, private snackBar: MatSnackBar, private dialog: MatDialog) { }
 
   passwordStrength = '(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&].{8,}';
   
   ngOnInit() {
+    this.email = this.userServiceProvider.default().getActiveUser().email;
+    this.phoneNumber = this.userServiceProvider.default().getActiveUser().phone_number;
+    this.authy_id = this.userServiceProvider.default().getActiveUser().authy_id;
+
     this.passwordForm = this.fb.group({
       oldPassword: ['', Validators.required],
       newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern(this.passwordStrength)]],
       newPasswordConfirmation: ['', [Validators.required, Validators.minLength(8), Validators.pattern(this.passwordStrength)]],
-      email: [this.userServiceProvider.default().getActiveUser().email, Validators.required]
+      email: [this.email, Validators.required]
     }, {
       validator: MustMatch('newPassword', 'newPasswordConfirmation')
     });
 
-    this.dialogConfig = new MatDialogConfig();
+    this.dialogConfig = new MatDialogConfig(); 
   }
 
   get f() { return this.passwordForm.controls; }
@@ -88,24 +96,21 @@ export class SettingsSecurityComponent implements OnInit {
   }
 
   // Dialogs
-  openDialogQrCode(): void {
+  openDialog(type: string): void {
+    switch(type) {
+      case 'email':
+        console.log('email');
+        break;
+      case 'sms':
+        console.log('sms');
+        break;
+    }
     this.dialog.open(SettingsSecurityDialogComponent, {
       width: '500px',
-      data: { qrCodeUrl: this.qrCodeUrl }
-    });
-  }
-
-  openDialogSms(): void {
-    this.dialog.open(SettingsSecurityDialogComponent, {
-      width: '500px',
-      data: { phoneNumber: this.phoneNumber }
-    });
-  }
-
-  openDialogEmail(): void {
-    this.dialog.open(SettingsSecurityDialogComponent, {
-      width: '500px',
-      data: { email: this.email }
+      data: {
+        qrCodeUrl: type == 'app' ? this.twoFactorServiceProvider.default().qrCode(this.email, this.authy_id) : null,
+        email: type == 'email' ? this.email : null,
+        phoneNumber: type =='sms' ? this.phoneNumber : null }
     });
   }
 }
@@ -123,7 +128,7 @@ export class SettingsSecurityDialogComponent {
 
   ngOnInit() {
     this.tokenForm = this.fb.group({
-      token: [null, [Validators.required, Validators.minLength(7), Validators.maxLength(7)]]
+      token: [null, [Validators.required, Validators.pattern('[0-9]{7}'), Validators.minLength(7), Validators.maxLength(7)]]
     });
   }
   onNoClick(): void {
@@ -133,4 +138,6 @@ export class SettingsSecurityDialogComponent {
   onSubmitToken() {
     console.warn(this.tokenForm.value);
   }
+
+  get f() { return this.tokenForm.controls; }
 }

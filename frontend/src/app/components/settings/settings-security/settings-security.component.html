@@ -53,15 +53,15 @@
 				<mat-list>
                     <mat-list-item>
 						<button mat-flat-button color="success">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
-                        <button mat-raised-button color="primary" (click)="openDialogQrCode()">Disable 2FA with Apps</button>
+                        <button mat-raised-button color="primary" (click)="openDialog('app')">Disable 2FA with Apps</button>
                     </mat-list-item>
                     <mat-list-item>
 						<button mat-flat-button color="warn">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
-                        <button mat-raised-button color="primary" (click)="openDialogSms()">Enable 2FA sent by SMS</button>
+                        <button mat-raised-button color="primary" (click)="openDialog('sms')">Enable 2FA sent by SMS</button>
                     </mat-list-item>
                     <mat-list-item>
 						<button mat-flat-button color="warn">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
-                        <button mat-raised-button color="primary" (click)="openDialogEmail()">Enable 2FA sent by emails</button>
+                        <button mat-raised-button color="primary" (click)="openDialog('email')">Enable 2FA sent by emails</button>
                     </mat-list-item>
                 </mat-list>
 			</mat-expansion-panel>
