@@ -114,7 +114,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   isCopyAvailable(node: CloudNode): boolean {
-    return !this.isReadOnly(node) && node.isDirectory;
+    return !this.isReadOnly(node) && !node.isDirectory;
   }
 
   isPDFExportAvailable(node: CloudNode): boolean {
