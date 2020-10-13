@@ -1,0 +1,25 @@
+FROM node:alpine
+
+RUN npm install -g redoc-cli
+
+WORKDIR /data
+
+ADD swagger.yml ./swagger.yml
+
+RUN redoc-cli bundle ./swagger.yml
+
+FROM nginx
+
+COPY --from=0 /data/redoc-static.html /usr/share/nginx/html/index.html
+
+
+
+
+
+
+#sudo docker build --file /home/centos/workspace/test/devops/docker_redoc/dockerfile --tag redoc .
+#sudo docker run --rm --name redoc -v /etc/redoc:/data --label-file /home/centos/workspace/test/devops/docker_redoc/labels redoc bundle /data/swagger.yml
+
+#sudo docker run -d --name redoc -v /etc/redoc:/data  serve /data/swagger.yml
+
+#sudo docker run -d --name redoc --label-file /home/centos/workspace/test/devops/docker_redoc/labels redoc
