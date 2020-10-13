@@ -6,4 +6,4 @@ npm install
 echo "MOVING TO  /opt/frontend"
 cd /opt/frontend
 echo "BUILDING APP FROM " PWD
-ng build
+ng build --configuration=vps
