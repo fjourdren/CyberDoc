@@ -32,7 +32,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'file.modified' | translate }} </th>
         <td class="date-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
             (dblclick)="onDoubleClick(element)" (touchstart)="onTouchStart(element)">
-            {{element.lastModified ? (element.lastModified | date) : '—'}} </td>
+            {{element.updated_at ? (element.updated_at | date) : '—'}} </td>
     </ng-container>
 
     <ng-container matColumnDef="menubutton">
