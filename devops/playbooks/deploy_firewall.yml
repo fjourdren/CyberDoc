@@ -1,0 +1,153 @@
+## memo pour afficher les ports de firewalld : firewall-cmd --zone=internal --list-all
+
+- hosts: glvps
+  name: firewalld rules
+  gather_facts: false
+  #privilege root
+  #become_user: centos
+  become_method: sudo
+  become: yes
+  tasks:
+
+  - name: install iptables
+    yum:
+      name: iptables
+      state: latest
+
+  - name: install firewalld
+    yum:
+      name: firewalld
+      state: latest
+  
+  - name: restart firewalld service
+    systemd: 
+      name: firewalld.service
+      state: started
+
+  - name: enable firewalld service
+    systemd:
+      name: firewalld.service
+      enabled: yes
+      masked: no
+
+  # Configuration du firewall
+  - name: firewall-cmd --permanent --zone=trusted --change-interface=docker0
+    firewalld:
+      zone: trusted
+      interface: docker0
+      permanent: yes
+      state: enabled
+
+  # pour docker
+  #- name: firewall-cmd --permanent --zone=trusted --add-port=4243/tcp
+  #  firewalld:
+  #    port: 4243/tcp
+  #    permanent: yes
+  #    state: enabled
+
+  # port web
+  - name: firewall-cmd --zone=public --add-port=80/tcp
+    firewalld:
+      zone: public
+      port: 80/tcp
+      permanent: yes
+      state: enabled
+
+  # port docker : pour la connexion de jenkins au docker slave
+  - name: firewall-cmd --zone=public --add-port=4243/tcp
+    firewalld:
+      zone: public
+      port: 4342/tcp
+      permanent: yes
+      state: enabled
+
+  # pour le debug de traefik
+  - name: firewall-cmd --zone=public --add-port=8080/tcp
+    firewalld:
+      zone: public
+      port: 8080/tcp
+      permanent: yes
+      state: enabled
+
+   # port secureweb https
+  - name: firewall-cmd --zone=public --add-port=443/tcp
+    firewalld:
+      zone: public
+      port: 443/tcp
+      permanent: yes
+      state: enabled
+
+   # port pour mongodb
+  #- name: firewall-cmd --zone=public --add-port=27017/tcp
+  #  firewalld:
+  #    zone: public
+  #    port: 27017/tcp
+  #    permanent: yes
+  #    state: enabled
+  
+  # debug sonarqube
+  #- name: firewall-cmd --zone=public --add-port=50000/tcp
+  #  firewalld:
+  #    port: 50000/tcp
+  #    permanent: yes
+  #    state: enabled
+  
+  # sonarqube
+  #- name: firewall-cmd --zone=public --add-port=9000/tcp
+  #  firewalld:
+  #    port: 9000/tcp
+  #    permanent: yes
+  #    state: enabled
+
+  # squid proxy for jenkins
+  - name: installation de squid
+    yum:
+      name: squid
+      state: latest
+
+  - name: deploy squid configuration
+    template:
+      src: /etc/ansible/playbooks/squid.conf
+      dest: /etc/squid/squid.conf
+      owner: root
+      group: squid
+      mode: 0640
+      backup: yes
+
+  # proxy port in the case we want to be more protective
+  - name: firewall-cmd --zone=public  --add-port=3128/tcp
+    firewalld:
+      zone: public
+      port: 3128/tcp
+      permanent: yes
+      state: enabled
+
+  - name: enable squid service
+    systemd:
+      name: squid.service
+      enabled: yes
+      masked: no
+
+  - name: restart squid service
+    systemd: 
+      name: squid.service
+      state: started
+
+  #firewall-cmd --reload
+  - name: reload firewalld
+    systemd: 
+      name: firewalld.service
+      state: reloaded   
+
+
+
+
+# pour se connecter au docker slave
+# generate private key
+#openssl genrsa -out private.pem 2048
+# generate cert.pem -> public key
+#openssl req -new -x509 -sha256 -key private.pem -out cert.pem -days 1095
+# generate pkcs12 certificate
+#openssl pkcs12 -export -out certificate.pfx -inkey private.pem -in cert.pem 
+
+#https://support.jumpcloud.com/support/s/article/generating-public-certificates-and-private-keys
