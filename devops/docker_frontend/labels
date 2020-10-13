@@ -1,0 +1,5 @@
+traefik.enable=true
+traefik.http.routers.nginxrouter.rule=Host(`cyberdoc.fulgen.fr`)
+traefik.http.services.nginxservice.loadbalancer.server.port=80
+
+
