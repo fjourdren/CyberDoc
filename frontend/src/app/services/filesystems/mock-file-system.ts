@@ -285,7 +285,7 @@ export class MockFileSystem implements FileSystem {
                 name: internalNode.name,
                 mimetype: internalNode.mimetype,
                 size: internalNode.size,
-                lastModified: new Date(),
+                updated_at: new Date(),
                 tags: internalNode.tags,
                 isDirectory: false
             } as CloudFile;
