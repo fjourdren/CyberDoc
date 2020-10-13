@@ -54,15 +54,13 @@ class AuthController {
             requireNonNull(email);
 
             // use try catch to not say to the user if an account exist with this email or not
-            try {
-                await AuthService.forgottenPassword(email);
-            } finally {
-                res.status(HttpCodes.OK);
-                res.json({
-                    success: true,
-                    msg: "An email to change your password has been sent"
-                });
-            }
+            await AuthService.forgottenPassword(email);
+
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "An email to change your password has been sent"
+            });
         } catch(err) {
             next(err);
         }
