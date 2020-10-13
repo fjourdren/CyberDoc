@@ -11,6 +11,10 @@ mat-form-field {
     color: #fff;
 }
 
+.mat-expansion-panel {
+    display: flex;
+    flex-direction: column;
+}
 .mat-flat-button {
     pointer-events: none;
     cursor: default;

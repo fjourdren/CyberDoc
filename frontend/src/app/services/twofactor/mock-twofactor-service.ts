@@ -11,5 +11,21 @@ const DELAY = 500;
 
 export class MockTwoFactorService implements TwoFactorService {
     constructor() {
+        
+    }
+
+    add(email: string, phone_number: string, country_code: string): Observable<any> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+        }));
+    }
+
+    delete(authy_id: string): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+        }));
+    }
+
+    qrCode(email: string, authy_id: string): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+        }));
     }
 }

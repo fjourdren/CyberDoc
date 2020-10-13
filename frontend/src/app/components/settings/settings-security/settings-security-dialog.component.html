@@ -1,15 +1,17 @@
-<h1 mat-dialog-title>Authenticate with an application</h1>
+<h1 mat-dialog-title>Verify 2FA</h1>
 <div mat-dialog-content>
-  <p>Scan this QR Code</p>
-  <img src={{data.qrCodeUrl}} alt="generatedQrCode" width="300" style="justify-content: center;" />
+  <p *ngIf="data.qrCodeUrl">Scan this QR Code</p>
+  <img *ngIf="data.qrCodeUrl" src={{data.qrCodeUrl}} alt="generatedQrCode" width="300" style="justify-content: center;" />
+  <p *ngIf="data.phoneNumber">An SMS has been sent to {{data.phoneNumber}}</p>
+  <p *ngIf="data.email">An email has been sent to {{data.email}}</p>
   <form [formGroup]="tokenForm" (ngSubmit)="onSubmitToken()" autocomplete="off">
     <mat-form-field>
       <mat-label>Enter your generated token</mat-label>
-      <input type="number" matInput formControlName="token">
+      <input matInput formControlName="token" required maxlength="7">
     </mat-form-field>
     <button mat-flat-button color="primary" type="submit" [disabled]="tokenForm.invalid">Verify my token</button>
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button cdkFocusInitial>Ok</button>
+  <button mat-button color="warn">Cancel</button>
 </div>
