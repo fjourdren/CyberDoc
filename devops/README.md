@@ -158,8 +158,8 @@ Configure the VPS as a node.
 
 Create the cyberdoc project on jenkins.
 
-
 Copy all lines of the file cyberdoc/devops/jenkins_build/jenkins.sh in the build sequence of jenkins.
+Don't forget to put credentials in the 
 
 ## Configure Sonarqube
 
