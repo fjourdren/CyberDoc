@@ -6,7 +6,6 @@ import HttpCodes from '../helpers/HttpCodes'
 import AuthService from '../services/AuthService';
 
 import IUser from '../models/User';
-import HTTPError from '../helpers/HTTPError';
 
 class AuthController {
 
@@ -48,7 +47,7 @@ class AuthController {
 
 
     // forgotten password controller
-    public static async forgottenPassword(req: Request, res: Response, next: NextFunction) {
+    public static async forgottenPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { email } = req.body;
 
