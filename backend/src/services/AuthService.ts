@@ -61,7 +61,7 @@ class AuthService {
     // forgotten password service
     public static async forgottenPassword(email: string): Promise<void> {
         requireNonNull(await User.findOne({ email: email }).exec());
-        
+
         const token: string = jwt.sign({ email }, process.env.JWT_SECRET, {
             expiresIn: 36000 // 10 hours
         });
