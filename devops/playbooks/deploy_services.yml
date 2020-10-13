@@ -40,25 +40,17 @@
       state: directory
       mode: '0777'
 
-  - name: create jenkins hot directory
-    file:
-      path: /etc/jenkins_work
-      state: directory
-      mode: '0777'
-
   - name: create sonarqube hot directory
     file:
       path: /etc/sonarqube
       state: directory
       mode: '0755'
 
-  - name: create rabbitmq hot directory
-    file:
-      path: /etc/rabbitmq
-      state: directory
-      mode: '0755'
+  - name: Pull swagger image
+    community.general.docker_image:
+      name: swaggerapi/swagger-ui
+      source: pull  
 
   - name: run playbook
     docker_compose:
       project_src: /etc/docker-compose-files/startup/
-      #state: present

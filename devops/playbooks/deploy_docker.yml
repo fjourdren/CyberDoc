@@ -1,51 +1,15 @@
-# avant ssh et ansible
-#   master: ssh-keygen -t rsa -C "name@example.org"
-#   master: ssh-copy-id user@child1.dev
-
 - hosts: glvps
   name: install docker 
   gather_facts: false
-  #privilege root
-  #become_user: centos
   become_method: sudo
   become: yes
   tasks:
-
-  ### à faire manuellement pour permettre la connectivité ssh
-  #- name: deploy resolv.conf template
-  #  template:
-  #    src: /etc/ansible/playbooks/deploy_resolv.conf
-  #    dest: /etc/resolv.conf
-  #    owner: root
-  #    group: root
-  #    mode: 0611
-  #    backup: yes
-
-  #- name: deploy sshd config template
-  #  template:
-  #    src: /etc/ansible/playbooks/deploy_sshd_config
-  #    dest: /etc/ssh/sshd_config
-  #    owner: root
-  #    group: root
-  #    mode: 0600
-  #    backup: yes
-  
-  #- name: reload sshd service
-  #  systemd: 
-  #    name: sshd.service
-  #    state: reloaded
 
   - name: install epel-release
     yum:
       name: epel-release
       state: latest
     become: yes
-
-  #fail2ban à voir plus tard
-  #- name: add fail2ban
-  #  yum:
-  #    name: fail2ban
-  #    state: latest
 
   - name: add Docker repo
     get_url:
@@ -72,11 +36,6 @@
   - name: install containerd.io >1.2.2
     command: sudo yum install -y https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
     
-  #- name: install containerd.io
-    #yum:
-      #name: https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
-      #state: present
-
   - name: install docker-ce-cli
     yum:
       name: docker-ce-cli
@@ -87,16 +46,10 @@
       name: docker-ce
       state: latest
   
-  # erreur à surveiller
-  # dependency failed for Docker Application Container Engine.
   - name: restart docker service
     systemd: 
       name: docker.service
       state: restarted
-
-  # si possible à éviter
-  #- name: restart docker
-  #  command: systemctl restart docker.service
   
   - name: enable docker service
     systemd:

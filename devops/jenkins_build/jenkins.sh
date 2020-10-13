@@ -21,6 +21,11 @@ sudo docker build --file $backendDir/dockerfile --tag backend .
 
 sudo cat /dev/null > $backend/.env.prod
 # .env.prod links and credentials
+sudo echo -e "APP_ENV=YOURS" >> $backend/.env.prod
+sudo echo -e "APP_PORT=YOURS" >> $backend/.env.prod
+sudo echo -e "JWT_SECRET=YOURS" >> $backend/.env.prod
+sudo echo -e "MONGODB_URL=YOURS" >> $backend/.env.prod
+sudo echo -e "FRONT_URL=http://cyberdoc.fulgen.fr" >> $backend/.env.prod
 
 sudo cat $backend/.env.prod
 sudo docker run -d --restart always --name backend -v $backend:/app -v $backendDir:/devops --label-file $backendDir/labels backend /devops/exec.sh
