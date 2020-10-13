@@ -7,6 +7,7 @@ import { MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA } from '@angu
 import { TwoFactorServiceProvider } from 'src/app/services/twofactor/twofactor-service-provider';
 
 export interface DialogData {
+  authy_id: string;
   qrCodeUrl: string;
   phoneNumber: string;
   email: string;
@@ -33,6 +34,10 @@ export class SettingsSecurityComponent implements OnInit {
   email: string;
   authy_id: string;
 
+  twoFactorApp: boolean;
+  twoFactorSms: boolean;
+  twoFactorEmail: boolean;
+
   constructor(private userServiceProvider: UserServiceProvider, 
     private twoFactorServiceProvider: TwoFactorServiceProvider,
     private fb: FormBuilder, private snackBar: MatSnackBar, private dialog: MatDialog) { }
@@ -43,7 +48,15 @@ export class SettingsSecurityComponent implements OnInit {
     this.email = this.userServiceProvider.default().getActiveUser().email;
     this.phoneNumber = this.userServiceProvider.default().getActiveUser().phone_number;
     this.authy_id = this.userServiceProvider.default().getActiveUser().authy_id;
-
+    this.twoFactorServiceProvider.default().isTwoFactorAppActivated().toPromise().then(res => {
+      this.twoFactorApp = res;
+    });
+    this.twoFactorServiceProvider.default().isTwoFactorSmsActivated().toPromise().then(res => {
+      this.twoFactorSms = res;
+    });
+    this.twoFactorServiceProvider.default().isTwoFactorEmailActivated().toPromise().then(res => {
+      this.twoFactorEmail = res;
+    });
     this.passwordForm = this.fb.group({
       oldPassword: ['', Validators.required],
       newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern(this.passwordStrength)]],
@@ -96,22 +109,36 @@ export class SettingsSecurityComponent implements OnInit {
   }
 
   // Dialogs
-  openDialog(type: string): void {
-    switch(type) {
-      case 'email':
-        console.log('email');
-        break;
-      case 'sms':
-        console.log('sms');
-        break;
+  openDialogActivateTwoFactor(type: string): void {
+    console.log(this.userServiceProvider.default().getActiveUser().authy_id);
+
+    if(type == 'app') {
+      this.twoFactorServiceProvider.default().qrCode(this.email, this.authy_id).toPromise().then(res => {
+        this.dialog.open(SettingsSecurityDialogComponent, {
+          width: '500px',
+          data: {
+            authy_id: this.authy_id,
+            qrCodeUrl: res,
+            email: null,
+            phoneNumber: null
+          }
+        });
+      });
     }
-    this.dialog.open(SettingsSecurityDialogComponent, {
-      width: '500px',
-      data: {
-        qrCodeUrl: type == 'app' ? this.twoFactorServiceProvider.default().qrCode(this.email, this.authy_id) : null,
-        email: type == 'email' ? this.email : null,
-        phoneNumber: type =='sms' ? this.phoneNumber : null }
+  }
+
+  disableTwoFactor(type: string): void {
+    this.userServiceProvider.default().updateTwoFactor(
+      type == 'app' ? !this.userServiceProvider.default().getActiveUser().twoFactorApp : this.userServiceProvider.default().getActiveUser().twoFactorApp, // twoFactorApp
+      type == 'sms' ? !this.userServiceProvider.default().getActiveUser().twoFactorSms : this.userServiceProvider.default().getActiveUser().twoFactorSms, // twoFactorSms
+      type == 'email' ? !this.userServiceProvider.default().getActiveUser().twoFactorEmail : this.userServiceProvider.default().getActiveUser().twoFactorEmail, // twoFactorEmail
+      this.userServiceProvider.default().getActiveUser().email
+    ).toPromise().then(res => {
+      this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+        this.snackBar.open('2FA disabled', null, { duration: 1500 });
+      }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
     });
+   
   }
 }
 
@@ -123,12 +150,15 @@ export class SettingsSecurityDialogComponent {
   tokenForm: FormGroup;
 
   constructor(private fb: FormBuilder, 
+    private twoFactorServiceProvider: TwoFactorServiceProvider,
+    private userServiceProvider: UserServiceProvider,
+    private snackBar: MatSnackBar, 
     public dialogRef: MatDialogRef<SettingsSecurityDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData) {}
 
   ngOnInit() {
     this.tokenForm = this.fb.group({
-      token: [null, [Validators.required, Validators.pattern('[0-9]{7}'), Validators.minLength(7), Validators.maxLength(7)]]
+      token: [null, [Validators.required, Validators.pattern('[0-9]{6,7}'), Validators.minLength(6), Validators.maxLength(7)]]
     });
   }
   onNoClick(): void {
@@ -136,7 +166,23 @@ export class SettingsSecurityDialogComponent {
   }
 
   onSubmitToken() {
-    console.warn(this.tokenForm.value);
+    this.twoFactorServiceProvider.default().verifyToken(this.data.authy_id, this.tokenForm.get('token').value).toPromise().then(res => {
+      if(res) {
+        this.userServiceProvider.default().updateTwoFactor(
+          this.data.qrCodeUrl ? true : false, 
+          this.data.phoneNumber ? true : false, 
+          this.data.email ? true : false, 
+          this.userServiceProvider.default().getActiveUser().email
+        ).toPromise().then(res => {
+          this.dialogRef.close();       
+          this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+            this.snackBar.open('2FA with Apps activated', null, { duration: 1500 });
+          }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
+        });
+      }
+    }).catch(err => {
+      this.snackBar.open(err.error.message, null, { duration: 1500 })
+    })
   }
 
   get f() { return this.tokenForm.controls; }

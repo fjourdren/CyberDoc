@@ -93,9 +93,18 @@ export class RealUserService implements UserService {
         }));
     }
 
-    updatePhoneNumber(email: string, phone_number: string) {
+    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, twoFactorEmail: boolean, email: string): Observable<any> {
         return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
-            "email": email,
+            "twoFactorApp": twoFactorApp,
+            "twoFactorSms": twoFactorSms,
+            "twoFactorEmail": twoFactorEmail,
+        }, { withCredentials: true }).pipe(map(response => {
+            return response;
+        }));
+    }
+
+    updatePhoneNumber(phone_number: string) {
+        return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
             "phone_number": phone_number
         }, { withCredentials: true }).pipe(map(response => {
             return null;

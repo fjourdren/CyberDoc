@@ -17,6 +17,9 @@ const USER: User = {
     "firstname": "Flavien",
     "lastname": "JOURDREN",
     "email": "flavien.jourdren@gmail.com",
+    "twoFactorApp": false,
+    "twoFactorSms": false,
+    "twoFactorEmail": false,
     "phone_number": "+33660571777",
     "authy_id": "",
     "directory_id": "root",
@@ -142,7 +145,23 @@ export class MockUserService implements UserService {
         }));
     }
 
-    updatePhoneNumber(email: string, phoneNumber: string) {
+    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, twoFactorEmail: boolean, email: string) {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            if (!this.getActiveUser()) {
+                this._throw403("already logged in");
+            }
+            const user = this._users.get(email);
+            user.twoFactorApp = twoFactorApp;
+            user.twoFactorSms = twoFactorSms;
+            user.twoFactorEmail = twoFactorEmail;
+            this._users.delete(email);
+            this._users.set(email, user);
+            this._save();
+            this._setUser(user);
+        }));
+    }
+
+    updatePhoneNumber(phoneNumber: string, email: string) {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403("already logged in");
