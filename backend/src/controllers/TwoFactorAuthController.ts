@@ -6,6 +6,7 @@ import { IUser } from '../models/User';
 import { AxiosError } from 'axios';
 
 import TwoFactorAuthService from '../services/TwoFactorAuthService';
+import UserService from '../services/UserService';
 
 class TwoFactorAuthController {
     // SEND TOKEN
@@ -127,6 +128,38 @@ class TwoFactorAuthController {
         }
     }
     
+    // Check Status of 2FA by Applications
+    public static async checkStatusApp(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const user: IUser = requireNonNull(await UserService.profile(res.locals.APP_JWT_TOKEN.user._id));
+            res.status(HttpCodes.OK);
+            res.json(user.twoFactorApp);
+        } catch(err) {
+            next(err);
+        }
+    }
+
+    // Check Status of 2FA by Sms
+    public static async checkStatusSms(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const user: IUser = requireNonNull(await UserService.profile(res.locals.APP_JWT_TOKEN.user._id));
+            res.status(HttpCodes.OK);
+            res.json(user.twoFactorSms);
+        } catch(err) {
+            next(err);
+        }
+    }
+
+    // Check Status of 2FA by Email
+    public static async checkStatusEmail(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const user: IUser = requireNonNull(await UserService.profile(res.locals.APP_JWT_TOKEN.user._id));
+            res.status(HttpCodes.OK);
+            res.json(user.twoFactorEmail);
+        } catch(err) {
+            next(err);
+        }
+    }
 
     // MANAGE 2FA
     public static async add(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -178,7 +211,7 @@ class TwoFactorAuthController {
 
     public static async generateQrCode(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { email, authy_id} = req.body;
+            const { email, authy_id } = req.body;
             const output = await TwoFactorAuthService.generateQrCode(email, authy_id);
             res.status(HttpCodes.OK);
             res.json(output);

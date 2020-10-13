@@ -1,7 +1,7 @@
 import axios from 'axios';
 import qs from 'qs';
-import IUser, { User } from '../models/User';
-import { requireNonNull } from '../helpers/DataValidation';
+
+import UserService from "./UserService";
 
 class TwoFactorAuthService {
     // SEND TOKEN

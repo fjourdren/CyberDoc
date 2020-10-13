@@ -24,8 +24,31 @@ export class MockTwoFactorService implements TwoFactorService {
         }));
     }
 
-    qrCode(email: string, authy_id: string): Observable<void> {
+    qrCode(email: string, authy_id: string): Observable<string> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            return "https://upload.wikimedia.org/wikipedia/commons/7/78/Qrcode_wikipedia_fr_v2clean.png";
+        }));
+    }
+
+    verifyToken(authy_id: string, token: string): Observable<boolean> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            return true;
+        }));
+    }
+
+    isTwoFactorAppActivated(): Observable<boolean> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            return true;
+        }));
+    }
+    isTwoFactorSmsActivated(): Observable<boolean> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            return true;
+        }));
+    }
+    isTwoFactorEmailActivated(): Observable<boolean> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            return true;
         }));
     }
 }

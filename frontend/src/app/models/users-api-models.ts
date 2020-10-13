@@ -7,6 +7,9 @@ export class User {
     public firstname: string;
     public lastname: string;
     public email: string;
+    public twoFactorApp: boolean;
+    public twoFactorSms: boolean;
+    public twoFactorEmail: boolean;
     public phone_number: string;
     public authy_id: string;
     public updated_at: string;

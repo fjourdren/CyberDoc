@@ -65,6 +65,18 @@ export const UserSchema = new mongoose.Schema({
             message: () => `Password doesn't respect the required format`
         },
     },
+    twoFactorApp: {
+        type: Boolean,
+        required: true
+    },
+    twoFactorSms: {
+        type: Boolean,
+        required: true
+    },
+    twoFactorEmail: {
+        type: Boolean,
+        required: true
+    },
     phone_number: {
         type: String,
         trim: true,
@@ -107,6 +119,9 @@ export interface IUser extends mongoose.Document {
     lastname: string;
     email: string;
     password: string;
+    twoFactorApp: boolean;
+    twoFactorSms: boolean;
+    twoFactorEmail: boolean;
     phone_number: string;
     authy_id: string;
     role: Role;
