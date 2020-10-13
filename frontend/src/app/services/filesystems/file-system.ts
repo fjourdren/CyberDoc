@@ -17,6 +17,7 @@ export interface FileSystem {
     createDirectory(name: string, parentFolderID: string): Observable<void>;
     getDownloadURL(fileID: string): string;
     getFilePreviewImageURL(fileID: string): string;
+    share(fileID: string, email: String, state: String): Observable<void>;
 
     startFileUpload(file: Blob, name: string, mimetype: string, parentFolderID: string): void;
     cancelFileUpload(): void;

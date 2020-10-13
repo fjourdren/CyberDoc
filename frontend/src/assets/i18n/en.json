@@ -29,7 +29,9 @@
         "rename": "Rename",
         "delete": "Delete",
         "create": "Create",
-        "delete_confirm": "Are you sure you want to delete '{{filename}}' ?"
+        "delete_confirm": "Are you sure you want to delete '{{filename}}' ?",
+        "share": "Share",
+        "sharewith": "Share with :"
     },
 
     "file": {
@@ -80,6 +82,9 @@
         "page_not_found": "Page not found",
         "error_title": "Error",
         "error_content": "An error occured. Please check your Internet connection, then refresh the page.",
-        "go_to_homepage": "Go to homepage"
+        "go_to_homepage": "Go to homepage",
+        "mail": "Enter email of destination",
+        "rw": "Read and write",
+        "ro": "Read only"
     }
 }

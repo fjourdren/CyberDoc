@@ -1,0 +1,29 @@
+<h1 mat-dialog-title>
+    {{'fileaction.sharewith' | translate}}
+</h1>
+
+<div mat-dialog-content>
+    <form [formGroup]="registerForm">
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{'general.mail' | translate}}</mat-label>
+            <input matInput formControlName="input" required>
+            <mat-error *ngIf="registerForm.controls['input'].hasError('required')">{{'general.no_empty' | translate}}</mat-error>
+            
+           
+        </mat-form-field>
+        <mat-radio-group matInput formControlName="state" aria-label="Select the rank" class="full-width">
+            <mat-radio-button value="rw">{{'general.rw' | translate}}</mat-radio-button>
+            <mat-radio-button value="ro">{{'general.ro' | translate}}</mat-radio-button>
+        </mat-radio-group>
+        
+            
+
+    </form>
+</div>
+
+<div mat-dialog-actions align="end">
+    <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+    <button [disabled]="loading" mat-button (click)="onCancelBtnClicked()">{{'general.cancel' | translate}}</button>
+    <button [disabled]="loading || !this.registerForm.controls['input'].valid" mat-raised-button color="primary"
+        (click)="onShareBtnClicked()">{{'fileaction.share' | translate}}</button>
+</div>

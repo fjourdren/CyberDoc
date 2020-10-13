@@ -72,6 +72,7 @@ import { GlobalErrorHandler } from './global-error-handler';
 import { environment } from '../environments/environment';
 import { FilesTagsComponent } from './components/files/files-tags/files-tags.component';
 import { FilesCreateTagDialogComponent } from './components/files/files-create-tag-dialog/files-create-tag-dialog.component';
+import { FilesShareDialogComponent } from './components/files/files-share-dialog/files-share-dialog.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
@@ -124,6 +125,7 @@ function jwtOptionsFactory(userServiceProvider: UserServiceProvider) {
     UnhandledErrorDialogComponent,
     FilesTagsComponent,
     FilesCreateTagDialogComponent,
+    FilesShareDialogComponent,
   ],
   imports: [
     BrowserModule,

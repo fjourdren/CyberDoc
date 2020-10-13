@@ -18,8 +18,9 @@ import { FilesRenameDialogComponent } from '../files-rename-dialog/files-rename-
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { ActionSequence } from 'protractor';
+import { FilesShareDialogComponent} from '../files-share-dialog/files-share-dialog.component';
 
-export type FileAction = "open" | "download" | "rename" | "copy" | "delete" | "move" | "details";
+export type FileAction = "open" | "download" | "rename" | "copy" | "delete" | "move" | "details" | "share";
 
 @Component({
   selector: 'app-files-generic-table',
@@ -249,6 +250,9 @@ export class FilesGenericTableComponent implements AfterViewInit {
         this.moveOrCopyNode(this.selectedNode, true);
         break;
       }
+      case "share": {
+        this.shareNode(this.selectedNode);
+      }
     }
   }
 
@@ -281,6 +285,13 @@ export class FilesGenericTableComponent implements AfterViewInit {
     anchor.href = this.fsProvider.default().getDownloadURL(file.id);
     anchor.click();
     anchor.remove();
+  }
+
+  shareNode(node: CloudNode) {
+    this.dialog.open(FilesShareDialogComponent, {
+      maxWidth: "800px",
+      data: node
+    });
   }
 
 }
