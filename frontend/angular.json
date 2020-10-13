@@ -32,6 +32,14 @@
             "scripts": []
           },
           "configurations": {
+            "vps": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.vps.ts"
+                }
+              ]
+            },
             "production": {
               "fileReplacements": [
                 {
@@ -72,6 +80,9 @@
           "configurations": {
             "production": {
               "browserTarget": "cyberdoc:build:production"
+            },
+            "vps": {
+              "browserTarget": "cyberdoc:build:vps"
             }
           }
         },
@@ -123,6 +134,9 @@
           "configurations": {
             "production": {
               "devServerTarget": "cyberdoc:serve:production"
+            },
+            "vps": {
+              "devServerTarget": "cyberdoc:serve:vps"
             }
           }
         }

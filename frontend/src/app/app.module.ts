@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { ErrorHandler, NgModule } from '@angular/core';
+import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -34,6 +34,7 @@ import { NgResizeObserverPonyfillModule } from 'ng-resize-observer';
 import { LayoutModule } from '@angular/cdk/layout';
 import { NgxFilesizeModule } from 'ngx-filesize';
 import { CookieService } from 'ngx-cookie-service';
+import * as Sentry from "@sentry/angular";
 
 import { FilesDetailsPanelComponent } from './components/files/files-details-panel/files-details-panel.component';
 import { FilesTreeviewComponent } from './components/files/files-treeview/files-treeview.component';
@@ -76,6 +77,7 @@ import { FilesCreateTagDialogComponent } from './components/files/files-create-t
 import { FilesFilterDialogComponent } from './components/files/files-filter-dialog/files-filter-dialog.component';
 import { FilesFilterToolbarComponent } from './components/files/files-filter-toolbar/files-filter-toolbar.component';
 import { SettingsMainToolbarComponent } from './components/settings/settings-main-toolbar/settings-main-toolbar.component';
+import { Router } from '@angular/router';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
@@ -106,6 +108,37 @@ const SETTINGS_COMPONENTS = [
   SettingsSecurityComponent,
   SettingsMainToolbarComponent
 ]
+
+const LOCAL_ERROR_HANDLER = [
+  { provide: ErrorHandler, useClass: GlobalErrorHandler }
+]
+
+const SENTRY_ERROR_HANDLER = [
+  {
+    provide: ErrorHandler,
+    useValue: Sentry.createErrorHandler({
+      showDialog: true,
+    }),
+  },
+  {
+    provide: Sentry.TraceService,
+    deps: [Router],
+  },
+  {
+    provide: APP_INITIALIZER,
+    useFactory: () => () => { },
+    deps: [Sentry.TraceService],
+    multi: true,
+  },
+]
+
+let ERROR_HANDLER;
+
+if (environment.useSentry) {
+  ERROR_HANDLER = SENTRY_ERROR_HANDLER;
+} else {
+  ERROR_HANDLER = LOCAL_ERROR_HANDLER;
+}
 
 @NgModule({
   declarations: [
@@ -165,7 +198,7 @@ const SETTINGS_COMPONENTS = [
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
   ],
   providers: [
-    { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    ...ERROR_HANDLER,
     CookieService,
     FileSystemProvider,
     UserServiceProvider,
