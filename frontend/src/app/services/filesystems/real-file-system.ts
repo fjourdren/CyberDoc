@@ -2,7 +2,7 @@ import { HttpClient, HttpEventType } from '@angular/common/http';
 import { EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { CloudNode, CloudDirectory, SearchParams, FileTag } from 'src/app/models/files-api-models';
+import { CloudNode, CloudDirectory, SearchParams, FileTag, CloudFile } from 'src/app/models/files-api-models';
 import { DIRECTORY_MIMETYPE } from '../files-utils/files-utils.service';
 import { FileSystem, Upload } from './file-system';
 
@@ -82,8 +82,8 @@ export class RealFileSystem implements FileSystem {
 
     }
 
-    copy(node: CloudNode, fileName: string, destination: CloudDirectory): Observable<void> {
-        return this.httpClient.post<any>(`${this._baseUrl}/files/${node.id}/copy`, {
+    copy(file: CloudFile, fileName: string, destination: CloudDirectory): Observable<void> {
+        return this.httpClient.post<any>(`${this._baseUrl}/files/${file.id}/copy`, {
             "copyFileName": fileName,
             "destID": destination.id
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
