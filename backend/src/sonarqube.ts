@@ -9,7 +9,7 @@ scanner({
     options: {
         'sonar.projectName': 'CyberDoc-Backend',
         'sonar.projectDescription': 'CyberDoc Backend project',
-        'sonar.sources': 'dist',
+        'sonar.sources': 'src',
         'sonar.tests': 'tests'
     }
 }, () => process.exit())
