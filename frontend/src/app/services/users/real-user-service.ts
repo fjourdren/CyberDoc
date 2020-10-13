@@ -16,12 +16,15 @@ export class RealUserService implements UserService {
     private _userUpdated$ = new EventEmitter<User>();
     private _jwtHelper = new JwtHelperService();
     private _baseUrl: string;
+    private _cookieDomain: string;
 
     constructor(private httpClient: HttpClient, private cookieService: CookieService) {
-        if (location.toString().indexOf("localhost") > -1){
+        if (location.toString().indexOf("localhost") > -1) {
             this._baseUrl = "http://localhost:3000/v1";
+            this._cookieDomain = "localhost";
         } else {
             this._baseUrl = "http://api.cyberdoc.fulgen.fr/v1";
+            this._cookieDomain = "cyberdoc.fulgen.fr";
         }
     }
 
@@ -106,7 +109,12 @@ export class RealUserService implements UserService {
             "email": email,
             "password": password
         }).pipe(map(response => {
-            this.cookieService.set(JWT_COOKIE_NAME, response.token, this._jwtHelper.getTokenExpirationDate(response.token), "/");
+            this.cookieService.set(
+                JWT_COOKIE_NAME,
+                response.token,
+                this._jwtHelper.getTokenExpirationDate(response.token),
+                "/",
+                this._cookieDomain);
             this._setUser(this._jwtHelper.decodeToken(response.token).user);
             return this.getActiveUser();
         }));
