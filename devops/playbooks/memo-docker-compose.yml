@@ -12,34 +12,43 @@ services:
 
   traefik:
     image: traefik:latest
-    restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /home/docker_mount/traefik/conf.d:/etc/traefik/conf.d
     network_mode: host
     command:
-      - "--global.sendanonymoususage=false"   # désactivation de l'envoi de donnée
-      - "--global.checknewversion=false"      # désactive le check de mise à jour
-      - "--accesslog=true"                    # logs d'accès
-      - "--api=true"                          # activer l'api
-      - "--api.insecure=true"                 # Activer pour exposer l'api sur 8080
-      - "--api.dashboard=true"                # activate dashboard
-      - "--log.level=INFO"                    # activate logs
+      - "--global.sendanonymoususage=false" # désactivation de l'envoi de donnée
+      - "--global.checknewversion=false" # désactive le check de mise à jour
+      - "--accesslog=true" # logs d'accès
+      - "--api=true" # activer l'api
+      - "--api.insecure=true" # Activer pour exposer l'api sur 8080
+      - "--api.dashboard=true" # Pour activer le dashboard
+      - "--log.level=INFO"
       - "--providers.docker=true"
     ####
       #- "--providers.docker.exposedbydefault=true" # en cas de debug uniquement
       - "--providers.file.directory=/etc/traefik/conf.d/" # Permets de charger les configurations dans le répertoire (tout les yaml et toml)
-      - "--providers.file.watch=true"           # Permets de surveiller le répertoire précédent pour charger dynamiquement les configurations
-      - "--entrypoints.web.address=:80"         # Création de l'entrypoint nommé web sur le port 80
-      - "--entrypoints.websecure.address=:443"  # Création de l'entrypoint nommé websecure sur le port 443
+      - "--providers.file.watch=true" # Permets de surveiller le répertoire précédent pour charger dynamiquement les configurations
+      - "--entrypoints.web.address=:80" # Création de l'entrypoint nommé web sur le port 80
+      - "--entrypoints.websecure.address=:443" # Création de l'entrypoint nommé websecure sur le port 443
+     # - "--entrypoints.proxy.address=:8088" # Création de l'entrypoint nommé websecure sur le port 8088
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefikrouter.rule=Host(`traefik.fulgen.fr`)"
       - "traefik.http.services.traefikservice.loadbalancer.server.port=8080" 
 
+  # testing
+  #nginx:
+  #  image: nginx
+  #  volumes:
+  #    - /home/docker_mount/nginx_dk:/usr/share/nginx/html:ro
+  #  labels:
+  #    - "traefik.enable=true"
+  #    - "traefik.http.routers.nginxrouter.rule=Host(`cyberdoc.fulgen.fr`)"
+  #    - "traefik.http.services.nginxservice.loadbalancer.server.port=80"    
+
   jenkins:
     image: jenkins/jenkins
-    restart: always
     volumes:
       - /etc/jenkins:/var/jenkins_home 
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -51,7 +60,6 @@ services:
 
   sonarqube:
     image: sonarqube
-    restart: always
     volumes:
       - /etc/sonarqube/sonarqube_conf:/opt/sonarqube/conf
       - /etc/sonarqube/sonarqube_data:/opt/sonarqube/data
@@ -67,7 +75,6 @@ services:
 
   redoc:
     image: redocly/redoc
-    restart: always
     volumes:
       - /etc/redoc/swagger.yml:/usr/share/nginx/html/swagger.yaml 
     labels:
@@ -75,7 +82,6 @@ services:
       - "traefik.http.routers.redocrouter.rule=Host(`redoc.fulgen.fr`)"
       - "traefik.http.services.redocservice.loadbalancer.server.port=80" 
   
-  ### soon swagger
   #swagger:
   #  image: swaggerapi/swagger-ui
   #  volumes:
@@ -88,6 +94,8 @@ services:
   mongodb:
     image: mongo
     restart: always
+    #port:
+    #  - 27017:27017
     # environnement, login and password
     labels:
       - "traefik.enable=true"
@@ -96,7 +104,12 @@ services:
 
   rabbitmq:
     image: 'docker.io/bitnami/rabbitmq:3.8-debian-10'
-    restart: always
+    #  restart: always
+    #ports:
+    #  - '4369:4369'
+    #  - '5672:5672'
+    #  - '25672:25672'
+    #  - '15672:15672'
     #volumes:
     #  - '/etc/rabbitmq:/bitnami'
     labels:
