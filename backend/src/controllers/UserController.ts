@@ -5,7 +5,7 @@ import { requireNonNull } from '../helpers/DataValidation';
 
 import UserService from '../services/UserService';
 
-import IUser from '../models/User';
+import IUser, { User } from '../models/User';
 
 class UserController {
 
@@ -25,19 +25,34 @@ class UserController {
 
     public static async settings(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const user_id = res.locals.APP_JWT_TOKEN.user._id;
-
             const { firstname, lastname, email, password } = req.body;
 
-            const output: Record<string, IUser | string> = requireNonNull(await UserService.updateProfile(user_id, firstname, lastname, email, password));
+            // if we are using a change password token to access, then we allow user only to change his password
+            if(res.locals.APP_JWT_TOKEN.email) {
+                const user_email = res.locals.APP_JWT_TOKEN.email;
+                const user: IUser = requireNonNull(await User.findOne({ email: user_email }).exec());
+
+                requireNonNull(await UserService.updateProfile(user._id, undefined, undefined, undefined, password));
+                
+                res.status(HttpCodes.OK);
+                res.json({
+                    success: true,
+                    msg: "Password changed"
+                });
+            } else {
+                const user_id = res.locals.APP_JWT_TOKEN.user._id;
+
+                const output: Record<string, IUser | string> = requireNonNull(await UserService.updateProfile(user_id, firstname, lastname, email, password));
+                
+                res.status(HttpCodes.OK);
+                res.json({
+                    success: true,
+                    msg: "Profile updated",
+                    user: output.user,
+                    token: output.newToken
+                });
+            }
             
-            res.status(HttpCodes.OK);
-            res.json({
-                success: true,
-                msg: "Profile updated",
-                user: output.user,
-                token: output.newToken
-            });
         } catch(err) {
             next(err);
         }

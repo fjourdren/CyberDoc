@@ -8,6 +8,7 @@ import { IUser, User, Role } from "../models/User";
 import { requireNonNull } from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
+import Mailler from '../helpers/Mailer';
 
 class AuthService {
 
@@ -58,9 +59,18 @@ class AuthService {
     }
 
     // forgotten password service
-    /*public static forgottenPassword() {
-        // TODO
-    }*/
+    public static async forgottenPassword(email: string): Promise<void> {
+        requireNonNull(await User.findOne({ email: email }).exec());
+
+        const token: string = jwt.sign({ email }, process.env.JWT_SECRET, {
+            expiresIn: 36000 // 10 hours
+        });
+
+        const url: string = process.env.APP_FRONTEND_URL + "/forgottenpassword?token=" + token;
+        
+        //await Mailler.sendTextEmail(email, process.env.SENDGRID_MAIL_FROM, "hello", "hello", "hello");
+        await Mailler.sendTemplateEmail(email, process.env.SENDGRID_MAIL_FROM, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, { url: url });
+    }
 
     // validate that the token is correct
     public static validateToken(jwtToken: string): string[] {

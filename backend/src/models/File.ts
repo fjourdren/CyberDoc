@@ -38,6 +38,9 @@ export const FileSchema = new mongoose.Schema({
         required: true,
         trim    : true
     },
+    length: {
+        type: Number
+    },
     document_id: {
         type: String
     },
@@ -76,11 +79,12 @@ export interface IFile extends mongoose.Document {
     type          : FileType;
     mimetype      : string;
     name          : string;
+    length        : number;
     document_id   : string;
     parent_file_id: string;
     owner_id      : string;
     tags          : ITag[];
-    preview       : Boolean;
+    preview       : boolean;
     updated_at    : string;
     created_at    : string;
 }

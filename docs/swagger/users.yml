@@ -146,9 +146,9 @@ paths:
           application/json:
             schema:
               example: 
-                firstname: "Flavien"
-                lastname: "JOURDREN"
-                email: "flavien.jourdren@gmail.com"
+                firstname: "John"
+                lastname: "DOE"
+                email: "email@gmail.com"
                 password: "MyPassword"
               type: object
               properties:
@@ -360,6 +360,49 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GenericResponse"
+
+  /auth/forgottenPassword:               
+    post:
+      tags:
+        - Authentication
+      summary: Forgotten password
+      description: Ask the backend to send an email to the user with a token which will be usable to change user's password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example: 
+                email: "email@gmail.com"
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
           
 components:
   securitySchemes:
@@ -422,9 +465,9 @@ components:
           role: "collaborater"
           updated_at: "2020-09-22T11:31:20.714Z"
           created_at: "2020-09-22T11:30:54.556Z"
-          firstname: "Flavien"
-          lastname: "JOURDREN"
-          email: "flavien.jourdren@gmail.com"
+          firstname: "John"
+          lastname: "DOE"
+          email: "email@gmail.com"
           directory_id: "65af88e0-4d6f-80da-1cab-6ef50b2c719e"
           tags: 
             - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
