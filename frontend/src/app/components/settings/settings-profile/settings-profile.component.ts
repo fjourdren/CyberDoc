@@ -25,7 +25,7 @@ export class SettingsProfileComponent {
 
   dialogConfig: any;
   phoneNumber: any;
-  
+  inputPhoneNumber: any;
 
   constructor(
     private userServiceProvider: UserServiceProvider, 
@@ -41,18 +41,14 @@ export class SettingsProfileComponent {
     });
 
     this.phoneNumberForm = this.fb.group({
-      phoneNumber: [this.userServiceProvider.default().getActiveUser().phone_number, [Validators.required, Validators.pattern('[0-9]{9,10}')]]
+      phoneNumber: [this.userServiceProvider.default().getActiveUser().phone_number, [Validators.required, Validators.pattern('\\+[0-9]{1,3}[0-9]{7,9}')]]
     });
     
     this.dialogConfig = new MatDialogConfig(); 
   }
 
   getNumber(obj) {
-    this.phoneNumber = obj;
-  }
-
-  telInputObject(obj) {
-
+    this.phoneNumber = obj; // [country_code][phone_number]
   }
 
   onSubmitProfileForm() {
@@ -69,18 +65,17 @@ export class SettingsProfileComponent {
     ).toPromise().then(res => {
       console.log('AUTHY_ID = ', res)
       // Update authy_id of user
-      this.userServiceProvider.default().updateAuthyId(res, this.userServiceProvider.default().getActiveUser().email).toPromise(() => {
-        // Send token by SMS in order to verify that it is indeed user's phone number
-        this.twoFactorServiceProvider.default().sendToken('sms', this.userServiceProvider.default().getActiveUser().authy_id).toPromise().then(() => {
-          this.dialog.open(SettingsProfileDialogComponent, {
-            width: '500px',
-            data: {
-              authy_id: res,
-              qrCodeUrl: null,
-              email: null,
-              phoneNumber: this.phoneNumber
-            }
-          });
+      this.userServiceProvider.default().updateAuthyId(res, this.userServiceProvider.default().getActiveUser().email).toPromise();
+      // Send token by SMS in order to verify that it is indeed user's phone number
+      this.twoFactorServiceProvider.default().sendToken('sms', this.userServiceProvider.default().getActiveUser().authy_id).toPromise().then(() => {
+        this.dialog.open(SettingsProfileDialogComponent, {
+          width: '500px',
+          data: {
+            authy_id: res,
+            qrCodeUrl: null,
+            email: null,
+            phoneNumber: this.phoneNumber
+          }
         });
       });
     }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
@@ -140,8 +135,9 @@ export class SettingsProfileDialogComponent {
 
   onSubmitToken() {
     this.twoFactorServiceProvider.default().verifyToken(this.data.authy_id, this.tokenForm.get('token').value).toPromise().then(res => {
-      if(res) {
-       
+      if(res == true) {
+        this.dialogRef.close();
+        this.snackBar.open('Valid token ! Your phone number has been updated.', null, { duration: 1500 })
       }
     }).catch(err => {
       this.snackBar.open(err.error.message, null, { duration: 1500 })

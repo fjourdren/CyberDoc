@@ -114,19 +114,47 @@ export class SettingsSecurityComponent implements OnInit {
     if(this.userServiceProvider.default().getActiveUser().authy_id == null) {
       this.snackBar.open('You must enter your phone number in your profile to enable 2FA', null, { duration: 3000 });
     } else {
-      if(type == 'app') {
-        this.twoFactorServiceProvider.default().generateQrCode(this.email, this.authy_id).toPromise().then(res => {
-          this.dialog.open(SettingsSecurityDialogComponent, {
-            width: '500px',
-            data: {
-              authy_id: this.authy_id,
-              qrCodeUrl: res,
-              email: null,
-              phoneNumber: null
-            }
+      switch(type) {
+        case 'app':
+          this.twoFactorServiceProvider.default().generateQrCode(this.email, this.authy_id).toPromise().then(res => {
+            this.dialog.open(SettingsSecurityDialogComponent, {
+              width: '500px',
+              data: {
+                authy_id: this.authy_id,
+                qrCodeUrl: res,
+                email: null,
+                phoneNumber: null
+              }
+            });
           });
-        });
-      }
+          break;
+        case 'sms':
+          this.twoFactorServiceProvider.default().sendToken('sms', this.authy_id).toPromise().then(res => {
+            this.dialog.open(SettingsSecurityDialogComponent, {
+              width: '500px',
+              data: {
+                authy_id: this.authy_id,
+                qrCodeUrl: null,
+                email: null,
+                phoneNumber: this.phoneNumber
+              }
+            });
+          });
+          break;
+        case 'email':
+          this.twoFactorServiceProvider.default().sendToken('email', this.authy_id).toPromise().then(res => {
+            this.dialog.open(SettingsSecurityDialogComponent, {
+              width: '500px',
+              data: {
+                authy_id: this.authy_id,
+                qrCodeUrl: null,
+                email: this.email,
+                phoneNumber: null
+              }
+            });
+          });
+          break;
+      } 
     }
   }
 
@@ -151,6 +179,9 @@ export class SettingsSecurityComponent implements OnInit {
 })
 export class SettingsSecurityDialogComponent {
   tokenForm: FormGroup;
+  twoFactorApp: boolean;
+  twoFactorEmail: boolean;
+  twoFactorSms: boolean;
 
   constructor(private fb: FormBuilder, 
     private twoFactorServiceProvider: TwoFactorServiceProvider,
@@ -172,14 +203,14 @@ export class SettingsSecurityDialogComponent {
     this.twoFactorServiceProvider.default().verifyToken(this.data.authy_id, this.tokenForm.get('token').value).toPromise().then(res => {
       if(res) {
         this.userServiceProvider.default().updateTwoFactor(
-          this.data.qrCodeUrl ? true : false, 
-          this.data.phoneNumber ? true : false, 
-          this.data.email ? true : false, 
+          this.data.qrCodeUrl ? true : this.userServiceProvider.default().getActiveUser().twoFactorApp, 
+          this.data.phoneNumber ? true : this.userServiceProvider.default().getActiveUser().twoFactorSms, 
+          this.data.email ? true : this.userServiceProvider.default().getActiveUser().twoFactorEmail, 
           this.userServiceProvider.default().getActiveUser().email
-        ).toPromise().then(res => {
+        ).toPromise().then(() => {
           this.dialogRef.close();       
           this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-            this.snackBar.open('2FA with Apps activated', null, { duration: 1500 });
+            this.snackBar.open('2FA activated', null, { duration: 1500 });
           }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
         });
       }
