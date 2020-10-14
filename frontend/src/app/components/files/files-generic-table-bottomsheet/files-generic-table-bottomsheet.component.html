@@ -14,6 +14,11 @@
             <mat-icon fontSet="fa" fontIcon="fa-file-download"></mat-icon>{{ 'fileaction.download' | translate }}
         </span>
     </a>
+    <a href="#" *ngIf="isPDFExportAvailable(data.node)" mat-list-item (click)="onBottomSheetSelection($event,'export')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-file-pdf"></mat-icon>{{ 'fileaction.export' | translate }}
+        </span>
+    </a>
     <a href="#" *ngIf="data.showDetailsEntry" mat-list-item (click)="onBottomSheetSelection($event,'details')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-info-circle"></mat-icon>{{ 'fileaction.details' | translate }}

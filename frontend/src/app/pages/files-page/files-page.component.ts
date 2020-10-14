@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, NgZone, ViewChild } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CloudDirectory, CloudNode } from 'src/app/models/files-api-models';
+import { CloudDirectory, CloudNode, isValidSearchParams, SearchParams } from 'src/app/models/files-api-models';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 
@@ -20,9 +20,11 @@ export class FilesPageComponent implements AfterViewInit {
   fileDetailDrawerLocked = false;
   smallScreen = false;
   loading = false;
+  searchMode = false;
 
   currentDirectory: CloudDirectory;
   selectedNode: CloudNode;
+  routeSearchParams: SearchParams;
 
   constructor(private breakpointObserver: BreakpointObserver,
     private route: ActivatedRoute,
@@ -47,14 +49,45 @@ export class FilesPageComponent implements AfterViewInit {
       this.ngZone.run(() => {
         this.route.paramMap.subscribe((val) => {
           if (!this.treeviewDrawerLocked) { this.treeviewDrawer.close() };
-          this.selectedNode = null;
-          let currentDirectoryID: string;
-          if (val.has("dirID")) {
-            currentDirectoryID = val.get("dirID");
+
+          if (this.route.toString().indexOf("files-search") !== -1) {
+            this.searchMode = true;
+            this.routeSearchParams = JSON.parse(val.get("searchParams"));
+            if (!isValidSearchParams(this.routeSearchParams, this.userServiceProvider.default().getActiveUser().tags.map(tag => tag._id))) {
+              this.router.navigate(['/files']);
+              return;
+            }
+            /**/
+
+            this.loading = true;
+            this.currentDirectory = null;
+            this.selectedNode = null;
+            this.fsProvider.default().search(this.routeSearchParams).toPromise().then(node => {
+              this.currentDirectory = node;
+              this.loading = false;
+            }).catch(err => {
+              if (err instanceof HttpErrorResponse && err.status === 404) {
+                this.router.navigate(['/files']);
+              } else {
+                throw err;
+              }
+            });
+
+
+            /**/
+
+
           } else {
-            currentDirectoryID = this.userServiceProvider.default().getActiveUser().rootDirectoryID;
+            this.searchMode = false;
+            this.selectedNode = null;
+            let currentDirectoryID: string;
+            if (val.has("dirID")) {
+              currentDirectoryID = val.get("dirID");
+              this.refresh(currentDirectoryID);
+            } else {
+              this.router.navigate(['/files', this.userServiceProvider.default().getActiveUser().directory_id]);
+            }
           }
-          this.refresh(currentDirectoryID);
         });
 
       })
@@ -62,6 +95,8 @@ export class FilesPageComponent implements AfterViewInit {
   }
 
   refresh(directoryID: string | null = null) {
+    if (!this.currentDirectory && !directoryID) return; //FIXME
+
     this.loading = true;
     const id = directoryID || this.currentDirectory.id;
     const selectedNodeID = this.selectedNode ? this.selectedNode.id : null;
@@ -76,7 +111,7 @@ export class FilesPageComponent implements AfterViewInit {
             if (item.id === selectedNodeID) {
               this.selectedNode = item;
             }
-          }  
+          }
         }
 
       } else {

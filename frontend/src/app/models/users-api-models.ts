@@ -1,10 +1,6 @@
 //from swagger file users.yml
 
-export class FileTag {
-    public id;
-    public name: string;
-    public hexColor: string;
-}
+import { FileTag } from './files-api-models';
 
 export class User {
     public _id: string;
@@ -14,6 +10,6 @@ export class User {
     public updated_at: string;
     public created_at: string;
     public role: string;
-    public rootDirectoryID: string;
-    public fileTags: FileTag[];
+    public directory_id: string;
+    public tags: FileTag[];
 }

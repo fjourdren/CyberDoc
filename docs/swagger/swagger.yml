@@ -1,0 +1,1324 @@
+components:
+  schemas:
+    CloudDirectory:
+      description: Represents a directory, sent by the server
+      example:
+        directoryContent:
+        - directoryContent: []
+          id: 9b81d950-b605-471f-a654-4fffba6bcfc3
+          mimetype: application/x-dir
+          name: subsubsubdir
+          ownerName: John Doe
+          path: []
+        - id: 9b81d950-b605-471f-a654-4fffba6bcfc5
+          lastModified: '2017-07-21T17:32:28Z'
+          mimetype: application/pdf
+          name: File.pdf
+          ownerName: John Doe
+          size: 666
+        id: 9b81d950-b605-471f-a654-4fffba6bcfc5
+        mimetype: application/x-dir
+        name: subsubdir
+        ownerName: John Doe
+        path:
+        - id: 9b81d950-b605-471f-a654-4fffba6bcfc1
+          name: root
+        - id: 9b81d950-b605-471f-a654-4fffba6bcfc2
+          name: subdir
+        tags:
+        - hexColor: '#eeeeee'
+          id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+          name: TODO
+      properties:
+        directoryContent:
+          description: Content of the directory (if returns CloudDirectory, the directoryContent
+            array is empty)
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/CloudFile'
+            - $ref: '#/components/schemas/CloudDirectory'
+          type: array
+        id:
+          description: Directory ID
+          example: 9b81d950-b605-471f-a654-4fffba6bcfc5
+          format: uuid
+          type: string
+        mimetype:
+          description: application/x-dir for a directory
+          enum:
+          - application/x-dir
+          example: application/x-dir
+          type: string
+        name:
+          description: Directory name
+          example: MyDir
+          type: string
+        ownerName:
+          description: Owner ID
+          example: John Doe
+          format: uuid
+          type: string
+        path:
+          description: Tree structure to access this folder, excluding the folder
+            itself.
+          items:
+            $ref: '#/components/schemas/Path'
+          type: array
+        tags:
+          description: File tag
+          items:
+            $ref: '#/components/schemas/FileTag'
+          type: array
+      required:
+      - id
+      - owner
+      - name
+      - mimetype
+      - path
+      - directoryContent
+      - tags
+      type: object
+    CloudFile:
+      description: Represents a classic file, sent by the server
+      example:
+        id: 9b81d950-b605-471f-a654-4fffba6bcfc5
+        lastModified: '2017-07-21T17:32:28Z'
+        mimetype: application/pdf
+        name: File.pdf
+        ownerName: John Doe
+        size: 666
+        tags:
+        - hexColor: '#eeeeee'
+          id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+          name: TODO
+      properties:
+        id:
+          description: File ID
+          example: 9b81d950-b605-471f-a654-4fffba6bcfc5
+          format: uuid
+          type: string
+        lastModified:
+          description: File last modification date
+          format: date-time
+          type: string
+        mimetype:
+          description: File type
+          example: application/pdf
+          type: string
+        name:
+          description: File name
+          example: FileName.pdf
+          type: string
+        ownerName:
+          description: Owner ID
+          example: John Doe
+          format: uuid
+          type: string
+        size:
+          description: File size
+          example: '666'
+          type: integer
+        tags:
+          description: File tag
+          items:
+            $ref: '#/components/schemas/FileTag'
+          type: array
+      required:
+      - id
+      - ownerName
+      - name
+      - mimetype
+      - size
+      - lastModified
+      - tags
+      type: object
+    FileCopyBody:
+      properties:
+        copyFileName:
+          description: Copy name
+          example: FileName.pdf
+          type: string
+        destID:
+          description: ID of the destination directory
+          example: 9b81d950-b605-471f-a654-4fffba6bcfc5
+          format: uuid
+          type: string
+      required:
+      - destID
+      type: object
+    FileResponse:
+      example:
+        file:
+          id: 9b81d950-b605-471f-a654-4fffba6bcfc5
+          lastModified: '2017-07-21T17:32:28Z'
+          mimetype: application/pdf
+          name: File.pdf
+          ownerName: John Doe
+          size: 666
+          tags:
+          - hexColor: '#eeeeee'
+            id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+            name: TODO
+        msg: File created
+        success: true
+      properties:
+        file:
+          oneOf:
+          - $ref: '#/components/schemas/CloudFile'
+          - $ref: '#/components/schemas/CloudDirectory'
+        msg:
+          description: msg
+          type: string
+        success:
+          description: true if the operation succeeded, otherwise false
+          type: boolean
+      required:
+      - success
+      - msg
+      type: object
+    FileTag:
+      description: File tag
+      example:
+        hexColor: '#eeeeee'
+        id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+        name: TODO
+      properties:
+        hexColor:
+          pattern: ^#(?:[0-9a-fA-F]{3}){1,2}$
+          type: string
+        id:
+          format: uuid
+          type: string
+        name:
+          type: string
+      required:
+      - id
+      - name
+      - hexColor
+      type: object
+    GenericResponse:
+      description: Generic response
+      example:
+        msg: Success
+        success: true
+      properties:
+        msg:
+          description: msg
+          type: string
+        success:
+          description: true if the operation succeeded, otherwise false
+          type: boolean
+      required:
+      - success
+      - msg
+      type: object
+    Path:
+      properties:
+        id:
+          description: Directory ID
+          example: 9b81d950-b605-471f-a654-4fffba6bcfc5
+          format: uuid
+          type: string
+        name:
+          description: Directory name
+          example: SubDir
+          type: string
+      required:
+      - id
+      - name
+      type: object
+    SearchBody:
+      properties:
+        endLastModifiedDate:
+          description: Select only files which last modification date is before this
+            value
+          format: date
+          type: string
+        mimetypes:
+          description: Select only files which its mimetype is in this list
+          items:
+            example: application/pdf
+            type: string
+          type: array
+        name:
+          example: Doc*
+          type: string
+        startLastModifiedDate:
+          description: Select only files which last modification date is after this
+            value
+          format: date
+          type: string
+        tagIDs:
+          description: Select only files which contains a tag which specified in this
+            list
+          items:
+            example: 9b81d950-b605-471f-a654-4fffba6bcfc5
+            format: uuid
+            type: string
+          type: array
+      type: object
+    SearchResponse:
+      example:
+        msg: OK
+        results:
+        - id: 9b81d950-b605-471f-a654-4fffba6bcfc5
+          lastModified: '2017-07-21T17:32:28Z'
+          mimetype: application/pdf
+          name: File.pdf
+          ownerName: John Doe
+          size: 666
+          tags:
+          - hexColor: '#eeeeee'
+            id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+            name: TODO
+        success: true
+      properties:
+        msg:
+          description: msg
+          type: string
+        results:
+          items:
+            $ref: '#/components/schemas/CloudDirectory'
+          type: array
+        success:
+          description: true if the operation succeeded, otherwise false
+          type: boolean
+      required:
+      - success
+      - msg
+      type: object
+    SignInResponse:
+      description: Send to user his log token
+      example:
+        msg: Authentication token generated
+        success: true
+        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8
+      properties:
+        msg:
+          example: Authentication token generated
+          type: string
+        success:
+          example: true
+          type: boolean
+        token:
+          description: User JWTToken
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8
+          type: string
+      required:
+      - success
+      - msg
+      - token
+      type: object
+    UserProfileResponse:
+      description: User's profile
+      example:
+        msg: Success
+        success: true
+        user:
+          _id: 65af88e0-4d6f-80da-1cab-6ef5db2c719e
+          created_at: '2020-09-22T11:30:54.556Z'
+          directory_id: 65af88e0-4d6f-80da-1cab-6ef50b2c719e
+          email: flavien.jourdren@gmail.com
+          firstname: Flavien
+          lastname: JOURDREN
+          role: collaborater
+          tags:
+          - hexColor: '#eeeeee'
+            id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+            name: TODO
+          updated_at: '2020-09-22T11:31:20.714Z'
+      properties:
+        msg:
+          type: string
+        success:
+          type: boolean
+        user:
+          description: User's profile
+          properties:
+            _id:
+              format: uuid
+              type: string
+            created_at:
+              format: date-time
+              type: string
+            directory_id:
+              description: root directory ID for current user
+              format: uuid
+              type: string
+            email:
+              format: email
+              type: string
+            file_tags:
+              items:
+                $ref: '#/components/schemas/FileTag'
+              type: array
+            firstname:
+              type: string
+            lastname:
+              type: string
+            role:
+              enum:
+              - owner
+              - collaborater
+              type: string
+            updated_at:
+              format: date-time
+              type: string
+          type: object
+      required:
+      - success
+      - msg
+      - user
+      type: object
+  securitySchemes:
+    jwtToken:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+info:
+  title: CyberDoc API
+  version: 1.0.0
+openapi: 3.0.0
+paths:
+  /auth/signin:
+    post:
+      description: Login a user
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                email:
+                  format: email
+                  type: string
+                password:
+                  type: string
+              required:
+              - email
+              - password
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignInResponse'
+          description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Bad request
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Bad login/password
+        '500':
+          description: Internal Error
+      summary: Login a user
+      tags:
+      - Authentication
+  /auth/signup:
+    post:
+      description: Register user
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                email:
+                  format: email
+                  type: string
+                firstname:
+                  type: string
+                lastname:
+                  type: string
+                password:
+                  type: string
+                role:
+                  enum:
+                  - owner
+                  - collaborater
+                  type: string
+              required:
+              - firstname
+              - lastname
+              - email
+              - password
+              - role
+              type: object
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+          description: Created
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Bad request
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Another user with the same email already exists
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      summary: Register user
+      tags:
+      - Authentication
+  /files:
+    post:
+      description: Upload a new file / create a new directory
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                folderID:
+                  description: ID of the folder which will contains the new file
+                  type: string
+                mimetype:
+                  description: File mimetype, `application/x-dir` to create a directory
+                  type: string
+                name:
+                  description: File name
+                  type: string
+                upfile:
+                  description: File to upload, `null` to create a directory
+                  format: binary
+                  type: string
+              required:
+              - name
+              - mimetype
+              - folderID
+              type: object
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+          description: Created
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Bad request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not Found / Forbidden
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Upload a new file / create a new directory
+      tags:
+      - Files
+  /files/search:
+    post:
+      description: Search
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchBody'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+          description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Bad request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not Found / Forbidden
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Search
+      tags:
+      - Files
+  /files/{fileId}:
+    delete:
+      description: Delete a file/directory
+      parameters:
+      - description: ID of file to delete
+        in: path
+        name: fileId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not Found / Forbidden
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Delete a file/directory
+      tags:
+      - Files
+    get:
+      description: Get file/directory by ID
+      parameters:
+      - description: File ID
+        in: path
+        name: fileId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not Found / Forbidden
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Get file/directory by ID
+      tags:
+      - Files
+    patch:
+      description: Edit file/directory metadata (name & directoryID)
+      parameters:
+      - description: File ID
+        in: path
+        name: fileId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                directoryID:
+                  description: ID of the directory which contains the file
+                  example: 9b81d950-b605-471f-a654-4fffba6bcfc5
+                  format: uuid
+                  type: string
+                name:
+                  description: File name
+                  example: FileName.pdf
+                  type: string
+              required:
+              - name
+              - directoryID
+        description: File
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not Found / Forbidden
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Edit file/directory metadata (name & directoryID)
+      tags:
+      - Files
+    put:
+      description: Upload new version of an existing file
+      parameters:
+      - description: File ID
+        in: path
+        name: fileId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                upfile:
+                  description: File to upload
+                  format: binary
+                  type: string
+              required:
+              - upfile
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+          description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Bad request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not Found / Forbidden
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Upload new version of an existing file
+      tags:
+      - Files
+  /files/{fileId}/copy:
+    post:
+      description: Copy a file or a directory
+      parameters:
+      - description: ID of file to copy
+        in: path
+        name: fileId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileCopyBody'
+        description: File
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileResponse'
+          description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Bad request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not Found / Forbidden
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Copy a file
+      tags:
+      - Files
+  /files/{fileId}/download:
+    get:
+      description: Download file
+      parameters:
+      - description: ID of file
+        in: path
+        name: fileId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/octet-stream:
+              schema:
+                format: binary
+                type: string
+          description: Success (dynamic mimetype)
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Bad request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not Found / Forbidden
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Download file
+      tags:
+      - Files
+  /files/{fileId}/export:
+    get:
+      description: Export file in PDF format (only for docs, spreasheets and presentations)
+      parameters:
+      - description: ID of file
+        in: path
+        name: fileId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                format: binary
+                type: string
+          description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Bad request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not Found / Forbidden
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Export file in PDF format
+      tags:
+      - Files
+  /files/{fileId}/preview:
+    get:
+      description: Get file preview
+      parameters:
+      - description: ID of file
+        in: path
+        name: fileId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            image/png:
+              schema:
+                format: binary
+                type: string
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not Found / Forbidden
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Get file preview
+      tags:
+      - Files
+  /files/{fileId}/tags:
+    post:
+      description: Add a tag
+      parameters:
+      - description: file ID
+        in: path
+        name: fileId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                tagid:
+                  type: string
+              required:
+              - tagid
+              type: object
+      responses:
+        '200':
+          content:
+            image/png:
+              schema:
+                format: binary
+                type: string
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not Found / Forbidden
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Add a tag
+      tags:
+      - File tags
+  /files/{fileId}/tags/{tagId}:
+    delete:
+      description: Remove a file tag
+      parameters:
+      - description: file ID
+        in: path
+        name: fileId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      - description: Tag ID
+        in: path
+        name: tagId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            image/png:
+              schema:
+                format: binary
+                type: string
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not Found / Forbidden
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Remove a file tag
+      tags:
+      - File tags
+  /users/profile:
+    delete:
+      description: Delete active user account
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Delete active user account
+      tags:
+      - Users
+    get:
+      description: Get current user
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Get current user
+      tags:
+      - Users
+    post:
+      description: Set current user properties
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example:
+                email: flavien.jourdren@gmail.com
+                firstname: Flavien
+                lastname: JOURDREN
+                password: MyPassword
+              properties:
+                email:
+                  format: email
+                  type: string
+                firstname:
+                  type: string
+                lastname:
+                  type: string
+                password:
+                  type: string
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Bad request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Set current user properties
+      tags:
+      - Users
+  /users/tags:
+    post:
+      description: Create a tag
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                color:
+                  description: Tag's color to create
+                  type: string
+                name:
+                  description: Tag's name to create
+                  type: string
+              required:
+              - name
+              - color
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Bad request
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Create a tag
+      tags:
+      - File tags
+  /users/tags/{tagId}:
+    delete:
+      description: Delete a tag
+      parameters:
+      - description: tag ID to delete
+        in: path
+        name: tagId
+        required: true
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Delete a tag
+      tags:
+      - File tags
+    patch:
+      description: Modify a tag
+      parameters:
+      - description: tag ID to delete
+        in: path
+        name: tagId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                color:
+                  description: New tag's color to create
+                  type: string
+                name:
+                  description: New tag's name to create
+                  type: string
+              required:
+              - name
+              - color
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Modify a tag
+      tags:
+      - File tags
+servers:
+- description: Local server
+  url: http://localhost:3000/v1
+- description: Prod server
+  url: http://api.cyberdoc.fulgen.fr/v1

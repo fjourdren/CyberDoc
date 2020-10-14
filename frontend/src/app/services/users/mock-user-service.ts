@@ -1,11 +1,12 @@
 import { UserService } from './user-service';
 
 import { Observable, of } from 'rxjs';
-import { FileTag, User } from 'src/app/models/users-api-models';
+import { User } from 'src/app/models/users-api-models';
 import { delay, map } from 'rxjs/operators';
+import { EventEmitter } from '@angular/core';
+import { FileTag } from 'src/app/models/files-api-models';
+import { HttpErrorResponse } from '@angular/common/http';
 
-const LOCALSTORAGE_KEY = "auth-token";
-const JWT_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8";
 const DELAY = 500;
 let nextID = 0;
 const USER: User = {
@@ -16,25 +17,25 @@ const USER: User = {
     "firstname": "Flavien",
     "lastname": "JOURDREN",
     "email": "flavien.jourdren@gmail.com",
-    "rootDirectoryID": "root",
-    "fileTags": [
+    "directory_id": "root",
+    "tags": [
         {
-            "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7188",
+            "_id": "65af88e0-4d6f-80da-1cab-6ef5db2c7188",
             "name": "TODO",
             "hexColor": "#FF0000"
         },
         {
-            "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7177",
+            "_id": "65af88e0-4d6f-80da-1cab-6ef5db2c7177",
             "name": "In progress",
             "hexColor": "#00FF00"
         },
         {
-            "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7199",
+            "_id": "65af88e0-4d6f-80da-1cab-6ef5db2c7199",
             "name": "In test",
             "hexColor": "#0000FF"
         },
         {
-            "id": "65af88e0-4d6f-80da-1cab-6ef5db2c7166",
+            "_id": "65af88e0-4d6f-80da-1cab-6ef5db2c7166",
             "name": "Done",
             "hexColor": "#cccccc"
         },
@@ -44,14 +45,47 @@ const USER: User = {
 export class MockUserService implements UserService {
     private _users = new Map<string, User>(); //email -> user
     private _passwords = new Map<string, string>(); //email -> password
+    private _userUpdated$ = new EventEmitter<User>();
 
     constructor() {
-        localStorage.setItem(LOCALSTORAGE_KEY, JWT_TOKEN);
         this._load();
     }
 
+    addTag(tag: FileTag): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            const user = this._getUser();
+            user.tags.push(tag);
+            this._setUser(user);
+        }));
+    }
+
+    editTag(tag: FileTag): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            const user = this._getUser();
+            user.tags = user.tags.filter(item => item._id !== tag._id);
+            user.tags.push(tag);
+            this._setUser(user);
+        }));
+    }
+
+    removeTag(tag: FileTag): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            const user = this._getUser();
+            user.tags = user.tags.filter(item => item._id !== tag._id);
+            this._setUser(user);
+        }));
+    }
+    
+    refreshActiveUser(): Observable<User> {
+        return of(this._getUser());
+    }
+
+    userUpdated(): Observable<User> {
+        return this._userUpdated$.asObservable();
+    }
+
     getJwtToken(): string {
-        return localStorage.getItem(LOCALSTORAGE_KEY);
+        return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8"
     }
 
     getActiveUser(): User {
@@ -61,15 +95,20 @@ export class MockUserService implements UserService {
     register(user: User, password: string): Observable<User> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (this.getActiveUser()) {
-                throw new Error("403 already logged in");
+                this._throw403("already logged in");
             }
 
             if (this._users.has(user.email)) {
-                throw new Error("409 already existing user");
+                throw new HttpErrorResponse({
+                    error: "already existing user",
+                    statusText: 'CONFLICT',
+                    status: 409,
+                    url: '/fake-url'
+                });
             }
 
             user._id = `${nextID++}`;
-            user.rootDirectoryID = "other.root";
+            user.directory_id = "other.root";
             user.created_at = new Date().toISOString();
             user.updated_at = new Date().toISOString();
 
@@ -84,7 +123,7 @@ export class MockUserService implements UserService {
     updateProfile(firstName: string, lastName: string, newEmail: string, oldEmail: string) {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
-                throw new Error("403 not logged in");
+                this._throw403("already logged in");
             }
 
             const user = this._users.get(oldEmail);
@@ -101,29 +140,15 @@ export class MockUserService implements UserService {
         }));
     }
 
-    updateTags(tags: FileTag[]) {
-        return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            if (!this.getActiveUser()) {
-                throw new Error("403 not logged in");
-            }
-
-            const user = this.getActiveUser();
-            user.fileTags = tags;
-            this._users.set(user.email, user);
-            this._save();
-            this._setUser(user);
-        }));
-    }
-
     updatePassword(oldPassword: string, newPassword: string, email: string) {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
-                throw new Error("403 not logged in");
+                this._throw403("already logged in");
             }
 
             const pass = this._passwords.get(email);
             if (pass !== oldPassword) {
-                throw new Error("403 WRONG PASSWORD");
+                this._throw403("wrong password");
             }
 
             this._passwords.set(email, newPassword);
@@ -134,14 +159,14 @@ export class MockUserService implements UserService {
     login(email: string, password: string): Observable<User> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (this.getActiveUser()) {
-                throw new Error("403 already logged");
+                this._throw403("already logged in");
             }
 
             for (const user of this._users.values()) {
                 if (user.email === email) {
                     const pass = this._passwords.get(email);
                     if (pass !== password) {
-                        throw new Error("404 wrong email or password");
+                        this._throw401("wrong email or password");
                     }
                     this._setUser(user);
                     this._save();
@@ -149,14 +174,14 @@ export class MockUserService implements UserService {
                 }
             }
 
-            throw new Error("404 wrong email or password");
+            this._throw401("wrong email or password");
         }));
     }
 
     logout(): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
-                throw new Error("403 not logged in");
+                this._throw403("already logged in");
             }
 
             this._setUser(null);
@@ -167,7 +192,7 @@ export class MockUserService implements UserService {
     deleteAccount(): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
-                throw new Error("403 not logged in");
+                this._throw403("already logged in");
             }
 
             const user = this.getActiveUser();
@@ -193,6 +218,7 @@ export class MockUserService implements UserService {
         } else {
             localStorage.setItem("__currentUser", JSON.stringify("null"));
         }
+        this._userUpdated$.emit(user);
     }
 
     private _save() {
@@ -212,4 +238,33 @@ export class MockUserService implements UserService {
             this._save();
         }
     }
+
+    private _throw404(error: string){
+        throw new HttpErrorResponse({
+            error: error,
+            statusText: 'NOT FOUND',
+            status: 404,
+            url: '/fake-url'
+        });
+    }
+
+    private _throw403(error: string){
+        throw new HttpErrorResponse({
+            error: error,
+            statusText: 'FORBIDDEN',
+            status: 403,
+            url: '/fake-url'
+        });
+    }
+
+    private _throw401(error: string){
+        throw new HttpErrorResponse({
+            error: error,
+            statusText: 'FORBIDDEN',
+            status: 401,
+            url: '/fake-url'
+        });
+    }
+
+
 }

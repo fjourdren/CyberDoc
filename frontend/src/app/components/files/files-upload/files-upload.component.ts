@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, HostListener, Input, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { CloudDirectory } from 'src/app/models/files-api-models';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { FilesNewFolderDialogComponent } from '../files-new-folder-dialog/files-new-folder-dialog.component';
 
@@ -10,7 +11,7 @@ import { FilesNewFolderDialogComponent } from '../files-new-folder-dialog/files-
 })
 export class FilesUploadComponent implements AfterViewInit {
 
-  @Input() currentDirectoryID: string;
+  @Input() currentDirectory: CloudDirectory;
   @ViewChild('dropDiv') dropDiv: ElementRef<HTMLDivElement>;
   @ViewChild('file') input: ElementRef<HTMLInputElement>;
 
@@ -53,9 +54,7 @@ export class FilesUploadComponent implements AfterViewInit {
   uploadSelectedFile(file: File) {
     this.fsProvider.default().startFileUpload(
       file,
-      file.name,
-      file.type,
-      this.currentDirectoryID
+      this.currentDirectory
     );
   }
 
@@ -72,13 +71,9 @@ export class FilesUploadComponent implements AfterViewInit {
   }
 
   createFolder() {
-    this.fsProvider.default().get(this.currentDirectoryID).toPromise().then((node) => {
-      if (node.isDirectory) {
-        this.dialog.open(FilesNewFolderDialogComponent, {
-          maxWidth: "400px",
-          data: node
-        });
-      }
+    this.dialog.open(FilesNewFolderDialogComponent, {
+      maxWidth: "400px",
+      data: this.currentDirectory
     });
   }
 }

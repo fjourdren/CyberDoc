@@ -1,8 +1,8 @@
 <div id="settingsprofilepage">
     <div *ngIf="fileDetailDrawerLocked">
-        <app-files-main-toolbar [hideAppName]="smallScreen" [hideMenuButton]="treeviewDrawerLocked"
+        <app-settings-main-toolbar [hideAppName]="smallScreen" [hideMenuButton]="treeviewDrawerLocked"
             (menuButtonClicked)="treeviewDrawer.toggle()">
-        </app-files-main-toolbar>
+        </app-settings-main-toolbar>
 
     </div>
     <mat-drawer-container autosize>
@@ -23,9 +23,9 @@
         </mat-drawer>
 
         <div *ngIf="!fileDetailDrawerLocked">
-            <app-files-main-toolbar [hideAppName]="smallScreen" [hideMenuButton]="treeviewDrawerLocked"
+            <app-settings-main-toolbar [hideAppName]="smallScreen" [hideMenuButton]="treeviewDrawerLocked"
                 (menuButtonClicked)="treeviewDrawer.toggle()">
-            </app-files-main-toolbar>
+            </app-settings-main-toolbar>
         </div>
 
         <mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
