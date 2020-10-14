@@ -111,19 +111,22 @@ export class SettingsSecurityComponent implements OnInit {
   // Dialogs
   openDialogActivateTwoFactor(type: string): void {
     console.log(this.userServiceProvider.default().getActiveUser().authy_id);
-
-    if(type == 'app') {
-      this.twoFactorServiceProvider.default().qrCode(this.email, this.authy_id).toPromise().then(res => {
-        this.dialog.open(SettingsSecurityDialogComponent, {
-          width: '500px',
-          data: {
-            authy_id: this.authy_id,
-            qrCodeUrl: res,
-            email: null,
-            phoneNumber: null
-          }
+    if(this.userServiceProvider.default().getActiveUser().authy_id == null) {
+      this.snackBar.open('You must enter your phone number in your profile to enable 2FA', null, { duration: 3000 });
+    } else {
+      if(type == 'app') {
+        this.twoFactorServiceProvider.default().generateQrCode(this.email, this.authy_id).toPromise().then(res => {
+          this.dialog.open(SettingsSecurityDialogComponent, {
+            width: '500px',
+            data: {
+              authy_id: this.authy_id,
+              qrCodeUrl: res,
+              email: null,
+              phoneNumber: null
+            }
+          });
         });
-      });
+      }
     }
   }
 

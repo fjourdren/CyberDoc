@@ -145,6 +145,21 @@ export class MockUserService implements UserService {
         }));
     }
 
+    updateAuthyId(authy_id: string, email: string) {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            if (!this.getActiveUser()) {
+                this._throw403("already logged in");
+            }
+
+            const user = this._users.get(email);
+            user.authy_id = authy_id;
+            this._users.delete(email);
+            this._users.set(email, user);
+            this._save();
+            this._setUser(user);
+        }));
+    }
+
     updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, twoFactorEmail: boolean, email: string) {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {

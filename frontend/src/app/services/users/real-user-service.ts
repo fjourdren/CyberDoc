@@ -93,17 +93,25 @@ export class RealUserService implements UserService {
         }));
     }
 
-    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, twoFactorEmail: boolean, email: string): Observable<any> {
+    updateAuthyId(authy_id: string, email: string): Observable<void> {
+        return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
+            "authy_id": authy_id
+        }, { withCredentials: true }).pipe(map(response => {
+            return null;
+        }));
+    }
+    
+    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, twoFactorEmail: boolean, email: string): Observable<void> {
         return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
             "twoFactorApp": twoFactorApp,
             "twoFactorSms": twoFactorSms,
             "twoFactorEmail": twoFactorEmail,
         }, { withCredentials: true }).pipe(map(response => {
-            return response;
+            return null;
         }));
     }
 
-    updatePhoneNumber(phone_number: string) {
+    updatePhoneNumber(phone_number: string): Observable<void> {
         return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
             "phone_number": phone_number
         }, { withCredentials: true }).pipe(map(response => {
@@ -111,7 +119,7 @@ export class RealUserService implements UserService {
         }));
     }
 
-    updatePassword(oldPassword: string, newPassword: string, email: string) {
+    updatePassword(oldPassword: string, newPassword: string, email: string): Observable<void> {
         return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
             "password": newPassword
         }, { withCredentials: true }).pipe(map(response => {
