@@ -164,7 +164,7 @@ class FileController {
                             "name": fileInDir.name,
                             "ownerName": ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
                             "mimetype": fileInDir.mimetype,
-                            "size": fileInDir.length,
+                            "size": fileInDir.size,
                             "updated_at": fileInDir.updated_at,
                             "created_at": fileInDir.created_at,
                             "tags": fileInDir.tags
@@ -213,7 +213,7 @@ class FileController {
                         "ownerName": owner.firstname + " " + owner.lastname,
                         "name": file.name,
                         "mimetype": file.mimetype,
-                        "size": file.length,
+                        "size": file.size,
                         "updated_at": file.updated_at,
                         "created_at": file.updated_at,
                         "tags": file.tags

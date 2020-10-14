@@ -38,7 +38,7 @@ export const FileSchema = new mongoose.Schema({
         required: true,
         trim    : true
     },
-    length: {
+    size: {
         type: Number
     },
     document_id: {
@@ -79,7 +79,7 @@ export interface IFile extends mongoose.Document {
     type          : FileType;
     mimetype      : string;
     name          : string;
-    length        : number;
+    size        : number;
     document_id   : string;
     parent_file_id: string;
     owner_id      : string;
