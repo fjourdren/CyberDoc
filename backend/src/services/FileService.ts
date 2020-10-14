@@ -120,7 +120,7 @@ class FileService {
         file.document_id = docId;
 
         // get file size and save it in File model
-        file.length = fileContentBuffer.length;
+        file.size = fileContentBuffer.length;
 
         return await file.save();
     }
@@ -203,7 +203,7 @@ class FileService {
         file.document_id = newDocumentId;
 
         // get file size and save it in File model
-        file.length = fileContentBuffer.length;
+        file.size = fileContentBuffer.length;
 
         return await file.save();
     }
@@ -326,7 +326,7 @@ class FileService {
         newFile.type           = file.type;
         newFile.mimetype       = file.mimetype;
         newFile.name           = copyFileName;
-        newFile.length         = file.length;
+        newFile.size         = file.size;
         newFile.document_id    = objectId;   
         newFile.parent_file_id = destination_id;
         newFile.owner_id       = user._id;
