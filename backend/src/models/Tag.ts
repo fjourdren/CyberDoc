@@ -16,7 +16,7 @@ export const TagSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    color: {
+    hexColor: {
         type: String,
         required: true,
         uniqueCaseInsensitive: true,
@@ -35,7 +35,7 @@ export const TagSchema = new mongoose.Schema({
 export interface ITag extends mongoose.Document {
     _id: string;
     name: string;
-    color: string;
+    hexColor: string;
 }
 
 export const Tag: mongoose.Model<ITag> = mongoose.model<ITag>('Tag', TagSchema);

@@ -32,7 +32,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'file.modified' | translate }} </th>
         <td class="date-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
             (dblclick)="onDoubleClick(element)" (touchstart)="onTouchStart(element)">
-            {{element.lastModified ? (element.lastModified | date) : '—'}} </td>
+            {{element.updated_at ? (element.updated_at | date) : '—'}} </td>
     </ng-container>
 
     <ng-container matColumnDef="menubutton">
@@ -81,7 +81,7 @@
             <mat-icon fontSet="fa" fontIcon="fa-file-export"></mat-icon>
             <span>{{ 'fileaction.move' | translate }}</span>
         </button>
-        <button *ngIf="!isReadOnly(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('copy')">
+        <button *ngIf="isCopyAvailable(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('copy')">
             <mat-icon fontSet="fa" fontIcon="fa-copy"></mat-icon>
             <span>{{ 'fileaction.copy' | translate }}</span>
         </button>

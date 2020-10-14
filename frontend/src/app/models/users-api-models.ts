@@ -10,6 +10,6 @@ export class User {
     public updated_at: string;
     public created_at: string;
     public role: string;
-    public rootDirectoryID: string;
-    public fileTags: FileTag[];
+    public directory_id: string;
+    public tags: FileTag[];
 }

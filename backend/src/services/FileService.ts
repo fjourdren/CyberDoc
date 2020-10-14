@@ -199,7 +199,7 @@ class FileService {
         readablefileContent.push(null);
 
         // get gridfs for document_id and put data in it
-        const newDocumentId: string = GridFSTalker.update(Types.ObjectId(file.document_id), fileGridFSInfos.filename, fileGridFSInfos.contentType, readablefileContent);
+        const newDocumentId: string = await GridFSTalker.update(Types.ObjectId(file.document_id), fileGridFSInfos.filename, fileGridFSInfos.contentType, readablefileContent);
         file.document_id = newDocumentId;
 
         // get file size and save it in File model
@@ -318,7 +318,7 @@ class FileService {
 
 
         // start copying
-        const objectId: string = GridFSTalker.create(copyFileName, fileGridFsInformations.contentType, fileReader); // generate the copy of the document in grid fs
+        const objectId: string = await GridFSTalker.create(copyFileName, fileGridFsInformations.contentType, fileReader); // generate the copy of the document in grid fs
 
         // generate new file informations
         const newFile: IFile = new File();
@@ -353,6 +353,7 @@ class FileService {
         newFile._id            = Guid.raw();
         newFile.type           = file.type;
         newFile.name           = copyFileName;
+        newFile.mimetype       = "application/x-dir";
         newFile.parent_file_id = destination_id;
         newFile.owner_id       = user._id;
 
@@ -365,9 +366,9 @@ class FileService {
             const fileToCopy: IFile = files[i];
             // copy directory and document recursively
             if(fileToCopy.type == FileType.DIRECTORY)
-                FileService.copyDirectory(user, fileToCopy, out._id, fileToCopy.name);
+                await FileService.copyDirectory(user, fileToCopy, out._id, fileToCopy.name);
             else
-                FileService.copyDocument(user, fileToCopy, out._id, fileToCopy.name);
+                await FileService.copyDocument(user, fileToCopy, out._id, fileToCopy.name);
         }
 
         return out;

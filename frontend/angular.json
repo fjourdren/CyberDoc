@@ -32,6 +32,22 @@
             "scripts": []
           },
           "configurations": {
+            "vps": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.vps.ts"
+                }
+              ]
+            },
+            "mock": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.mock.ts"
+                }
+              ]
+            },
             "production": {
               "fileReplacements": [
                 {
@@ -72,6 +88,12 @@
           "configurations": {
             "production": {
               "browserTarget": "cyberdoc:build:production"
+            },
+            "vps": {
+              "browserTarget": "cyberdoc:build:vps"
+            },
+            "mock": {
+              "browserTarget": "cyberdoc:build:mock"
             }
           }
         },
@@ -123,6 +145,12 @@
           "configurations": {
             "production": {
               "devServerTarget": "cyberdoc:serve:production"
+            },
+            "vps": {
+              "devServerTarget": "cyberdoc:serve:vps"
+            },
+            "mock": {
+              "devServerTarget": "cyberdoc:serve:mock"
             }
           }
         }

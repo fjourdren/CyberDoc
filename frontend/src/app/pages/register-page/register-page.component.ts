@@ -1,85 +1,71 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, Validators } from '@angular/forms';
+import { Component } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { UserServiceProvider } from '../../services/users/user-service-provider'
 import { User } from 'src/app/models/users-api-models';
-import { DatePipe } from '@angular/common';
 import { MustMatch } from 'src/app/components/settings/settings-security/_helpers/must-match.validator';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 
-/*const USER: User = {
-  "role": "owner",
-  "updated_at": "2020-09-22T11:31:20.714Z",
-  "created_at": "2020-09-22T11:30:54.556Z",
-  "_id": "65af88e0-4d6f-80da-1cab-6ef5db2c719e",
-  "firstname": "Flavien",
-  "lastname": "JOURDREN",
-  "email": "test.jourdren@gmail.com",
-  "rootDirectoryID": "root",
-}*/
+const STRONG_PASSWORD_REGEX = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$._\-!%*?&])[A-Za-z\d$@$!%*?&].{8,}/;
 @Component({
   selector: 'app-register-page',
   templateUrl: './register-page.component.html',
-  styleUrls: ['./register-page.component.css'],
-  providers: [DatePipe]
+  styleUrls: ['./register-page.component.scss']
 })
-export class RegisterPageComponent implements OnInit {
+export class RegisterPageComponent {
   registerForm = this.fb.group({
     firstName: [null, Validators.required],
     lastName: [null, Validators.required],
-    email: [null, Validators.required],
-    password: [null, Validators.required],
+    email: [null, [Validators.required, Validators.email]],
+    password: [null, [Validators.required, Validators.pattern(STRONG_PASSWORD_REGEX)]],
     repeat: [null, Validators.required],
-    state: ['owner', Validators.required],
-  });
+    role: ['owner', Validators.required],
+  },
+    {
+      validator: MustMatch('password', 'repeat')
+    });
 
-  hide = true;
+  hidePassword = true;
+  loading = false;
 
-  // L'utilisateur :
-  user: User;
-  //La date du jour :
-  myDate = new Date();
-  hasUnitNumber = false;
+  emailAlreadyExistsError = false;
+  genericError = false;
 
-  //email = new FormControl('', [Validators.required, Validators.email]);
-
-  constructor(private fb: FormBuilder, private userProvider: UserServiceProvider) { }
+  constructor(private fb: FormBuilder,
+    private userServiceProvider: UserServiceProvider,
+    private router: Router) { }
 
   onSubmit() {
     if (this.registerForm.invalid) {
-      //alert('Error !');
       return;
     }
 
-    this.user = {
-      "role": this.registerForm.controls.state.value,
+    this.loading = true;
+    this.registerForm.disable();
+    this.genericError = false;
+    this.emailAlreadyExistsError = false;
+
+    const user = {
+      "role": this.registerForm.controls.role.value,
       "firstname": this.registerForm.controls.firstName.value,
       "lastname": this.registerForm.controls.lastName.value,
       "email": this.registerForm.controls.email.value,
     } as User;
 
-    //this.userProvider.default().register(this.user);
+    this.userServiceProvider.default().register(user, this.registerForm.controls.password.value).toPromise().then(value => {
+      this.loading = false;
+      this.router.navigate(["/login"]);
+    }, error => {
+      this.loading = false;
+      this.registerForm.enable();
+
+      if (error instanceof HttpErrorResponse && error.status == 409) {
+        this.emailAlreadyExistsError = true;
+      } else {
+        this.genericError = true;
+      }
+    });
   }
 
-/*getErrorMessage() {
-  if (this.email.hasError('required')) {
-    return 'You must enter a value';
-  }
 
-  return this.email.hasError('email') ? 'Not a valid email' : '';
-}*/
-
-passwordStrength = '(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&].{8,}';
-ngOnInit() {
-  //this.email = new FormControl('', [Validators.required, Validators.email]);
-  this.registerForm = this.fb.group({
-    firstName: ['', Validators.required],
-    lastName: ['', Validators.required],
-    email: ['', Validators.required],
-    password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(this.passwordStrength)]],
-    repeat: ['', Validators.required],
-    state: ['owner', Validators.required],
-  }, {
-    validator: MustMatch('password', 'repeat')
-  });
-}
-  
 }
