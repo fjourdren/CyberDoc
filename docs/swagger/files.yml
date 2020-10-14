@@ -1,0 +1,912 @@
+openapi: 3.0.0
+info:
+  title: CyberDoc Files API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/v1
+    description: Local server
+  - url: http://api.cyberdoc.fulgen.fr/v1
+    description: Prod server  
+paths:
+  /files:
+    post:
+      tags:
+        - Files
+      security:
+        - jwtToken: [ ]
+      summary: Upload a new file / create a new directory
+      description: Upload a new file / create a new directory
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+                - mimetype
+                - folderID
+              properties:
+                upfile:
+                  description: File to upload, `null` to create a directory
+                  type: string
+                  format: binary
+                name:
+                  description: File name
+                  type: string
+                mimetype:
+                  description: File mimetype, `application/x-dir` to create a directory
+                  type: string
+                folderID:
+                  description: ID of the folder which will contains the new file
+                  type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not Found / Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+                
+  "/files/search":
+    post:
+      tags:
+        - Files
+      security:
+        - jwtToken: [ ]
+      summary: Search
+      description: Search
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchBody"
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not Found / Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+
+
+  "/files/{fileId}":
+    get:
+      tags:
+        - Files
+      security:
+        - jwtToken: [ ]
+      summary: Get file/directory by ID
+      description: Get file/directory by ID
+      parameters:
+        - name: fileId
+          in: path
+          description: File ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not Found / Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+
+    put:
+      tags:
+        - Files
+      security:
+        - jwtToken: [ ]
+      summary: Upload new version of an existing file
+      description: Upload new version of an existing file
+      parameters:
+        - name: fileId
+          in: path
+          description: File ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - upfile
+              properties:
+                upfile:
+                  description: File to upload
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not Found / Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+
+    patch:
+      tags:
+        - Files
+      security:
+        - jwtToken: [ ]
+      summary: Edit file/directory metadata (name & directoryID)
+      description: Edit file/directory metadata (name & directoryID)
+      parameters:
+        - name: fileId
+          in: path
+          description: File ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - directoryID
+              properties:
+                name:
+                  type: string
+                  description: File name
+                  example: FileName.pdf
+                directoryID:
+                  type: string
+                  format: uuid
+                  example: 9b81d950-b605-471f-a654-4fffba6bcfc5
+                  description: ID of the directory which contains the file
+        description: File
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not Found / Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+
+    delete:
+      tags:
+        - Files
+      security:
+        - jwtToken: [ ]
+      summary: Delete a file/directory
+      description: Delete a file/directory
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not Found / Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+
+  "/files/{fileId}/copy":
+    post:
+      tags:
+        - Files
+      security:
+        - jwtToken: [ ]
+      summary: Copy a file
+      description: Copy a file or a directory
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file to copy
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FileCopyBody"
+        description: File
+        required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not Found / Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+
+  "/files/{fileId}/preview":
+    get:
+      tags:
+        - Files
+      security:
+        - jwtToken: [ ]
+      summary: Get file preview
+      description: Get file preview
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not Found / Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+
+  "/files/{fileId}/tags":
+    post:
+      tags:
+        - File tags
+      security:
+        - jwtToken: [ ]
+      summary: Add a tag
+      description: Add a tag
+      parameters:
+        - name: fileId
+          in: path
+          description: file ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - tagid
+              type: object
+              properties:
+                tagid:
+                  type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not Found / Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+  "/files/{fileId}/tags/{tagId}":
+    delete:
+      tags:
+        - File tags
+      security:
+        - jwtToken: [ ]
+      summary: Remove a file tag
+      description: Remove a file tag
+      parameters:
+        - name: fileId
+          in: path
+          description: file ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tagId
+          in: path
+          description: Tag ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not Found / Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+
+  "/files/{fileId}/download":
+    get:
+      tags:
+        - Files
+      security:
+        - jwtToken: [ ]
+      summary: Download file
+      description: Download file
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success (dynamic mimetype)
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not Found / Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+
+  "/files/{fileId}/export":
+    get:
+      tags:
+        - Files
+      security:
+        - jwtToken: [ ]
+      summary: Export file in PDF format
+      description: Export file in PDF format (only for docs, spreasheets and presentations)
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not Found / Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+
+components:
+  securitySchemes:
+    jwtToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    Path:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 9b81d950-b605-471f-a654-4fffba6bcfc5
+          description: Directory ID
+        name:
+          type: string
+          example: SubDir
+          description: Directory name
+
+    SearchBody:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Doc*
+        mimetypes:
+          type: array
+          description: Select only files which its mimetype is in this list
+          items:
+            type: string
+            example: "application/pdf"
+        startLastModifiedDate:
+          type: string
+          format: date
+          description: Select only files which last modification date is after this value
+        endLastModifiedDate:
+          type: string
+          format: date
+          description: Select only files which last modification date is before this value
+        tagIDs:
+          description: Select only files which contains a tag which specified in this list
+          type: array
+          items:
+            type: string
+            format: uuid
+            example: "9b81d950-b605-471f-a654-4fffba6bcfc5"
+
+    FileCopyBody:
+      type: object
+      required:
+        - destID
+      properties:
+        copyFileName:
+          type: string
+          example: FileName.pdf
+          description: Copy name
+        destID:
+          type: string
+          format: uuid
+          example: 9b81d950-b605-471f-a654-4fffba6bcfc5
+          description: ID of the destination directory
+
+    CloudFile:
+      example:
+        id: 9b81d950-b605-471f-a654-4fffba6bcfc5
+        ownerName: John Doe
+        name: "File.pdf"
+        mimetype: "application/pdf"
+        size: 666
+        lastModified: "2017-07-21T17:32:28Z"
+        tags:
+          - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
+            name: "TODO"
+            hexColor: "#eeeeee"
+      description: Represents a classic file, sent by the server
+      type: object
+      required:
+        - id
+        - ownerName
+        - name
+        - mimetype
+        - size
+        - lastModified
+        - tags
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 9b81d950-b605-471f-a654-4fffba6bcfc5
+          description: File ID
+        ownerName:
+          type: string
+          format: uuid
+          example: John Doe
+          description: Owner ID
+        name:
+          type: string
+          example: FileName.pdf
+          description: File name
+        mimetype:
+          type: string
+          example: application/pdf
+          description: File type
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileTag"
+          description: File tag
+        size:
+          type: integer
+          example: "666"
+          description: File size
+        lastModified:
+          type: string
+          format: date-time
+          description: File last modification date
+
+    CloudDirectory:
+      example:
+        id: 9b81d950-b605-471f-a654-4fffba6bcfc5
+        ownerName: John Doe
+        name: subsubdir
+        mimetype: application/x-dir
+        tags:
+          - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
+            name: "TODO"
+            hexColor: "#eeeeee"
+        path:
+          - id: 9b81d950-b605-471f-a654-4fffba6bcfc1
+            name: root
+          - id: 9b81d950-b605-471f-a654-4fffba6bcfc2
+            name: subdir
+        directoryContent:
+          - id: 9b81d950-b605-471f-a654-4fffba6bcfc3
+            ownerName: John Doe
+            name: subsubsubdir
+            mimetype: application/x-dir
+            path: [ ]
+            directoryContent: [ ]
+          - id: 9b81d950-b605-471f-a654-4fffba6bcfc5
+            name: "File.pdf"
+            ownerName: John Doe
+            mimetype: "application/pdf"
+            size: 666
+            lastModified: "2017-07-21T17:32:28Z"
+      description: Represents a directory, sent by the server
+      type: object
+      required:
+        - id
+        - owner
+        - name
+        - mimetype
+        - path
+        - directoryContent
+        - tags
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 9b81d950-b605-471f-a654-4fffba6bcfc5
+          description: Directory ID
+        ownerName:
+          type: string
+          format: uuid
+          example: John Doe
+          description: Owner ID
+        name:
+          type: string
+          example: MyDir
+          description: Directory name
+        mimetype:
+          type: string
+          enum:
+            - application/x-dir
+          example: application/x-dir
+          description: application/x-dir for a directory
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileTag"
+          description: File tag
+        path:
+          type: array
+          description: Tree structure to access this folder, excluding the folder itself.
+          items:
+            $ref: "#/components/schemas/Path"
+        directoryContent:
+          type: array
+          description: Content of the directory (if returns CloudDirectory, the directoryContent array is empty)
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/CloudFile"
+              - $ref: "#/components/schemas/CloudDirectory"
+
+    FileResponse:
+      example:
+        success: true
+        msg: "File created"
+        file:
+          id: 9b81d950-b605-471f-a654-4fffba6bcfc5
+          ownerName: John Doe
+          name: "File.pdf"
+          mimetype: "application/pdf"
+          size: 666
+          lastModified: "2017-07-21T17:32:28Z"
+          tags:
+            - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
+              name: "TODO"
+              hexColor: "#eeeeee"
+      type: object
+      required:
+        - success
+        - msg
+      properties:
+        success:
+          type: boolean
+          description: true if the operation succeeded, otherwise false
+        msg:
+          type: string
+          description: msg
+        file:
+          oneOf:
+            - $ref: "#/components/schemas/CloudFile"
+            - $ref: "#/components/schemas/CloudDirectory"
+
+    SearchResponse:
+      example:
+        success: true
+        msg: "OK"
+        results:
+          - id: 9b81d950-b605-471f-a654-4fffba6bcfc5
+            ownerName: John Doe
+            name: "File.pdf"
+            mimetype: "application/pdf"
+            size: 666
+            lastModified: "2017-07-21T17:32:28Z"
+            tags:
+              - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
+                name: "TODO"
+                hexColor: "#eeeeee"
+      type: object
+      required:
+        - success
+        - msg
+      properties:
+        success:
+          type: boolean
+          description: true if the operation succeeded, otherwise false
+        msg:
+          type: string
+          description: msg
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/CloudDirectory"
+
+    GenericResponse:
+      example:
+        success: false
+        msg: "Unknown error"
+      description: Generic response
+      type: object
+      required:
+        - success
+        - msg
+      properties:
+        success:
+          type: boolean
+          description: true if the operation succeeded, otherwise false
+        msg:
+          type: string
+          description: msg
+
+    FileTag:
+      example:
+        id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
+        name: "TODO"
+        hexColor: "#eeeeee"
+      description: File tag
+      type: object
+      required:
+        - id
+        - name
+        - hexColor
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        hexColor:
+          type: string
+          pattern: "^#(?:[0-9a-fA-F]{3}){1,2}$"

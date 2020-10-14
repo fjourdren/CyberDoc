@@ -29,8 +29,15 @@
   </table>
 
   <mat-divider></mat-divider>
-  <app-files-tags [node]="node"></app-files-tags>
+  <div id="title-div" class="mat-h3">
+    <span id="title-span">{{'tags.tags' | translate}}</span>
+    <button id="add-tag-btn" mat-stroked-button mat-button (click)="createNewTag()">
+      {{'tags.create_new_tag' | translate}}
+    </button>
+  </div>
+
+  <app-files-tags-input [allTags]="allTags" [selectedTags]="nodeTags" (tagAdded)="onTagAdded($event)" (tagRemoved)="onTagRemoved($event)"></app-files-tags-input>
 
 </div>
 
-<mat-spinner *ngIf="!node" diameter="48"></mat-spinner>
+<mat-spinner *ngIf="loading" diameter="48"></mat-spinner>

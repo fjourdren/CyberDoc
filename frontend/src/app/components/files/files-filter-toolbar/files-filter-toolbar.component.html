@@ -1,0 +1,26 @@
+<mat-toolbar color="primary">
+    <div class="scrollable">
+        <mat-chip-list *ngIf="searchParams">
+            <button [routerLink]="['/files']" style="margin-right: 4px;" mat-mini-fab>
+                <mat-icon>search_off</mat-icon>
+            </button>
+            <mat-chip disableRipple *ngIf="isTypeFilterUsed(searchParams)">
+                <mat-icon fontSet="fa" [fontIcon]="getIconForFileType(searchParams.type)"></mat-icon>
+                <span>{{ getTranslationForFileType(searchParams.type) | translate }}</span>
+                <mat-icon (click)="removeTypeFilter()" matChipRemove>cancel</mat-icon>
+            </mat-chip>
+            <mat-chip disableRipple *ngIf="isDateDiffFilterUser(searchParams)">
+                {{'file.modified' | translate}} : {{ getTranslationForDateDiff(searchParams.dateDiff) | translate }}
+                <mat-icon (click)="removeDateDiffFilter()" matChipRemove>cancel</mat-icon>
+            </mat-chip>
+            <mat-chip *ngFor="let tag of tags" [style.background]="tag.hexColor"
+                [style.color]="computeTextColor(tag.hexColor)" disableRipple>
+                {{tag.name}}
+                <mat-icon (click)="removeTagFilter(tag.id)" matChipRemove>cancel</mat-icon>
+            </mat-chip>
+
+            <!-- Used to force mat-chip-list to have a correct size even if there are 0 chips -->
+            <mat-chip style="visibility: hidden;"></mat-chip>
+        </mat-chip-list>
+    </div>
+</mat-toolbar>
