@@ -35,7 +35,7 @@ class AuthService {
         root_user_dir._id = Guid.raw();
         root_user_dir.type = FileType.DIRECTORY;
         root_user_dir.mimetype = "application/x-dir"
-        root_user_dir.name = "Root";
+        root_user_dir.name = "My safebox";
         root_user_dir.owner_id = newUser._id;
         root_user_dir.tags = [];
 
