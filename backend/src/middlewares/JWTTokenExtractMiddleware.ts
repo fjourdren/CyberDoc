@@ -20,15 +20,14 @@ class JWTTokenExtractMiddleware {
                 const jwtToken: string = authHeaderArray[1];
 
                 const decoded: string[] = AuthService.validateToken(jwtToken);
-
-                if(decoded) {
-                    res.locals.APP_JWT_TOKEN     = decoded;
+                if (decoded) {
+                    res.locals.APP_JWT_TOKEN = decoded;
                     res.locals.APP_RAW_JWT_TOKEN = jwtToken;
                 }
             }
 
             next();
-        } catch(err) {
+        } catch (err) {
             next(err);
         }
     }

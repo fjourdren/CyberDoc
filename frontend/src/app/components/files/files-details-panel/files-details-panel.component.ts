@@ -40,19 +40,26 @@ export class FilesDetailsPanelComponent {
     this.nodeTags = node.tags;
   }
 
-  onNodeTagsUpdated(val: FileTag[]) {
-    const newTags = val.filter(item => this.node.tags.indexOf(item) !== -1);
-    const deletedTags = this.node.tags.filter(item => val.indexOf(item) !== -1);
+  onTagAdded(tag: FileTag) {
+    this.loading = true;
+    this.fsProvider.default().addTag(this.node, tag).toPromise().then(()=>{
+      this.loading = false;
+    });
+  }
 
-    if (newTags && newTags.length == 1) {
-      this.fsProvider.default().addTag(this.node, newTags[0]);
-    } else if (deletedTags && deletedTags.length == 1) {
-      this.fsProvider.default().removeTag(this.node, deletedTags[0]);
-    }
+  onTagRemoved(tag: FileTag) {
+    this.loading = true;
+    this.fsProvider.default().removeTag(this.node, tag).toPromise().then(()=>{
+      this.loading = false;
+    });
   }
 
   refreshAllTags() {
-    this.allTags = this.userServiceProvider.default().getActiveUser().fileTags;
+    if (this.userServiceProvider.default().getActiveUser()){
+      this.allTags = this.userServiceProvider.default().getActiveUser().tags;
+    } else {
+      this.allTags = [];
+    }
   }
 
   getFilePreviewImageURL() {

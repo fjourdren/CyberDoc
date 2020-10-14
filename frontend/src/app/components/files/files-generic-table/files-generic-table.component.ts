@@ -113,7 +113,13 @@ export class FilesGenericTableComponent implements AfterViewInit {
     this.selectedNodeChange.emit(node);
   }
 
+  isCopyAvailable(node: CloudNode): boolean {
+    return !this.isReadOnly(node) && !node.isDirectory;
+  }
+
   isPDFExportAvailable(node: CloudNode): boolean {
+    if (!node) return;
+
     const fileType = this.filesUtils.getFileTypeForMimetype(node.mimetype);
     return this.filesUtils.isPDFExportAvailable(fileType);
   }
@@ -275,7 +281,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   moveOrCopyNode(node: CloudNode, isCopy: boolean) {
-    let initialDirectoryID = this.currentDirectoryID || this.userServiceProvider.default().getActiveUser().rootDirectoryID;
+    let initialDirectoryID = this.currentDirectoryID || this.userServiceProvider.default().getActiveUser().directory_id;
     this.dialog.open(FilesMoveCopyDialogComponent, {
       width: "400px",
       height: "400px",

@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { CloudDirectory, CloudNode, FileTag, SearchParams } from 'src/app/models/files-api-models';
+import { CloudDirectory, CloudFile, CloudNode, FileTag, SearchParams } from 'src/app/models/files-api-models';
 
 export interface Upload {
     filename: string;
@@ -13,7 +13,7 @@ export interface FileSystem {
     createDirectory(name: string, parentFolder: CloudDirectory): Observable<void>;
     search(searchParams: SearchParams): Observable<CloudDirectory>;
 
-    copy(node: CloudNode, fileName: string, destination: CloudDirectory): Observable<void>;
+    copy(file: CloudFile, fileName: string, destination: CloudDirectory): Observable<void>;
     move(node: CloudNode, destination: CloudDirectory): Observable<void>;
     rename(node: CloudNode, newName: string): Observable<void>;
     delete(node: CloudNode): Observable<void>;
@@ -25,7 +25,7 @@ export interface FileSystem {
     getExportURL(node: CloudNode): string;
     getFilePreviewImageURL(node: CloudNode): string;
 
-    startFileUpload(fileBlob: Blob, destination: CloudDirectory): void;
+    startFileUpload(file: File, destination: CloudDirectory): void;
     cancelFileUpload(): void;
     getCurrentFileUpload(): Observable<Upload>;
 

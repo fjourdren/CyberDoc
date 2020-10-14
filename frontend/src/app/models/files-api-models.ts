@@ -1,7 +1,7 @@
 import { FileType } from '../services/files-utils/files-utils.service';
 
 export class FileTag {
-  public id: string;
+  public _id: string;
   public name: string;
   public hexColor: string;
 }
@@ -19,7 +19,7 @@ export class CloudFile {
   public name: string;
   public mimetype: Exclude<string, "application/x-dir">;
   public size: number;
-  public lastModified: Date;
+  public updated_at: Date;
   public tags: FileTag[];
   isDirectory: false;
 }
