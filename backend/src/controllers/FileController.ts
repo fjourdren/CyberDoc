@@ -2,12 +2,12 @@ import { NextFunction, Request, Response } from 'express';
 
 import HttpCodes from '../helpers/HttpCodes'
 import { requireIsNull, requireNonNull } from '../helpers/DataValidation';
+import HTTPError from '../helpers/HTTPError';
 
 import FileService from '../services/FileService';
 
 import { IFile, File, FileType } from "../models/File";
 import { IUser, User } from "../models/User";
-import HTTPError from '../helpers/HTTPError';
 
 class FileController {
     // upload a new file controller
@@ -157,17 +157,14 @@ class FileController {
                     // get owner
                     const ownerFileInDir: IUser = requireNonNull(await User.findById(fileInDir.owner_id).exec());
 
-                    // get gridfs informations if it's a document
-                    let gridfsInformation: any = undefined;
+                    // build reply content
                     if (fileInDir.type == FileType.DOCUMENT) {
-                        gridfsInformation = requireNonNull(await FileService.getFileInformations(fileInDir));
-
                         directoryContentOutput.push({
                             "id": fileInDir._id,
                             "name": fileInDir.name,
                             "ownerName": ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
                             "mimetype": fileInDir.mimetype,
-                            "size": gridfsInformation.length,
+                            "size": fileInDir.length,
                             "updated_at": fileInDir.updated_at,
                             "created_at": fileInDir.created_at,
                             "tags": fileInDir.tags
@@ -205,7 +202,6 @@ class FileController {
 
             } else { // otherwise it's a document
                 const owner: IUser = requireNonNull(await User.findById(file.owner_id).exec());
-                const gridFsFileInfos: any = requireNonNull(await FileService.getFileInformations(file));
 
                 // reply to client
                 res.status(HttpCodes.OK);
@@ -217,7 +213,7 @@ class FileController {
                         "ownerName": owner.firstname + " " + owner.lastname,
                         "name": file.name,
                         "mimetype": file.mimetype,
-                        "size": gridFsFileInfos.length,
+                        "size": file.length,
                         "updated_at": file.updated_at,
                         "created_at": file.updated_at,
                         "tags": file.tags
@@ -381,7 +377,8 @@ class FileController {
             // run copy
             let out: IFile;
             if (file.type == FileType.DIRECTORY)
-                out = await FileService.copyDirectory(user, file, destID, copyFileName);
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "Directory copying isn't available");
+                //out = await FileService.copyDirectory(user, file, destID, copyFileName);
             else
                 out = await FileService.copyDocument(user, file, destID, copyFileName);
 
@@ -400,7 +397,7 @@ class FileController {
 
 
     // ask to generate a preview of a file controller
-    public static async preview(req: Request, res: Response, next: NextFunction) {
+    public static async preview(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             // prepare vars
             const user_id = res.locals.APP_JWT_TOKEN.user._id;
@@ -419,7 +416,6 @@ class FileController {
             // check that preview is enable & available on that file
             if (!file.preview) {
                 throw new HTTPError(HttpCodes.FORBIDDEN, "Preview feature needs to be enable on the file")
-            }
 
             // get preview
             const previewImg: any = await FileService.generatePreview(file);
@@ -436,7 +432,7 @@ class FileController {
 
 
     // generate file pdf
-    public static async exportPDF(req: Request, res: Response, next: NextFunction) {
+    public static async exportPDF(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             // prepare vars
             const user_id = res.locals.APP_JWT_TOKEN.user._id;
