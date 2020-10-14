@@ -65,7 +65,7 @@
                     </mat-list-item>
                     <mat-list-item *ngIf="!twoFactorSms">
 						<button mat-flat-button color="warn">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
-                        <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('app')">Enable 2FA sent by SMS</button>
+                        <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('sms')">Enable 2FA sent by SMS</button>
                     </mat-list-item>
                     <mat-list-item *ngIf="twoFactorEmail">
 						<button mat-flat-button color="success">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
@@ -73,7 +73,7 @@
                     </mat-list-item>
                     <mat-list-item *ngIf="!twoFactorEmail">
 						<button mat-flat-button color="warn">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
-                        <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('app')">Enable 2FA sent by emails</button>
+                        <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('email')">Enable 2FA sent by emails</button>
                     </mat-list-item>
                 </mat-list>
 			</mat-expansion-panel>

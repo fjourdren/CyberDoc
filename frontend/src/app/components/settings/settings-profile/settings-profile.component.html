@@ -23,12 +23,11 @@
 		
 		<form [formGroup]="phoneNumberForm" (ngSubmit)="onSubmitPhoneNumberForm()">
 			<mat-form-field>
-				<input type="text" maxlength="10"
+				<input type="text" maxlength="14"
 					matInput 
 					ng2TelInput
 					[ng2TelInputOptions]="{initialCountry: 'fr'}"
 					(ng2TelOutput)="getNumber($event)"
-					(intlTelInputObject)="telInputObject($event)"
 					formControlName="phoneNumber" />
 			  <mat-error *ngIf="!phoneNumberForm.get('phoneNumber').valid && phoneNumberForm.get('phoneNumber').touched">
 				  This is an <strong>invalid</strong> phone number.
