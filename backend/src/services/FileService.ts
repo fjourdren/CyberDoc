@@ -116,7 +116,7 @@ class FileService {
         readablefileContent.push(null)
 
         // push document to gridfs
-        const docId: string = GridFSTalker.create(filename, content_type, readablefileContent);
+        const docId: string = await GridFSTalker.create(filename, content_type, readablefileContent);
         file.document_id = docId;
 
         // get file size and save it in File model
