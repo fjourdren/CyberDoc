@@ -146,8 +146,8 @@ paths:
           application/json:
             schema:
               example: 
-                firstname: "Flavien"
-                lastname: "JOURDREN"
+                firstname: "John"
+                lastname: "DOE"
                 email: "email@gmail.com"
                 password: "MyPassword"
               type: object
@@ -465,8 +465,8 @@ components:
           role: "collaborater"
           updated_at: "2020-09-22T11:31:20.714Z"
           created_at: "2020-09-22T11:30:54.556Z"
-          firstname: "Flavien"
-          lastname: "JOURDREN"
+          firstname: "John"
+          lastname: "DOE"
           email: "email@gmail.com"
           directory_id: "65af88e0-4d6f-80da-1cab-6ef50b2c719e"
           tags: 

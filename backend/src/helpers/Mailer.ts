@@ -1,7 +1,6 @@
 import sgMail from '@sendgrid/mail';
-import { cpuUsage } from 'process';
 
-class Mailler {
+class Mailer {
 
     public static async sendEmailFromArray(msg: sgMail.MailDataRequired[]): Promise<void> {
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -18,7 +17,7 @@ class Mailler {
             html: html
         }
     
-        await Mailler.sendEmailFromArray(msg);
+        await Mailer.sendEmailFromArray(msg);
     }
 
 
@@ -31,9 +30,9 @@ class Mailler {
             dynamicTemplateData: dynamicTemplateData
         };
 
-        await Mailler.sendEmailFromArray(msg);
+        await Mailer.sendEmailFromArray(msg);
     }
 
 }
 
-export default Mailler;
+export default Mailer;

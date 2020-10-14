@@ -8,7 +8,7 @@ import { IUser, User, Role } from "../models/User";
 import { requireNonNull } from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
-import Mailler from '../helpers/Mailler';
+import Mailler from '../helpers/Mailer';
 
 class AuthService {
 
