@@ -40,8 +40,19 @@ class AuthService {
         root_user_dir.tags = [];
 
         newUser.directory_id = root_user_dir._id;
+        try {
+            requireNonNull(await newUser.save());
+        }catch (e) {
+            const error: Error = e;
+            if (error.message.indexOf("expected `email` to be unique.") !== -1){
+                requireNonNull(null, 409, "Another account with this mail already exists");
+            } else {
+                throw e;
+            }
+        }
+
         requireNonNull(await root_user_dir.save());
-        return requireNonNull(await newUser.save());
+        return newUser;
     }
 
     // login service
