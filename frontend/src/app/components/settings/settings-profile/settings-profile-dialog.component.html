@@ -1,0 +1,14 @@
+<h1 mat-dialog-title>Verify 2FA</h1>
+<div mat-dialog-content>
+  <p *ngIf="data.phoneNumber">An SMS has been sent to {{data.phoneNumber}}</p>
+  <form [formGroup]="tokenForm" (ngSubmit)="onSubmitToken()" autocomplete="off">
+    <mat-form-field>
+      <mat-label>Enter your generated token</mat-label>
+      <input matInput formControlName="token" required maxlength="7">
+    </mat-form-field>
+    <button mat-flat-button color="primary" type="submit" [disabled]="tokenForm.invalid">Verify my token</button>
+  </form>
+</div>
+<div mat-dialog-actions>
+  <button mat-button color="warn" (click)="onNoClick()">Cancel</button>
+</div>

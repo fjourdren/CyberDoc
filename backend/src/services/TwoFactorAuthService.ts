@@ -1,8 +1,6 @@
 import axios from 'axios';
 import qs from 'qs';
 
-import UserService from "./UserService";
-
 class TwoFactorAuthService {
     // SEND TOKEN
     /**

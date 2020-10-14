@@ -21,13 +21,16 @@ class AuthService {
     // register service
     public static async signup(firstname: string, lastname: string, email: string, password: string, role: Role): Promise<IUser> {
         // build object
-        const newUser: IUser = new User();
-        newUser._id       = Guid.raw()
-        newUser.firstname = firstname;
-        newUser.lastname  = lastname;
-        newUser.email     = email;
-        newUser.password  = password;
-        newUser.role      = role;
+        const newUser: IUser   = new User();
+        newUser._id            = Guid.raw()
+        newUser.firstname      = firstname;
+        newUser.lastname       = lastname;
+        newUser.email          = email;
+        newUser.password       = password;
+        newUser.role           = role;
+        newUser.twoFactorApp   = false;
+        newUser.twoFactorSms   = false;
+        newUser.twoFactorEmail = false;
 
         // build user's root directory
         const root_user_dir: IFile = new File();

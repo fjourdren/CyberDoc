@@ -49,7 +49,7 @@ import { FilesGenericTableComponent } from './components/files/files-generic-tab
 import { FilesGenericTableBottomsheetComponent } from './components/files/files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 
 import { SettingsMenuComponent } from './components/settings/settings-menu/settings-menu.component';
-import { SettingsProfileComponent } from './components/settings/settings-profile/settings-profile.component';
+import { SettingsProfileComponent, SettingsProfileDialogComponent } from './components/settings/settings-profile/settings-profile.component';
 import { SettingsSecurityComponent, SettingsSecurityDialogComponent } from './components/settings/settings-security/settings-security.component';
 
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
@@ -105,6 +105,7 @@ const FILES_COMPONENTS = [
 const SETTINGS_COMPONENTS = [
   SettingsMenuComponent,
   SettingsProfileComponent,
+  SettingsProfileDialogComponent,
   SettingsSecurityComponent,
   SettingsSecurityDialogComponent,
   SettingsMainToolbarComponent

@@ -15,6 +15,14 @@ export class RealTwoFactorService implements TwoFactorService {
         console.log(this._baseUrl);
     }
 
+    sendToken(sending_way: string, authy_id: string): Observable<void> {
+        return this.httpClient.post<any>(`${this._baseUrl}/2fa/send/${sending_way}`, {
+            "authy_id": authy_id
+        }, {withCredentials: true}).pipe(map(response => {
+            return null;
+        }));
+    }
+
     add(email: string, phone_number: string, country_code: string): Observable<string> {
         return this.httpClient.post<any>(`${this._baseUrl}/2fa/add`, {
             "email": email,
@@ -33,7 +41,7 @@ export class RealTwoFactorService implements TwoFactorService {
         }));
     }
 
-    qrCode(email: string, authy_id: string): Observable<string> {
+    generateQrCode(email: string, authy_id: string): Observable<string> {
         return this.httpClient.post<any>(`${this._baseUrl}/2fa/qrcode`, {
             "email": email,
             "authy_id": authy_id
