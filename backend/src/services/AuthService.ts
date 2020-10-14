@@ -8,7 +8,7 @@ import { IUser, User, Role } from "../models/User";
 import { requireNonNull } from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
-import Mailler from '../helpers/Mailer';
+import Mailer from '../helpers/Mailer';
 
 class AuthService {
 
@@ -68,8 +68,8 @@ class AuthService {
 
         const url: string = process.env.APP_FRONTEND_URL + "/forgottenpassword?token=" + token;
         
-        //await Mailler.sendTextEmail(email, process.env.SENDGRID_MAIL_FROM, "hello", "hello", "hello");
-        await Mailler.sendTemplateEmail(email, process.env.SENDGRID_MAIL_FROM, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, { url: url });
+        //await Mailer.sendTextEmail(email, process.env.SENDGRID_MAIL_FROM, "hello", "hello", "hello");
+        await Mailer.sendTemplateEmail(email, process.env.SENDGRID_MAIL_FROM, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, { url: url });
     }
 
     // validate that the token is correct

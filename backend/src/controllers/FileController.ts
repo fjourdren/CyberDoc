@@ -415,7 +415,8 @@ class FileController {
 
             // check that preview is enable & available on that file
             if (!file.preview) {
-                throw new HTTPError(HttpCodes.FORBIDDEN, "Preview feature needs to be enable on the file")
+                throw new HTTPError(HttpCodes.FORBIDDEN, "Preview feature needs to be enable on the file")  
+            }
 
             // get preview
             const previewImg: any = await FileService.generatePreview(file);
