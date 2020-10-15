@@ -611,6 +611,121 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GenericResponse"
+                
+  "/files/{fileId}/sharing":
+    post:
+      tags:
+        - File sharing
+      security:
+        - jwtToken: [ ]
+      summary: Add share access of a file with a user
+      description: Add share access of a file with a user
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - mail
+              type: object
+              properties:
+                mail:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not Found / Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+
+    
+  "/files/{fileId}/sharing/{email}":
+    delete:
+      tags:
+        - File sharing
+      security:
+        - jwtToken: [ ]
+      summary: Remove share access of a file with a user
+      description: Remove share access of a file with a user
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file
+          required: true
+          schema:
+            type: string
+        - name: email
+          in: path
+          description: User email
+          required: true
+          schema:
+            type: string
+            format: email
+
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "404":
+          description: Not Found / Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+  
 
 components:
   securitySchemes:
@@ -686,12 +801,16 @@ components:
         ownerName: John Doe
         name: "File.pdf"
         mimetype: "application/pdf"
+        shareMode: "readonly"
         size: 666
         lastModified: "2017-07-21T17:32:28Z"
         tags:
           - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
             name: "TODO"
             hexColor: "#eeeeee"
+        sharedWith:
+          - email: john.doe@gmail.com
+            name: John DOE
       description: Represents a classic file, sent by the server
       type: object
       required:
@@ -699,9 +818,11 @@ components:
         - ownerName
         - name
         - mimetype
+        - shareWith
         - size
         - lastModified
         - tags
+        - sharedWith
       properties:
         id:
           type: string
@@ -721,6 +842,12 @@ components:
           type: string
           example: application/pdf
           description: File type
+        shareType:
+          type: string
+          enum:
+            - readonly
+            - readwrite
+          description: Sharing type
         tags:
           type: array
           items:
@@ -734,6 +861,28 @@ components:
           type: string
           format: date-time
           description: File last modification date
+        sharedWith:
+          type: array
+          items:
+            $ref: "#/components/schemas/SharedWithItem"
+          description: List of users who have an access to this file
+          
+    SharedWithItem:
+      example:
+        email: john.doe@gmail.com
+        name: John DOE
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email
+        name:
+          type: string
+          description: User name
 
     CloudDirectory:
       example:
@@ -821,12 +970,16 @@ components:
           ownerName: John Doe
           name: "File.pdf"
           mimetype: "application/pdf"
+          shareMode: "readonly"
           size: 666
           lastModified: "2017-07-21T17:32:28Z"
           tags:
             - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
               name: "TODO"
               hexColor: "#eeeeee"
+          sharedWith:
+            - email: john.doe@gmail.com
+              name: John DOE
       type: object
       required:
         - success
@@ -852,12 +1005,17 @@ components:
             ownerName: John Doe
             name: "File.pdf"
             mimetype: "application/pdf"
+            shareMode: "readonly"
             size: 666
             lastModified: "2017-07-21T17:32:28Z"
             tags:
               - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
                 name: "TODO"
                 hexColor: "#eeeeee"
+            sharedWith:
+              - email: john.doe@gmail.com
+                name: John DOE
+
       type: object
       required:
         - success
