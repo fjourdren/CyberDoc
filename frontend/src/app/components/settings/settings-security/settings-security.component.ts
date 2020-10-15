@@ -48,15 +48,8 @@ export class SettingsSecurityComponent implements OnInit {
     this.email = this.userServiceProvider.default().getActiveUser().email;
     this.phoneNumber = this.userServiceProvider.default().getActiveUser().phone_number;
     this.authy_id = this.userServiceProvider.default().getActiveUser().authy_id;
-    this.twoFactorServiceProvider.default().isTwoFactorAppActivated().toPromise().then(res => {
-      this.twoFactorApp = res;
-    });
-    this.twoFactorServiceProvider.default().isTwoFactorSmsActivated().toPromise().then(res => {
-      this.twoFactorSms = res;
-    });
-    this.twoFactorServiceProvider.default().isTwoFactorEmailActivated().toPromise().then(res => {
-      this.twoFactorEmail = res;
-    });
+    this.refreshTwoFactor();
+  
     this.passwordForm = this.fb.group({
       oldPassword: ['', Validators.required],
       newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern(this.passwordStrength)]],
@@ -117,7 +110,7 @@ export class SettingsSecurityComponent implements OnInit {
       switch(type) {
         case 'app':
           this.twoFactorServiceProvider.default().generateQrCode(this.email, this.authy_id).toPromise().then(res => {
-            this.dialog.open(SettingsSecurityDialogComponent, {
+            const refDialog = this.dialog.open(SettingsSecurityDialogComponent, {
               width: '500px',
               data: {
                 authy_id: this.authy_id,
@@ -126,11 +119,14 @@ export class SettingsSecurityComponent implements OnInit {
                 phoneNumber: null
               }
             });
+            refDialog.afterClosed().toPromise().then(() => {
+              this.refreshTwoFactor();
+            });
           });
           break;
         case 'sms':
           this.twoFactorServiceProvider.default().sendToken('sms', this.authy_id).toPromise().then(res => {
-            this.dialog.open(SettingsSecurityDialogComponent, {
+            const refDialog = this.dialog.open(SettingsSecurityDialogComponent, {
               width: '500px',
               data: {
                 authy_id: this.authy_id,
@@ -139,11 +135,14 @@ export class SettingsSecurityComponent implements OnInit {
                 phoneNumber: this.phoneNumber
               }
             });
+            refDialog.afterClosed().toPromise().then(() => {
+              this.refreshTwoFactor();
+            });
           });
           break;
         case 'email':
           this.twoFactorServiceProvider.default().sendToken('email', this.authy_id).toPromise().then(res => {
-            this.dialog.open(SettingsSecurityDialogComponent, {
+            const refDialog = this.dialog.open(SettingsSecurityDialogComponent, {
               width: '500px',
               data: {
                 authy_id: this.authy_id,
@@ -152,10 +151,19 @@ export class SettingsSecurityComponent implements OnInit {
                 phoneNumber: null
               }
             });
+            refDialog.afterClosed().toPromise().then(() => {
+              this.refreshTwoFactor();
+            });
           });
           break;
       } 
     }
+  }
+
+  refreshTwoFactor(): void {
+    this.twoFactorApp = this.userServiceProvider.default().getActiveUser().twoFactorApp;
+    this.twoFactorSms = this.userServiceProvider.default().getActiveUser().twoFactorSms;
+    this.twoFactorEmail = this.userServiceProvider.default().getActiveUser().twoFactorEmail;
   }
 
   disableTwoFactor(type: string): void {
@@ -167,6 +175,7 @@ export class SettingsSecurityComponent implements OnInit {
     ).toPromise().then(res => {
       this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
         this.snackBar.open('2FA disabled', null, { duration: 1500 });
+        this.refreshTwoFactor();
       }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
     });
    
@@ -208,9 +217,9 @@ export class SettingsSecurityDialogComponent {
           this.data.email ? true : this.userServiceProvider.default().getActiveUser().twoFactorEmail, 
           this.userServiceProvider.default().getActiveUser().email
         ).toPromise().then(() => {
-          this.dialogRef.close();       
           this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
             this.snackBar.open('2FA activated', null, { duration: 1500 });
+            this.dialogRef.close();
           }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
         });
       }
