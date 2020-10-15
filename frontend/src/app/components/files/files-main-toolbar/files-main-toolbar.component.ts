@@ -42,6 +42,7 @@ export class FilesMainToolbarComponent {
     if (!this.routeSearchParams) {
       this.routeSearchParams = EMPTY_SEARCH_PARAMS;
     }
+    this.searchInput = (e.target as HTMLInputElement).value;
     this.routeSearchParams.name = this.searchInput;
     this.router.navigate(["/files-search", JSON.stringify(this.routeSearchParams)]);
   }
