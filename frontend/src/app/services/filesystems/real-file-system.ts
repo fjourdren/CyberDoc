@@ -12,6 +12,8 @@ export class RealFileSystem implements FileSystem {
     private _currentUpload$ = new EventEmitter<Upload>();
     private _baseUrl: string;
 
+    private _timeStarted: number = -1;
+
     constructor(private httpClient: HttpClient) {
         if (location.toString().indexOf("localhost") > -1){
             this._baseUrl = "http://localhost:3000/v1";
@@ -144,10 +146,21 @@ export class RealFileSystem implements FileSystem {
         }).pipe(map(event => {
             switch (event.type) {
                 case HttpEventType.UploadProgress: {
+                    //https://stackoverflow.com/questions/21162749/how-do-i-calculate-the-time-remaining-for-my-upload
+                    let timeElasped = 0;
+                    if (this._timeStarted === -1){
+                        this._timeStarted = Date.now();
+                        timeElasped = 1;
+                    } else {
+                        timeElasped = Date.now() - this._timeStarted;
+                    }
+
+                    const uploadSpeed = event.loaded / (timeElasped/1000);
+
                     const obj = {
                         filename: file.name,
                         progress: (event.loaded / event.total),
-                        remainingSeconds: 7 //TODO
+                        remainingSeconds: (event.total - event.loaded) / uploadSpeed
                     }
                     this._currentUpload$.emit(obj);
                     break;
@@ -159,8 +172,10 @@ export class RealFileSystem implements FileSystem {
             }
         })).toPromise().then(()=>{
             console.log("OK");
+            this._timeStarted = -1;
             this._refreshNeeded$.emit()
         }).catch((err)=>{
+            this._timeStarted = -1;
             console.error(err);
         })
     }

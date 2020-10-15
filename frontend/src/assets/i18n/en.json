@@ -54,7 +54,8 @@
         "new_directory": "New directory",
         "drop_div_text": "Drop a file to import",
         "success": "File successfully uploaded",
-        "canceled": "Upload canceled"
+        "canceled": "Upload canceled",
+        "finishing_upload": "Finishing upload..."
     },
     "tags": {
         "create_new_tag": "Create a new tag",
