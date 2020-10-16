@@ -8,6 +8,12 @@ import { Role } from '../../models/User';
 
 const FileRouter = Router();
 
+// File sharing
+FileRouter.get('/shared', AuthMiddleware.isAuthenticate, FileController.getSharedFiles);
+FileRouter.get('/:fileId/sharing', AuthMiddleware.isAuthenticate, FileController.getSharedAccesses);
+FileRouter.post('/:fileId/sharing', AuthMiddleware.isAuthenticate, FileController.addSharingAccess);
+FileRouter.delete('/:fileId/sharing/:email', AuthMiddleware.isAuthenticate, FileController.removeSharingAccess);
+
 FileRouter.post('/', AuthMiddleware.isAuthenticate, UserMiddleware.hasRoles([Role.OWNER]), FileController.upload);
 FileRouter.post('/search', AuthMiddleware.isAuthenticate, FileController.search);
 FileRouter.get('/:fileId', AuthMiddleware.isAuthenticate, FileController.get);
