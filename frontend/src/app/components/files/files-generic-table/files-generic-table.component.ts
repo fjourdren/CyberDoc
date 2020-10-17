@@ -21,6 +21,7 @@ import { FileSystemProvider } from 'src/app/services/filesystems/file-system-pro
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { ActionSequence } from 'protractor';
 import { FilesShareDialogComponent} from '../files-share-dialog/files-share-dialog.component';
+import { FilesShareMenuDialogComponent} from '../files-share-menu-dialog/files-share-menu-dialog.component';
 
 export type FileAction = "open" | "download" | "rename" | "copy" | "delete" | "move" | "details" | "share" | "export";
 
@@ -307,7 +308,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   shareNode(node: CloudNode) {
-    this.dialog.open(FilesShareDialogComponent, {
+    this.dialog.open(FilesShareMenuDialogComponent, {
       maxWidth: "800px",
       data: node
     });

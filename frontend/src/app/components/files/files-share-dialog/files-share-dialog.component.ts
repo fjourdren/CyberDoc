@@ -48,11 +48,14 @@ export class FilesShareDialogComponent {
     this.loading = true;
     this.registerForm.disable();
     this.dialogRef.disableClose = true;
-    this.fsProvider.default().share(this.node.id, this.registerForm.controls.input.value, this.registerForm.controls.state.value).toPromise().then(() => {
+    //console.log(this.registerForm.controls.input.value);
+    this.fsProvider.default().share(this.node.id, this.registerForm.controls.input.value).toPromise().then(() => {
+      //console.log(this.registerForm.controls.input.value);
       this.loading = false;
       this.registerForm.enable();
       this.dialogRef.disableClose = false;
       this.dialogRef.close(true);
+      
     })
   }
 

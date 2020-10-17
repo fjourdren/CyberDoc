@@ -22,6 +22,7 @@ export class CloudFile {
   public lastModified: Date;
   public tags: FileTag[];
   isDirectory: false;
+  public shareMode: "readonly" | "readwrite";
 }
 
 export class CloudDirectory {
@@ -33,6 +34,11 @@ export class CloudDirectory {
   public directoryContent: CloudNode[];
   public tags: FileTag[];
   isDirectory: true;
+}
+
+export interface RespondShare {
+  name: string;
+  email: string;
 }
 
 export const NO_TYPE_FILTER = "any";

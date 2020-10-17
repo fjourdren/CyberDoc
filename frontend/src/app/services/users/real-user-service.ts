@@ -120,6 +120,10 @@ export class RealUserService implements UserService {
         }));
     }
 
+    searchExistingUser(email: string): Observable<User>{
+        return null;
+    }
+
     logout(): Observable<void> {
         return of(null).pipe(map(() => {
             this.cookieService.delete(JWT_COOKIE_NAME);

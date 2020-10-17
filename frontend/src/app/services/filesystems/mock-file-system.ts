@@ -1,10 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { EventEmitter } from '@angular/core';
+//import { User } from '@sentry/angular';
 import { Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
-import { CloudNode, CloudDirectory, SearchParams, FileTag, CloudFile, PathItem } from 'src/app/models/files-api-models';
+import { CloudNode, CloudDirectory, SearchParams, FileTag, CloudFile, PathItem, RespondShare } from 'src/app/models/files-api-models';
 import { DIRECTORY_MIMETYPE, FilesUtilsService, FileType } from '../files-utils/files-utils.service';
 import { FileSystem, Upload } from './file-system';
+import { UserServiceProvider } from '../users/user-service-provider'
+import { User } from 'src/app/models/users-api-models';
 
 interface InternalFileElement {
     parentID?: string;
@@ -14,7 +17,10 @@ interface InternalFileElement {
     mimetype: string;
     size?: number;
     tags: FileTag[];
+    sharedWith: RespondShare[];
 }
+
+
 
 const UPLOAD_SPEED = 5000 * 1000; //5mo/s
 const DELAY = 500;
@@ -26,9 +32,11 @@ export class MockFileSystem implements FileSystem {
     private _refreshNeeded$ = new EventEmitter<void>();
     private _currentUpload$ = new EventEmitter<Upload>();
     private _uploadCancelRequested = false;
+    
 
-    constructor(private fileUtils: FilesUtilsService) {
+    constructor(private fileUtils: FilesUtilsService, private userServiceProvider: UserServiceProvider) {
         this._load();
+        
     }
 
     getFilePreviewImageURL(node: CloudNode): string {
@@ -43,6 +51,13 @@ export class MockFileSystem implements FileSystem {
         return `/fake-export-url/${node.id}`;
     }
 
+    // MOCK
+    getUserShared(id: string): Observable<RespondShare[]>{
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            return this.filesMap.get(id).sharedWith;
+        }));
+    }
+
     createDirectory(name: string, parentFolder: CloudDirectory): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             let newEntry: InternalFileElement = {
@@ -53,6 +68,7 @@ export class MockFileSystem implements FileSystem {
                 date: new Date(),
                 parentID: parentFolder.id,
                 tags: [],
+                sharedWith: [],
             }
 
             this.filesMap.set(newEntry.id, newEntry);
@@ -82,6 +98,7 @@ export class MockFileSystem implements FileSystem {
             date: new Date(),
             parentID: destination.id,
             tags: [],
+            sharedWith: [],
         }
 
         this._uploadInternal(name, file.size).then((success) => {
@@ -185,9 +202,31 @@ export class MockFileSystem implements FileSystem {
         }));
     }
 
-    share(fileID: String, email: string, state:String): Observable<void>{
+    share(fileID: string, email: string): Observable<RespondShare>{
+        let currentFile: InternalFileElement;
+        let Respond: RespondShare = {email: "", name:""};
+        let test: boolean = false;
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            Respond.email = email;
+            Respond.name = "NAME : "+email;
+            console.log(Respond.name);
+            currentFile = this.filesMap.get(fileID);
+            currentFile.sharedWith.forEach(element => {
+                if(Respond.email === element.email){
+                    const index = currentFile.sharedWith.indexOf(element);
+                    if (index > -1) {
+                        currentFile.sharedWith.splice(index, 1);
+                    }
+                    test = true;
+                }
+            })
+            if(test === false){
+                currentFile.sharedWith.push(Respond);
+            }
+            
+            this.filesMap.set(currentFile.id, currentFile);
             this._save();
+            return Respond;
         }));
     }
 
@@ -220,8 +259,9 @@ export class MockFileSystem implements FileSystem {
                 });
             }
         }
-
+    
         return this.filesMap.get(fileID);
+    }
     delete(node: CloudNode): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             this._deleteInternal(node.id);
@@ -249,6 +289,7 @@ export class MockFileSystem implements FileSystem {
             date: file.date,
             size: file.size,
             tags: file.tags,
+            sharedWith: file.sharedWith,
         });
 
         if (file.mimetype === DIRECTORY_MIMETYPE) {
@@ -343,25 +384,25 @@ export class MockFileSystem implements FileSystem {
     private _load() {
         this.filesMap = new Map(JSON.parse(localStorage.getItem("__filesMap")));
         if (!this.filesMap || this.filesMap.size === 0) {
-            this.filesMap.set("other.root", { "name": "My safe", "mimetype": DIRECTORY_MIMETYPE, id: "other.root", tags: [] })
-            this.filesMap.set("root", { "name": "My safe", "mimetype": DIRECTORY_MIMETYPE, id: "root", tags: [] });
-            this.filesMap.set("root.sub1", { "parentID": "root", "name": "Documents", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1", tags: [] });
-            this.filesMap.set("root.sub2", { "parentID": "root", "name": "Videos", mimetype: DIRECTORY_MIMETYPE, id: "root.sub2", tags: [] });
-            this.filesMap.set("root.sub3", { "parentID": "root", "name": "Pictures", mimetype: DIRECTORY_MIMETYPE, id: "root.sub3", tags: [] });
-            this.filesMap.set("root.sub4", { "parentID": "root", "name": "Others", mimetype: DIRECTORY_MIMETYPE, id: "root.sub4", tags: [] });
-            this.filesMap.set("root.sub1.sub", { "parentID": "root.sub1", "name": "Bills", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1.sub", tags: [] });
+            this.filesMap.set("other.root", { "name": "My safe", "mimetype": DIRECTORY_MIMETYPE, id: "other.root", tags: [], sharedWith: [] })
+            this.filesMap.set("root", { "name": "My safe", "mimetype": DIRECTORY_MIMETYPE, id: "root", tags: [], sharedWith: [] });
+            this.filesMap.set("root.sub1", { "parentID": "root", "name": "Documents", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1", tags: [], sharedWith: [] });
+            this.filesMap.set("root.sub2", { "parentID": "root", "name": "Videos", mimetype: DIRECTORY_MIMETYPE, id: "root.sub2", tags: [], sharedWith: [] });
+            this.filesMap.set("root.sub3", { "parentID": "root", "name": "Pictures", mimetype: DIRECTORY_MIMETYPE, id: "root.sub3", tags: [], sharedWith: [] });
+            this.filesMap.set("root.sub4", { "parentID": "root", "name": "Others", mimetype: DIRECTORY_MIMETYPE, id: "root.sub4", tags: [], sharedWith: [] });
+            this.filesMap.set("root.sub1.sub", { "parentID": "root.sub1", "name": "Bills", mimetype: DIRECTORY_MIMETYPE, id: "root.sub1.sub", tags: [], sharedWith: [] });
 
-            this.filesMap.set("root.f1", { "parentID": "root", name: "my_image.png", mimetype: "image/png", size: 2316471, date: new Date(), id: "root.f1", tags: [] });
-            this.filesMap.set("root.f2", { "parentID": "root", name: "my_video.mp4", mimetype: "video/mp4", size: 29904561, date: new Date(), id: "root.f2", tags: [] });
-            this.filesMap.set("root.f3", { "parentID": "root", name: "my_audio.mp3", mimetype: "audio/mp3", size: 4404561, date: new Date(), id: "root.f3", tags: [] });
+            this.filesMap.set("root.f1", { "parentID": "root", name: "my_image.png", mimetype: "image/png", size: 2316471, date: new Date(), id: "root.f1", tags: [], sharedWith: [] });
+            this.filesMap.set("root.f2", { "parentID": "root", name: "my_video.mp4", mimetype: "video/mp4", size: 29904561, date: new Date(), id: "root.f2", tags: [], sharedWith: [] });
+            this.filesMap.set("root.f3", { "parentID": "root", name: "my_audio.mp3", mimetype: "audio/mp3", size: 4404561, date: new Date(), id: "root.f3", tags: [], sharedWith: [] });
 
-            this.filesMap.set("root.sub1.f1", { "parentID": "root.sub1", name: "mydoc01.pdf", mimetype: "application/pdf", size: 846, date: new Date(), id: "root.sub1.f1", tags: [] });
-            this.filesMap.set("root.sub1.f2", { "parentID": "root.sub1", name: "mydoc02.pdf", mimetype: "application/pdf", size: 964, date: new Date(), id: "root.sub1.f2", tags: [] });
-            this.filesMap.set("root.sub1.f3", { "parentID": "root.sub1", name: "mydoc03.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.f3", tags: [] });
+            this.filesMap.set("root.sub1.f1", { "parentID": "root.sub1", name: "mydoc01.pdf", mimetype: "application/pdf", size: 846, date: new Date(), id: "root.sub1.f1", tags: [], sharedWith: [] });
+            this.filesMap.set("root.sub1.f2", { "parentID": "root.sub1", name: "mydoc02.pdf", mimetype: "application/pdf", size: 964, date: new Date(), id: "root.sub1.f2", tags: [], sharedWith: [] });
+            this.filesMap.set("root.sub1.f3", { "parentID": "root.sub1", name: "mydoc03.pdf", mimetype: "application/pdf", size: 444, date: new Date(), id: "root.sub1.f3", tags: [], sharedWith: [] });
 
-            this.filesMap.set("root.sub1.sub.f1", { "parentID": "root.sub1.sub", name: "bill01.pdf", mimetype: "application/pdf", size: 368, date: new Date(), id: "root.sub1.sub.f1", tags: [] });
-            this.filesMap.set("root.sub1.sub.f2", { "parentID": "root.sub1.sub", name: "bill02.pdf", mimetype: "application/pdf", size: 216, date: new Date(), id: "root.sub1.sub.f2", tags: [] });
-            this.filesMap.set("root.sub1.sub.f3", { "parentID": "root.sub1.sub", name: "bill03.pdf", mimetype: "application/pdf", size: 698, date: new Date(), id: "root.sub1.sub.f3", tags: [] });
+            this.filesMap.set("root.sub1.sub.f1", { "parentID": "root.sub1.sub", name: "bill01.pdf", mimetype: "application/pdf", size: 368, date: new Date(), id: "root.sub1.sub.f1", tags: [], sharedWith: [] });
+            this.filesMap.set("root.sub1.sub.f2", { "parentID": "root.sub1.sub", name: "bill02.pdf", mimetype: "application/pdf", size: 216, date: new Date(), id: "root.sub1.sub.f2", tags: [], sharedWith: [] });
+            this.filesMap.set("root.sub1.sub.f3", { "parentID": "root.sub1.sub", name: "bill03.pdf", mimetype: "application/pdf", size: 698, date: new Date(), id: "root.sub1.sub.f3", tags: [], sharedWith: [] });
             this._save();
         }
     }

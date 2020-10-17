@@ -2,7 +2,7 @@ import { HttpClient, HttpEventType } from '@angular/common/http';
 import { EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { CloudNode, CloudDirectory, SearchParams, FileTag } from 'src/app/models/files-api-models';
+import { CloudNode, CloudDirectory, SearchParams, FileTag, RespondShare } from 'src/app/models/files-api-models';
 import { DIRECTORY_MIMETYPE } from '../files-utils/files-utils.service';
 import { FileSystem, Upload } from './file-system';
 
@@ -18,6 +18,9 @@ export class RealFileSystem implements FileSystem {
         } else {
             this._baseUrl = "http://api.cyberdoc.fulgen.fr/v1";
         }
+    }
+    share(fileID: string, email: String): Observable<RespondShare> {
+        throw new Error('Method not implemented.');
     }
 
     get(nodeID: string): Observable<CloudNode> {
@@ -128,6 +131,11 @@ export class RealFileSystem implements FileSystem {
 
     getFilePreviewImageURL(node: CloudNode): string {
         return `${this._baseUrl}/files/${node.id}/preview`;
+    }
+
+    //MOCK function
+    getUserShared(id: string): Observable<RespondShare[]>{
+        return null;
     }
 
     startFileUpload(file: File, destination: CloudDirectory): void {
