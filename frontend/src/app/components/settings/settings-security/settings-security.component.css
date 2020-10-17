@@ -16,7 +16,7 @@ mat-form-field {
     flex-direction: column;
 }
 
-.mat-flat-button {
+.two-factor-status{
     pointer-events: none;
     cursor: default;
     width: 110px;

@@ -25,14 +25,14 @@ class UserController {
 
     public static async settings(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { firstname, lastname, email, password } = req.body;
+            const { firstname, lastname, email, password, twoFactorApp, twoFactorSms, twoFactorEmail, phone_number, authy_id } = req.body;
 
             // if we are using a change password token to access, then we allow user only to change his password
             if(res.locals.APP_JWT_TOKEN.email) {
                 const user_email = res.locals.APP_JWT_TOKEN.email;
                 const user: IUser = requireNonNull(await User.findOne({ email: user_email }).exec());
 
-                requireNonNull(await UserService.updateProfile(user._id, undefined, undefined, undefined, password));
+                requireNonNull(await UserService.updateProfile(user._id, undefined, undefined, undefined, password, undefined, undefined, undefined, undefined, undefined));
 
                 res.status(HttpCodes.OK);
                 res.json({
