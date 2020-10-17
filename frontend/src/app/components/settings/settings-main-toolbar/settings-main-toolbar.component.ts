@@ -14,7 +14,7 @@ export class SettingsMainToolbarComponent {
 
   constructor(private userServiceProvider: UserServiceProvider) { }
 
-  getCurrentUsername() {
+  getCurrentUsername(): string {
     const user = this.userServiceProvider.default().getActiveUser();
     return `${user.firstname} ${user.lastname}`;
   }
