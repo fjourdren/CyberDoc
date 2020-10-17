@@ -32,7 +32,7 @@ class FileService {
 
     public static async requireIsFileOwner(user: IUser | string, file: IFile | string): Promise<void> {
         if (!await this.isFileOwner(user, file)) {
-            throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't file owner");
+            throw new HTTPError(HttpCodes.FORBIDDEN, "User isn't file owner");
         }
     }
 
@@ -44,7 +44,7 @@ class FileService {
 
     public static async requireFileCanBeViewed(user: IUser | string, file: IFile | string): Promise<void> {
         if (!await this.fileCanBeViewed(user, file)) {
-            throw new HTTPError(HttpCodes.UNAUTHORIZED, "Unauthorized to read this file");
+            throw new HTTPError(HttpCodes.FORBIDDEN, "Unauthorized to read this file");
         }
     }
 
@@ -56,7 +56,7 @@ class FileService {
 
     public static async requireFileCanBeModified(user: IUser | string, file: IFile | string): Promise<void> {
         if (!await this.fileCanBeModified(user, file)) {
-            throw new HTTPError(HttpCodes.UNAUTHORIZED, "Unauthorized to read this file");
+            throw new HTTPError(HttpCodes.FORBIDDEN, "Unauthorized to read this file");
         }
     }
 
@@ -67,7 +67,7 @@ class FileService {
 
     public static async requireFileCanBeCopied(user: IUser | string, file: IFile | string): Promise<void> {
         if (!await this.fileCanBeCopied(user, file)) {
-            throw new HTTPError(HttpCodes.UNAUTHORIZED, "Unauthorized to copy this file");
+            throw new HTTPError(HttpCodes.FORBIDDEN, "Unauthorized to copy this file");
         }
     }
 
