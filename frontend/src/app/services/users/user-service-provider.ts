@@ -5,7 +5,7 @@ import { RealUserService } from './real-user-service';
 import { UserService } from './user-service';
 import { CookieService } from 'ngx-cookie-service';
 
-const DEFAULT_USER_SERVICE_PROVIDER_NAME = "real";
+const DEFAULT_USER_SERVICE_PROVIDER_NAME = "mock";
 
 @Injectable({
     providedIn: 'root'

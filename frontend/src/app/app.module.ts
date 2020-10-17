@@ -79,6 +79,7 @@ import { FilesFilterDialogComponent } from './components/files/files-filter-dial
 import { FilesFilterToolbarComponent } from './components/files/files-filter-toolbar/files-filter-toolbar.component';
 import { SettingsMainToolbarComponent } from './components/settings/settings-main-toolbar/settings-main-toolbar.component';
 import { Router } from '@angular/router';
+import { FilesShareMenuDialogComponent } from './components/files/files-share-menu-dialog/files-share-menu-dialog.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
@@ -155,10 +156,10 @@ if (environment.useSentry) {
     SettingsProfilePageComponent,
     SettingsSecurityPageComponent,
     UnhandledErrorDialogComponent,
-    FilesTagsComponent,
     FilesCreateTagDialogComponent,
     FilesShareDialogComponent,
     FilesFilterToolbarComponent,
+    FilesShareMenuDialogComponent,
   ],
   imports: [
     BrowserModule,

@@ -39,6 +39,7 @@
         "create": "Create",
         "delete_confirm": "Are you sure you want to delete '{{filename}}' ?",
         "share": "Share",
+        "newShare": "New share",
         "sharewith": "Share with :",
         "export": "PDF export"
     },
