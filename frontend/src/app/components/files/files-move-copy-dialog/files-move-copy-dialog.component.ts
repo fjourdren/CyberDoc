@@ -1,7 +1,7 @@
 import { Component, ElementRef, HostListener, Inject, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
-import { CloudDirectory, CloudNode } from 'src/app/models/files-api-models';
+import { CloudDirectory, CloudFile, CloudNode } from 'src/app/models/files-api-models';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { FilesTableRestrictions } from '../files-generic-table/files-table-restrictions';
 import { MoveCopyDialogModel } from './move-copy-dialog-model';
@@ -87,9 +87,9 @@ export class FilesMoveCopyDialogComponent {
 
     this.loading = true;
     this.dialogRef.disableClose = true;
-    if (this.data.copy) {
+    if (this.data.copy && !this.data.node.isDirectory) {
       this.translate.get("file.copy_new_name", { "filename": this.data.node.name }).toPromise().then(newName => {
-        this.fsProvider.default().copy(this.data.node, newName, destination).toPromise().then(() => {
+        this.fsProvider.default().copy(this.data.node as CloudFile, newName, destination).toPromise().then(() => {
           this.loading = false;
           this.filesTableRestrictions = oldRestrictions;
           this.dialogRef.disableClose = false;
