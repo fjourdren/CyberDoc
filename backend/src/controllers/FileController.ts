@@ -363,7 +363,7 @@ class FileController {
     public static async getSharedAccesses(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const currentUser = FileController._requireAuthenticatedUser(res);
-            const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
             FileService.requireFileIsDocument(file);
             await FileService.requireFileCanBeViewed(currentUser, file);
 
@@ -390,17 +390,19 @@ class FileController {
     public static async addSharingAccess(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const currentUser = FileController._requireAuthenticatedUser(res);
-
-            const fileID = requireNonNull(req.params.fileId, 400, "Invalid request");
-            const email = requireNonNull(req.body.email, 400, "Invalid request");
-
-            const file = requireNonNull(await File.findById(fileID).exec(), 404, "File not found");
-            const user = requireNonNull(await User.findOne({"email": email}).exec(), 404, "User not found");
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
+            const user = requireNonNull(await User.findOne({"email": req.body.email}).exec(), HttpCodes.NOT_FOUND, "User not found");
             FileService.requireFileIsDocument(file);
             await FileService.requireIsFileOwner(currentUser, file);
 
-            file.sharedWith.push(user._id);
-            await file.save();
+            if (user === currentUser){
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "You are the owner of the file, you can't share it with yourself");
+            }
+
+            if (file.sharedWith.indexOf(user._id) === -1){
+                file.sharedWith.push(user._id);
+                await file.save();    
+            }
 
             res.status(HttpCodes.OK);
             res.json({
@@ -416,8 +418,8 @@ class FileController {
         try {
             const currentUser = FileController._requireAuthenticatedUser(res);
 
-            const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
-            const user = requireNonNull(await User.findOne({"email": req.params.email}).exec(), 404, "User not found");
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
+            const user = requireNonNull(await User.findOne({"email": req.params.email}).exec(), HttpCodes.NOT_FOUND, "User not found");
             FileService.requireFileIsDocument(file);
             await FileService.requireIsFileOwner(currentUser, file);
 
@@ -425,6 +427,8 @@ class FileController {
             if (index !== -1) {
                 file.sharedWith.splice(index, 1);
                 await file.save();
+            } else {
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "Specified email doesn't have sharing access to the file");
             }
 
             res.status(HttpCodes.OK);
@@ -438,7 +442,7 @@ class FileController {
     }
 
     private static _requireAuthenticatedUser(res: Response): IUser {
-        return requireNonNull(res.locals.APP_JWT_TOKEN.user, 401, "Session cookie is missing or invalid");
+        return requireNonNull(res.locals.APP_JWT_TOKEN.user, HttpCodes.UNAUTHORIZED, "Session cookie is missing or invalid");
     }
 
     private static _requireFile(req: Request, fieldName: string): Express.Multer.File {
@@ -451,7 +455,7 @@ class FileController {
             }
         }
 
-        return requireNonNull(file, 400, `File missing (${fieldName})`)
+        return requireNonNull(file, HttpCodes.BAD_REQUEST, `File missing (${fieldName})`)
     }
 
 }
