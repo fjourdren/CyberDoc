@@ -665,13 +665,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/GetSharedAccessesResponse"
         "400":
-          description: Bad request
+          description: Bad request - fileId is a directory
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/GenericResponse"
         "401":
           description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "403":
+          description: Forbidden - You can't read file attributes
           content:
             application/json:
               schema:
@@ -723,13 +729,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericResponse"
         "400":
-          description: Bad request
+          description: Bad request - fileId is a directory or current user is the owner of the fileId
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/GenericResponse"
         "401":
           description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "403":
+          description: Forbidden - The current user is not the file owner
           content:
             application/json:
               schema:
@@ -779,13 +791,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericResponse"
         "400":
-          description: Bad request
+          description: Bad request - fileId is a directory or specified email doesn't have sharing access to the file
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/GenericResponse"
         "401":
           description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericResponse"
+        "403":
+          description: Forbidden - The current user is not the file owner
           content:
             application/json:
               schema:
