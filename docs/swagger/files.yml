@@ -2,6 +2,11 @@ openapi: 3.0.0
 info:
   title: CyberDoc Files API
   version: 1.0.0
+  description: |
+    - The application defines three rights for each node :
+      - `read`
+      - `write`
+      - `owner`
 servers:
   - url: http://localhost:3000/v1
     description: Local server
@@ -33,43 +38,68 @@ paths:
                 name:
                   description: File name
                   type: string
+                  example: File.pdf
                 mimetype:
                   description: File mimetype, `application/x-dir` to create a directory
                   type: string
+                  example: application/pdf
                 folderID:
                   description: ID of the folder which will contains the new file
                   type: string
+                  example: <folder UUID>
       responses:
         "201":
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FileResponse"
+                type: object
+                required:
+                  - success
+                  - msg
+                  - file
+                properties:
+                  success:
+                    type: boolean
+                    description: true if the operation succeeded, otherwise false
+                    example: true
+                  msg:
+                    type: string
+                    description: msg
+                    example: Success
+                  file:
+                    oneOf:
+                      - $ref: "#/components/schemas/CloudFile"
+                      - $ref: "#/components/schemas/CloudDirectory"
         "400":
-          description: Bad request
+          description: |
+            - `name` field is invalid
+            - `mimetype` field is invalid
+            - if `mimetype != application/x-dir` AND `upfile == null`
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "404":
-          description: Not Found / Forbidden
+          description: |
+            - `folderID` is not a valid directory
+            - The current user don't have `owner` access on `folderID` 
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
                 
   "/files/search":
     post:
@@ -91,31 +121,44 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SearchResponse"
+                type: object
+                required:
+                  - success
+                  - msg
+                  - results
+                properties:
+                  success:
+                    type: boolean
+                    description: true if the operation succeeded, otherwise false
+                    example: true
+                  msg:
+                    type: string
+                    description: msg
+                    example: Success
+                  results:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: "#/components/schemas/CloudFile"
+                        - $ref: "#/components/schemas/CloudDirectory"
         "400":
-          description: Bad request
+          description: Bad request (missing, `null` or invalid fields)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "404":
-          description: Not Found / Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
 
 
   "/files/{fileId}":
@@ -140,25 +183,44 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FileResponse"
+                type: object
+                required:
+                  - success
+                  - msg
+                  - content
+                properties:
+                  success:
+                    type: boolean
+                    description: true if the operation succeeded, otherwise false
+                    example: true
+                  msg:
+                    type: string
+                    description: msg
+                    example: Success
+                  content:
+                    oneOf:
+                      - $ref: "#/components/schemas/CloudFile"
+                      - $ref: "#/components/schemas/CloudDirectory"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "404":
-          description: Not Found / Forbidden
+          description: |
+            - `fileId` is not a valid node
+            - The current user don't have `read` access on this node 
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
 
     put:
       tags:
@@ -192,39 +254,43 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FileResponse"
+                $ref: "#/components/schemas/GenericSuccessResponse"
         "400":
-          description: Bad request
+          description: |
+            - `fileId` is a directory
+            - `upfile == null`
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "404":
-          description: Not Found / Forbidden
+          description: |
+            - `fileId` is not a valid file
+            - The current user don't have `write` access on this file 
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
 
     patch:
       tags:
         - Files
       security:
         - jwtToken: [ ]
-      summary: Edit file/directory metadata (name & directoryID)
-      description: Edit file/directory metadata (name & directoryID)
+      summary: Edit file/directory metadata
+      description: Edit file/directory metadata
       parameters:
         - name: fileId
           in: path
@@ -249,6 +315,17 @@ paths:
                   format: uuid
                   example: 9b81d950-b605-471f-a654-4fffba6bcfc5
                   description: ID of the directory which contains the file
+                preview:
+                  type: boolean
+                  description: If preview for this file is allowed or not
+                shareMode:
+                  type: string
+                  enum:
+                    - readonly
+                    - readwrite
+                  description: Sharing mode
+                  example: readonly
+
         description: File
         required: true
       responses:
@@ -257,25 +334,27 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FileResponse"
+                $ref: "#/components/schemas/GenericSuccessResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "404":
-          description: Not Found / Forbidden
+          description: |
+            - `fileId` is not a valid node
+            - The current user don't have `owner` access on this node 
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
 
     delete:
       tags:
@@ -297,25 +376,27 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FileResponse"
+                $ref: "#/components/schemas/GenericSuccessResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "404":
-          description: Not Found / Forbidden
+          description: |
+            - `fileId` is not a valid node
+            - The current user don't have `owner` access on this node 
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
 
   "/files/{fileId}/copy":
     post:
@@ -345,31 +426,51 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FileResponse"
+                type: object
+                required:
+                  - success
+                  - msg
+                  - file
+                properties:
+                  success:
+                    type: boolean
+                    description: true if the operation succeeded, otherwise false
+                    example: true
+                  msg:
+                    type: string
+                    description: msg
+                    example: Success
+                  file:
+                    $ref: "#/components/schemas/CloudFile"
         "400":
-          description: Bad request
+          description: |
+            - `fileId` is a directory
+            - `copyFileName` field is invalid
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "404":
-          description: Not Found / Forbidden
+          description: |
+            - `fileId` is not a valid file
+            - The current user don't have `read` access on this file 
+            - The current user don't have `owner` access on `destID` 
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
 
   "/files/{fileId}/preview":
     get:
@@ -394,24 +495,35 @@ paths:
               schema:
                 type: string
                 format: binary
+        "400":
+          description: |
+            - Preview for `fileId` is disabled
+            - Preview for `fileId` is not available
+            - `fileId` is a directory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "404":
-          description: Not Found / Forbidden
+          description: |
+            - `fileId` is not a valid file
+            - The current user don't have `read` access on this file 
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
 
   "/files/{fileId}/tags":
     post:
@@ -430,7 +542,7 @@ paths:
             type: string
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               required:
                 - tagid
@@ -442,28 +554,30 @@ paths:
         "200":
           description: Success
           content:
-            image/png:
+            application/json:
               schema:
-                type: string
-                format: binary
+                $ref: "#/components/schemas/GenericSuccessResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "404":
-          description: Not Found / Forbidden
+          description: |
+            - `fileId` is not a valid node
+            - The current user don't have `owner` access on this node 
+            - `tagId` is not a valid tag
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
   
   "/files/{fileId}/tags/{tagId}":
     delete:
@@ -492,28 +606,36 @@ paths:
         "200":
           description: Success
           content:
-            image/png:
+            application/json:
               schema:
-                type: string
-                format: binary
+                $ref: "#/components/schemas/GenericSuccessResponse"
+        "400":
+          description: |
+            `fileId` don't have `tagId` on it
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "404":
-          description: Not Found / Forbidden
+          description: |
+            - `fileId` is not a valid file
+            - The current user don't have `owner` access on this file 
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
 
   "/files/{fileId}/download":
     get:
@@ -540,29 +662,32 @@ paths:
                 type: string
                 format: binary
         "400":
-          description: Bad request
+          description: |
+            `fileId` is a directory
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "404":
-          description: Not Found / Forbidden
+          description: |
+            - `fileId` is not a valid file
+            - The current user don't have `read` access on this file 
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
 
   "/files/{fileId}/export":
     get:
@@ -588,36 +713,275 @@ paths:
                 type: string
                 format: binary
         "400":
-          description: Bad request
+          description: |
+            - PDF export for `fileId` is not available
+            - `fileId` is a directory
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "404":
-          description: Not Found / Forbidden
+          description: |
+            - `fileId` is not a valid file
+            - The current user don't have `read` access on this file 
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
+                
+                
+  "/files/shared":
+    get:
+      tags:
+        - File sharing
+      security:
+        - jwtToken: [ ]
+      summary: Get files shared with current user
+      description: Get files shared with current user
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - msg
+                  - sharedFiles
+                properties:
+                  success:
+                    type: boolean
+                    description: true if the operation succeeded, otherwise false
+                    example: true
+                  msg:
+                    type: string
+                    description: msg
+                    example: Success
+                  sharedFiles:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CloudFile"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+      
+                
+  "/files/{fileId}/sharing":
+    get:
+      tags:
+        - File sharing
+      security:
+        - jwtToken: [ ]
+      summary: Get all users who have share access to a file
+      description: Get all users who have share access to a file
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - msg
+                  - users
+                properties:
+                  success:
+                    type: boolean
+                    description: true if the operation succeeded, otherwise false
+                    example: true
+                  msg:
+                    type: string
+                    description: msg
+                    example: Success
+                  users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FileShareAccess"
+        "400":
+          description: |
+            `fileId` is a directory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "404":
+          description: |
+            - `fileId` is not a valid file
+            - The current user don't have `read` access on this file 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+
+  
+    post:
+      tags:
+        - File sharing
+      security:
+        - jwtToken: [ ]
+      summary: Add share access of a file with a user
+      description: Add share access of a file with a user
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - email
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericSuccessResponse"
+        "400":
+          description: Bad request - fileId is a directory or current user is the owner of the fileId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "404":
+          description: |
+            - `fileId` is not a valid file
+            - The current user don't have `owner` access on this file 
+            - The application don't have a user with the specified `email`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+
+    
+  "/files/{fileId}/sharing/{email}":
+    delete:
+      tags:
+        - File sharing
+      security:
+        - jwtToken: [ ]
+      summary: Remove share access of a file with a user
+      description: Remove share access of a file with a user
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file
+          required: true
+          schema:
+            type: string
+        - name: email
+          in: path
+          description: User email
+          required: true
+          schema:
+            type: string
+            format: email
+
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericSuccessResponse"
+        "400":
+          description: Bad request - fileId is a directory or specified email doesn't have sharing access to the file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "404":
+          description: |
+            - `fileId` is not a valid file
+            - The current user don't have `owner` access on this file 
+            - The application don't have a user with the specified `email`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+  
 
 components:
   securitySchemes:
     jwtToken:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+      type: apiKey
+      in: cookie
+      name: access_token
 
   schemas:
 
@@ -681,17 +1045,6 @@ components:
           description: ID of the destination directory
 
     CloudFile:
-      example:
-        id: 9b81d950-b605-471f-a654-4fffba6bcfc5
-        ownerName: John Doe
-        name: "File.pdf"
-        mimetype: "application/pdf"
-        size: 666
-        lastModified: "2017-07-21T17:32:28Z"
-        tags:
-          - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
-            name: "TODO"
-            hexColor: "#eeeeee"
       description: Represents a classic file, sent by the server
       type: object
       required:
@@ -700,69 +1053,57 @@ components:
         - name
         - mimetype
         - size
-        - lastModified
+        - updated_at
+        - created_at
         - tags
+        - shareMode
       properties:
         id:
           type: string
           format: uuid
-          example: 9b81d950-b605-471f-a654-4fffba6bcfc5
           description: File ID
+          example: 9b81d950-b605-471f-a654-4fffba6bcfc5
         ownerName:
           type: string
           format: uuid
-          example: John Doe
           description: Owner ID
+          example: John DOE
         name:
           type: string
-          example: FileName.pdf
           description: File name
+          example: File.pdf
         mimetype:
           type: string
-          example: application/pdf
           description: File type
+          example: application/pdf
+        size:
+          type: integer
+          description: File size
+          example: 666
+        updated_at:
+          type: string
+          format: date-time
+          description: File last modification date
+          example: "2017-07-21T17:32:28Z"
+        created_at:
+          type: string
+          format: date-time
+          description: File creation date
+          example: "2017-07-21T15:32:28Z"
         tags:
           type: array
           items:
             $ref: "#/components/schemas/FileTag"
           description: File tag
-        size:
-          type: integer
-          example: "666"
-          description: File size
-        lastModified:
+        shareMode:
           type: string
-          format: date-time
-          description: File last modification date
-
+          enum:
+            - readonly
+            - readwrite
+          description: Sharing mode
+          example: readonly
+          
     CloudDirectory:
-      example:
-        id: 9b81d950-b605-471f-a654-4fffba6bcfc5
-        ownerName: John Doe
-        name: subsubdir
-        mimetype: application/x-dir
-        tags:
-          - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
-            name: "TODO"
-            hexColor: "#eeeeee"
-        path:
-          - id: 9b81d950-b605-471f-a654-4fffba6bcfc1
-            name: root
-          - id: 9b81d950-b605-471f-a654-4fffba6bcfc2
-            name: subdir
-        directoryContent:
-          - id: 9b81d950-b605-471f-a654-4fffba6bcfc3
-            ownerName: John Doe
-            name: subsubsubdir
-            mimetype: application/x-dir
-            path: [ ]
-            directoryContent: [ ]
-          - id: 9b81d950-b605-471f-a654-4fffba6bcfc5
-            name: "File.pdf"
-            ownerName: John Doe
-            mimetype: "application/pdf"
-            size: 666
-            lastModified: "2017-07-21T17:32:28Z"
       description: Represents a directory, sent by the server
       type: object
       required:
@@ -811,22 +1152,24 @@ components:
             oneOf:
               - $ref: "#/components/schemas/CloudFile"
               - $ref: "#/components/schemas/CloudDirectory"
-
-    FileResponse:
-      example:
-        success: true
-        msg: "File created"
-        file:
-          id: 9b81d950-b605-471f-a654-4fffba6bcfc5
-          ownerName: John Doe
-          name: "File.pdf"
-          mimetype: "application/pdf"
-          size: 666
-          lastModified: "2017-07-21T17:32:28Z"
-          tags:
-            - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
-              name: "TODO"
-              hexColor: "#eeeeee"
+          
+    FileShareAccess:
+      description: User who have a share access to a file
+      type: object
+      required:
+        - email
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+          example: john.doe@gmail.com
+        name:
+          type: string
+          example: John DOE
+  
+    GenericSuccessResponse:
+      description: Generic error response
       type: object
       required:
         - success
@@ -835,29 +1178,14 @@ components:
         success:
           type: boolean
           description: true if the operation succeeded, otherwise false
+          example: false
         msg:
           type: string
           description: msg
-        file:
-          oneOf:
-            - $ref: "#/components/schemas/CloudFile"
-            - $ref: "#/components/schemas/CloudDirectory"
-
-    SearchResponse:
-      example:
-        success: true
-        msg: "OK"
-        results:
-          - id: 9b81d950-b605-471f-a654-4fffba6bcfc5
-            ownerName: John Doe
-            name: "File.pdf"
-            mimetype: "application/pdf"
-            size: 666
-            lastModified: "2017-07-21T17:32:28Z"
-            tags:
-              - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
-                name: "TODO"
-                hexColor: "#eeeeee"
+          example: Success
+          
+    GenericErrorResponse:
+      description: Generic error response
       type: object
       required:
         - success
@@ -866,36 +1194,13 @@ components:
         success:
           type: boolean
           description: true if the operation succeeded, otherwise false
+          example: false
         msg:
           type: string
           description: msg
-        results:
-          type: array
-          items:
-            $ref: "#/components/schemas/CloudDirectory"
-
-    GenericResponse:
-      example:
-        success: false
-        msg: "Unknown error"
-      description: Generic response
-      type: object
-      required:
-        - success
-        - msg
-      properties:
-        success:
-          type: boolean
-          description: true if the operation succeeded, otherwise false
-        msg:
-          type: string
-          description: msg
+          example: <error message>
 
     FileTag:
-      example:
-        id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
-        name: "TODO"
-        hexColor: "#eeeeee"
       description: File tag
       type: object
       required:
@@ -906,8 +1211,11 @@ components:
         id:
           type: string
           format: uuid
+          example: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
         name:
           type: string
+          example: TODO
         hexColor:
           type: string
           pattern: "^#(?:[0-9a-fA-F]{3}){1,2}$"
+          example: "#eeeeee"
