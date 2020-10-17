@@ -13,13 +13,13 @@ export class MockTwoFactorService implements TwoFactorService {
     constructor() {
         
     }
-    sendToken(sending_way: string, authy_id: string): Observable<void> {
+    sendToken(sending_way: string, authyId: string): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             return null
         }));
     }
 
-    verifyToken(authy_id: string, token: string): Observable<boolean> {
+    verifyToken(authyId: string, token: string): Observable<boolean> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             return true;
         }));
@@ -30,12 +30,12 @@ export class MockTwoFactorService implements TwoFactorService {
         }));
     }
 
-    delete(authy_id: string): Observable<void> {
+    delete(authyId: string): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
         }));
     }
 
-    generateQrCode(email: string, authy_id: string): Observable<string> {
+    generateQrCode(email: string, authyId: string): Observable<string> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             return "https://upload.wikimedia.org/wikipedia/commons/7/78/Qrcode_wikipedia_fr_v2clean.png";
         }));

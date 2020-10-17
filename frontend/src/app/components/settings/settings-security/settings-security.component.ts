@@ -3,12 +3,11 @@ import {AbstractControl, FormBuilder, FormGroup, Validators} from '@angular/form
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
 import {MustMatch} from './_helpers/must-match.validator';
-import {MatDialog, MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material/dialog';
 import {TwoFactorServiceProvider} from 'src/app/services/twofactor/twofactor-service-provider';
-import {User} from '../../../models/users-api-models';
 
 export interface DialogData {
-    authy_id: string;
+    authyId: string;
     qrCodeUrl: string;
     phoneNumber: string;
     email: string;
@@ -37,18 +36,20 @@ export class SettingsSecurityComponent implements OnInit {
     twoFactorApp: boolean;
     twoFactorSms: boolean;
     twoFactorEmail: boolean;
+    passwordStrength = '(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&].{8,}';
 
     constructor(private userServiceProvider: UserServiceProvider,
                 private twoFactorServiceProvider: TwoFactorServiceProvider,
                 private fb: FormBuilder, private snackBar: MatSnackBar, private dialog: MatDialog) {
     }
 
-    passwordStrength = '(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&].{8,}';
+    get f(): { [p: string]: AbstractControl } {
+        return this.passwordForm.controls;
+    }
 
     ngOnInit(): void {
         this.email = this.userServiceProvider.default().getActiveUser().email;
-        this.phoneNumber = this.userServiceProvider.default().getActiveUser().phone_number;
-        this.authyId = this.userServiceProvider.default().getActiveUser().authy_id;
+        this.authyId = this.userServiceProvider.default().getActiveUser().authyId;
         this.refreshTwoFactor();
 
         this.passwordForm = this.fb.group({
@@ -61,10 +62,6 @@ export class SettingsSecurityComponent implements OnInit {
         });
 
         this.dialogConfig = new MatDialogConfig();
-    }
-
-    get f(): { [p: string]: AbstractControl } {
-        return this.passwordForm.controls;
     }
 
     onSubmitPassword(): void {
@@ -110,7 +107,7 @@ export class SettingsSecurityComponent implements OnInit {
 
     // Dialogs
     openDialogActivateTwoFactor(type: string): void {
-        if (this.userServiceProvider.default().getActiveUser().authy_id == null) {
+        if (this.userServiceProvider.default().getActiveUser().authyId == null) {
             this.snackBar.open('You must enter your phone number in your profile to enable 2FA', null, {duration: 3000});
         } else {
             switch (type) {
@@ -119,7 +116,7 @@ export class SettingsSecurityComponent implements OnInit {
                         const refDialog = this.dialog.open(SettingsSecurityDialogComponent, {
                             width: '500px',
                             data: {
-                                authy_id: this.authyId,
+                                authyId: this.authyId,
                                 qrCodeUrl: res,
                                 email: null,
                                 phoneNumber: null
@@ -135,7 +132,7 @@ export class SettingsSecurityComponent implements OnInit {
                         const refDialog = this.dialog.open(SettingsSecurityDialogComponent, {
                             width: '500px',
                             data: {
-                                authy_id: this.authyId,
+                                authyId: this.authyId,
                                 qrCodeUrl: null,
                                 email: null,
                                 phoneNumber: this.phoneNumber
@@ -151,7 +148,7 @@ export class SettingsSecurityComponent implements OnInit {
                         const refDialog = this.dialog.open(SettingsSecurityDialogComponent, {
                             width: '500px',
                             data: {
-                                authy_id: this.authyId,
+                                authyId: this.authyId,
                                 qrCodeUrl: null,
                                 email: this.email,
                                 phoneNumber: null
@@ -207,6 +204,10 @@ export class SettingsSecurityDialogComponent implements OnInit {
                 @Inject(MAT_DIALOG_DATA) public data: DialogData) {
     }
 
+    get f(): { [p: string]: AbstractControl } {
+        return this.tokenForm.controls;
+    }
+
     ngOnInit(): void {
         this.tokenForm = this.fb.group({
             token: [null, [Validators.required, Validators.pattern('[0-9]{6,7}'), Validators.minLength(6), Validators.maxLength(7)]]
@@ -218,7 +219,7 @@ export class SettingsSecurityDialogComponent implements OnInit {
     }
 
     onSubmitToken(): void {
-        this.twoFactorServiceProvider.default().verifyToken(this.data.authy_id, this.tokenForm.get('token').value).toPromise().then(res => {
+        this.twoFactorServiceProvider.default().verifyToken(this.data.authyId, this.tokenForm.get('token').value).toPromise().then(res => {
             if (res) {
                 this.userServiceProvider.default().updateTwoFactor(
                     this.data.qrCodeUrl ? true : this.userServiceProvider.default().getActiveUser().twoFactorApp,
@@ -235,9 +236,5 @@ export class SettingsSecurityDialogComponent implements OnInit {
         }).catch(err => {
             this.snackBar.open(err.error.message, null, {duration: 1500});
         });
-    }
-
-    get f(): { [p: string]: AbstractControl } {
-        return this.tokenForm.controls;
     }
 }
