@@ -15,9 +15,9 @@ export class RealTwoFactorService implements TwoFactorService {
         console.log(this._baseUrl);
     }
 
-    sendToken(sending_way: string, authy_id: string): Observable<void> {
+    sendToken(sending_way: string, authyId: string): Observable<void> {
         return this.httpClient.post<any>(`${this._baseUrl}/2fa/send/${sending_way}`, {
-            "authy_id": authy_id
+            "authyId": authyId
         }, {withCredentials: true}).pipe(map(response => {
             return null;
         }));
@@ -33,26 +33,26 @@ export class RealTwoFactorService implements TwoFactorService {
         }));
     }
 
-    delete(authy_id: string): Observable<void> {
+    delete(authyId: string): Observable<void> {
         return this.httpClient.post<any>(`${this._baseUrl}/2fa/delete`, {
-            "authy_id": authy_id
+            "authyId": authyId
         }, {withCredentials: true}).pipe(map(response => {
             return null;
         }));
     }
 
-    generateQrCode(email: string, authy_id: string): Observable<string> {
+    generateQrCode(email: string, authyId: string): Observable<string> {
         return this.httpClient.post<any>(`${this._baseUrl}/2fa/qrcode`, {
             "email": email,
-            "authy_id": authy_id
+            "authyId": authyId
         }, {withCredentials: true}).pipe(map(response => {
             return response.qr_code;
         }));
     }
 
-    verifyToken(authy_id: string, token: string): Observable<boolean> {
+    verifyToken(authyId: string, token: string): Observable<boolean> {
         return this.httpClient.post<any>(`${this._baseUrl}/2fa/verify/token`, {
-            "authy_id": authy_id,
+            "authyId": authyId,
             "token": token
         }, {withCredentials: true}).pipe(map(response => {
             return response.success;

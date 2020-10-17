@@ -40,10 +40,6 @@ export class SettingsProfileComponent implements OnInit {
             oldEmail: [this.userServiceProvider.default().getActiveUser().email, [Validators.required, Validators.email]]
         });
 
-        this.phoneNumberForm = this.fb.group({
-            phoneNumber: [this.userServiceProvider.default().getActiveUser().phone_number, [Validators.required, Validators.pattern('\\+[0-9]{1,3}[0-9]{7,9}')]]
-        });
-
         this.dialogConfig = new MatDialogConfig();
     }
 
@@ -63,16 +59,16 @@ export class SettingsProfileComponent implements OnInit {
             this.phoneNumber.substring(0, 3)                                 // Country code
         ).toPromise().then(res => {
             console.log('AUTHY_ID = ', res);
-            // Update authy_id of user
+            // Update authyId of user
             this.userServiceProvider.default().updateAuthyId(res, this.userServiceProvider.default().getActiveUser().email).toPromise().then(() => {
                 return null;
             });
             // Send token by SMS in order to verify that it is indeed user's phone number
-            this.twoFactorServiceProvider.default().sendToken('sms', this.userServiceProvider.default().getActiveUser().authy_id).toPromise().then(() => {
+            this.twoFactorServiceProvider.default().sendToken('sms', this.userServiceProvider.default().getActiveUser().authyId).toPromise().then(() => {
                 this.dialog.open(SettingsProfileDialogComponent, {
                     width: '500px',
                     data: {
-                        authy_id: res,
+                        authyId: res,
                         qrCodeUrl: null,
                         email: null,
                         phoneNumber: this.phoneNumber
@@ -93,17 +89,6 @@ export class SettingsProfileComponent implements OnInit {
                 this.snackBar.open('Profile updated', null, {duration: 1500});
             }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
         });
-    }
-
-    updatePhoneNumber(): void {
-        this.userServiceProvider.default().updatePhoneNumber(
-            this.userServiceProvider.default().getActiveUser().email,
-            this.phoneNumberForm.get('phoneNumber').value
-        ).toPromise().then(() => {
-            this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                this.snackBar.open('Phone number updated', null, {duration: 1500});
-            }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
-        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
     }
 
     deleteAccount(): void {
@@ -137,7 +122,7 @@ export class SettingsProfileDialogComponent implements OnInit {
     }
 
     onSubmitToken(): void {
-        this.twoFactorServiceProvider.default().verifyToken(this.data.authy_id, this.tokenForm.get('token').value).toPromise().then(res => {
+        this.twoFactorServiceProvider.default().verifyToken(this.data.authyId, this.tokenForm.get('token').value).toPromise().then(res => {
             if (res === true) {
                 this.dialogRef.close();
                 this.snackBar.open('Valid token ! Your phone number has been updated.', null, {duration: 1500});
