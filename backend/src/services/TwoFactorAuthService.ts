@@ -5,7 +5,8 @@ class TwoFactorAuthService {
     // SEND TOKEN
     /**
      * Send 2FA token to specified user by EMAIL or SMS
-     * @param authy_id 
+     * @param sending_way
+     * @param authy_id
      */
     public static async sendToken(sending_way: string, authy_id: string): Promise<any> {
         let res: any;
@@ -32,9 +33,10 @@ class TwoFactorAuthService {
     /**
      * Send Push Authentication Request
      * @param authy_id
+     * @param email
      */
     public static async sendPushNotification(authy_id: string, email: string): Promise<any> {
-        let res = await axios.post(`https://api.authy.com/onetouch/json/users/${authy_id}/approval_requests`, {
+        const res = await axios.post(`https://api.authy.com/onetouch/json/users/${authy_id}/approval_requests`, {
             message: 'Login requested for a CyberDoc account.',
             details: {
                 username: email
@@ -55,7 +57,7 @@ class TwoFactorAuthService {
      * @param token 
      */
     public static async verifyToken(authy_id: string, token: string): Promise<any> {
-        let res = await axios.get(`https://api.authy.com/protected/json/verify/${token}/${authy_id}`, {
+        const res = await axios.get(`https://api.authy.com/protected/json/verify/${token}/${authy_id}`, {
             headers: {
                 'X-Authy-API-KEY': process.env.AUTHY_API_KEY
             }
@@ -65,10 +67,10 @@ class TwoFactorAuthService {
 
     /**
      * Check status of push authentication request
-     * @param approval_uuid
+     * @param approval_request_id
      */
     public static async verifyPushNotification(approval_request_id: string): Promise<any> {
-        let res = await axios.get(`https://api.authy.com/onetouch/json/approval_requests/${approval_request_id}`, {
+        const res = await axios.get(`https://api.authy.com/onetouch/json/approval_requests/${approval_request_id}`, {
             headers: {
                 'X-Authy-API-KEY': process.env.AUTHY_API_KEY
             }
@@ -84,14 +86,14 @@ class TwoFactorAuthService {
      * @param country_code
      */
     public static async add(email: string, phone_number: string, country_code: string): Promise<any> {
-        var data = {
+        const data = {
             user: {
                 email: email,
                 cellphone: phone_number,
                 country_code: country_code
             }
         };
-        let res = await axios.post('https://api.authy.com/protected/json/users/new', qs.stringify(data), {
+        const res = await axios.post('https://api.authy.com/protected/json/users/new', qs.stringify(data), {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
                 'X-Authy-API-KEY': process.env.AUTHY_API_KEY
@@ -106,7 +108,7 @@ class TwoFactorAuthService {
      * @param authy_id
      */
     public static async delete(authy_id: string): Promise<any> {
-        let res = await axios.post(`https://api.authy.com/protected/json/users/${authy_id}/remove`, null, {
+        const res = await axios.post(`https://api.authy.com/protected/json/users/${authy_id}/remove`, null, {
             headers: {
                 'X-Authy-API-KEY': process.env.AUTHY_API_KEY
             }
@@ -120,7 +122,7 @@ class TwoFactorAuthService {
      * @param authy_id
      */
     public static async generateQrCode(email: string, authy_id: string): Promise<any> {
-        let res = await axios.post(`https://api.authy.com/protected/json/users/${authy_id}/secret`, {
+        const res = await axios.post(`https://api.authy.com/protected/json/users/${authy_id}/secret`, {
             label: email
         }, {
             headers: {

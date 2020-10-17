@@ -12,14 +12,18 @@
 				</mat-expansion-panel-header>
 				<form [formGroup]="passwordForm" (ngSubmit)="onSubmitPassword()">
 					<mat-form-field>
-						<input [type]="isTextFieldType ? 'text' : 'password'" matInput formControlName="oldPassword" placeholder="Old password" autocomplete="on">
+						<label>
+							<input [type]="isTextFieldType ? 'text' : 'password'" matInput formControlName="oldPassword" placeholder="Old password" autocomplete="on">
+						</label>
 					</mat-form-field>
 					<button (click)="toggleOldPasswordFieldType($event)" mat-flat-button item-right>
 						<mat-icon>{{isTextFieldType ? 'visibility_off' : 'visibility'}}</mat-icon>
 					</button>
 					<mat-error *ngIf="checkError('oldPassword', 'required') && passwordForm.get('oldPassword').touched">Old password is required.</mat-error>
 					<mat-form-field>
-						<input [type]="isTextFieldType2 ? 'text' : 'password'" matInput formControlName="newPassword" placeholder="New password" autocomplete="on">
+						<label>
+							<input [type]="isTextFieldType2 ? 'text' : 'password'" matInput formControlName="newPassword" placeholder="New password" autocomplete="on">
+						</label>
 					</mat-form-field>
 					<button (click)="toggleNewPasswordFieldType($event)" mat-flat-button item-right>
 						<mat-icon>{{isTextFieldType2 ? 'visibility_off' : 'visibility'}}</mat-icon>
@@ -28,7 +32,9 @@
 					<mat-error *ngIf="checkError('newPassword', 'minlength') && passwordForm.get('newPassword').touched">New password must be at least 8 characters long.</mat-error>
 					<mat-error *ngIf="checkError('newPassword', 'pattern') && passwordForm.get('newPassword').touched">New password must have at least 1 uppercase, 1 alphanumeric & 1 symbol.</mat-error>
 					<mat-form-field>
-						<input [type]="isTextFieldType3 ? 'text' : 'password'" matInput formControlName="newPasswordConfirmation" placeholder="Confirm new password" autocomplete="on">
+						<label>
+							<input [type]="isTextFieldType3 ? 'text' : 'password'" matInput formControlName="newPasswordConfirmation" placeholder="Confirm new password" autocomplete="on">
+						</label>
 					</mat-form-field>
 					<button (click)="toggleNewPasswordConfirmFieldType($event)" mat-flat-button item-right>
 						<mat-icon>{{isTextFieldType3 ? 'visibility_off' : 'visibility'}}</mat-icon>
@@ -37,7 +43,9 @@
 					<mat-error *ngIf="checkError('newPasswordConfirmation', 'minlength') && passwordForm.get('newPasswordConfirmation').touched">New password confirmation must be at least 8 characters long.</mat-error>
 					<mat-error *ngIf="checkError('newPasswordConfirmation', 'pattern') && passwordForm.get('newPasswordConfirmation').touched">New password confirmation must have at least 1 uppercase, 1 alphanumeric & 1 symbol.</mat-error>
 					<mat-error *ngIf="checkError('newPasswordConfirmation', 'mustMatch') && passwordForm.get('newPasswordConfirmation').touched">Must match with new password.</mat-error>
-					<input type="email" hidden formControlName="email">
+					<label>
+						<input type="email" hidden formControlName="email">
+					</label>
 					<button mat-flat-button color="primary" type="submit" [disabled]="passwordForm.invalid">Update my password</button>
 				</form>
 			</mat-expansion-panel>
@@ -52,27 +60,27 @@
 				</mat-expansion-panel-header>
 				<mat-list>
                     <mat-list-item *ngIf="twoFactorApp">
-						<button mat-flat-button color="success">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
+						<button mat-flat-button color="success" class="two-factor-status">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
                         <button mat-raised-button color="primary" (click)="disableTwoFactor('app')">Disable 2FA with Apps</button>
                     </mat-list-item>
 					<mat-list-item *ngIf="!twoFactorApp">
-						<button mat-flat-button color="warn">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
+						<button mat-flat-button color="warn" class="two-factor-status">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
                         <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('app')">Enable 2FA with Apps</button>
                     </mat-list-item>
                     <mat-list-item *ngIf="twoFactorSms">
-						<button mat-flat-button color="success">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
+						<button mat-flat-button color="success" class="two-factor-status">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
                         <button mat-raised-button color="primary" (click)="disableTwoFactor('sms')">Disable 2FA sent by SMS</button>
                     </mat-list-item>
                     <mat-list-item *ngIf="!twoFactorSms">
-						<button mat-flat-button color="warn">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
+						<button mat-flat-button color="warn" class="two-factor-status">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
                         <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('sms')">Enable 2FA sent by SMS</button>
                     </mat-list-item>
                     <mat-list-item *ngIf="twoFactorEmail">
-						<button mat-flat-button color="success">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
+						<button mat-flat-button color="success" class="two-factor-status">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
                         <button mat-raised-button color="primary" (click)="disableTwoFactor('email')">Disable 2FA sent by emails</button>
                     </mat-list-item>
                     <mat-list-item *ngIf="!twoFactorEmail">
-						<button mat-flat-button color="warn">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
+						<button mat-flat-button color="warn" class="two-factor-status">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
                         <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('email')">Enable 2FA sent by emails</button>
                     </mat-list-item>
                 </mat-list>
