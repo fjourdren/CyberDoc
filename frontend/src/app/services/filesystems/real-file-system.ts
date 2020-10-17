@@ -2,7 +2,7 @@ import { HttpClient, HttpEventType } from '@angular/common/http';
 import { EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { CloudNode, CloudDirectory, SearchParams, FileTag } from 'src/app/models/files-api-models';
+import { CloudNode, CloudDirectory, SearchParams, FileTag, CloudFile } from 'src/app/models/files-api-models';
 import { DIRECTORY_MIMETYPE } from '../files-utils/files-utils.service';
 import { FileSystem, Upload } from './file-system';
 
@@ -11,6 +11,8 @@ export class RealFileSystem implements FileSystem {
     private _refreshNeeded$ = new EventEmitter<void>();
     private _currentUpload$ = new EventEmitter<Upload>();
     private _baseUrl: string;
+
+    private _timeStarted: number = -1;
 
     constructor(private httpClient: HttpClient) {
         if (location.toString().indexOf("localhost") > -1){
@@ -82,8 +84,8 @@ export class RealFileSystem implements FileSystem {
 
     }
 
-    copy(node: CloudNode, fileName: string, destination: CloudDirectory): Observable<void> {
-        return this.httpClient.post<any>(`${this._baseUrl}/files/${node.id}/copy`, {
+    copy(file: CloudFile, fileName: string, destination: CloudDirectory): Observable<void> {
+        return this.httpClient.post<any>(`${this._baseUrl}/files/${file.id}/copy`, {
             "copyFileName": fileName,
             "destID": destination.id
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
@@ -133,7 +135,7 @@ export class RealFileSystem implements FileSystem {
     startFileUpload(file: File, destination: CloudDirectory): void {
         const formData = new FormData();
         formData.append("folderID", destination.id);
-        formData.append("mimetype", file.type);
+        formData.append("mimetype", file.type || "application/octet-stream");
         formData.append("name", file.name);
         formData.append("upfile", file);
 
@@ -144,10 +146,21 @@ export class RealFileSystem implements FileSystem {
         }).pipe(map(event => {
             switch (event.type) {
                 case HttpEventType.UploadProgress: {
+                    //https://stackoverflow.com/questions/21162749/how-do-i-calculate-the-time-remaining-for-my-upload
+                    let timeElasped = 0;
+                    if (this._timeStarted === -1){
+                        this._timeStarted = Date.now();
+                        timeElasped = 1;
+                    } else {
+                        timeElasped = Date.now() - this._timeStarted;
+                    }
+
+                    const uploadSpeed = event.loaded / (timeElasped/1000);
+
                     const obj = {
                         filename: file.name,
                         progress: (event.loaded / event.total),
-                        remainingSeconds: 7 //TODO
+                        remainingSeconds: (event.total - event.loaded) / uploadSpeed
                     }
                     this._currentUpload$.emit(obj);
                     break;
@@ -159,8 +172,10 @@ export class RealFileSystem implements FileSystem {
             }
         })).toPromise().then(()=>{
             console.log("OK");
+            this._timeStarted = -1;
             this._refreshNeeded$.emit()
         }).catch((err)=>{
+            this._timeStarted = -1;
             console.error(err);
         })
     }

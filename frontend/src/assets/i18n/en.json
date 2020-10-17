@@ -54,7 +54,8 @@
         "new_directory": "New directory",
         "drop_div_text": "Drop a file to import",
         "success": "File successfully uploaded",
-        "canceled": "Upload canceled"
+        "canceled": "Upload canceled",
+        "finishing_upload": "Finishing upload..."
     },
     "tags": {
         "create_new_tag": "Create a new tag",
@@ -74,7 +75,7 @@
         "login_error": "Wrong login or password",
         "repeat_password": "Repeat your password",
         "passwords_must_match": "Passwords must match",
-        "password_restrictions": "Use at least eight characters with letters, numbers and symbols."
+        "password_restrictions": "Use at least eight characters with uppercase and lowercase letters, numbers and symbols."
     },
     "general": {
         "generic_error": "Error. Please wait some time then retry",
