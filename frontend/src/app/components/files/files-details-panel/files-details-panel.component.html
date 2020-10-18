@@ -14,7 +14,7 @@
   <table id="details-table">
     <tr *ngIf="!node.isDirectory">
       <td class="mat-body-strong">{{ 'file.modified' | translate }}</td>
-      <td>{{node.lastModified | date}}&nbsp;&nbsp;</td>
+      <td>{{node.updated_at | date}}&nbsp;&nbsp;</td>
     </tr>
     <tr>
       <td class="mat-body-strong">{{ 'file.owner' | translate }}</td>

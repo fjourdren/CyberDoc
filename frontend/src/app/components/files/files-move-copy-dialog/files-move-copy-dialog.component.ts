@@ -26,9 +26,9 @@ export class FilesMoveCopyDialogComponent {
     this.directoryID = data.initialDirID;
 
     this.filesTableRestrictions = {
-      isSelectable: (node: CloudNode) => node.isDirectory && node.id !== data.node.id,
+      isSelectable: (node: CloudNode) => node.isDirectory && node._id !== data.node._id,
       isReadOnly: (node: CloudNode) => true,
-      isDisabled: (node: CloudNode) => !node.isDirectory || node.id === data.node.id,
+      isDisabled: (node: CloudNode) => !node.isDirectory || node._id === data.node._id,
       isContextAndBottomSheetDisabled: (node: CloudNode) => true
     }
   }
@@ -63,7 +63,7 @@ export class FilesMoveCopyDialogComponent {
   openButtonClicked(node: CloudNode) {
     if (node.isDirectory) {
       this.loading = true;
-      this.fsProvider.default().get(node.id).toPromise().then(node => {
+      this.fsProvider.default().get(node._id).toPromise().then(node => {
         if (node.isDirectory) {
           this.currentDirectory = node;
         }

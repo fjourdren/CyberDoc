@@ -44,7 +44,7 @@ export class FilesTreeviewComponent {
     this._currentDirectoryID = val;
     if (this.treeControl.dataNodes) {
       for (const node of this.treeControl.dataNodes) {
-        node.selected = node.directory.id === val;
+        node.selected = node.directory._id === val;
       }
     }
   }

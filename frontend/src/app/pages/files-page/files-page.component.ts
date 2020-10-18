@@ -47,77 +47,74 @@ export class FilesPageComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.ngZone.run(() => {
-        this.route.paramMap.subscribe((val) => {
+
+        this.route.paramMap.subscribe(paramMap => {
           if (!this.treeviewDrawerLocked) { this.treeviewDrawer.close() };
+          switch (true) {
 
-          if (this.route.toString().indexOf("files-search") !== -1) {
-            this.searchMode = true;
-            this.routeSearchParams = JSON.parse(val.get("searchParams"));
-            if (!isValidSearchParams(this.routeSearchParams, this.userServiceProvider.default().getActiveUser().tags.map(tag => tag._id))) {
-              this.router.navigate(['/files']);
-              return;
-            }
-            /**/
-
-            this.loading = true;
-            this.currentDirectory = null;
-            this.selectedNode = null;
-            this.fsProvider.default().search(this.routeSearchParams).toPromise().then(node => {
-              this.currentDirectory = node;
-              this.loading = false;
-            }).catch(err => {
-              if (err instanceof HttpErrorResponse && err.status === 404) {
-                this.router.navigate(['/files']);
+            //files-search
+            case this.route.toString().indexOf("files-search") !== -1: {
+              if (paramMap.has("searchParams")) {
+                this.searchMode = true;
+                this.routeSearchParams = JSON.parse(paramMap.get("searchParams"));
+                if (isValidSearchParams(this.routeSearchParams, this.userServiceProvider.default().getActiveUser().tags.map(tag => tag._id))) {
+                  this.refresh();
+                }else{
+                  this.router.navigate(['/files', this.userServiceProvider.default().getActiveUser().directory_id]);
+                }
               } else {
-                throw err;
+                this.router.navigate(['/files', this.userServiceProvider.default().getActiveUser().directory_id]);
               }
-            });
+              break;
+            }
 
+            //files
+            case this.route.toString().indexOf("files") !== -1: {
+              if (paramMap.has("dirID")) {
+                this.searchMode = false;
+                this.routeSearchParams = null;
+                this.refresh(paramMap.get("dirID"));
+              } else {
+                this.router.navigate(['/files', this.userServiceProvider.default().getActiveUser().directory_id]);
+              }
 
-            /**/
-
-
-          } else {
-            this.searchMode = false;
-            this.selectedNode = null;
-            let currentDirectoryID: string;
-            if (val.has("dirID")) {
-              currentDirectoryID = val.get("dirID");
-              this.refresh(currentDirectoryID);
-            } else {
-              this.router.navigate(['/files', this.userServiceProvider.default().getActiveUser().directory_id]);
+              break;
             }
           }
-        });
-
+        })
       })
     }, 50)
   }
 
   refresh(directoryID: string | null = null) {
-    if (!this.currentDirectory && !directoryID) return; //FIXME
-
     this.loading = true;
-    const id = directoryID || this.currentDirectory.id;
-    const selectedNodeID = this.selectedNode ? this.selectedNode.id : null;
+    const oldSelectedNodeID = this.selectedNode ? this.selectedNode._id : null;
 
     this.currentDirectory = null;
     this.selectedNode = null;
-    this.fsProvider.default().get(id).toPromise().then(node => {
+    let promise: Promise<CloudNode>;
+
+    if (this.searchMode) {
+      promise = this.fsProvider.default().search(this.routeSearchParams).toPromise();
+    } else {
+      const id = directoryID || this.currentDirectory._id;
+      promise = this.fsProvider.default().get(id).toPromise();
+    }
+
+    promise.then(node => {
+      this.loading = false;
       if (node.isDirectory) {
         this.currentDirectory = node;
-        if (selectedNodeID) {
+        if (oldSelectedNodeID) {
           for (const item of node.directoryContent) {
-            if (item.id === selectedNodeID) {
+            if (item._id === oldSelectedNodeID) {
               this.selectedNode = item;
             }
           }
         }
-
       } else {
-        this.router.navigate(['/files']);
+        this.router.navigate(['/files', this.userServiceProvider.default().getActiveUser().directory_id]);
       }
-      this.loading = false;
     }).catch(err => {
       if (err instanceof HttpErrorResponse && err.status === 404) {
         this.router.navigate(['/files']);
@@ -129,9 +126,9 @@ export class FilesPageComponent implements AfterViewInit {
 
   openButtonClicked(node: CloudNode) {
     if (node.isDirectory) {
-      this.router.navigate(['/files', node.id]);
+      this.router.navigate(['/files', node._id]);
     } else {
-      this.router.navigate(['/file', node.id]);
+      this.router.navigate(['/file', node._id]);
     }
   }
 }

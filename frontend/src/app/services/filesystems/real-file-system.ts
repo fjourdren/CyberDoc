@@ -37,7 +37,7 @@ export class RealFileSystem implements FileSystem {
 
     createDirectory(name: string, parentFolder: CloudDirectory): Observable<void> {
         return this.httpClient.post<any>(`${this._baseUrl}/files`, {
-            "folderID": parentFolder.id,
+            "folderID": parentFolder._id,
             "mimetype": DIRECTORY_MIMETYPE,
             "name": name
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
@@ -71,11 +71,11 @@ export class RealFileSystem implements FileSystem {
             const folder = new CloudDirectory();
 
             folder.directoryContent = response.results;
-            folder.id = "you-should-not-see-this";
-            folder.name = "you-should-not-see-this";
+            folder._id = null;
+            folder.name = null;
             folder.isDirectory = true;
             folder.mimetype = DIRECTORY_MIMETYPE;
-            folder.ownerName = "you-should-not-see-this";
+            folder.ownerName = null;
             folder.path = [];
             folder.tags = [];
 
@@ -85,56 +85,56 @@ export class RealFileSystem implements FileSystem {
     }
 
     copy(file: CloudFile, fileName: string, destination: CloudDirectory): Observable<void> {
-        return this.httpClient.post<any>(`${this._baseUrl}/files/${file.id}/copy`, {
+        return this.httpClient.post<any>(`${this._baseUrl}/files/${file._id}/copy`, {
             "copyFileName": fileName,
-            "destID": destination.id
+            "destID": destination._id
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     move(node: CloudNode, destination: CloudDirectory): Observable<void> {
-        return this.httpClient.patch<any>(`${this._baseUrl}/files/${node.id}`, {
-            "directoryID": destination.id,
+        return this.httpClient.patch<any>(`${this._baseUrl}/files/${node._id}`, {
+            "directoryID": destination._id,
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     rename(node: CloudNode, newName: string): Observable<void> {
-        return this.httpClient.patch<any>(`${this._baseUrl}/files/${node.id}`, {
+        return this.httpClient.patch<any>(`${this._baseUrl}/files/${node._id}`, {
             "name": newName
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     delete(node: CloudNode): Observable<void> {
-        return this.httpClient.delete<any>(`${this._baseUrl}/files/${node.id}`, {withCredentials: true})
+        return this.httpClient.delete<any>(`${this._baseUrl}/files/${node._id}`, {withCredentials: true})
             .pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     addTag(node: CloudNode, tag: FileTag): Observable<void> {
         console.warn(tag);
-        return this.httpClient.post<any>(`${this._baseUrl}/files/${node.id}/tags`, {
+        return this.httpClient.post<any>(`${this._baseUrl}/files/${node._id}/tags`, {
             "tagId": tag._id
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     removeTag(node: CloudNode, tag: FileTag): Observable<void> {
-        return this.httpClient.delete<any>(`${this._baseUrl}/files/${node.id}/tags/${tag._id}`, {withCredentials: true})
+        return this.httpClient.delete<any>(`${this._baseUrl}/files/${node._id}/tags/${tag._id}`, {withCredentials: true})
             .pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     getDownloadURL(node: CloudNode): string {
-        return `${this._baseUrl}/files/${node.id}/download`;
+        return `${this._baseUrl}/files/${node._id}/download`;
     }
 
     getExportURL(node: CloudNode): string {
-        return `${this._baseUrl}/files/${node.id}/export`;
+        return `${this._baseUrl}/files/${node._id}/export`;
     }
 
     getFilePreviewImageURL(node: CloudNode): string {
-        return `${this._baseUrl}/files/${node.id}/preview`;
+        return `${this._baseUrl}/files/${node._id}/preview`;
     }
 
     startFileUpload(file: File, destination: CloudDirectory): void {
         const formData = new FormData();
-        formData.append("folderID", destination.id);
+        formData.append("folderID", destination._id);
         formData.append("mimetype", file.type || "application/octet-stream");
         formData.append("name", file.name);
         formData.append("upfile", file);

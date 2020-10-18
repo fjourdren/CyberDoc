@@ -5,7 +5,7 @@
             <mat-icon>keyboard_arrow_right</mat-icon>
         </button>
     </div>
-    <a [routerLink]="['/files', currentDirectory.id]" mat-button>{{currentDirectory.name}}</a>
+    <a [routerLink]="['/files', currentDirectory._id]" mat-button>{{currentDirectory.name}}</a>
     <button mat-icon-button (click)="loadDataForContextMenu(currentDirectory)" [matMenuTriggerFor]="menu">
         <mat-icon>keyboard_arrow_right</mat-icon>
     </button>
@@ -21,7 +21,7 @@
         </div>
         <div *ngIf="directories.length !== 0">
             <div *ngFor="let item of directories">
-                <a [routerLink]="['/files', item.id]" mat-menu-item>{{item.name}}</a>
+                <a [routerLink]="['/files', item._id]" mat-menu-item>{{item.name}}</a>
             </div>
         </div>
     </div>

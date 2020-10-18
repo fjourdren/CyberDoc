@@ -36,11 +36,11 @@ export class MockFileSystem implements FileSystem {
     }
 
     getDownloadURL(node: CloudNode): string {
-        return `/fake-download-url/${node.id}`;
+        return `/fake-download-url/${node._id}`;
     }
 
     getExportURL(node: CloudNode): string {
-        return `/fake-export-url/${node.id}`;
+        return `/fake-export-url/${node._id}`;
     }
 
     createDirectory(name: string, parentFolder: CloudDirectory): Observable<void> {
@@ -51,7 +51,7 @@ export class MockFileSystem implements FileSystem {
                 mimetype: DIRECTORY_MIMETYPE,
                 size: 0,
                 date: new Date(),
-                parentID: parentFolder.id,
+                parentID: parentFolder._id,
                 tags: [],
             }
 
@@ -80,7 +80,7 @@ export class MockFileSystem implements FileSystem {
             mimetype: file ? file.type : DIRECTORY_MIMETYPE,
             size: file ? file.size : 0,
             date: new Date(),
-            parentID: destination.id,
+            parentID: destination._id,
             tags: [],
         }
 
@@ -97,7 +97,7 @@ export class MockFileSystem implements FileSystem {
     search(searchParams: SearchParams): Observable<CloudDirectory> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             let directory: CloudDirectory = {
-                id: "tmp",
+                _id: "tmp",
                 mimetype: "application/x-dir",
                 name: "tmp",
                 ownerName: "tmp",
@@ -144,15 +144,15 @@ export class MockFileSystem implements FileSystem {
 
     copy(file: CloudFile, fileName: string, destination: CloudDirectory): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            this._copyInternal(file.id, fileName, destination.id);
+            this._copyInternal(file._id, fileName, destination._id);
             this._save();
         }));
     }
 
     move(node: CloudNode, destination: CloudDirectory): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            const internalNode = this.filesMap.get(node.id);
-            internalNode.parentID = destination.id;
+            const internalNode = this.filesMap.get(node._id);
+            internalNode.parentID = destination._id;
             this.filesMap.set(internalNode.id, internalNode);
             this._save();
         }));
@@ -160,7 +160,7 @@ export class MockFileSystem implements FileSystem {
 
     rename(node: CloudNode, newName: string): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            const internalNode = this.filesMap.get(node.id);
+            const internalNode = this.filesMap.get(node._id);
             internalNode.name = newName;
             this.filesMap.set(internalNode.id, internalNode);
             this._save();
@@ -169,7 +169,7 @@ export class MockFileSystem implements FileSystem {
 
     addTag(node: CloudNode, tag: FileTag): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            const internalNode = this.filesMap.get(node.id);
+            const internalNode = this.filesMap.get(node._id);
             internalNode.tags.push(tag);
             this.filesMap.set(internalNode.id, internalNode);
             this._save();
@@ -178,7 +178,7 @@ export class MockFileSystem implements FileSystem {
 
     removeTag(node: CloudNode, tag: FileTag): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            const internalNode = this.filesMap.get(node.id);
+            const internalNode = this.filesMap.get(node._id);
             internalNode.tags = internalNode.tags.filter(val => val._id !== tag._id);
             this.filesMap.set(internalNode.id, internalNode);
             this._save();
@@ -187,7 +187,7 @@ export class MockFileSystem implements FileSystem {
 
     delete(node: CloudNode): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            this._deleteInternal(node.id);
+            this._deleteInternal(node._id);
             this._save();
         }));
     }
@@ -268,7 +268,7 @@ export class MockFileSystem implements FileSystem {
             }
 
             return {
-                id: internalNode.id,
+                _id: internalNode.id,
                 ownerName: OWNER,
                 name: internalNode.name,
                 mimetype: internalNode.mimetype,
@@ -280,7 +280,7 @@ export class MockFileSystem implements FileSystem {
 
         } else {
             return {
-                id: internalNode.id,
+                _id: internalNode.id,
                 ownerName: OWNER,
                 name: internalNode.name,
                 mimetype: internalNode.mimetype,
