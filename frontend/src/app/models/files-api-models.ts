@@ -14,7 +14,7 @@ export type PathItem = {
 export type CloudNode = CloudFile | CloudDirectory;
 
 export class CloudFile {
-  public id: string;
+  public _id: string;
   public ownerName: string;
   public name: string;
   public mimetype: Exclude<string, "application/x-dir">;
@@ -25,7 +25,7 @@ export class CloudFile {
 }
 
 export class CloudDirectory {
-  public id: string;
+  public _id: string;
   public ownerName: string;
   public name: string;
   public mimetype: "application/x-dir";

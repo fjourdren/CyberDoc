@@ -48,7 +48,7 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr (contextmenu)="onContextMenu($event, row)" class="example-box" mat-row
         *matRowDef="let row; columns: displayedColumns;"
-        [ngClass]="{'disabled': restrictions.isDisabled(row), 'selected': !isTouchScreen && selectedNode && selectedNode.id === row.id}">
+        [ngClass]="{'disabled': restrictions.isDisabled(row), 'selected': !isTouchScreen && selectedNode && selectedNode._id === row._id}">
     </tr>
 
 </table>
