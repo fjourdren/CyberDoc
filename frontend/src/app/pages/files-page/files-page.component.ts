@@ -89,9 +89,6 @@ export class FilesPageComponent implements AfterViewInit {
   refresh(directoryID: string | null = null) {
     this.loading = true;
     const oldSelectedNodeID = this.selectedNode ? this.selectedNode._id : null;
-
-    this.currentDirectory = null;
-    this.selectedNode = null;
     let promise: Promise<CloudNode>;
 
     if (this.searchMode) {
@@ -101,6 +98,8 @@ export class FilesPageComponent implements AfterViewInit {
       promise = this.fsProvider.default().get(id).toPromise();
     }
 
+    this.selectedNode = null;
+    this.currentDirectory = null;
     promise.then(node => {
       this.loading = false;
       if (node.isDirectory) {
