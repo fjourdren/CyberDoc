@@ -1,235 +1,91 @@
-import { NextFunction, Request, Response } from 'express';
-import { requireNonNull } from '../helpers/DataValidation';
+import {NextFunction, Request, Response} from 'express';
+import {requireNonNull} from '../helpers/DataValidation';
 
 import HttpCodes from '../helpers/HttpCodes'
-import { IUser } from '../models/User';
-import { AxiosError } from 'axios';
+import {IUser} from '../models/User';
 
 import TwoFactorAuthService from '../services/TwoFactorAuthService';
 import UserService from '../services/UserService';
+import {VerificationInstance} from "twilio/lib/rest/verify/v2/service/verification";
+import {VerificationCheckInstance} from "twilio/lib/rest/verify/v2/service/verificationCheck";
 
 class TwoFactorAuthController {
-    // SEND TOKEN
-    public static async sendTokenByEmail(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const { authy_id } = req.body;
-            let output: string;
-            output = await TwoFactorAuthService.sendToken('email', authy_id);
-            res.status(HttpCodes.OK);
-            res.json(output);
-        } catch(err) {
-            if (err.isAxiosError) { // no types
-                const e: AxiosError = err;
-                if(!e.response) res.status(HttpCodes.INTERNAL_ERROR);
-                else {
-                    res.status(e.response?.status ? e.response.status : HttpCodes.INTERNAL_ERROR);
-                    res.json({
-                        success: e.response?.data.success,
-                        message: e.response?.data.message,
-                        errors: e.response?.data.errors
-                    });
-                }
-            }
-            next(err);
-        }
-    }
-
     public static async sendTokenBySms(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { authy_id } = req.body;
-            let output: string;
-            output = await TwoFactorAuthService.sendToken('sms', authy_id);
+            const {phoneNumber} = req.body;
+            const output: VerificationInstance = await TwoFactorAuthService.sendToken('sms', phoneNumber);
             res.status(HttpCodes.OK);
             res.json(output);
-        } catch(err) {
-            if (err.isAxiosError) { // no types
-                const e: AxiosError = err;
-                if(!e.response) res.status(HttpCodes.INTERNAL_ERROR);
-                else {
-                    res.status(e.response?.status ? e.response.status : HttpCodes.INTERNAL_ERROR);
-                    res.json({
-                        success: e.response?.data.success,
-                        message: e.response?.data.message,
-                        errors: e.response?.data.errors
-                    });
-                }
-            }
+        } catch (err) {
             next(err);
         }
     }
 
-    public static async sendPushNotification(req: Request, res: Response, next: NextFunction): Promise<void> {
+    public static async sendTokenByEmail(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { authy_id, email } = req.body;
-            let output = await TwoFactorAuthService.sendPushNotification(authy_id, email);
+            const {email} = req.body;
+            const output: VerificationInstance = await TwoFactorAuthService.sendToken('email', email);
             res.status(HttpCodes.OK);
             res.json(output);
-        } catch(err) {
-            if (err.isAxiosError) { // no types
-                const e: AxiosError = err;
-                if(!e.response) res.status(HttpCodes.INTERNAL_ERROR);
-                else {
-                    res.status(e.response?.status ? e.response.status : HttpCodes.INTERNAL_ERROR);
-                    res.json({
-                        success: e.response?.data.success,
-                        message: e.response?.data.message,
-                        errors: e.response?.data.errors
-                    });
-                }
-            }
+        } catch (err) {
             next(err);
         }
     }
 
-    // VERIFY TOKEN
-    public static async verifyToken(req: Request, res: Response, next: NextFunction): Promise<any> {
+    public static async verifyTokenAppSmsEmail(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { authy_id, token } = req.body;
-            let output = await TwoFactorAuthService.verifyToken(authy_id, token);
-            res.status(HttpCodes.OK);
-            res.json(output);
-        } catch(err) {
-            if (err.isAxiosError) { // no types
-                const e: AxiosError = err;
-                if(!e.response) res.status(HttpCodes.INTERNAL_ERROR);
-                else {
-                    res.status(e.response?.status ? e.response.status : HttpCodes.INTERNAL_ERROR);
-                    res.json({
-                        success: e.response?.data.success,
-                        message: e.response?.data.message,
-                        errors: e.response?.data.errors
-                    });
-                }
+            const {phoneNumber, email, secret, token} = req.body;
+            let output: any;
+            if(secret) {
+                output = await TwoFactorAuthService.verifyTokenGeneratedByApp(secret, token);
+                if(output.delta === null) throw new Error('Invalid token');
+                if(output.delta === -1) throw new Error('Token entered too late');
+                if(output.delta === 1) throw new Error('Token entered too early');
+                res.status(HttpCodes.OK);
+                res.json({
+                    success: true
+                });
+            } else {
+                output = await TwoFactorAuthService.verifyTokenByEmailOrSms(phoneNumber || email || secret, token);
+                res.status(HttpCodes.OK);
+                res.json(output);
             }
+        } catch (err) {
             next(err);
         }
     }
 
-    public static async verifyPushNotification(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const { approval_request_id } = req.body;
-            const output = await TwoFactorAuthService.verifyPushNotification(approval_request_id);
-            res.status(HttpCodes.OK);
-            res.json(output);
-        } catch(err) {
-            if (err.isAxiosError) { // no types
-                const e: AxiosError = err;
-                if(!e.response) res.status(HttpCodes.INTERNAL_ERROR);
-                else {
-                    res.status(e.response?.status ? e.response.status : HttpCodes.INTERNAL_ERROR);
-                    res.json({
-                        success: e.response?.data.success,
-                        message: e.response?.data.message,
-                        errors: e.response?.data.errors
-                    });
-                }
-            }
-            next(err);
-        }
-    }
-    
-    // Check Status of 2FA by Applications
-    public static async checkStatusApp(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const user: IUser = requireNonNull(await UserService.profile(res.locals.APP_JWT_TOKEN.user._id));
-            res.status(HttpCodes.OK);
-            res.json(user.twoFactorApp);
-        } catch(err) {
-            next(err);
-        }
-    }
-
-    // Check Status of 2FA by Sms
     public static async checkStatusSms(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const user: IUser = requireNonNull(await UserService.profile(res.locals.APP_JWT_TOKEN.user._id));
             res.status(HttpCodes.OK);
             res.json(user.twoFactorSms);
-        } catch(err) {
+        } catch (err) {
             next(err);
         }
     }
 
-    // Check Status of 2FA by Email
     public static async checkStatusEmail(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const user: IUser = requireNonNull(await UserService.profile(res.locals.APP_JWT_TOKEN.user._id));
             res.status(HttpCodes.OK);
             res.json(user.twoFactorEmail);
-        } catch(err) {
-            next(err);
-        }
-    }
-
-    // MANAGE 2FA
-    public static async add(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const { email, phone_number, country_code } = req.body;
-            const output = await TwoFactorAuthService.add(email, phone_number, country_code);
-            res.status(HttpCodes.OK);
-            res.json(output);
-        } catch(err) {
-            if (err.isAxiosError) { // no types
-                const e: AxiosError = err;
-                if(!e.response) res.status(HttpCodes.INTERNAL_ERROR);
-                else {
-                    res.status(e.response?.status ? e.response.status : HttpCodes.INTERNAL_ERROR);
-                    res.json({
-                        success: e.response?.data.success,
-                        message: e.response?.data.message,
-                        errors: e.response?.data.errors
-                    });
-                }
-            }
+        } catch (err) {
             next(err);
         }
     }
 
 
-    public static async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
+    public static async generateSecretUriAndQr(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { authy_id } = req.body;
-            const output = await TwoFactorAuthService.delete(authy_id);
+            const {email} = req.body;
+            const newSecret: any = requireNonNull(await TwoFactorAuthService.generateSecretByEmail(email));
             res.status(HttpCodes.OK);
-            res.json(output);
+            res.json(newSecret);
         } catch(err) {
-            if (err.isAxiosError) { // no types
-                const e: AxiosError = err;
-                if(!e.response) res.status(HttpCodes.INTERNAL_ERROR);
-                else {
-                    res.status(e.response?.status ? e.response.status : HttpCodes.INTERNAL_ERROR);
-                    res.json({
-                        success: e.response?.data.success,
-                        message: e.response?.data.message,
-                        errors: e.response?.data.errors
-                    });
-                }
-            }
-            next(err);
-        }
-    }
-
-    public static async generateQrCode(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const { email, authy_id } = req.body;
-            const output = await TwoFactorAuthService.generateQrCode(email, authy_id);
-            res.status(HttpCodes.OK);
-            res.json(output);
-        } catch(err) {
-            if (err.isAxiosError) { // no types
-                const e: AxiosError = err;
-                if(!e.response) res.status(HttpCodes.INTERNAL_ERROR);
-                else {
-                    res.status(e.response?.status ? e.response.status : HttpCodes.INTERNAL_ERROR);
-                    res.json({
-                        success: e.response?.data.success,
-                        message: e.response?.data.message,
-                        errors: e.response?.data.errors
-                    });
-                }
-            }
             next(err);
         }
     }
 }
+
 export default TwoFactorAuthController;

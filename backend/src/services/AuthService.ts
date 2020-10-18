@@ -29,7 +29,6 @@ class AuthService {
         newUser.email          = email;
         newUser.password       = password;
         newUser.role           = role;
-        newUser.twoFactorApp   = false;
         newUser.twoFactorSms   = false;
         newUser.twoFactorEmail = false;
 

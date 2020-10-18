@@ -1,12 +1,12 @@
 import { Observable } from 'rxjs';
 
 export interface TwoFactorService {
-    sendToken(sending_way: string, authyId: string): Observable<void>;
-    verifyToken(authyId: string, token: string): Observable<boolean>;
-    add(email: string, phone_number: string, country_code: string): Observable<string>;
-    delete(authyId: string): Observable<void>;
-    generateQrCode(email: string, authyId: string): Observable<string>;
-    isTwoFactorAppActivated(): Observable<boolean>;
+    sendTokenBySms(phoneNumber: string): Observable<void>;
+    verifyTokenByApp(secret: string, token: string): Observable<boolean>;
+    verifyTokenBySms(phoneNumber: string, token: string): Observable<boolean>;
+    sendTokenByEmail(email: string): Observable<void>;
+    verifyTokenByEmail(email: string, token: string): Observable<boolean>;
     isTwoFactorSmsActivated(): Observable<boolean>;
     isTwoFactorEmailActivated(): Observable<boolean>;
+    generateSecretUriAndQr(email: string): Observable<any>;
 }

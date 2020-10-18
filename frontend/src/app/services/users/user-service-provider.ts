@@ -27,9 +27,9 @@ export class UserServiceProvider {
 
     private _createInstance(providerName: string){
         switch (providerName){
-            case "mock":
+            case 'mock':
                 return new MockUserService();
-            case "real":
+            case 'real':
                 return new RealUserService(this.httpClient, this.cookieService);
             default:
                 throw new Error(`Unknown UserService provider : ${providerName}`);

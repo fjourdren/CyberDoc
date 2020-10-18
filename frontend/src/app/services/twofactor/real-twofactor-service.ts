@@ -1,70 +1,54 @@
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { TwoFactorService } from './twofactor-service';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {TwoFactorService} from './twofactor-service';
 
 export class RealTwoFactorService implements TwoFactorService {
     private _baseUrl: string;
 
     constructor(private httpClient: HttpClient) {
-        if (location.toString().indexOf("localhost") > -1){
-            this._baseUrl = "http://localhost:3000/v1";
+        if (location.toString().indexOf('localhost') > -1) {
+            this._baseUrl = 'http://localhost:3000/v1';
         } else {
-            this._baseUrl = "http://api.cyberdoc.fulgen.fr/v1";
+            this._baseUrl = 'http://api.cyberdoc.fulgen.fr/v1';
         }
         console.log(this._baseUrl);
     }
 
-    sendToken(sending_way: string, authyId: string): Observable<void> {
-        return this.httpClient.post<any>(`${this._baseUrl}/2fa/send/${sending_way}`, {
-            "authyId": authyId
-        }, {withCredentials: true}).pipe(map(response => {
+    sendTokenBySms(phoneNumber: string): Observable<void> {
+        return this.httpClient.post<any>(`${this._baseUrl}/2fa/send/sms`, {
+            phoneNumber
+        }, {withCredentials: true}).pipe(map(() => {
             return null;
         }));
     }
 
-    add(email: string, phone_number: string, country_code: string): Observable<string> {
-        return this.httpClient.post<any>(`${this._baseUrl}/2fa/add`, {
-            "email": email,
-            "phone_number": phone_number,
-            "country_code": country_code
-        }, {withCredentials: true}).pipe(map(response => {
-            return response.user.id;
-        }));
-    }
-
-    delete(authyId: string): Observable<void> {
-        return this.httpClient.post<any>(`${this._baseUrl}/2fa/delete`, {
-            "authyId": authyId
-        }, {withCredentials: true}).pipe(map(response => {
-            return null;
-        }));
-    }
-
-    generateQrCode(email: string, authyId: string): Observable<string> {
-        return this.httpClient.post<any>(`${this._baseUrl}/2fa/qrcode`, {
-            "email": email,
-            "authyId": authyId
-        }, {withCredentials: true}).pipe(map(response => {
-            return response.qr_code;
-        }));
-    }
-
-    verifyToken(authyId: string, token: string): Observable<boolean> {
+    verifyTokenBySms(phoneNumber: string, token: string): Observable<boolean> {
         return this.httpClient.post<any>(`${this._baseUrl}/2fa/verify/token`, {
-            "authyId": authyId,
-            "token": token
+            phoneNumber,
+            token
         }, {withCredentials: true}).pipe(map(response => {
-            return response.success;
+            return response.valid;
         }));
     }
-    
-    isTwoFactorAppActivated(): Observable<boolean> {
-        return this.httpClient.get<any>(`${this._baseUrl}/2fa/status/app`, {withCredentials: true}).pipe(map(response => {
-            return response;
+
+    sendTokenByEmail(email: string): Observable<void> {
+        return this.httpClient.post<any>(`${this._baseUrl}/2fa/send/email`, {
+            email
+        }, {withCredentials: true}).pipe(map(() => {
+            return null;
         }));
     }
-    
+
+    verifyTokenByEmail(email: string, token: string): Observable<boolean> {
+        return this.httpClient.post<any>(`${this._baseUrl}/2fa/verify/token`, {
+            email,
+            token
+        }, {withCredentials: true}).pipe(map(response => {
+            return response.valid;
+        }));
+    }
+
     isTwoFactorSmsActivated(): Observable<boolean> {
         return this.httpClient.get<any>(`${this._baseUrl}/2fa/status/sms`, {withCredentials: true}).pipe(map(response => {
             return response;
@@ -73,6 +57,23 @@ export class RealTwoFactorService implements TwoFactorService {
 
     isTwoFactorEmailActivated(): Observable<boolean> {
         return this.httpClient.get<any>(`${this._baseUrl}/2fa/status/email`, {withCredentials: true}).pipe(map(response => {
+            return response;
+        }));
+    }
+
+    verifyTokenByApp(secret: string, token: string): Observable<boolean> {
+        return this.httpClient.post<any>(`${this._baseUrl}/2fa/verify/token`, {
+            secret,
+            token
+        }, {withCredentials: true}).pipe(map(response => {
+            return response;
+        }));
+    }
+
+    generateSecretUriAndQr(email: string): Observable<any> {
+        return this.httpClient.post<any>(`${this._baseUrl}/2fa/secret`, {
+            email
+        }, {withCredentials: true}).pipe(map(response => {
             return response;
         }));
     }

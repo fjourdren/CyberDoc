@@ -7,10 +7,10 @@ export class User {
     public firstname: string;
     public lastname: string;
     public email: string;
+    public phoneNumber: string;
     public twoFactorApp: boolean;
     public twoFactorSms: boolean;
     public twoFactorEmail: boolean;
-    public authyId: string;
     public updated_at: string;
     public created_at: string;
     public role: string;

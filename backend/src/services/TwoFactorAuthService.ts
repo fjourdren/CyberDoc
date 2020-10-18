@@ -1,135 +1,48 @@
-import axios from 'axios';
-import qs from 'qs';
+import * as twilio from 'twilio';
+import {VerificationInstance} from "twilio/lib/rest/verify/v2/service/verification";
+import {VerificationCheckInstance} from "twilio/lib/rest/verify/v2/service/verificationCheck";
+
+require('dotenv').config()
+const twoFactor = require('node-2fa');
+const client = new twilio.Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 class TwoFactorAuthService {
-    // SEND TOKEN
     /**
      * Send 2FA token to specified user by EMAIL or SMS
-     * @param sending_way
-     * @param authy_id
+     * @param sendingWay
+     * @param emailOrPhoneNumber
      */
-    public static async sendToken(sending_way: string, authy_id: string): Promise<any> {
-        let res: any;
-        switch(sending_way) {
-            case 'email':
-                res = await axios.post(`https://api.authy.com/protected/json/${sending_way}/${authy_id}?force=true`, null, {
-                    headers: {
-                        'X-Authy-API-KEY': process.env.AUTHY_API_KEY
-                    }
-                });
-                break;
-            case 'sms':
-                res = await axios.get(`https://api.authy.com/protected/json/${sending_way}/${authy_id}?force=true`, {
-                    headers: {
-                        'X-Authy-API-KEY': process.env.AUTHY_API_KEY
-                    }
-                });
-                break;
-        }
-        
-        return res.data;
+    public static async sendToken(sendingWay: string, emailOrPhoneNumber: string): Promise<VerificationInstance> {
+        return client.verify.services(process.env.TWILIO_SERVICE_ID)
+            .verifications
+            .create({to: emailOrPhoneNumber, channel: sendingWay});
     }
 
-    /**
-     * Send Push Authentication Request
-     * @param authy_id
-     * @param email
-     */
-    public static async sendPushNotification(authy_id: string, email: string): Promise<any> {
-        const res = await axios.post(`https://api.authy.com/onetouch/json/users/${authy_id}/approval_requests`, {
-            message: 'Login requested for a CyberDoc account.',
-            details: {
-                username: email
-            }, 
-            seconds_to_expire: 120,
-        }, {
-            headers: {
-                'X-Authy-API-KEY': process.env.AUTHY_API_KEY
-            }
-        });
-        return res.data;
-    }
-
-    // VERIFY TOKEN
     /**
      * Verify that the provided token is correct
-     * @param authy_id 
-     * @param token 
+     * @param emailOrPhoneNumber
+     * @param token
      */
-    public static async verifyToken(authy_id: string, token: string): Promise<any> {
-        const res = await axios.get(`https://api.authy.com/protected/json/verify/${token}/${authy_id}`, {
-            headers: {
-                'X-Authy-API-KEY': process.env.AUTHY_API_KEY
-            }
-        });
-        return res.data;
+    public static async verifyTokenByEmailOrSms(emailOrPhoneNumber: string, token: string): Promise<VerificationCheckInstance> {
+        return TwoFactorAuthService.generateClient().verify.services(process.env.TWILIO_SERVICE_ID)
+            .verificationChecks
+            .create({to: emailOrPhoneNumber, code: token}).then(res => {
+                return res;
+            });
     }
 
-    /**
-     * Check status of push authentication request
-     * @param approval_request_id
-     */
-    public static async verifyPushNotification(approval_request_id: string): Promise<any> {
-        const res = await axios.get(`https://api.authy.com/onetouch/json/approval_requests/${approval_request_id}`, {
-            headers: {
-                'X-Authy-API-KEY': process.env.AUTHY_API_KEY
-            }
-        });
-        return res.data;
+    public static async generateSecretByEmail(email: string): Promise<any> {
+        return twoFactor.generateSecret({name: 'CyberDoc', account: email});
     }
 
-    // MANAGE 2FA
-    /**
-     * Add 2FA User to Twilio Authy database
-     * @param email 
-     * @param phone_number 
-     * @param country_code
-     */
-    public static async add(email: string, phone_number: string, country_code: string): Promise<any> {
-        const data = {
-            user: {
-                email: email,
-                cellphone: phone_number,
-                country_code: country_code
-            }
-        };
-        const res = await axios.post('https://api.authy.com/protected/json/users/new', qs.stringify(data), {
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                'X-Authy-API-KEY': process.env.AUTHY_API_KEY
-            }
-        });
-        
-        return res.data;
+    public static async verifyTokenGeneratedByApp(secret: string, token: string): Promise<number> {
+        return twoFactor.verifyToken(secret, token);
     }
 
-    /**
-     * Remove 2FA User from database
-     * @param authy_id
-     */
-    public static async delete(authy_id: string): Promise<any> {
-        const res = await axios.post(`https://api.authy.com/protected/json/users/${authy_id}/remove`, null, {
-            headers: {
-                'X-Authy-API-KEY': process.env.AUTHY_API_KEY
-            }
-        });
-        return res.data;
-    }
-    
-    /**
-     * Generate 2FA QrCode
-     * @param email
-     * @param authy_id
-     */
-    public static async generateQrCode(email: string, authy_id: string): Promise<any> {
-        const res = await axios.post(`https://api.authy.com/protected/json/users/${authy_id}/secret`, {
-            label: email
-        }, {
-            headers: {
-                'X-Authy-API-KEY': process.env.AUTHY_API_KEY
-            }
-        });
-        return res.data;
+    private static generateClient() {
+        const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
+        const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
+        return new twilio.Twilio(twilioAccountSid, twilioAuthToken);
     }
 }
 
