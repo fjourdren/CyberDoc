@@ -1,12 +1,25 @@
 import { Component } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ValidatorFn, Validators } from '@angular/forms';
 import { UserServiceProvider } from '../../services/users/user-service-provider'
 import { User } from 'src/app/models/users-api-models';
 import { MustMatch } from 'src/app/components/settings/settings-security/_helpers/must-match.validator';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 
-const STRONG_PASSWORD_REGEX = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$._\-!%*?&])[A-Za-z\d$@$!%*?&].{8,}/;
+function passwordValidator(): ValidatorFn {
+  return (control: AbstractControl): {[key: string]: any} | null => {
+    const password = control.value;
+
+    if (!password) return {passwordValidator: {invalid: true}};
+    if (!password.match(/[A-Z]/g)) return {passwordValidator: {invalid: true}};
+    if (!password.match(/[a-z]/g)) return {passwordValidator: {invalid: true}};
+    if (!password.match(/[0-9]/g)) return {passwordValidator: {invalid: true}};
+    if (!password.replace(/[0-9a-zA-Z ]/g, "").length) return {passwordValidator: {invalid: true}};
+
+    return null;
+  };
+}
+
 @Component({
   selector: 'app-register-page',
   templateUrl: './register-page.component.html',
@@ -17,7 +30,7 @@ export class RegisterPageComponent {
     firstName: [null, Validators.required],
     lastName: [null, Validators.required],
     email: [null, [Validators.required, Validators.email]],
-    password: [null, [Validators.required, Validators.pattern(STRONG_PASSWORD_REGEX)]],
+    password: [null, [Validators.required, passwordValidator()]],
     repeat: [null, Validators.required],
     role: ['owner', Validators.required],
   },
