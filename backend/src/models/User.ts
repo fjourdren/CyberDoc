@@ -116,6 +116,7 @@ export interface IUser extends mongoose.Document {
     email: string;
     password: string;
     phoneNumber: string;
+    secret: string;
     twoFactorApp: boolean;
     twoFactorSms: boolean;
     twoFactorEmail: boolean;

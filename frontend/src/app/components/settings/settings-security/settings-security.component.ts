@@ -232,7 +232,8 @@ export class SettingsSecurityDialogComponent implements OnInit {
                             this.dialogRef.close();
                         }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
                     });
-                    this.userServiceProvider.default().getActiveUser().phoneNumber = this.data.phoneNumber;
+                    this.userServiceProvider.default().updateSecret(this.data.secret,
+                        this.userServiceProvider.default().getActiveUser().email);
                 }
             }).catch(err => {
                 this.snackBar.open(err.error.message, null, {duration: 1500});
@@ -253,7 +254,8 @@ export class SettingsSecurityDialogComponent implements OnInit {
                             this.dialogRef.close();
                         }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
                     });
-                    this.userServiceProvider.default().getActiveUser().phoneNumber = this.data.phoneNumber;
+                    this.userServiceProvider.default().updatePhoneNumber(this.data.phoneNumber,
+                        this.userServiceProvider.default().getActiveUser().email);
                 }
             }).catch(err => {
                 this.snackBar.open(err.error.message, null, {duration: 1500});

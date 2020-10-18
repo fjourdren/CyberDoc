@@ -112,6 +112,14 @@ export class RealUserService implements UserService {
         }));
     }
 
+    updateSecret(secret: string, email: string): Observable<void> {
+        return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
+            secret
+        }, {withCredentials: true}).pipe(map(() => {
+            return null;
+        }));
+    }
+
     updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, twoFactorEmail: boolean, email: string): Observable<void> {
         return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
             twoFactorApp,
@@ -122,7 +130,7 @@ export class RealUserService implements UserService {
         }));
     }
 
-    login(email: string, password: string): Observable<User> {
+    login(email: string, password: string): Observable<any> {
         return this.httpClient.post<any>(`${this._baseUrl}/auth/signin`, {
             email,
             password
@@ -133,8 +141,10 @@ export class RealUserService implements UserService {
                 this._jwtHelper.getTokenExpirationDate(response.token),
                 '/',
                 this._cookieDomain);
-            this._setUser(this._jwtHelper.decodeToken(response.token).user);
-            return this.getActiveUser();
+            if (this._jwtHelper.decodeToken(response.token).authorized === true) {
+                this._setUser(this._jwtHelper.decodeToken(response.token).user);
+            }
+            return response.token;
         }));
     }
 

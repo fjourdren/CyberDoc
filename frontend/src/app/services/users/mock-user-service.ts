@@ -18,6 +18,7 @@ const USER: User = {
     lastname: 'JOURDREN',
     email: 'flavien.jourdren@gmail.com',
     phoneNumber: '',
+    secret: '',
     twoFactorApp: false,
     twoFactorSms: false,
     twoFactorEmail: false,
@@ -167,6 +168,20 @@ export class MockUserService implements UserService {
             }
             const user = this._users.get(email);
             user.phoneNumber = phoneNumber;
+            this._users.delete(email);
+            this._users.set(email, user);
+            this._save();
+            this._setUser(user);
+        }));
+    }
+
+    updateSecret(secret: string, email: string): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            if (!this.getActiveUser()) {
+                this._throw403('already logged in');
+            }
+            const user = this._users.get(email);
+            user.secret = secret;
             this._users.delete(email);
             this._users.set(email, user);
             this._save();

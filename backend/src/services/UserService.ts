@@ -19,7 +19,7 @@ class UserService {
     }
 
     // profile update
-    public static async updateProfile(user_id: string | undefined, firstname: string | undefined, lastname: string | undefined, email: string | undefined, password: string | undefined, phoneNumber: string | undefined, twoFactorApp: boolean | undefined, twoFactorSms: boolean | undefined, twoFactorEmail: boolean | undefined): Promise<Record<string, IUser | string>> {
+    public static async updateProfile(user_id: string | undefined, firstname: string | undefined, lastname: string | undefined, email: string | undefined, password: string | undefined, phoneNumber: string | undefined, secret: string | undefined, twoFactorApp: boolean | undefined, twoFactorSms: boolean | undefined, twoFactorEmail: boolean | undefined): Promise<Record<string, IUser | string>> {
         let user = requireNonNull(await User.findById(user_id).exec());
 
         if (firstname != undefined)
@@ -32,6 +32,8 @@ class UserService {
             user.password = password;
         if (phoneNumber != undefined)
             user.phoneNumber = phoneNumber;
+        if (secret != undefined)
+            user.secret = secret;
         if (twoFactorApp != undefined)
             user.twoFactorApp = twoFactorApp;
         if (twoFactorSms != undefined)
