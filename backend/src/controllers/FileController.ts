@@ -96,9 +96,11 @@ class FileController {
     // search files
     public static async search(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+            const user: IUser = res.locals.APP_JWT_TOKEN.user;
             const bodySearch: Record<string, unknown> = req.body;
 
-            const results: IFile[] = await FileService.search(res.locals.APP_JWT_TOKEN.user, bodySearch);
+            let results: IFile[] = await FileService.search(res.locals.APP_JWT_TOKEN.user, bodySearch);
+            results = results.filter(item => item._id !== user.directory_id);
 
             // reply to client
             res.status(HttpCodes.OK);
