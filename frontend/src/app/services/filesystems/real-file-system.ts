@@ -109,6 +109,12 @@ export class RealFileSystem implements FileSystem {
             .pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
+    setPreviewEnabled(file: CloudFile, enabled: boolean): Observable<void> {
+        return this.httpClient.patch<any>(`${this._baseUrl}/files/${file._id}`, {
+            "preview": enabled,
+        }, { withCredentials: true }).pipe(map(response => this._refreshNeeded$.emit(), null));
+    }
+
     addTag(node: CloudNode, tag: FileTag): Observable<void> {
         console.warn(tag);
         return this.httpClient.post<any>(`${this._baseUrl}/files/${node._id}/tags`, {

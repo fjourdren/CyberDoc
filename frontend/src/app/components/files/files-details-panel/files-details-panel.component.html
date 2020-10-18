@@ -4,12 +4,10 @@
     {{node.name}}
   </div>
 
-  <!--
-  <div id="filepreview">
+  <div *ngIf="node && node.preview" id="filepreview">
     <img [src]="getFilePreviewImageURL()">
   </div>
-  <mat-slide-toggle>{{ 'file.preview' | translate }}</mat-slide-toggle>
--->
+  <mat-slide-toggle *ngIf="!node.isDirectory" (change)="onPreviewToogleChange($event)" [checked]="node.preview" >{{ 'file.preview' | translate }}</mat-slide-toggle>
 
   <table id="details-table">
     <tr *ngIf="!node.isDirectory">

@@ -21,6 +21,7 @@ export class CloudFile {
   public size: number;
   public updated_at: Date;
   public tags: FileTag[];
+  public preview: boolean;
   isDirectory: false;
 }
 
@@ -32,6 +33,7 @@ export class CloudDirectory {
   public path: PathItem[];
   public directoryContent: CloudNode[];
   public tags: FileTag[];
+  public preview: false;
   isDirectory: true;
 }
 

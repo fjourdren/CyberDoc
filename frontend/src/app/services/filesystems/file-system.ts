@@ -17,6 +17,7 @@ export interface FileSystem {
     move(node: CloudNode, destination: CloudDirectory): Observable<void>;
     rename(node: CloudNode, newName: string): Observable<void>;
     delete(node: CloudNode): Observable<void>;
+    setPreviewEnabled(file: CloudFile, enabled: boolean): Observable<void>;
 
     addTag(node: CloudNode, tag: FileTag): Observable<void>;
     removeTag(node: CloudNode, tag: FileTag): Observable<void>;
