@@ -2,17 +2,17 @@ import { Injectable } from '@angular/core';
 export const DIRECTORY_MIMETYPE = "application/x-dir";
 
 export enum FileType {
-  Folder = "folder",
-  Audio = "audio",
-  Video = "video",
-  Image = "image",
-  PDF = "pdf",
-  Text = "text",
-  Document = "document",
-  Spreadsheet = "spreadsheet",
-  Presentation = "presentation",
-  Archive = "archive",
-  Unknown = "unknown"
+  Unknown = "Unknown",
+  Folder = "Folder",
+  Audio = "Audio",
+  Video = "Video",
+  Image = "Image",
+  PDF = "PDF",
+  Text = "Text",
+  Document = "Document",
+  Spreadsheet = "Spreadsheet",
+  Presentation = "Presentation",
+  Archive = "Archive",
 }
 
 const MIMETYPE_TO_FILETYPE_MAP = new Map<string | RegExp, FileType>([

@@ -35,7 +35,7 @@ export class CloudDirectory {
   isDirectory: true;
 }
 
-export const NO_TYPE_FILTER = "any";
+export const NO_TYPE_FILTER = FileType.Unknown;
 export const NO_DATEDIFF_DEFAULT = -1;
 export const VALID_DATEDIFF_VALUES = [-1, 0, 1, 7, 30, 60, 90, 365];
 export const NO_NAME_FILTER = "";
@@ -49,7 +49,7 @@ export const EMPTY_SEARCH_PARAMS: SearchParams = {
 
 export interface SearchParams {
   name: string;
-  type: string;
+  type: FileType;
   dateDiff: number;
   tagIDs: string[];
 }
