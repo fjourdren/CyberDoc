@@ -9,7 +9,7 @@
                 <span *ngIf="progressionPercent === 100" id="progress-span" class="mat-small">{{ 'upload.finishing_upload' | translate }}</span>
             </div>
         </div>
-        <button (click)="cancelUpload()" mat-icon-button>
+        <button *ngIf="progressionPercent !== 100" (click)="cancelUpload()" mat-icon-button>
             <mat-icon>cancel</mat-icon>
         </button>
     </div>
