@@ -51,10 +51,7 @@ import {FilesGenericTableComponent} from './components/files/files-generic-table
 import {FilesGenericTableBottomsheetComponent} from './components/files/files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 
 import {SettingsMenuComponent} from './components/settings/settings-menu/settings-menu.component';
-import {
-    SettingsProfileComponent,
-    SettingsProfileDialogComponent
-} from './components/settings/settings-profile/settings-profile.component';
+import {SettingsProfileComponent} from './components/settings/settings-profile/settings-profile.component';
 import {
     SettingsSecurityComponent,
     SettingsSecurityDialogComponent
@@ -112,7 +109,6 @@ const FILES_COMPONENTS = [
 const SETTINGS_COMPONENTS = [
     SettingsMenuComponent,
     SettingsProfileComponent,
-    SettingsProfileDialogComponent,
     SettingsSecurityComponent,
     SettingsSecurityDialogComponent,
     SettingsMainToolbarComponent

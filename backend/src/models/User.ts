@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import validator from 'validator';
 import Guid from 'guid';
 
-import ITag, { Tag } from './Tag';
+import ITag, {Tag} from './Tag';
 
 
 /**
@@ -13,7 +13,7 @@ import ITag, { Tag } from './Tag';
  */
 export enum Role {
     OWNER = 'owner',
-    COLLABORATER = 'collaborater'
+    COLLABORATOR = 'collaborator'
 }
 
 
@@ -21,94 +21,90 @@ export enum Role {
  * Building typescript & Mongoose data archs
  */
 export const UserSchema = new mongoose.Schema({
-    _id: {
-        type: String,
-        unique: true,
-        uniqueCaseInsensitive: true,
-        default: () => Guid.raw()
-    },
-    directory_id: {
-        type: String,
-        required: true,
-    },
-    firstname: {
-        type: String,
-        required: true,
-        uniqueCaseInsensitive: true,
-        trim: true
-    },
-    lastname: {
-        type: String,
-        required: true,
-        uniqueCaseInsensitive: true,
-        trim: true
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        uniqueCaseInsensitive: true,
-        trim: true,
-        minlength: 5,
-        validate: {
-            validator: (value: string) => validator.isEmail(value),
-            message: '{VALUE} is not a valid email'
-        }
-    },
-    password: {
-        type: String,
-        required: true,
-        validate: {
-            validator: function(value: string) {
-                return (/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$._\-!%*?&])[A-Za-z\d$@$!%*?&].{8,}/.test(value));
-            },
-            message: () => `Password doesn't respect the required format`
+        _id: {
+            type: String,
+            unique: true,
+            uniqueCaseInsensitive: true,
+            default: () => Guid.raw()
         },
-    },
-    twoFactorApp: {
-        type: Boolean,
-        required: true
-    },
-    twoFactorSms: {
-        type: Boolean,
-        required: true
-    },
-    twoFactorEmail: {
-        type: Boolean,
-        required: true
-    },
-    phone_number: {
-        type: String,
-        trim: true,
-        validate: {
-            validator: (value: string) => validator.isMobilePhone(value),
-            message: '{VALUE} is not a valid phone number'
+        directory_id: {
+            type: String,
+            required: true,
+        },
+        firstname: {
+            type: String,
+            required: true,
+            uniqueCaseInsensitive: true,
+            trim: true
+        },
+        lastname: {
+            type: String,
+            required: true,
+            uniqueCaseInsensitive: true,
+            trim: true
+        },
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            uniqueCaseInsensitive: true,
+            trim: true,
+            minlength: 5,
+            validate: {
+                validator: (value: string) => validator.isEmail(value),
+                message: '{VALUE} is not a valid email'
+            }
+        },
+        password: {
+            type: String,
+            required: true,
+            validate: {
+                validator: function (value: string) {
+                    return (/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$._\-!%*?&])[A-Za-z\d$@$!%*?&].{8,}/.test(value));
+                },
+                message: () => `Password doesn't respect the required format`
+            },
+        },
+        phoneNumber: {
+            type: String,
+            trim: true,
+            validate: {
+                validator: (value: string) => validator.isMobilePhone(value),
+                message: '{VALUE} is not a valid phone number'
+            }
+        },
+        twoFactorApp: {
+            type: Boolean,
+            required: true
+        },
+        twoFactorSms: {
+            type: Boolean,
+            required: true
+        },
+        twoFactorEmail: {
+            type: Boolean,
+            required: true
+        },
+        role: {
+            type: String,
+            enum: Object.values(Role),
+            default: Role.COLLABORATOR
+        },
+        tags: {
+            type: [Tag.schema]
+        },
+        updated_at: {
+            type: Date,
+            default: new Date().getTime()
+        },
+        created_at: {
+            type: Date,
+            default: new Date().getTime()
         }
     },
-    authy_id: {
-        type: String,
-        trim: true
-    },
-    role: {
-        type: String,
-        enum: Object.values(Role),
-        default: Role.COLLABORATER
-    },
-    tags: {
-        type: [Tag.schema]
-    },
-    updated_at: {
-        type: Date,
-        default: new Date().getTime()
-    },
-    created_at: {
-        type: Date,
-        default: new Date().getTime()
-    }
-},
-{
-    collection: 'User',
-});
+    {
+        collection: 'User',
+    });
 
 
 // DO NOT export this, Type script validation (= Mongoose raw model)
@@ -119,18 +115,15 @@ export interface IUser extends mongoose.Document {
     lastname: string;
     email: string;
     password: string;
+    phoneNumber: string;
     twoFactorApp: boolean;
     twoFactorSms: boolean;
     twoFactorEmail: boolean;
-    phone_number: string;
-    authy_id: string;
     role: Role;
     tags: ITag[];
     updated_at: string;
     created_at: string;
 }
-
-
 
 
 /**

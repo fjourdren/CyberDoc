@@ -20,20 +20,5 @@
             <button mat-flat-button color="primary" type="submit" [disabled]="profileForm.invalid">Update</button>
 			<button mat-flat-button color="warn" (click)="deleteAccount()" style="margin-left: 10px">Delete my account</button>
 		</form>
-		
-		<form [formGroup]="phoneNumberForm" (ngSubmit)="onSubmitPhoneNumberForm()">
-			<mat-form-field>
-				<input type="text" maxlength="14"
-					matInput 
-					ng2TelInput
-					[ng2TelInputOptions]="{initialCountry: 'fr'}"
-					(ng2TelOutput)="getNumber($event)"
-					formControlName="phoneNumber" />
-			  <mat-error *ngIf="!phoneNumberForm.get('phoneNumber').valid && phoneNumberForm.get('phoneNumber').touched">
-				  This is an <strong>invalid</strong> phone number.
-			  </mat-error>
-			</mat-form-field>
-			<button mat-flat-button color="primary" type="submit" [disabled]="phoneNumberForm.invalid">Update my phone number</button>
-		</form>
     </mat-card-content>
 </mat-card>

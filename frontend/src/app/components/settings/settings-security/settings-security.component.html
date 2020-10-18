@@ -59,14 +59,14 @@
 					</mat-panel-description>
 				</mat-expansion-panel-header>
 				<mat-list>
-                    <mat-list-item *ngIf="twoFactorApp">
+					<mat-list-item *ngIf="twoFactorApp">
 						<button mat-flat-button color="success" class="two-factor-status">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
-                        <button mat-raised-button color="primary" (click)="disableTwoFactor('app')">Disable 2FA with Apps</button>
-                    </mat-list-item>
+						<button mat-raised-button color="primary" (click)="disableTwoFactor('app')">Disable 2FA by App</button>
+					</mat-list-item>
 					<mat-list-item *ngIf="!twoFactorApp">
 						<button mat-flat-button color="warn" class="two-factor-status">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
-                        <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('app')">Enable 2FA with Apps</button>
-                    </mat-list-item>
+						<button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('app')">Enable 2FA by App</button>
+					</mat-list-item>
                     <mat-list-item *ngIf="twoFactorSms">
 						<button mat-flat-button color="success" class="two-factor-status">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
                         <button mat-raised-button color="primary" (click)="disableTwoFactor('sms')">Disable 2FA sent by SMS</button>

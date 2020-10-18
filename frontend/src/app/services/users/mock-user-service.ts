@@ -17,10 +17,10 @@ const USER: User = {
     firstname: 'Flavien',
     lastname: 'JOURDREN',
     email: 'flavien.jourdren@gmail.com',
+    phoneNumber: '',
     twoFactorApp: false,
     twoFactorSms: false,
     twoFactorEmail: false,
-    authyId: null,
     directory_id: 'root',
     tags: [
         {
@@ -144,14 +144,29 @@ export class MockUserService implements UserService {
         }));
     }
 
-    updateAuthyId(authyId: string, email: string): Observable<void> {
+    updatePassword(oldPassword: string, newPassword: string, email: string): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
             }
 
+            const pass = this._passwords.get(email);
+            if (pass !== oldPassword) {
+                this._throw403('wrong password');
+            }
+
+            this._passwords.set(email, newPassword);
+            this._save();
+        }));
+    }
+
+    updatePhoneNumber(phoneNumber: string, email: string): Observable<void> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            if (!this.getActiveUser()) {
+                this._throw403('already logged in');
+            }
             const user = this._users.get(email);
-            user.authyId = authyId;
+            user.phoneNumber = phoneNumber;
             this._users.delete(email);
             this._users.set(email, user);
             this._save();
@@ -172,22 +187,6 @@ export class MockUserService implements UserService {
             this._users.set(email, user);
             this._save();
             this._setUser(user);
-        }));
-    }
-
-    updatePassword(oldPassword: string, newPassword: string, email: string): Observable<void> {
-        return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            if (!this.getActiveUser()) {
-                this._throw403('already logged in');
-            }
-
-            const pass = this._passwords.get(email);
-            if (pass !== oldPassword) {
-                this._throw403('wrong password');
-            }
-
-            this._passwords.set(email, newPassword);
-            this._save();
         }));
     }
 

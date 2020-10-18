@@ -59,7 +59,7 @@ export class RealUserService implements UserService {
         return this.httpClient.post<any>(`${this._baseUrl}/users/tags`, {
             name: tag.name,
             color: tag.hexColor,
-        }, {withCredentials: true}).pipe(map(response => {
+        }, {withCredentials: true}).pipe(map(() => {
             return null;
         }));
     }
@@ -68,13 +68,13 @@ export class RealUserService implements UserService {
         return this.httpClient.patch<any>(`${this._baseUrl}/users/tags/${tag._id}`, {
             name: tag.name,
             color: tag.hexColor,
-        }, {withCredentials: true}).pipe(map(response => {
+        }, {withCredentials: true}).pipe(map(() => {
             return null;
         }));
     }
 
     removeTag(tag: FileTag): Observable<void> {
-        return this.httpClient.delete<any>(`${this._baseUrl}/users/tags/${tag._id}`, {withCredentials: true}).pipe(map(response => {
+        return this.httpClient.delete<any>(`${this._baseUrl}/users/tags/${tag._id}`, {withCredentials: true}).pipe(map(() => {
             return null;
         }));
     }
@@ -91,15 +91,23 @@ export class RealUserService implements UserService {
             email: newEmail,
             firstname: firstName,
             lastname: lastName
-        }, {withCredentials: true}).pipe(map(response => {
+        }, {withCredentials: true}).pipe(map(() => {
             return null;
         }));
     }
 
-    updateAuthyId(authyId: string, email: string): Observable<void> {
+    updatePassword(oldPassword: string, newPassword: string, email: string): Observable<void> {
         return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
-            authyId
-        }, {withCredentials: true}).pipe(map(response => {
+            password: newPassword
+        }, {withCredentials: true}).pipe(map(() => {
+            return null;
+        }));
+    }
+
+    updatePhoneNumber(phoneNumber: string, email: string): Observable<void> {
+        return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
+            phoneNumber
+        }, {withCredentials: true}).pipe(map(() => {
             return null;
         }));
     }
@@ -109,15 +117,7 @@ export class RealUserService implements UserService {
             twoFactorApp,
             twoFactorSms,
             twoFactorEmail
-        }, {withCredentials: true}).pipe(map(response => {
-            return null;
-        }));
-    }
-
-    updatePassword(oldPassword: string, newPassword: string, email: string): Observable<void> {
-        return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
-            password: newPassword
-        }, {withCredentials: true}).pipe(map(response => {
+        }, {withCredentials: true}).pipe(map(() => {
             return null;
         }));
     }
@@ -142,7 +142,7 @@ export class RealUserService implements UserService {
         return of(null).pipe(map(() => {
             this.cookieService.delete(JWT_COOKIE_NAME);
             this._setUser(null);
-        }))
+        }));
     }
 
     deleteAccount(): Observable<void> {

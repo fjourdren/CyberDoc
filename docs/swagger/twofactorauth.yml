@@ -18,9 +18,9 @@ paths:
             schema:
               type: object
               required:
-                - authy_id
+                - authyId
               properties:
-                authy_id:
+                authyId:
                   type: string
       responses:
         "200":
@@ -70,9 +70,9 @@ paths:
             schema:
               type: object
               required:
-                - authy_id
+                - authyId
               properties:
-                authy_id:
+                authyId:
                   type: string
       responses:
         "200":
@@ -108,59 +108,7 @@ paths:
                     message:
                       type: string
                       example: User doesn't exist
-                    
-  /2fa/send/push:
-    post:
-      summary: Send Push Notification
-      description: Send Push Notification
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - authy_id
-                - email
-              properties:
-                authy_id:
-                  type: string
-                email:
-                  type: string
-      responses:
-        "200":
-          description: Notification pushed
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  approval_request: 
-                    type: object
-                    properties: 
-                      uuid:
-                        type: string
-                        example: 149f6f90-ebe4-0138-b11c-0aaac0a1e641
-                  success:
-                    type: boolean
-                    example: true
-        "401":
-          description: User doesn't exist
-          content:
-            application/json:
-              schema:
-                success:
-                  type: boolean
-                  example: false
-                message:
-                  type: string
-                  example: User doesn't exist
-                errors:
-                  type: object
-                  properties:
-                    message:
-                      type: string
-                      example: User doesn't exist
-                    
+
   /2fa/verify/token:
     post:
       summary: Verify Token validity
@@ -172,12 +120,12 @@ paths:
               type: object
               required:
                 - type
-                - authy_id
+                - authyId
                 - token
               properties:
                 type:
                   type: string
-                authy_id:
+                authyId:
                   type: string
                 token:
                   type: string
@@ -257,231 +205,6 @@ paths:
                     message:
                       type: string
                       example: User doesn't exist
-        "401":
-          description: Token is invalid
-          content:
-            application/json:
-              schema:
-                success:
-                  type: boolean
-                  example: false
-                message:
-                  type: string
-                  example: Token is invalid
-                errors:
-                  type: object
-                  properties:
-                    message:
-                      type: string
-                      example: Token is invalid
-
-
-  /2fa/verify/push:
-    post:
-      summary: Verify Push Notification
-      description: Verify Push Notification
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - authy_id
-                - token
-              properties:
-                authy_id:
-                  type: string
-                token:
-                  type: string
-      responses:
-        "200":
-          description: Push Notification is valid
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  approval_request: 
-                    type: object
-                    properties: 
-                      _app_name:
-                        type: string
-                        example: CyberDoc
-                      _app_serial_id:
-                        type: integer
-                        example:
-                      _authy_id:
-                        type: integer
-                        example: 153514163
-                      _id:
-                        type: string
-                        example: 5f7f9380bf75fa3a41045fcf
-                      _user_email:
-                        type: string
-                        example: nicolhas.delvoye@gmail.com
-                      app_id:
-                        type: string
-                        example: 5f7a11c4dd0e283de0e1db58
-                      created_at:
-                        type: string
-                        example: 2020-10-08T22:35:14Z
-                      notified:
-                        type: boolean
-                        example: false
-                      processed_at:
-                        type: string
-                        example: 2020-10-08T22:35:14Z
-                      seconds_to_expire:
-                        type: integer
-                        example: 120
-                      status:
-                        type: string
-                        example: "expired"
-                      updated_at:
-                        type: string
-                        example: 2020-10-08T22:35:14Z
-                      user_id:
-                        type: string
-                        example: 5ce9652e6242fb405c265bfa
-                      uuid:
-                        type: string
-                        example: 149f6f90-ebe4-0138-b11c-0aaac0a1e641
-                      hidden_details: 
-                        type: object
-                        example: null
-                  success:
-                    type: boolean
-                    example: true
-        "401":
-          description: User doesn't exist
-          content:
-            application/json:
-              schema:
-                success:
-                  type: boolean
-                  example: false
-                message:
-                  type: string
-                  example: User doesn't exist
-                errors:
-                  type: object
-                  properties:
-                    message:
-                      type: string
-                      example: User doesn't exist
-
-  /2fa/add:
-    post:
-      summary: Add 2FA
-      description: Add 2FA
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - email
-                - phone_number
-                - country_code
-              properties:
-                email:
-                  type: string
-                phone_number:
-                  type: string
-                country_code:
-                  type: string
-      responses:
-        "200":
-          description: User created successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: User created successfully.
-                  user:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                        example: 299233279
-                  success:
-                    type: boolean
-                    example: true
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                success:
-                  type: boolean
-                  example: false
-                message:
-                  type: string
-                  example: User was not valid
-                errors:
-                  type: object
-                  properties:
-                    email:
-                      type: string
-                      example: is invalid and can't be blank
-                    country_code:
-                      type: string
-                      example: is invalid
-                    cellphone:
-                      type: string
-                      example: is invalid
-                    message:
-                      type: string
-                      example: User was not valid
-
-  /2fa/delete:
-    post:
-      summary: Delete 2FA
-      description: Delete 2FA
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - authy_id
-              properties:
-                authy_id:
-                  type: string
-      responses:
-        "200":
-          description: 2FA removed successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: User removed from application
-                  success:
-                    type: boolean
-                    example: true
-        "401":
-          description: User doesn't exist
-          content:
-            application/json:
-              schema:
-                success:
-                  type: boolean
-                  example: false
-                message:
-                  type: string
-                  example: User doesn't exist
-                errors:
-                  type: object
-                  properties:
-                    message:
-                      type: string
-                      example: User doesn't exist
 
   /2fa/qrcode:
     post:
@@ -494,11 +217,11 @@ paths:
               type: object
               required:
                 - email
-                - authy_id
+                - authyId
               properties:
                 email:
                   type: string
-                authy_id:
+                authyId:
                   type: string
       responses:
         "200":
