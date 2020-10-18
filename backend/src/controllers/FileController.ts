@@ -125,7 +125,8 @@ class FileController {
                         "size": file.size,
                         "updated_at": file.updated_at,
                         "created_at": file.created_at,
-                        "tags": file.tags
+                        "tags": file.tags,
+                        "preview": file.preview
                     });
                 } else { // if it's a directory
                     results.push({
@@ -135,7 +136,8 @@ class FileController {
                         "mimetype": "application/x-dir",
                         "updated_at": file.updated_at,
                         "created_at": file.created_at,
-                        "tags": file.tags
+                        "tags": file.tags,
+                        "preview": false
                     });
                 }
             }
@@ -209,7 +211,8 @@ class FileController {
                             "size": fileInDir.size,
                             "updated_at": fileInDir.updated_at,
                             "created_at": fileInDir.created_at,
-                            "tags": fileInDir.tags
+                            "tags": fileInDir.tags,
+                            "preview": fileInDir.preview
                         });
                     } else { // if it's a directory
                         directoryContentOutput.push({
@@ -219,7 +222,8 @@ class FileController {
                             "mimetype": "application/x-dir",
                             "updated_at": fileInDir.updated_at,
                             "created_at": fileInDir.created_at,
-                            "tags": fileInDir.tags
+                            "tags": fileInDir.tags,
+                            "preview": false
                         });
                     }
                 }
@@ -238,7 +242,8 @@ class FileController {
                         "mimetype": "application/x-dir",
                         "path": pathsOutput,
                         "directoryContent": directoryContentOutput,
-                        "tags": file.tags
+                        "tags": file.tags,
+                        "preview": false
                     }
                 });
 
@@ -456,6 +461,7 @@ class FileController {
                 throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
 
             // check that preview is enable & available on that file
+            console.warn(file);
             if (!file.preview) {
                 throw new HTTPError(HttpCodes.FORBIDDEN, "Preview feature needs to be enable on the file")
             }
