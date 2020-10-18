@@ -97,10 +97,10 @@ export class MockFileSystem implements FileSystem {
     search(searchParams: SearchParams): Observable<CloudDirectory> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             let directory: CloudDirectory = {
-                _id: "tmp",
+                _id: null,
                 mimetype: "application/x-dir",
-                name: "tmp",
-                ownerName: "tmp",
+                name: null,
+                ownerName: null,
                 tags: [],
                 path: [],
                 directoryContent: [],
@@ -110,7 +110,7 @@ export class MockFileSystem implements FileSystem {
             let nodes: InternalFileElement[] = Array.from(this.filesMap.values());
             nodes = nodes.filter(node => node.name.startsWith(searchParams.name));
 
-            if (searchParams.type !== "any") {
+            if (searchParams.type !== FileType.Unknown) {
                 nodes = nodes.filter(node => this.fileUtils.getFileTypeForMimetype(node.mimetype) === FileType[searchParams.type]);
             }
 

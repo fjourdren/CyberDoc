@@ -64,7 +64,7 @@ export class RealFileSystem implements FileSystem {
         return this.httpClient.post<any>(`${this._baseUrl}/files/search`, {
             "tagIDs": searchParams.tagIDs.length > 0 ? searchParams.tagIDs : null,
             "name": searchParams.name,
-           /* "mimetypes": [searchParams.type], */
+            "type": searchParams.type,
             "startLastModifiedDate": startDate,
             "endLastModifiedDate": endDate
         }, {withCredentials: true}).pipe(map(response => {

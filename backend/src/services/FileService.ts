@@ -17,6 +17,20 @@ import { streamToBuffer } from '../helpers/Conversions';
 import IUser from "../models/User";
 import { IFile, File, FileType } from "../models/File";
 
+enum PreciseFileType {
+    Folder = "Folder",
+    Audio = "Audio",
+    Video = "Video",
+    Image = "Image",
+    PDF = "PDF",
+    Text = "Text",
+    Document = "Document",
+    Spreadsheet = "Spreadsheet",
+    Presentation = "Presentation",
+    Archive = "Archive",
+    Unknown = "Unknown"
+  }
+
 class FileService {
     /**
      * PERMISSIONS FILE HELPERS
@@ -138,7 +152,8 @@ class FileService {
     }
 
     public static async search(user: IUser, searchBody: Record<string, unknown>): Promise<IFile[]> {
-        const { name, mimetypes, startLastModifiedDate, endLastModifiedDate, tagIDs } = searchBody;
+        const { name, startLastModifiedDate, endLastModifiedDate, tagIDs } = searchBody;
+        const preciseFileType = searchBody.type as PreciseFileType;
 
         // generate the mongodb search object
         let searchArray: Record<string, unknown> = {};
@@ -147,8 +162,62 @@ class FileService {
         if(name)
             searchArray = Object.assign(searchArray, { "name": { "$regex": name, "$options": "i" } }); //"$options": "i" remove the need to manage uppercase in the user search
 
-        if(mimetypes)
-            searchArray = Object.assign(searchArray, { "mimetype": { "$in": mimetypes } });
+        if (preciseFileType){
+            switch (preciseFileType){
+                case PreciseFileType.Folder:
+                    searchArray = Object.assign(searchArray, { "mimetype": "application/x-dir" });
+                    break;
+                case PreciseFileType.Audio:
+                    searchArray = Object.assign(searchArray, { "mimetype": {"$regex": '^audio/' }});
+                    break;
+                case PreciseFileType.Video:
+                    searchArray = Object.assign(searchArray, { "mimetype": {"$regex": '^video/' }});
+                    break;
+                case PreciseFileType.Image:
+                    searchArray = Object.assign(searchArray, { "mimetype": {"$regex": '^image/' }});
+                    break;
+                case PreciseFileType.PDF:
+                    searchArray = Object.assign(searchArray, { "mimetype": "application/pdf" });
+                    break;
+                case PreciseFileType.Text:
+                    searchArray = Object.assign(searchArray, { "mimetype": "text/plain" });
+                    break;
+                case PreciseFileType.Document:
+                    searchArray = Object.assign(searchArray, { "mimetype": {"$in": [
+                        "application/msword",
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        "application/vnd.oasis.opendocument.text"
+                    ]}});
+                    break;
+                case PreciseFileType.Spreadsheet:
+                    searchArray = Object.assign(searchArray, { "mimetype": {"$in": [
+                        "application/vnd.ms-excel",
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "application/vnd.oasis.opendocument.spreadsheet"
+                    ]}});
+                    break;
+                case PreciseFileType.Presentation:
+                    searchArray = Object.assign(searchArray, { "mimetype": {"$in": [
+                        "application/vnd.ms-powerpoint",
+                        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                        "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+                        "application/vnd.oasis.opendocument.presentation"
+                    ]}});
+                    break;
+                case PreciseFileType.Archive:
+                    searchArray = Object.assign(searchArray, { "mimetype": {"$in": [
+                        "application/x-tar",
+                        "application/vnd.rar",
+                        "application/x-7z-compressed",
+                        "application/x-gtar",
+                        "application/zip",
+                        "application/gzip",
+                        "application/vnd.ms-cab-compressed",                       
+                    ]}});
+                    break;
+                                                       
+            }
+        }
         
         if(startLastModifiedDate && endLastModifiedDate)
             searchArray = Object.assign(searchArray, { "updated_at": { "$gt": startLastModifiedDate, "$lt": endLastModifiedDate } });
