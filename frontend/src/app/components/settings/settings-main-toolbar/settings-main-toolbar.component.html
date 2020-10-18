@@ -2,10 +2,10 @@
     <button mat-icon-button (click)="menuButtonClicked.emit()">
         <mat-icon>menu</mat-icon>
     </button>
-    <div id="app-name-icon-container" *ngIf="!hideAppName">
+    <a id="app-name-icon-container"  *ngIf="!hideAppName" [routerLink]="['/files']">
         <img id="app-icon" width="36" height="36" src="/assets/favicon.ico">
         <span>{{'general.appname' | translate}}</span>
-    </div>
+    </a>
     <div id="fill-space"></div>
     <button mat-button [routerLink]="['/files']">
         {{ 'general.back_to_app' | translate }}

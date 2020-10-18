@@ -1,3 +1,5 @@
+@import '../../../../theme.scss';
+
 #fill-space {
     display: flex;
     flex: 1 1 auto;
@@ -12,5 +14,10 @@
     display:flex;
     align-items:center;
     padding-left: 4px; 
-    padding-right: 4px
+    padding-right: 4px;
+}
+
+a {
+    color: $text;
+    text-decoration: unset;
 }
