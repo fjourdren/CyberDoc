@@ -11,6 +11,7 @@
         "video": "Video",
         "image": "Image",
         "pdf": "PDF",
+        "text": "Text",
         "archive": "Archive",
         "unknown": "Unknown",
         "document": "Document",

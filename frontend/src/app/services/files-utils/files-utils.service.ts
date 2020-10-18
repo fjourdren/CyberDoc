@@ -7,6 +7,7 @@ export enum FileType {
   Video = "video",
   Image = "image",
   PDF = "pdf",
+  Text = "text",
   Document = "document",
   Spreadsheet = "spreadsheet",
   Presentation = "presentation",
@@ -20,7 +21,7 @@ const MIMETYPE_TO_FILETYPE_MAP = new Map<string | RegExp, FileType>([
   [new RegExp("video/"), FileType.Video],
   [new RegExp("image/"), FileType.Image],
   ["application/pdf", FileType.PDF],
-  ["text/plain", FileType.Document],
+  ["text/plain", FileType.Text],
 
   // https://stackoverflow.com/questions/4212861/what-is-a-correct-mime-type-for-docx-pptx-etc
   ["application/msword", FileType.Document],
@@ -51,6 +52,7 @@ const FILETYPE_TO_FONTAWESOME_ICON = new Map<FileType, string>([
   [FileType.Video, "fa-file-video"],
   [FileType.Image, "fa-file-image"],
   [FileType.PDF, "fa-file-pdf"],
+  [FileType.Text, "fa-file-alt"],
   [FileType.Document, "fa-file-word"],
   [FileType.Spreadsheet, "fa-file-excel"],
   [FileType.Presentation, "fa-file-powerpoint"],
@@ -64,6 +66,7 @@ const FILETYPE_TO_TRANSLATION = new Map<FileType, string>([
   [FileType.Video, "filetype.video"],
   [FileType.Image, "filetype.image"],
   [FileType.PDF, "filetype.pdf"],
+  [FileType.Text, "filetype.text"],
   [FileType.Document, "filetype.document"],
   [FileType.Spreadsheet, "filetype.spreadsheet"],
   [FileType.Presentation, "filetype.presentation"],
