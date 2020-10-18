@@ -116,7 +116,7 @@ export class RealFileSystem implements FileSystem {
     }
 
     removeTag(node: CloudNode, tag: FileTag): Observable<void> {
-        return this.httpClient.delete<any>(`${this._baseUrl}/files/${node.id}/${tag._id}`, {withCredentials: true})
+        return this.httpClient.delete<any>(`${this._baseUrl}/files/${node.id}/tags/${tag._id}`, {withCredentials: true})
             .pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
