@@ -13,6 +13,7 @@ class TwoFactorAuthController {
     public static async sendTokenBySms(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const {phoneNumber} = req.body;
+            console.log('sendTokenBySms:', phoneNumber);
             const output: VerificationInstance = await TwoFactorAuthService.sendToken('sms', phoneNumber);
             res.status(HttpCodes.OK);
             res.json(output);
@@ -24,6 +25,7 @@ class TwoFactorAuthController {
     public static async sendTokenByEmail(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const {email} = req.body;
+            console.log('sendTokenByEmail:', email);
             const output: VerificationInstance = await TwoFactorAuthService.sendToken('email', email);
             res.status(HttpCodes.OK);
             res.json(output);
@@ -35,18 +37,19 @@ class TwoFactorAuthController {
     public static async verifyTokenAppSmsEmail(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const {phoneNumber, email, secret, token} = req.body;
-            let output: any;
+            console.log('verifyTokenAppSmsEmail:', secret, '/', phoneNumber, '/', email);
             if(secret) {
-                output = await TwoFactorAuthService.verifyTokenGeneratedByApp(secret, token);
-                if(output.delta === null) throw new Error('Invalid token');
-                if(output.delta === -1) throw new Error('Token entered too late');
-                if(output.delta === 1) throw new Error('Token entered too early');
+                await TwoFactorAuthService.verifyTokenGeneratedByApp(secret, token).then(delta => {
+                    if(delta === null) throw new Error('Invalid token');
+                    if(delta === -1) throw new Error('Token entered too late');
+                    if(delta === 1) throw new Error('Token entered too early');
+                })
                 res.status(HttpCodes.OK);
                 res.json({
                     success: true
                 });
-            } else {
-                output = await TwoFactorAuthService.verifyTokenByEmailOrSms(phoneNumber || email || secret, token);
+            } else if(phoneNumber || email){
+                const output = await TwoFactorAuthService.verifyTokenByEmailOrSms(phoneNumber || email || secret, token);
                 res.status(HttpCodes.OK);
                 res.json(output);
             }

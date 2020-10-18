@@ -2,10 +2,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Guid from 'guid';
 
-import { IFile, File, FileType } from "../models/File";
-import { IUser, User, Role } from "../models/User";
+import {File, FileType, IFile} from "../models/File";
+import {IUser, Role, User} from "../models/User";
 
-import { requireNonNull } from '../helpers/DataValidation';
+import {requireNonNull} from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
 import Mailer from '../helpers/Mailer';
@@ -14,7 +14,7 @@ class AuthService {
 
     // generate a JWT token
     public static generateJWTToken(user: IUser): string {
-        return jwt.sign({ user }, process.env.JWT_SECRET, {
+        return jwt.sign({user, authorized: true}, process.env.JWT_SECRET, {
             expiresIn: 86400 // 24 hours
         });
     }
@@ -22,14 +22,15 @@ class AuthService {
     // register service
     public static async signup(firstname: string, lastname: string, email: string, password: string, role: Role): Promise<IUser> {
         // build object
-        const newUser: IUser   = new User();
-        newUser._id            = Guid.raw()
-        newUser.firstname      = firstname;
-        newUser.lastname       = lastname;
-        newUser.email          = email;
-        newUser.password       = password;
-        newUser.role           = role;
-        newUser.twoFactorSms   = false;
+        const newUser: IUser = new User();
+        newUser._id = Guid.raw()
+        newUser.firstname = firstname;
+        newUser.lastname = lastname;
+        newUser.email = email;
+        newUser.password = password;
+        newUser.role = role;
+        newUser.twoFactorApp = false;
+        newUser.twoFactorSms = false;
         newUser.twoFactorEmail = false;
 
         // build user's root directory
@@ -44,9 +45,9 @@ class AuthService {
         newUser.directory_id = root_user_dir._id;
         try {
             requireNonNull(await newUser.save());
-        }catch (e) {
+        } catch (e) {
             const error: Error = e;
-            if (error.message.indexOf("expected `email` to be unique.") !== -1){
+            if (error.message.indexOf("expected `email` to be unique.") !== -1) {
                 requireNonNull(null, 409, "Another account with this mail already exists");
             } else {
                 throw e;
@@ -59,30 +60,37 @@ class AuthService {
 
     // login service
     public static async login(email: string, password: string): Promise<string> {
-        const user: IUser = requireNonNull(await User.findOne({ email: email }).exec());
+        const user: IUser = requireNonNull(await User.findOne({email: email}).exec());
 
         const passwordIsValid = bcrypt.compareSync(password, user.password);
 
-        if(!passwordIsValid)
+        if (!passwordIsValid)
             throw new HTTPError(HttpCodes.UNAUTHORIZED, "Invalid credentials");
 
-        const jwttoken = AuthService.generateJWTToken(user);
+        let jwtToken: string;
+        if (user.twoFactorApp || user.twoFactorEmail || user.twoFactorSms) {
+            jwtToken = jwt.sign({user, authorized: false}, process.env.JWT_SECRET, {
+                expiresIn: 36000
+            });
+        } else {
+            jwtToken = AuthService.generateJWTToken(user);
+        }
 
-        return jwttoken;
+        return jwtToken;
     }
 
     // forgotten password service
     public static async forgottenPassword(email: string): Promise<void> {
-        requireNonNull(await User.findOne({ email: email }).exec());
+        requireNonNull(await User.findOne({email: email}).exec());
 
-        const token: string = jwt.sign({ email }, process.env.JWT_SECRET, {
+        const token: string = jwt.sign({email}, process.env.JWT_SECRET, {
             expiresIn: 36000 // 10 hours
         });
 
         const url: string = process.env.APP_FRONTEND_URL + "/forgottenpassword?token=" + token;
-        
+
         //await Mailer.sendTextEmail(email, process.env.SENDGRID_MAIL_FROM, "hello", "hello", "hello");
-        await Mailer.sendTemplateEmail(email, process.env.SENDGRID_MAIL_FROM, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, { url: url });
+        await Mailer.sendTemplateEmail(email, process.env.SENDGRID_MAIL_FROM, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, {url: url});
     }
 
     // validate that the token is correct

@@ -8,6 +8,7 @@ export class User {
     public lastname: string;
     public email: string;
     public phoneNumber: string;
+    public secret: string;
     public twoFactorApp: boolean;
     public twoFactorSms: boolean;
     public twoFactorEmail: boolean;

@@ -4,6 +4,7 @@ import {map} from 'rxjs/operators';
 import {TwoFactorService} from './twofactor-service';
 
 export class RealTwoFactorService implements TwoFactorService {
+    // tslint:disable-next-line:variable-name
     private _baseUrl: string;
 
     constructor(private httpClient: HttpClient) {
@@ -16,6 +17,7 @@ export class RealTwoFactorService implements TwoFactorService {
     }
 
     sendTokenBySms(phoneNumber: string): Observable<void> {
+        console.log('sendTokenBySms(', phoneNumber, ')');
         return this.httpClient.post<any>(`${this._baseUrl}/2fa/send/sms`, {
             phoneNumber
         }, {withCredentials: true}).pipe(map(() => {
@@ -24,6 +26,7 @@ export class RealTwoFactorService implements TwoFactorService {
     }
 
     verifyTokenBySms(phoneNumber: string, token: string): Observable<boolean> {
+        console.log('verifyTokenBySms(', phoneNumber, ', ', token, ')');
         return this.httpClient.post<any>(`${this._baseUrl}/2fa/verify/token`, {
             phoneNumber,
             token
@@ -33,6 +36,7 @@ export class RealTwoFactorService implements TwoFactorService {
     }
 
     sendTokenByEmail(email: string): Observable<void> {
+        console.log('sendTokenByEmail(', email, ')');
         return this.httpClient.post<any>(`${this._baseUrl}/2fa/send/email`, {
             email
         }, {withCredentials: true}).pipe(map(() => {
@@ -41,6 +45,7 @@ export class RealTwoFactorService implements TwoFactorService {
     }
 
     verifyTokenByEmail(email: string, token: string): Observable<boolean> {
+        console.log('verifyTokenByEmail(', email, ', ', token, ')');
         return this.httpClient.post<any>(`${this._baseUrl}/2fa/verify/token`, {
             email,
             token
@@ -62,11 +67,12 @@ export class RealTwoFactorService implements TwoFactorService {
     }
 
     verifyTokenByApp(secret: string, token: string): Observable<boolean> {
+        console.log('verifyTokenByApp(', secret, ', ', token, ')');
         return this.httpClient.post<any>(`${this._baseUrl}/2fa/verify/token`, {
             secret,
             token
         }, {withCredentials: true}).pipe(map(response => {
-            return response;
+            return response.success;
         }));
     }
 
