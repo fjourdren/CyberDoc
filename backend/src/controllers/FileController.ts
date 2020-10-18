@@ -133,7 +133,7 @@ class FileController {
                 const owner: IUser = requireNonNull(await User.findById(file.owner_id).exec());
 
                 // === CALCULATE PATH ===
-                const pathsOutput: Record<string, any> = [];
+                const pathsOutput: Record<string, any>[] = [];
 
                 let aboveFile: IFile = file;
                 while (aboveFile.parent_file_id != undefined) {
@@ -143,6 +143,8 @@ class FileController {
                         "name": aboveFile.name
                     });
                 }
+
+                pathsOutput.reverse();
                 // ===========
 
 
