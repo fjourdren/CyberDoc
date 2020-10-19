@@ -56,6 +56,7 @@
         "drop_div_text": "Drop a file to import",
         "success": "File successfully uploaded",
         "canceled": "Upload canceled",
+        "under_ten_seconds": "under 10 seconds remaining",
         "finishing_upload": "Finishing upload..."
     },
     "tags": {

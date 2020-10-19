@@ -5,7 +5,7 @@
             <div id="card-text-div">
                 <span id="filename-span">{{ (filename.length>50)? (filename | slice:0:50)+'...':(filename) }}</span>
                 <span *ngIf="progressionPercent !== 100 && remainingTimeSeconds !== 0" id="progress-span" class="mat-small">({{progressionPercent}}%, <span [innerHTML]="remainingTimeSeconds | remainingTime"></span> {{'general.remaining' | translate}})</span>
-                <span *ngIf="progressionPercent !== 100 && remainingTimeSeconds === 0" id="progress-span" class="mat-small">({{progressionPercent}}%)</span>
+                <span *ngIf="progressionPercent !== 100 && remainingTimeSeconds === 0" id="progress-span" class="mat-small">({{progressionPercent}}%, {{ 'upload.under_ten_seconds' | translate }})</span>
                 <span *ngIf="progressionPercent === 100" id="progress-span" class="mat-small">{{ 'upload.finishing_upload' | translate }}</span>
             </div>
         </div>
