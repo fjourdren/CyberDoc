@@ -72,9 +72,7 @@ export class SettingsSecurityComponent implements OnInit {
     }
 
     updatePassword(): void {
-        if (this.passwordForm.get('newPassword').value !== this.passwordForm.get('newPasswordConfirmation').value) {
-            console.log('Passwords must match');
-        } else {
+        if (this.passwordForm.get('newPassword').value === this.passwordForm.get('newPasswordConfirmation').value) {
             this.userServiceProvider.default().updatePassword(
                 this.passwordForm.get('oldPassword').value,
                 this.passwordForm.get('newPassword').value,
@@ -82,6 +80,8 @@ export class SettingsSecurityComponent implements OnInit {
             ).toPromise().then(() => {
                 this.snackBar.open('Password updated', null, {duration: 1500});
             }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+        } else {
+            this.snackBar.open('Password aren\'t equals', null, {duration: 1500})
         }
     }
 

@@ -6,7 +6,5 @@ export interface TwoFactorService {
     verifyTokenBySms(phoneNumber: string, token: string): Observable<boolean>;
     sendTokenByEmail(email: string): Observable<any>;
     verifyTokenByEmail(email: string, token: string): Observable<boolean>;
-    isTwoFactorSmsActivated(): Observable<boolean>;
-    isTwoFactorEmailActivated(): Observable<boolean>;
     generateSecretUriAndQr(email: string): Observable<any>;
 }
