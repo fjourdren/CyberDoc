@@ -69,8 +69,16 @@ export const UserSchema = new mongoose.Schema({
             type: String,
             trim: true,
             validate: {
-                validator: (value: string) => validator.isMobilePhone(value),
+                validator: (value: string) => validator.isMobilePhone(value, undefined, {strictMode: true}),
                 message: '{VALUE} is not a valid phone number'
+            }
+        },
+        secret: {
+            type: String,
+            trim: true,
+            validate: {
+                validator: (value: string) => value.length == 32,
+                message: '{VALUE} is not a valid secret'
             }
         },
         twoFactorApp: {

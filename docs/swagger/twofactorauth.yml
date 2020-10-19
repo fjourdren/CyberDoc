@@ -18,47 +18,18 @@ paths:
             schema:
               type: object
               required:
-                - authyId
+                - email
               properties:
-                authyId:
+                email:
                   type: string
+                  example: john.doe@gmail.com
       responses:
         "200":
           description: Token sent
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success: 
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Email token will be sent
-                  email:
-                    type: string
-                    example: nicolhas.delvoye@gmail.com
-                  email_id:
-                    type: string
-                    example: ID of sent email EMa8b6154fe52d3d9f612137d397fa3628
-        "401":
-          description: User doesn't exist
-          content:
-            application/json:
-              schema:
-                success:
-                  type: boolean
-                  example: false
-                message:
-                  type: string
-                  example: User doesn't exist
-                errors:
-                  type: object
-                  properties:
-                    message:
-                      type: string
-                      example: User doesn't exist
+                $ref: "#/components/schemas/VerificationResponse"
                     
   /2fa/send/sms:
     post:
@@ -70,44 +41,18 @@ paths:
             schema:
               type: object
               required:
-                - authyId
+                - phoneNumber
               properties:
-                authyId:
+                phoneNumber:
                   type: string
+                  example: +33123456789
       responses:
         "200":
           description: Token sent
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  success: 
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: SMS token was sent
-                  cellphone:
-                    type: string
-                    example: +33-XXX-XXX-XX77
-        "401":
-          description: User doesn't exist
-          content:
-            application/json:
-              schema:
-                success:
-                  type: boolean
-                  example: false
-                message:
-                  type: string
-                  example: User doesn't exist
-                errors:
-                  type: object
-                  properties:
-                    message:
-                      type: string
-                      example: User doesn't exist
+                $ref: "#/components/schemas/VerificationResponse"
 
   /2fa/verify/token:
     post:
@@ -119,16 +64,20 @@ paths:
             schema:
               type: object
               required:
-                - type
-                - authyId
                 - token
               properties:
-                type:
-                  type: string
-                authyId:
-                  type: string
                 token:
                   type: string
+                  example: 123456
+                secret:
+                  type: string
+                  example: Q3XWJXPZFRUIKV54X7NJ6RYAOH2DNCMM
+                email:
+                  type: string
+                  example: john.doe@gmail.com
+                phoneNumber:
+                  type: string
+                  example: +33123456789
       responses:
         "200":
           description: Token is valid
@@ -137,79 +86,34 @@ paths:
               schema:
                 type: object
                 properties:
-                  message: 
-                    type: string
-                    example: Token is valid
-                  token:
-                    type: string
-                    example: is valid
                   success:
                     type: boolean
                     example: true
-                  device:
-                    type: object
-                    properties: 
-                      id:
-                        type: string
-                        example: null 
-                      os_type:
-                        type: string
-                        example: sms
-                      registration_date:
-                        type: integer
-                        example: 1601835487
-                      registration_method:
-                        type: string
-                        example: null
-                      registration_country:
-                        type: string
-                        example: null
-                      registration_region:
-                        type: string
-                        example: null
-                      registration_city:
-                        type: string
-                        example: null
-                      country:
-                        type: string
-                        example: null
-                      region:
-                        type: string
-                        example: null
-                      city:
-                        type: string
-                        example: null
-                      ip:
-                        type: string
-                        example: null
-                      last_account_recovery_at:
-                        type: string
-                        example: null
-                      last_sync_date:
-                        type: string
-                        example: null
-        "401":
-          description: User doesn't exist
+                  token:
+                    type: string
+        "400":
+          description: Bad request
           content:
             application/json:
               schema:
                 success:
                   type: boolean
                   example: false
-                message:
+                msg:
                   type: string
-                  example: User doesn't exist
-                errors:
-                  type: object
-                  properties:
-                    message:
-                      type: string
-                      example: User doesn't exist
+                  example: Request should have either secret, phoneNumber or email.
+        "500":
+          description: Requested resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
 
-  /2fa/qrcode:
+
+  /2fa/secret:
     post:
-      summary: Generate QR Code
-      description: Generate QR Code
+      summary: Generate Secret, URI and QR Code
+      description: Generate Secret, URI and QR Code
       requestBody:
         content:
           multipart/form-data:
@@ -217,12 +121,11 @@ paths:
               type: object
               required:
                 - email
-                - authyId
               properties:
                 email:
                   type: string
-                authyId:
-                  type: string
+                  example: john.doe@gmail.com
+
       responses:
         "200":
           description: QrCode generated
@@ -231,27 +134,15 @@ paths:
               schema:
                 type: object
                 properties:
-                  success:
-                    type: boolean
-                    example: true
-                  msg:
+                  secret:
                     type: string
-                    example: QrCode generated
-                  qrcode:
-                    type: object
-                    properties:
-                      issuer:
-                        type: string
-                        example: CyberDoc
-                      label:
-                        type: string
-                        example: nicolhas.delvoye@gmail.com
-                      qr_code:
-                        type: string
-                        example: https://s3.amazonaws.com/qr-codes-9f266de4dd32a7244bf6862baea01379/xM52diqGkqRJFA726ywzldMJ-SlS32MCKVlh2l_inxA.png
-                      success:
-                        type: boolean
-                        example: true
+                    example: Q3XWJXPZFRUIKV54X7NJ6RYAOH2DNCMM
+                    url:
+                      type: string
+                      example: otpauth://totp/CyberDoc%3john.doe%40gmail.com%3Fsecret=Q3XWJXPZFRUIKV54X7NJ6RYAOH2DNCMM
+                    qr:
+                      type: string
+                      example: https://chart.googleapis.com/chart?chs=166x166&chld=L|0&cht=qr&chl=otpauth://totp/CyberDoc%3Ajohn.doe%40gmail.com%3Fsecret=Q3XWJXPZFRUIKV54X7NJ6RYAOH2DNCMM
         "401":
           description: User doesn't exist
           content:
@@ -269,3 +160,30 @@ paths:
                     message:
                       type: string
                       example: User doesn't exist
+  VerificationResponse:
+    description: Verification response
+    type: object
+    required:
+      - sid
+      - service_sid
+      - account_sid
+      - to
+      - channel
+      - status
+      - valid
+      - date_created
+      - lookup
+  GenericErrorResponse:
+    description: Generic error response
+    type: object
+    required:
+      - success
+      - msg
+      properties
+      success:
+        type: boolean
+        description: true if the operation succeeded, otherwise false
+        example: false
+      msg:
+        type: string
+        example: <example message>

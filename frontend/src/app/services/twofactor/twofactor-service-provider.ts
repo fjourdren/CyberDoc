@@ -3,9 +3,9 @@ import { Injectable } from '@angular/core';
 import { RealTwoFactorService } from './real-twofactor-service';
 import { MockTwoFactorService } from './mock-twofactor-service';
 import { TwoFactorService } from './twofactor-service';
-import {CookieService} from "ngx-cookie-service";
+import {CookieService} from 'ngx-cookie-service';
 
-const DEFAULT_USER_SERVICE_PROVIDER_NAME = "real";
+const DEFAULT_TWO_FACTOR_SERVICE_PROVIDER_NAME = 'real';
 
 @Injectable({
     providedIn: 'root'
@@ -16,7 +16,7 @@ export class TwoFactorServiceProvider {
     constructor(private httpClient: HttpClient, private cookieService: CookieService){}
 
     default(): TwoFactorService {
-        return this.get(DEFAULT_USER_SERVICE_PROVIDER_NAME);
+        return this.get(DEFAULT_TWO_FACTOR_SERVICE_PROVIDER_NAME);
     }
 
     get(providerName: string): TwoFactorService {
@@ -28,12 +28,12 @@ export class TwoFactorServiceProvider {
 
     private _createInstance(providerName: string){
         switch (providerName){
-            case "mock":
+            case 'mock':
                 return new MockTwoFactorService();
-            case "real":
+            case 'real':
                 return new RealTwoFactorService(this.httpClient, this.cookieService);
             default:
-                throw new Error(`Unknown UserService provider : ${providerName}`);
+                throw new Error(`Unknown TwoFactorService provider : ${providerName}`);
         }
     }
 }

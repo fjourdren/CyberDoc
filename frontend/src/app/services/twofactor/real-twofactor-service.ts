@@ -4,8 +4,6 @@ import {map} from 'rxjs/operators';
 import {TwoFactorService} from './twofactor-service';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {CookieService} from 'ngx-cookie-service';
-import {User} from '../../models/users-api-models';
-import {EventEmitter} from '@angular/core';
 
 const JWT_COOKIE_NAME = 'access_token';
 
@@ -22,12 +20,19 @@ export class RealTwoFactorService implements TwoFactorService {
             this.baseUrl = 'http://api.cyberdoc.fulgen.fr/v1';
             this.cookieDomain = 'cyberdoc.fulgen.fr';
         }
-        console.log(this.baseUrl);
     }
 
     sendTokenBySms(phoneNumber: string): Observable<any> {
         return this.httpClient.post<any>(`${this.baseUrl}/2fa/send/sms`, {
             phoneNumber
+        }, {withCredentials: true}).pipe(map(response => {
+            return response;
+        }));
+    }
+
+    sendTokenByEmail(email: string): Observable<any> {
+        return this.httpClient.post<any>(`${this.baseUrl}/2fa/send/email`, {
+            email
         }, {withCredentials: true}).pipe(map(response => {
             return response;
         }));
@@ -51,14 +56,6 @@ export class RealTwoFactorService implements TwoFactorService {
         }));
     }
 
-    sendTokenByEmail(email: string): Observable<any> {
-        return this.httpClient.post<any>(`${this.baseUrl}/2fa/send/email`, {
-            email
-        }, {withCredentials: true}).pipe(map(response => {
-            return response;
-        }));
-    }
-
     verifyTokenByEmail(email: string, token: string): Observable<boolean> {
         return this.httpClient.post<any>(`${this.baseUrl}/2fa/verify/token`, {
             email,
@@ -74,18 +71,6 @@ export class RealTwoFactorService implements TwoFactorService {
                 localStorage.setItem('real_user', JSON.stringify(this.jwtHelper.decodeToken(response.token).user));
             }
             return response.success;
-        }));
-    }
-
-    isTwoFactorSmsActivated(): Observable<boolean> {
-        return this.httpClient.get<any>(`${this.baseUrl}/2fa/status/sms`, {withCredentials: true}).pipe(map(response => {
-            return response;
-        }));
-    }
-
-    isTwoFactorEmailActivated(): Observable<boolean> {
-        return this.httpClient.get<any>(`${this.baseUrl}/2fa/status/email`, {withCredentials: true}).pipe(map(response => {
-            return response;
         }));
     }
 
