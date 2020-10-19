@@ -53,7 +53,6 @@ export class TwoFactorPageComponent implements OnInit {
                 this.twoFactorServiceProvider.default().verifyTokenByApp(this.user.secret,
                     this.twoFactorForm.get('token').value).toPromise().then(res => {
                     if (res) {
-                        // TODO : Edit JWT token
                         this.router.navigate(['/files']);
                     } else {
                         this.snackBar.open('Wrong token', null, {duration: 1500});
@@ -61,10 +60,9 @@ export class TwoFactorPageComponent implements OnInit {
                 });
                 break;
             case 'sms':
-                this.twoFactorServiceProvider.default().verifyTokenByApp(this.user.phoneNumber,
+                this.twoFactorServiceProvider.default().verifyTokenBySms(this.user.phoneNumber,
                     this.twoFactorForm.get('token').value).toPromise().then(res => {
                     if (res) {
-                        // TODO : Edit JWT token
                         this.router.navigate(['/files']);
                     } else {
                         this.snackBar.open('Wrong token', null, {duration: 1500});
@@ -72,10 +70,9 @@ export class TwoFactorPageComponent implements OnInit {
                 });
                 break;
             case 'email':
-                this.twoFactorServiceProvider.default().verifyTokenByApp(this.user.email,
+                this.twoFactorServiceProvider.default().verifyTokenByEmail(this.user.email,
                     this.twoFactorForm.get('token').value).toPromise().then(res => {
                     if (res) {
-                        // TODO : Edit JWT token
                         this.router.navigate(['/files']);
                     } else {
                         this.snackBar.open('Wrong token', null, {duration: 1500});
@@ -87,11 +84,15 @@ export class TwoFactorPageComponent implements OnInit {
 
     sendTokenBySms(): void {
         this.twoFactorType = 'sms';
-        this.twoFactorServiceProvider.default().sendTokenBySms(this.user.phoneNumber);
+        this.twoFactorServiceProvider.default().sendTokenBySms(this.user.phoneNumber).toPromise().then(res => {
+            this.snackBar.open(res, null, {duration: 1500});
+        });
     }
 
     sendTokenByEmail(): void {
         this.twoFactorType = 'email';
-        this.twoFactorServiceProvider.default().sendTokenByEmail(this.user.email);
+        this.twoFactorServiceProvider.default().sendTokenByEmail(this.user.email).toPromise().then(res => {
+            this.snackBar.open(res, null, {duration: 1500});
+        });
     }
 }
