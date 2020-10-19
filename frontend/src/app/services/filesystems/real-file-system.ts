@@ -19,7 +19,7 @@ export class RealFileSystem implements FileSystem {
         if (location.toString().indexOf("localhost") > -1) {
             this._baseUrl = "http://localhost:3000/v1";
         } else {
-            this._baseUrl = "http://api.cyberdoc.fulgen.fr/v1";
+            this._baseUrl = "https://api.cyberdoc.fulgen.fr/v1";
         }
     }
 
