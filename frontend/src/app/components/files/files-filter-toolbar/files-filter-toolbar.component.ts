@@ -47,8 +47,8 @@ export class FilesFilterToolbarComponent {
     return `datediff.${dateDiff}`;
   }
 
-  computeTextColor(hexColor: string) {
-    return this.appUtis.computeTextColor(hexColor);
+  computeTextColor(color: string) {
+    return this.appUtis.computeTextColor(color);
   }
 
   isTypeFilterUsed(searchParams: SearchParams) {
