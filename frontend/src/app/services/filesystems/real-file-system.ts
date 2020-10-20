@@ -177,6 +177,7 @@ export class RealFileSystem implements FileSystem {
         this._uploadXhr.onreadystatechange = () => {
             if (this._uploadXhr.readyState === XMLHttpRequest.DONE) {
                 this._currentUpload$.emit(null);
+                this._refreshNeeded$.emit(null);
                 this._timeStarted = -1;
                 this._uploadXhr = null;
             }
