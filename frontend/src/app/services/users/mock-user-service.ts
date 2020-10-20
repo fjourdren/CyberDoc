@@ -97,7 +97,7 @@ export class MockUserService implements UserService {
         return this._getUser();
     }
 
-    register(user: User, password: string): Observable<User> {
+    register(user: User, password: string): Observable<any> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (this.getActiveUser()) {
                 this._throw403('already logged in');
@@ -121,7 +121,11 @@ export class MockUserService implements UserService {
             this._passwords.set(user.email, password);
             this._setUser(null);
             this._save();
-            return user;
+            return {
+                success: true,
+                msg: 'JWT Generated',
+                token: this.getJwtToken()
+            };
         }));
     }
 

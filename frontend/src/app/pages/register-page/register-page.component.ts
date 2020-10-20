@@ -5,8 +5,11 @@ import {User} from 'src/app/models/users-api-models';
 import {MustMatch} from 'src/app/components/settings/settings-security/_helpers/must-match.validator';
 import {HttpErrorResponse} from '@angular/common/http';
 import {Router} from '@angular/router';
+import {CookieService} from 'ngx-cookie-service';
+import {JwtHelperService} from '@auth0/angular-jwt';
 
 const STRONG_PASSWORD_REGEX = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$._\-!%*?&])[A-Za-z\d$@$!%*?&].{8,}/;
+const JWT_COOKIE_NAME = 'access_token';
 
 @Component({
     selector: 'app-register-page',
@@ -25,16 +28,22 @@ export class RegisterPageComponent {
         {
             validator: MustMatch('password', 'repeat')
         });
-
     hidePassword = true;
     loading = false;
-
     emailAlreadyExistsError = false;
     genericError = false;
+    private _jwtHelper = new JwtHelperService();
+    private _cookieDomain: string;
 
     constructor(private fb: FormBuilder,
                 private userServiceProvider: UserServiceProvider,
-                private router: Router) {
+                private router: Router,
+                private cookieService: CookieService) {
+        if (location.toString().indexOf('localhost') > -1) {
+            this._cookieDomain = 'localhost';
+        } else {
+            this._cookieDomain = 'cyberdoc.fulgen.fr';
+        }
     }
 
     onSubmit(): void {
@@ -54,14 +63,21 @@ export class RegisterPageComponent {
             email: this.registerForm.controls.email.value,
         } as User;
 
-        this.userServiceProvider.default().register(user, this.registerForm.controls.password.value).toPromise().then(value => {
+        this.userServiceProvider.default().register(user, this.registerForm.controls.password.value).toPromise().then(response => {
             this.loading = false;
-            this.router.navigate(['/login']);
+            this.cookieService.set(
+                JWT_COOKIE_NAME,
+                response.token,
+                this._jwtHelper.getTokenExpirationDate(response.token),
+                '/',
+                this._cookieDomain);
+            localStorage.setItem('real_user', JSON.stringify(this._jwtHelper.decodeToken(response.token).user));
+            this.router.navigate(['/two-factor-register']);
         }, error => {
             this.loading = false;
             this.registerForm.enable();
 
-            if (error instanceof HttpErrorResponse && error.status == 409) {
+            if (error instanceof HttpErrorResponse && error.status === 409) {
                 this.emailAlreadyExistsError = true;
             } else {
                 this.genericError = true;

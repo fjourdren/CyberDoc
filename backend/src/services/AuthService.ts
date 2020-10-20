@@ -20,7 +20,7 @@ class AuthService {
     }
 
     // register service
-    public static async signup(firstname: string, lastname: string, email: string, password: string, role: Role): Promise<IUser> {
+    public static async signup(firstname: string, lastname: string, email: string, password: string, role: Role): Promise<string> {
         // build object
         const newUser: IUser = new User();
         newUser._id = Guid.raw()
@@ -55,7 +55,7 @@ class AuthService {
         }
 
         requireNonNull(await root_user_dir.save());
-        return newUser;
+        return AuthService.generateJWTToken(newUser, false);
     }
 
     // login service

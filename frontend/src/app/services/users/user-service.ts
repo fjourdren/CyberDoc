@@ -12,7 +12,7 @@ export interface UserService {
     editTag(tag: FileTag): Observable<void>;
     removeTag(tag: FileTag): Observable<void>;
 
-    register(user: User, password: string): Observable<User>;
+    register(user: User, password: string): Observable<any>;
     updateProfile(firstName: string, lastName: string, newEmail: string, oldEmail: string): Observable<void>;
     updatePassword(oldPassword: string, newPassword: string, email: string): Observable<void>;
     updatePhoneNumber(phoneNumber: string, email: string): Observable<void>;

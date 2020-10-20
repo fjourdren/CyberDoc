@@ -14,12 +14,12 @@ class AuthController {
         try {
             const { firstname, lastname, email, password, role } = req.body;
 
-            const user: IUser = requireNonNull(await AuthService.signup(firstname, lastname, email, password, role));
+            const jwtToken = requireNonNull(await AuthService.signup(firstname, lastname, email, password, role));
             res.status(HttpCodes.CREATED);
             res.json({
                 success: true,
                 msg: "Successful registration",
-                user: user
+                token: jwtToken
             });
         } catch(err) {
             next(err);
