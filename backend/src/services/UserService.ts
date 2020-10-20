@@ -43,7 +43,7 @@ class UserService {
 
         user = requireNonNull(await user.save());
 
-        const newToken = AuthService.generateJWTToken(user);
+        const newToken = AuthService.generateJWTToken(user, true);
 
         return {"user": user, "newToken": newToken};
     }

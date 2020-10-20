@@ -6,10 +6,13 @@ servers:
   - url: http://localhost:3000/v1
     description: Local server
   - url: http://api.cyberdoc.fulgen.fr/v1
-    description: Prod server  
+    description: Prod server
+
 paths:
   /2fa/send/email:
     post:
+      security:
+        - jwtToken: [ ]
       summary: Send token by email
       description: Send token by email
       requestBody:
@@ -30,9 +33,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/VerificationResponse"
-                    
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+
   /2fa/send/sms:
     post:
+      security:
+        - jwtToken: [ ]
       summary: Send token by SMS
       description: Send token by SMS
       requestBody:
@@ -53,9 +64,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/VerificationResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
 
   /2fa/verify/token:
     post:
+      security:
+        - jwtToken: [ ]
       summary: Verify Token validity
       description: Verify Token validity
       requestBody:
@@ -96,12 +115,13 @@ paths:
           content:
             application/json:
               schema:
-                success:
-                  type: boolean
-                  example: false
-                msg:
-                  type: string
-                  example: Request should have either secret, phoneNumber or email.
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Requested resource was not found
           content:
@@ -112,6 +132,8 @@ paths:
 
   /2fa/secret:
     post:
+      security:
+        - jwtToken: [ ]
       summary: Generate Secret, URI and QR Code
       description: Generate Secret, URI and QR Code
       requestBody:
@@ -137,53 +159,84 @@ paths:
                   secret:
                     type: string
                     example: Q3XWJXPZFRUIKV54X7NJ6RYAOH2DNCMM
-                    url:
-                      type: string
-                      example: otpauth://totp/CyberDoc%3john.doe%40gmail.com%3Fsecret=Q3XWJXPZFRUIKV54X7NJ6RYAOH2DNCMM
-                    qr:
-                      type: string
-                      example: https://chart.googleapis.com/chart?chs=166x166&chld=L|0&cht=qr&chl=otpauth://totp/CyberDoc%3Ajohn.doe%40gmail.com%3Fsecret=Q3XWJXPZFRUIKV54X7NJ6RYAOH2DNCMM
+                  url:
+                    type: string
+                    example: otpauth://totp/CyberDoc%3john.doe%40gmail.com%3Fsecret=Q3XWJXPZFRUIKV54X7NJ6RYAOH2DNCMM
+                  qr:
+                    type: string
+                    example: https://chart.googleapis.com/chart?chs=166x166&chld=L|0&cht=qr&chl=otpauth://totp/CyberDoc%3Ajohn.doe%40gmail.com%3Fsecret=Q3XWJXPZFRUIKV54X7NJ6RYAOH2DNCMM
         "401":
-          description: User doesn't exist
+          description: Unauthorized
           content:
             application/json:
               schema:
-                success:
-                  type: boolean
-                  example: false
-                message:
-                  type: string
-                  example: User doesn't exist
-                errors:
-                  type: object
-                  properties:
-                    message:
-                      type: string
-                      example: User doesn't exist
-  VerificationResponse:
-    description: Verification response
-    type: object
-    required:
-      - sid
-      - service_sid
-      - account_sid
-      - to
-      - channel
-      - status
-      - valid
-      - date_created
-      - lookup
-  GenericErrorResponse:
-    description: Generic error response
-    type: object
-    required:
-      - success
-      - msg
-      properties
-      success:
-        type: boolean
-        description: true if the operation succeeded, otherwise false
-        example: false
-      msg:
-        type: string
-        example: <example message>
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+components:
+  securitySchemes:
+    jwtToken:
+      type: apiKey
+      in: cookie
+      name: access_token
+  schemas:
+    VerificationResponse:
+      description: Verification response
+      type: object
+      required:
+        - sid
+        - service_sid
+        - account_sid
+        - to
+        - channel
+        - status
+        - valid
+        - date_created
+        - lookup
+      properties:
+        sid:
+          type: string
+          example: VEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        service_sid:
+          type: string
+          example: VAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        account_sid:
+          type: string
+          example: ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        to:
+          type: string
+          example: '+33123456789'
+        channel:
+          type: string
+          example: sms
+        status:
+          type: string
+          example: approved
+        valid:
+          type: boolean
+          example: true
+        date_created:
+          type: string
+          example: '2015-07-30T20:00:00Z'
+        date_updated:
+          type: string
+          example: '2015-07-30T20:00:00Z'
+
+    GenericErrorResponse:
+      description: Generic error response
+      type: object
+      required:
+        - success
+        - msg
+      properties:
+        success:
+          type: boolean
+          description: true if the operation succeeded, otherwise false
+          example: false
+        msg:
+          type: string
+          example: <example message>

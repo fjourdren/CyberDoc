@@ -13,8 +13,8 @@ import Mailer from '../helpers/Mailer';
 class AuthService {
 
     // generate a JWT token
-    public static generateJWTToken(user: IUser): string {
-        return jwt.sign({user, authorized: true}, process.env.JWT_SECRET, {
+    public static generateJWTToken(user: IUser, authorized: boolean): string {
+        return jwt.sign({user, authorized: authorized}, process.env.JWT_SECRET, {
             expiresIn: 86400 // 24 hours
         });
     }
@@ -69,11 +69,9 @@ class AuthService {
 
         let jwtToken: string;
         if (user.twoFactorApp || user.twoFactorEmail || user.twoFactorSms) {
-            jwtToken = jwt.sign({user, authorized: false}, process.env.JWT_SECRET, {
-                expiresIn: 36000
-            });
+            jwtToken = AuthService.generateJWTToken(user, false);
         } else {
-            jwtToken = AuthService.generateJWTToken(user);
+            jwtToken = AuthService.generateJWTToken(user, true);
         }
 
         return jwtToken;
