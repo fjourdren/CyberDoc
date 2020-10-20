@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import {  Component, ElementRef, HostListener, Inject, ViewChild, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -8,7 +9,7 @@ import { FileSystemProvider } from 'src/app/services/filesystems/file-system-pro
 @Component({
   selector: 'app-files-share-dialog',
   templateUrl: './files-share-dialog.component.html',
-  styleUrls: ['./files-share-dialog.component.css']
+  styleUrls: ['./files-share-dialog.component.scss']
 })
 
 
@@ -17,6 +18,10 @@ export class FilesShareDialogComponent {
   loading = false;
   //input = new FormControl('', [Validators.required, Validators.email]);
   //rank = new FormControl('state', [Validators.required]);
+
+  // error handler:
+  genericError = false;
+  userError = false;
 
   registerForm = this.fb.group({
     input: [null, [Validators.required, Validators.email]],
@@ -56,6 +61,14 @@ export class FilesShareDialogComponent {
       this.dialogRef.disableClose = false;
       this.dialogRef.close(true);
       
+    }, (error) => {
+      if (error instanceof HttpErrorResponse && error.status == 404) {
+        this.userError = true;
+      } else {
+        this.genericError = true;
+      }
+      this.loading = false;
+      this.registerForm.enable();
     })
   }
 
