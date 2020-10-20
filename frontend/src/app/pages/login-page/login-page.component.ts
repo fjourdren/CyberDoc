@@ -45,7 +45,14 @@ export class LoginPageComponent {
             if (this._jwtHelper.decodeToken(token).authorized === true) {
                 this.router.navigate(['/files']);
             } else {
-                this.router.navigate(['/two-factor']);
+                if (!(this._jwtHelper.decodeToken(token).user).twoFactorApp
+                    && !(this._jwtHelper.decodeToken(token).user).twoFactorSms
+                    && !(this._jwtHelper.decodeToken(token).user).twoFactorEmail) {
+                    // If no 2FA option is defined, force user to turn it on
+                    this.router.navigate(['/two-factor-register']);
+                } else {
+                    this.router.navigate(['/two-factor']);
+                }
             }
         }, error => {
             this.loading = false;

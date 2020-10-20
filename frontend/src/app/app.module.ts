@@ -28,7 +28,7 @@ import {MatChipsModule} from '@angular/material/chips';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatSelectModule} from '@angular/material/select';
 
-import {TranslateModule, TranslateLoader} from '@ngx-translate/core';
+import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {NgResizeObserverPonyfillModule} from 'ng-resize-observer';
 import {LayoutModule} from '@angular/cdk/layout';
@@ -61,6 +61,10 @@ import {NotFoundPageComponent} from './pages/not-found-page/not-found-page.compo
 import {RegisterPageComponent} from './pages/register-page/register-page.component';
 import {LoginPageComponent} from './pages/login-page/login-page.component';
 import {TwoFactorPageComponent} from './pages/two-factor-page/two-factor-page.component';
+import {
+    TwoFactorRegisterDialogComponent,
+    TwoFactorRegisterPageComponent
+} from './pages/two-factor-register-page/two-factor-register-page.component';
 import {LogoutPageComponent} from './pages/logout-page/logout-page.component';
 import {SettingsProfilePageComponent} from './pages/settings-profile-page/settings-profile-page.component';
 import {SettingsSecurityPageComponent} from './pages/settings-security-page/settings-security-page.component';
@@ -156,6 +160,8 @@ if (environment.useSentry) {
         RegisterPageComponent,
         LoginPageComponent,
         TwoFactorPageComponent,
+        TwoFactorRegisterPageComponent,
+        TwoFactorRegisterDialogComponent,
         LogoutPageComponent,
         ...SETTINGS_COMPONENTS,
         SettingsProfilePageComponent,

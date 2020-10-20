@@ -43,7 +43,7 @@ export class RealUserService implements UserService {
         return this.cookieService.get(JWT_COOKIE_NAME);
     }
 
-    register(user: User, password: string): Observable<User> {
+    register(user: User, password: string): Observable<any> {
         return this.httpClient.post<any>(`${this._baseUrl}/auth/signup`, {
             email: user.email,
             firstname: user.firstname,
@@ -51,7 +51,7 @@ export class RealUserService implements UserService {
             role: user.role,
             password
         }).pipe(map(response => {
-            return response.user as User;
+            return response;
         }));
     }
 

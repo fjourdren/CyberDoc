@@ -11,6 +11,7 @@ import { SettingsProfilePageComponent } from './pages/settings-profile-page/sett
 import { SettingsSecurityPageComponent } from './pages/settings-security-page/settings-security-page.component';
 import { LoggedInGuard } from './guards/logged-in/logged-in.guard';
 import { LoggedOutGuard } from './guards/logged-out/logged-out.guard';
+import {TwoFactorRegisterPageComponent} from "./pages/two-factor-register-page/two-factor-register-page.component";
 
 
 const routes: Routes = [
@@ -24,6 +25,7 @@ const routes: Routes = [
   { path: 'login', component: LoginPageComponent, canActivate: [LoggedOutGuard] },
   { path: 'two-factor', component: TwoFactorPageComponent, canActivate: [LoggedOutGuard] },
   { path: 'register', component: RegisterPageComponent, canActivate: [LoggedOutGuard] },
+  { path: 'two-factor-register', component: TwoFactorRegisterPageComponent, canActivate: [LoggedInGuard] },
 
   { path: 'settings', redirectTo: 'settings/profile', pathMatch: 'full' },
   { path: 'settings/profile', component: SettingsProfilePageComponent, canActivate: [LoggedInGuard] },
