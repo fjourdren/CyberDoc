@@ -19,8 +19,24 @@ export class RealFileSystem implements FileSystem {
             this._baseUrl = "http://api.cyberdoc.fulgen.fr/v1";
         }
     }
-    share(fileID: string, email: String): Observable<RespondShare> {
-        throw new Error('Method not implemented.');
+    share(fileID: string, email: String): Observable<void> {
+        
+        return this.httpClient.post<any>(`${this._baseUrl}/files/${fileID}/sharing`, {
+            "email": email
+        }, {withCredentials: true}).pipe(map(response => {
+            this._refreshNeeded$.emit();
+        }, null));
+    }
+
+    getShareWith(fileID: String): Observable<RespondShare[]>{
+        return this.httpClient.get<any>(`${this._baseUrl}/files/${fileID}/sharing`, {withCredentials: true}).pipe(map(response => {    
+            return response.users as RespondShare[];
+        }));
+    }
+
+    deleteShare(fileID: string, email: String): Observable<void>{
+        return this.httpClient.delete<any>(`${this._baseUrl}/files/${fileID}/sharing/${email}`, {withCredentials: true})
+            .pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     get(nodeID: string): Observable<CloudNode> {
@@ -133,10 +149,6 @@ export class RealFileSystem implements FileSystem {
         return `${this._baseUrl}/files/${node.id}/preview`;
     }
 
-    //MOCK function
-    getUserShared(id: string): Observable<RespondShare[]>{
-        return null;
-    }
 
     startFileUpload(file: File, destination: CloudDirectory): void {
         const formData = new FormData();

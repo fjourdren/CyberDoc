@@ -52,7 +52,7 @@ export class MockFileSystem implements FileSystem {
     }
 
     // MOCK
-    getUserShared(id: string): Observable<RespondShare[]>{
+    getShareWith(id: string): Observable<RespondShare[]>{
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             return this.filesMap.get(id).sharedWith;
         }));
@@ -201,12 +201,20 @@ export class MockFileSystem implements FileSystem {
             this._save();
         }));
     }
-
-    share(fileID: string, email: string): Observable<RespondShare>{
+    // TODO : Modifer le share pour ne pas prendre encompte les dossiers.
+    share(fileID: string, email: string): Observable<void>{
         let currentFile: InternalFileElement;
         let Respond: RespondShare = {email: "", name:""};
         let test: boolean = false;
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            if(email.startsWith("flavien.jourdren@gmail.com")){
+                throw new HttpErrorResponse({
+                    error: `Error`,
+                    statusText: 'NOT FOUND',
+                    status: 404,
+                    url: '/fake-url'
+                });
+            }
             Respond.email = email;
             Respond.name = "NAME : "+email;
             console.log(Respond.name);
@@ -226,7 +234,41 @@ export class MockFileSystem implements FileSystem {
             
             this.filesMap.set(currentFile.id, currentFile);
             this._save();
-            return Respond;
+            // Retirer pour mock
+            //return Respond;
+        }));
+    }
+
+    deleteShare(fileID: string, email: string): Observable<void>{
+        let currentFile: InternalFileElement;
+        let Respond: RespondShare = {email: "", name:""};
+        let test: boolean = false;
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            if(email.startsWith("flavien.jourdren@gmail.com")){
+                throw new HttpErrorResponse({
+                    error: `Error`,
+                    statusText: 'NOT FOUND',
+                    status: 404,
+                    url: '/fake-url'
+                });
+            }
+            Respond.email = email;
+            Respond.name = "NAME : "+email;
+            console.log(Respond.name);
+            currentFile = this.filesMap.get(fileID);
+            currentFile.sharedWith.forEach(element => {
+                if(Respond.email === element.email){
+                    const index = currentFile.sharedWith.indexOf(element);
+                    if (index > -1) {
+                        currentFile.sharedWith.splice(index, 1);
+                    }
+                    test = true;
+                }
+            })  
+            this.filesMap.set(currentFile.id, currentFile);
+            this._save();
+            // Retirer pour mock
+            //return Respond;
         }));
     }
 

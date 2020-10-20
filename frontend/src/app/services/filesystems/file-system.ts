@@ -17,7 +17,10 @@ export interface FileSystem {
     move(node: CloudNode, destination: CloudDirectory): Observable<void>;
     rename(node: CloudNode, newName: string): Observable<void>;
     delete(node: CloudNode): Observable<void>;
-    share(fileID: string, email: String): Observable<RespondShare>;
+    share(fileID: string, email: String): Observable<void>;
+    // MOCK : share(fileID: string, email: String): Observable<RespondShare>;
+    getShareWith(fileID: String): Observable<RespondShare[]>;
+    deleteShare(fileID: string, email: String): Observable<void>;
 
     addTag(node: CloudNode, tag: FileTag): Observable<void>;
     removeTag(node: CloudNode, tag: FileTag): Observable<void>;
@@ -25,7 +28,7 @@ export interface FileSystem {
     getDownloadURL(node: CloudNode): string;
     getExportURL(node: CloudNode): string;
     getFilePreviewImageURL(node: CloudNode): string;
-    getUserShared(id: string): Observable<RespondShare[]>;
+
 
     startFileUpload(file: File, destination: CloudDirectory): void;
     cancelFileUpload(): void;

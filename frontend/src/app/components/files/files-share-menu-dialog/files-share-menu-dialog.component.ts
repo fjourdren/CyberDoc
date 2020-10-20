@@ -24,13 +24,16 @@ const ELEMENT_DATA: PeriodicElement[] = [
 @Component({
   selector: 'app-files-share-menu-dialog',
   templateUrl: './files-share-menu-dialog.component.html',
-  styleUrls: ['./files-share-menu-dialog.component.css']
+  styleUrls: ['./files-share-menu-dialog.component.scss']
 })
 export class FilesShareMenuDialogComponent implements OnInit {
 
   loading = false;
   //input = new FormControl('', [Validators.required, Validators.email]);
   //rank = new FormControl('state', [Validators.required]);
+
+  //Error var :
+  genericError = false;
 
   displayedColumns: string[] = ['email', 'name', 'delete'];
   //dataSource: RespondShare[];
@@ -43,7 +46,7 @@ export class FilesShareMenuDialogComponent implements OnInit {
     private fsProvider: FileSystemProvider,
     private dialog: MatDialog) {
       
-      fsProvider.default().getUserShared(node.id).toPromise().then((value)=>{
+      fsProvider.default().getShareWith(node.id).toPromise().then((value)=>{
         this.dataSource.data = value;
       });
       console.log(this.dataSource);
@@ -54,8 +57,10 @@ export class FilesShareMenuDialogComponent implements OnInit {
   
   update(){
     console.log("In update");
-    this.fsProvider.default().getUserShared(this.node.id).toPromise().then((value)=>{
+    this.fsProvider.default().getShareWith(this.node.id).toPromise().then((value)=>{
       this.dataSource.data = value;
+    }, (error) => {
+      this.genericError = true;
     });
   }
 
@@ -69,8 +74,11 @@ export class FilesShareMenuDialogComponent implements OnInit {
   delete(email: string){
     console.log(email);
     this.loading = true;
-    this.fsProvider.default().share(this.node.id, email).toPromise().then(() => {
+    this.fsProvider.default().deleteShare(this.node.id, email).toPromise().then(() => {
       this.loading = false;    
+    }, (error) => {
+      this.loading = false; 
+      this.genericError = true;
     })
   }
 

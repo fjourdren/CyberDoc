@@ -2,6 +2,7 @@
     {{'fileaction.sharewith' | translate}}
 </h1>
 
+<div class="error-txt" *ngIf="genericError">{{ 'general.generic_error' | translate }}</div>
 
 
 <table mat-table [dataSource]="dataSource" >
