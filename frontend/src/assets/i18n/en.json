@@ -39,7 +39,7 @@
         "delete": "Delete",
         "create": "Create",
         "export": "PDF export",
-        "delete_confirm": "Are you sure you want to delete '{{filename}}' ?"
+        "delete_confirm": "Are you sure you want to delete '{{name}}' ?"
     },
     "file": {
         "preview": "Preview",
@@ -56,12 +56,14 @@
         "drop_div_text": "Drop a file to import",
         "success": "File successfully uploaded",
         "canceled": "Upload canceled",
-        "under_ten_seconds": "under 10 seconds remaining",
+        "under_ten_seconds": "less than 10 seconds remaining",
         "finishing_upload": "Finishing upload..."
     },
     "tags": {
         "create_new_tag": "Create a new tag",
+        "edit_tag": "Edit a tag",
         "tags": "Tags",
+        "tag_name": "Tag name",
         "enter_tag": "Enter a tag..."
     },
     "accounts": {
@@ -79,6 +81,15 @@
         "passwords_must_match": "Passwords must match",
         "password_restrictions": "Use at least eight characters with uppercase and lowercase letters, numbers and symbols."
     },
+    "settings":{
+        "user_info_card_title": "General",
+        "user_info_card_subtitle": "Manage user information",
+        "user_tags_card_title": "Tags",
+        "user_tags_card_subtitle": "Manage tags",
+        "user_delete_card_title": "Delete your account",
+        "user_delete_card_subtitle": "WARNING : You will lose all your files stored on CyberDoc !",
+        "danger_zone": "Danger zone"
+    },
     "general": {
         "generic_error": "Error. Please wait some time then retry",
         "new_name": "New name",
@@ -86,10 +97,12 @@
         "mysafe": "My safe",
         "create_folder": "Create a new folder",
         "yes": "Yes",
+        "update": "Update",
         "no": "No",
         "ok": "OK",
         "color": "Color",
         "add": "Add",
+        "save": "Save",
         "settings": "Settings",
         "refresh": "Refresh",
         "login": "Login",

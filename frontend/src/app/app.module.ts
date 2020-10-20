@@ -27,6 +27,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSelectModule } from '@angular/material/select';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -73,11 +74,12 @@ import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
 import { GlobalErrorHandler } from './global-error-handler';
 import { environment } from '../environments/environment';
 import { FilesTagsInputComponent } from './components/files/files-tags-input/files-tags-input.component';
-import { FilesCreateTagDialogComponent } from './components/files/files-create-tag-dialog/files-create-tag-dialog.component';
 import { FilesFilterDialogComponent } from './components/files/files-filter-dialog/files-filter-dialog.component';
 import { FilesFilterToolbarComponent } from './components/files/files-filter-toolbar/files-filter-toolbar.component';
 import { SettingsMainToolbarComponent } from './components/settings/settings-main-toolbar/settings-main-toolbar.component';
 import { Router } from '@angular/router';
+import { SettingsDeleteTagDialogComponent } from './components/settings/settings-delete-tag-dialog/settings-delete-tag-dialog.component';
+import { SettingsCreateEditTagDialogComponent } from './components/settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
@@ -98,7 +100,6 @@ const FILES_COMPONENTS = [
   FilesGenericTableComponent,
   FilesGenericTableBottomsheetComponent,
   FilesTagsInputComponent,
-  FilesCreateTagDialogComponent,
   FilesFilterDialogComponent,
 ]
 
@@ -155,6 +156,8 @@ if (environment.useSentry) {
     SettingsSecurityPageComponent,
     UnhandledErrorDialogComponent,
     FilesFilterToolbarComponent,
+    SettingsDeleteTagDialogComponent,
+    SettingsCreateEditTagDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -191,6 +194,7 @@ if (environment.useSentry) {
     MatChipsModule,
     MatAutocompleteModule,
     MatSelectModule,
+    MatExpansionModule,
     NgxFilesizeModule,
     NgResizeObserverPonyfillModule,
     LayoutModule,

@@ -1,25 +1,91 @@
-<mat-card style="margin-bottom: 10px;">
+<mat-card>
+	<mat-card-header>
+		<mat-icon mat-card-avatar>person</mat-icon>
+		<mat-card-title>{{'settings.user_info_card_title' | translate}}</mat-card-title>
+		<mat-card-subtitle>{{'settings.user_info_card_subtitle' | translate}}</mat-card-subtitle>
+	</mat-card-header>
 	<mat-card-content>
-		<form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-			<div class="col-md-12">
-				<mat-form-field>
-					<input type="text" matInput formControlName="firstName" placeholder="First Name">
-                </mat-form-field>
-            </div>
-			<div class="col-md-12">
-				<mat-form-field>
-					<input type="text" matInput formControlName="lastName" placeholder="Last Name">
-                </mat-form-field>
-			</div>
-			<div class="col-md-12">
-				<mat-form-field>
-					<input type="email" matInput formControlName="newEmail" placeholder="Email">
-                </mat-form-field>
-            </div>
-			<input type="email" hidden formControlName="oldEmail" placeholder="Email">
-            <button mat-flat-button color="primary" type="submit" [disabled]="profileForm.invalid">Update</button>
-			<button mat-flat-button color="warn" (click)="deleteAccount()" style="margin-left: 10px">Delete my account</button>
+		<form [formGroup]="profileForm">
+			<mat-form-field>
+				<input type="text" matInput formControlName="firstName" placeholder="{{'accounts.first_name' | translate}}">
+			</mat-form-field>
+			<mat-form-field>
+				<input type="text" matInput formControlName="lastName" placeholder="{{'accounts.last_name' | translate}}">
+			</mat-form-field>
+			<mat-form-field>
+				<input type="email" matInput formControlName="newEmail" placeholder="{{'general.email' | translate}}">
+			</mat-form-field>
 		</form>
+		<button mat-flat-button color="primary" type="submit" (click)="updateProfile()"
+			[disabled]="profileForm.invalid || loading">{{'general.update' | translate}}</button>
 
-    </mat-card-content>
+	</mat-card-content>
 </mat-card>
+
+<mat-card>
+	<mat-card-header>
+		<mat-icon mat-card-avatar>local_offer</mat-icon>
+		<mat-card-title>{{'settings.user_tags_card_title' | translate}}</mat-card-title>
+		<mat-card-subtitle>{{'settings.user_tags_card_subtitle' | translate}}</mat-card-subtitle>
+	</mat-card-header>
+	<mat-card-content>
+		<table mat-table [dataSource]="dataSource" matSort>
+
+			<ng-container matColumnDef="tagcolor">
+				<th mat-header-cell *matHeaderCellDef> </th>
+				<td class="tagcolor-column" mat-cell *matCellDef="let element">
+					<div class="tag-color-div" [style.background]="element.hexColor"></div>
+				</td>
+			</ng-container>
+
+			<ng-container matColumnDef="name">
+				<th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'tags.tag_name' | translate }} </th>
+				<td class="name-column" mat-cell *matCellDef="let element"> {{element.name}} </td>
+			</ng-container>
+
+			<ng-container matColumnDef="editbutton">
+				<th mat-header-cell *matHeaderCellDef></th>
+				<td class="editbutton-column" mat-cell *matCellDef="let element">
+					<button [disabled]="loading" mat-icon-button (click)="addOrEditTag(element)">
+						<mat-icon>edit</mat-icon>
+					</button>
+				</td>
+			</ng-container>
+
+			<ng-container matColumnDef="deletebutton">
+				<th mat-header-cell *matHeaderCellDef></th>
+				<td class="deletebutton-column" mat-cell *matCellDef="let element">
+					<button [disabled]="loading" mat-icon-button (click)="deleteTag(element)">
+						<mat-icon>delete</mat-icon>
+					</button>
+				</td>
+			</ng-container>
+
+			<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+		</table>
+		<button [disabled]="loading" id="add-tag-btn" mat-flat-button color="primary"
+			(click)="addOrEditTag(undefined)">{{'general.add' | translate}}</button>
+
+	</mat-card-content>
+</mat-card>
+
+<mat-accordion>
+	<mat-expansion-panel>
+		<mat-expansion-panel-header>
+			<mat-panel-title>
+				{{'settings.danger_zone' | translate}}
+			</mat-panel-title>
+		</mat-expansion-panel-header>
+		<mat-card>
+			<mat-card-header>
+				<mat-icon mat-card-avatar>delete</mat-icon>
+				<mat-card-title>{{'settings.user_delete_card_title' | translate}}</mat-card-title>
+				<mat-card-subtitle>{{'settings.user_delete_card_subtitle' | translate}}</mat-card-subtitle>
+					</mat-card-header>
+			<mat-card-content>
+				<button id="delete-account-btn" [disabled]="loading" (click)="deleteAccount()" mat-flat-button
+					color="warn">{{'settings.user_delete_card_title' | translate}}</button> </mat-card-content>
+		</mat-card>
+	</mat-expansion-panel>
+</mat-accordion>
