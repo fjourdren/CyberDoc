@@ -78,8 +78,6 @@ class FileController {
             const fileOwner = requireNonNull(await User.findById(file.owner_id).exec());
 
             if (file.type == FileType.DIRECTORY) {
-                const owner = requireNonNull(await User.findById(file.owner_id).exec());
-
                 // === CALCULATE PATH ===
                 const pathsOutput: Record<string, any> = [];
 
@@ -140,7 +138,7 @@ class FileController {
                     msg: "File informations loaded",
                     content: {
                         "id": file._id,
-                        "ownerName": owner.firstname + " " + owner.lastname,
+                        "ownerName": fileOwner.firstname + " " + fileOwner.lastname,
                         "name": file.name,
                         "mimetype": "application/x-dir",
                         "path": pathsOutput,
@@ -297,6 +295,10 @@ class FileController {
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
             await FileService.requireFileCanBeViewed(currentUser, file);
 
+            if (!file.preview){
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "Preview not allowed for this file");
+            }
+
             const previewImg = await FileService.generatePreview(file);
 
             res.set('Content-Type', 'image/png');
@@ -376,11 +378,15 @@ class FileController {
                 });
             }
 
+            if (users.findIndex(item => item.email === currentUser.email) === -1){
+                throw new HTTPError(HttpCodes.NOT_FOUND, "File not found");
+            }
+
             res.status(HttpCodes.OK);
             res.json({
                 success: true,
                 msg: "Success",
-                users: users
+                shared_users: users
             });
         } catch (err) {
             next(err);
@@ -395,7 +401,7 @@ class FileController {
             FileService.requireFileIsDocument(file);
             await FileService.requireIsFileOwner(currentUser, file);
 
-            if (user === currentUser){
+            if (user._id === currentUser._id){
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "You are the owner of the file, you can't share it with yourself");
             }
 
@@ -442,7 +448,7 @@ class FileController {
     }
 
     private static _requireAuthenticatedUser(res: Response): IUser {
-        return requireNonNull(res.locals.APP_JWT_TOKEN.user, HttpCodes.UNAUTHORIZED, "Session cookie is missing or invalid");
+        return requireNonNull(res.locals.APP_JWT_TOKEN.user, HttpCodes.UNAUTHORIZED, "Auth is missing or invalid");
     }
 
     private static _requireFile(req: Request, fieldName: string): Express.Multer.File {
