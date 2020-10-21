@@ -81,7 +81,7 @@ export class SettingsSecurityComponent implements OnInit {
                 this.snackBar.open('Password updated', null, {duration: 1500});
             }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
         } else {
-            this.snackBar.open('Password aren\'t equals', null, {duration: 1500})
+            this.snackBar.open('Password aren\'t equals', null, {duration: 1500});
         }
     }
 
@@ -109,7 +109,8 @@ export class SettingsSecurityComponent implements OnInit {
         let refDialog: MatDialogRef<any>;
         switch (type) {
             case 'app':
-                this.twoFactorServiceProvider.default().generateSecretUriAndQr(this.userServiceProvider.default().getActiveUser().email).toPromise().then(res => {
+                this.twoFactorServiceProvider.default().generateSecretUriAndQr(
+                    this.userServiceProvider.default().getActiveUser().email).toPromise().then(res => {
                     refDialog = this.dialog.open(SettingsSecurityDialogComponent, {
                         width: '500px',
                         data: {
@@ -158,21 +159,65 @@ export class SettingsSecurityComponent implements OnInit {
     }
 
     disableTwoFactor(type: string): void {
-        this.userServiceProvider.default().updateTwoFactor(
-            type === 'app' ? !this.userServiceProvider.default().getActiveUser().twoFactorApp :
-                this.userServiceProvider.default().getActiveUser().twoFactorApp,
-            type === 'sms' ? !this.userServiceProvider.default().getActiveUser().twoFactorSms :
-                this.userServiceProvider.default().getActiveUser().twoFactorSms,
-            type === 'email' ? !this.userServiceProvider.default().getActiveUser().twoFactorEmail :
-                this.userServiceProvider.default().getActiveUser().twoFactorEmail,
-            this.userServiceProvider.default().getActiveUser().email
-        ).toPromise().then(() => {
-            this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                this.snackBar.open('2FA disabled', null, {duration: 1500});
-                this.refreshTwoFactor();
-            }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
-        });
-
+        switch (type) {
+            case 'app':
+                if (this.userServiceProvider.default().getActiveUser().twoFactorSms
+                    || this.userServiceProvider.default().getActiveUser().twoFactorEmail) {
+                    this.userServiceProvider.default().updateTwoFactor(
+                        !this.userServiceProvider.default().getActiveUser().twoFactorApp,
+                        this.userServiceProvider.default().getActiveUser().twoFactorSms,
+                        this.userServiceProvider.default().getActiveUser().twoFactorEmail,
+                        this.userServiceProvider.default().getActiveUser().email
+                    ).toPromise().then(() => {
+                        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                            this.snackBar.open('2FA disabled', null, {duration: 1500});
+                            this.refreshTwoFactor();
+                        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                    });
+                } else {
+                    this.snackBar.open('You have to keep at least one 2FA option to use the application.',
+                        null, {duration: 1500});
+                }
+                break;
+            case 'sms':
+                if (this.userServiceProvider.default().getActiveUser().twoFactorApp
+                    || this.userServiceProvider.default().getActiveUser().twoFactorEmail) {
+                    this.userServiceProvider.default().updateTwoFactor(
+                        this.userServiceProvider.default().getActiveUser().twoFactorApp,
+                        !this.userServiceProvider.default().getActiveUser().twoFactorSms,
+                        this.userServiceProvider.default().getActiveUser().twoFactorEmail,
+                        this.userServiceProvider.default().getActiveUser().email
+                    ).toPromise().then(() => {
+                        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                            this.snackBar.open('2FA disabled', null, {duration: 1500});
+                            this.refreshTwoFactor();
+                        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                    });
+                } else {
+                    this.snackBar.open('You have to keep at least one 2FA option to use the application.',
+                        null, {duration: 1500});
+                }
+                break;
+            case 'email':
+                if (this.userServiceProvider.default().getActiveUser().twoFactorApp
+                    || this.userServiceProvider.default().getActiveUser().twoFactorSms) {
+                    this.userServiceProvider.default().updateTwoFactor(
+                        this.userServiceProvider.default().getActiveUser().twoFactorApp,
+                        this.userServiceProvider.default().getActiveUser().twoFactorSms,
+                        !this.userServiceProvider.default().getActiveUser().twoFactorEmail,
+                        this.userServiceProvider.default().getActiveUser().email
+                    ).toPromise().then(() => {
+                        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                            this.snackBar.open('2FA disabled', null, {duration: 1500});
+                            this.refreshTwoFactor();
+                        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                    });
+                } else {
+                    this.snackBar.open('You have to keep at least one 2FA option to use the application.',
+                        null, {duration: 1500});
+                }
+                break;
+        }
     }
 }
 

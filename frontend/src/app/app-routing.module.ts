@@ -12,24 +12,25 @@ import { SettingsSecurityPageComponent } from './pages/settings-security-page/se
 import { LoggedInGuard } from './guards/logged-in/logged-in.guard';
 import { LoggedOutGuard } from './guards/logged-out/logged-out.guard';
 import {TwoFactorRegisterPageComponent} from "./pages/two-factor-register-page/two-factor-register-page.component";
+import {TwoFactorGuard} from "./guards/two-factor/two-factor.guard";
 
 
 const routes: Routes = [
 
   { path: '', redirectTo: 'files', pathMatch: 'full' },
-  { path: 'files-search/:searchParams', component: FilesPageComponent, canActivate: [LoggedInGuard] },
-  { path: 'files/:dirID', component: FilesPageComponent, canActivate: [LoggedInGuard] },
-  { path: 'files', component: FilesPageComponent, canActivate: [LoggedInGuard] },
+  { path: 'files-search/:searchParams', component: FilesPageComponent, canActivate: [LoggedInGuard, TwoFactorGuard] },
+  { path: 'files/:dirID', component: FilesPageComponent, canActivate: [LoggedInGuard, TwoFactorGuard] },
+  { path: 'files', component: FilesPageComponent, canActivate: [LoggedInGuard, TwoFactorGuard] },
 
   { path: 'logout', component: LogoutPageComponent, canActivate: [LoggedInGuard] },
   { path: 'login', component: LoginPageComponent, canActivate: [LoggedOutGuard] },
-  { path: 'two-factor', component: TwoFactorPageComponent, canActivate: [LoggedOutGuard] },
   { path: 'register', component: RegisterPageComponent, canActivate: [LoggedOutGuard] },
-  { path: 'two-factor-register', component: TwoFactorRegisterPageComponent, canActivate: [LoggedInGuard] },
+  { path: 'two-factor', component: TwoFactorPageComponent, canActivate: [LoggedInGuard, TwoFactorGuard] },
+  { path: 'two-factor-register', component: TwoFactorRegisterPageComponent, canActivate: [LoggedInGuard], canDeactivate: [TwoFactorGuard] },
 
   { path: 'settings', redirectTo: 'settings/profile', pathMatch: 'full' },
-  { path: 'settings/profile', component: SettingsProfilePageComponent, canActivate: [LoggedInGuard] },
-  { path: 'settings/security', component: SettingsSecurityPageComponent, canActivate: [LoggedInGuard] },
+  { path: 'settings/profile', component: SettingsProfilePageComponent, canActivate: [LoggedInGuard, TwoFactorGuard] },
+  { path: 'settings/security', component: SettingsSecurityPageComponent, canActivate: [LoggedInGuard, TwoFactorGuard] },
 
   { path: '**', component: NotFoundPageComponent },
 ];
