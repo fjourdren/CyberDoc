@@ -48,9 +48,7 @@ describe("Testing AuthMiddleware : isAuthenticate", () => {
         const req: any = {};
         const res: any = {
             locals: {
-                APP_JWT_TOKEN:{
-                    
-                }
+                APP_JWT_TOKEN:{}
             }
         };
 
@@ -61,6 +59,7 @@ describe("Testing AuthMiddleware : isAuthenticate", () => {
         AuthMiddleware.isAuthenticate(req, res, next);
 
         expect(E.message).toBe(`Action only accesible to auth users`);
+        expect(E.statusCode).toBe(401);   
         expect(next).toHaveBeenCalled();
     });
 
@@ -80,6 +79,7 @@ describe("Testing AuthMiddleware : isAuthenticate", () => {
         AuthMiddleware.isAuthenticate(req, res, next);
 
         expect(E.message).toBe(`Action only accesible to auth users`);
+        expect(E.statusCode).toBe(401);   
         expect(next).toHaveBeenCalled();
     });
 
@@ -92,9 +92,7 @@ describe("Testing AuthMiddleware : isntAuthenticate", () => {
         const req: any = {};
         const res: any = {
             locals: {
-                APP_JWT_TOKEN:{
-                    
-                }
+                APP_JWT_TOKEN:{}
             }
         };
 
@@ -103,7 +101,6 @@ describe("Testing AuthMiddleware : isntAuthenticate", () => {
         });
 
         AuthMiddleware.isntAuthenticate(req, res, next);
-        console.log(E);
 
         expect(E).toEqual(undefined);
         expect(next).toHaveBeenCalled();
@@ -113,9 +110,7 @@ describe("Testing AuthMiddleware : isntAuthenticate", () => {
         let E: any;
         const req: any = {};
         const res: any = {
-            locals: {
-                
-            }
+            locals: {}
         };
 
         const next = jest.fn((err) => {
@@ -146,6 +141,69 @@ describe("Testing AuthMiddleware : isntAuthenticate", () => {
         AuthMiddleware.isntAuthenticate(req, res, next);
 
         expect(E.message).toBe(`Action only accesible to unauth users`);
+        expect(E.statusCode).toBe(401);   
         expect(next).toHaveBeenCalled();
     });
+});
+
+describe("Testing AuthMiddleware : isAuthenticateOrEditToken", () => {
+  
+    it("should not authorize", () => {
+        let E: any;
+        const req: any = {};
+        const res: any = {
+            locals: {
+                APP_JWT_TOKEN:{
+                    user: "testing"
+                }
+            }
+        };
+
+        const next = jest.fn((err) => {
+            E = err;
+        });
+
+        AuthMiddleware.isAuthenticateOrEditToken(req, res, next);
+
+        expect(E).toEqual(undefined);            
+        expect(next).toHaveBeenCalled();
+    });
+    
+    it("should not authorize", () => {
+        let E: any;
+        const req: any = {};
+        const res: any = {
+            locals: {
+                APP_JWT_TOKEN:{}
+            }
+        };
+
+        const next = jest.fn((err) => {
+            E = err;
+        });
+
+        AuthMiddleware.isAuthenticateOrEditToken(req, res, next);
+
+        expect(E.message).toBe(`Action only accesible to auth users`);    
+        expect(E.statusCode).toBe(401);   
+        expect(next).toHaveBeenCalled();
+    });
+
+    it("should not authorize", () => {
+        let E: any;
+        const req: any = {};
+        const res: any = {
+            locals: {}
+        };
+
+        const next = jest.fn((err) => {
+            E = err;
+        });
+
+        AuthMiddleware.isAuthenticateOrEditToken(req, res, next);
+        expect(E.message).toBe(`Action only accesible to auth users`);   
+        expect(E.statusCode).toBe(401);   
+        expect(next).toHaveBeenCalled();
+    });
+
 });
