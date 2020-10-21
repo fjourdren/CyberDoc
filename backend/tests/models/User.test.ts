@@ -1,5 +1,3 @@
-import { Mongoose } from 'mongoose';
-import { requireNonNull } from '../../src/helpers/DataValidation';
 import Guid from 'guid';
 
 const dbHandler = require('../db_handler.js');
