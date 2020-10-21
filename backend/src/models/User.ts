@@ -23,7 +23,8 @@ export enum Role {
 export const UserSchema = new mongoose.Schema({
     _id: {
         type: String,
-        unique: true,
+        // TODO : ne pas merge cette partie
+        // unique: true,
         uniqueCaseInsensitive: true,
         default: () => Guid.raw()
     },
