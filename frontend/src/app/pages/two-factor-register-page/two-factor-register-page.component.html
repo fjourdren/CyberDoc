@@ -1,7 +1,7 @@
 <div id="root-div">
   <div id="form-container">
       <mat-card id="card">
-        <button mat-icon-button (click)="disconnect()">
+        <button mat-icon-button [routerLink]="['/logout']" >
           <mat-icon>keyboard_arrow_left</mat-icon> Go back to login page
         </button>
         <mat-card-header>
@@ -38,7 +38,7 @@
         </mat-card-content>
 
         <div id="button-container">
-          <button [disabled]="loading || (!twoFactorApp && !twoFactorSms && !twoFactorEmail)" mat-raised-button color="primary" (click)="goToApp()">Go to the app</button>
+          <button [routerLink]="['/files']" [disabled]="(!this.twoFactorApp && !this.twoFactorSms && !this.twoFactorEmail)" mat-raised-button color="primary">Go to the app</button>
         </div>
       </mat-card>
   </div>

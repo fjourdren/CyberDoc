@@ -51,6 +51,13 @@ export class RealUserService implements UserService {
             role: user.role,
             password
         }).pipe(map(response => {
+            this.cookieService.set(
+                JWT_COOKIE_NAME,
+                response.token,
+                this._jwtHelper.getTokenExpirationDate(response.token),
+                '/',
+                this._cookieDomain);
+            this._setUser(this._jwtHelper.decodeToken(response.token).user);
             return response;
         }));
     }
@@ -91,32 +98,56 @@ export class RealUserService implements UserService {
             email: newEmail,
             firstname: firstName,
             lastname: lastName
-        }, {withCredentials: true}).pipe(map(() => {
-            return null;
+        }, {withCredentials: true}).pipe(map(response => {
+            this.cookieService.set(
+                JWT_COOKIE_NAME,
+                response.token,
+                this._jwtHelper.getTokenExpirationDate(response.token),
+                '/',
+                this._cookieDomain);
+            this._setUser(this._jwtHelper.decodeToken(response.token).user);
         }));
     }
 
     updatePassword(oldPassword: string, newPassword: string, email: string): Observable<void> {
         return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
             password: newPassword
-        }, {withCredentials: true}).pipe(map(() => {
-            return null;
+        }, {withCredentials: true}).pipe(map(response => {
+            this.cookieService.set(
+                JWT_COOKIE_NAME,
+                response.token,
+                this._jwtHelper.getTokenExpirationDate(response.token),
+                '/',
+                this._cookieDomain);
+            this._setUser(this._jwtHelper.decodeToken(response.token).user);
         }));
     }
 
     updatePhoneNumber(phoneNumber: string, email: string): Observable<void> {
         return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
             phoneNumber
-        }, {withCredentials: true}).pipe(map(() => {
-            return null;
+        }, {withCredentials: true}).pipe(map(response => {
+            this.cookieService.set(
+                JWT_COOKIE_NAME,
+                response.token,
+                this._jwtHelper.getTokenExpirationDate(response.token),
+                '/',
+                this._cookieDomain);
+            this._setUser(this._jwtHelper.decodeToken(response.token).user);
         }));
     }
 
     updateSecret(secret: string, email: string): Observable<void> {
         return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
             secret
-        }, {withCredentials: true}).pipe(map(() => {
-            return null;
+        }, {withCredentials: true}).pipe(map(response => {
+            this.cookieService.set(
+                JWT_COOKIE_NAME,
+                response.token,
+                this._jwtHelper.getTokenExpirationDate(response.token),
+                '/',
+                this._cookieDomain);
+            this._setUser(this._jwtHelper.decodeToken(response.token).user);
         }));
     }
 
@@ -125,8 +156,14 @@ export class RealUserService implements UserService {
             twoFactorApp,
             twoFactorSms,
             twoFactorEmail
-        }, {withCredentials: true}).pipe(map(() => {
-            return null;
+        }, {withCredentials: true}).pipe(map(response => {
+            this.cookieService.set(
+                JWT_COOKIE_NAME,
+                response.token,
+                this._jwtHelper.getTokenExpirationDate(response.token),
+                '/',
+                this._cookieDomain);
+            this._setUser(this._jwtHelper.decodeToken(response.token).user);
         }));
     }
 

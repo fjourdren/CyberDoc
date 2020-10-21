@@ -39,7 +39,6 @@ class TwoFactorAuthController {
             let jwtToken: string;
             let output: boolean;
             if (secret) {
-                requireNonNull(secret);
                 const delta = await TwoFactorAuthService.verifyTokenGeneratedByApp(secret, token);
                 if (delta === null) throw new Error('Invalid token');
                 else if (delta === -1) throw new Error('Token entered too late');
@@ -58,11 +57,6 @@ class TwoFactorAuthController {
                     token: jwtToken
                 });
             } else if (phoneNumber || email) {
-                if(phoneNumber) {
-                    requireNonNull(phoneNumber);
-                } else {
-                    requireNonNull(email);
-                }
                 const verificationInstance = await TwoFactorAuthService.verifyTokenByEmailOrSms(phoneNumber || email, token);
                 jwtToken = jwt.sign({
                     user: res.locals.APP_JWT_TOKEN.user,
