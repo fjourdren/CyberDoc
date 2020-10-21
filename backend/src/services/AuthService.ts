@@ -55,7 +55,7 @@ class AuthService {
         }
 
         requireNonNull(await root_user_dir.save());
-        return AuthService.generateJWTToken(newUser, false);
+        return AuthService.generateJWTToken(newUser, true);
     }
 
     // login service

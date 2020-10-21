@@ -63,15 +63,8 @@ export class RegisterPageComponent {
             email: this.registerForm.controls.email.value,
         } as User;
 
-        this.userServiceProvider.default().register(user, this.registerForm.controls.password.value).toPromise().then(response => {
+        this.userServiceProvider.default().register(user, this.registerForm.controls.password.value).toPromise().then(() => {
             this.loading = false;
-            this.cookieService.set(
-                JWT_COOKIE_NAME,
-                response.token,
-                this._jwtHelper.getTokenExpirationDate(response.token),
-                '/',
-                this._cookieDomain);
-            localStorage.setItem('real_user', JSON.stringify(this._jwtHelper.decodeToken(response.token).user));
             this.router.navigate(['/two-factor-register']);
         }, error => {
             this.loading = false;

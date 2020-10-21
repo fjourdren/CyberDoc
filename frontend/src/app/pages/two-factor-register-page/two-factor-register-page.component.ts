@@ -21,8 +21,6 @@ export interface DialogData {
 })
 
 export class TwoFactorRegisterPageComponent implements OnInit {
-    loading: boolean;
-
     // Dialog
     dialogConfig: any;
     phoneNumber: string;
@@ -35,25 +33,15 @@ export class TwoFactorRegisterPageComponent implements OnInit {
     constructor(private userServiceProvider: UserServiceProvider,
                 private twoFactorServiceProvider: TwoFactorServiceProvider,
                 private snackBar: MatSnackBar,
-                private dialog: MatDialog,
-                private router: Router) {
+                private dialog: MatDialog) {
     }
 
     ngOnInit(): void {
-        this.loading = false;
         this.twoFactorApp = this.userServiceProvider.default().getActiveUser().twoFactorApp;
         this.twoFactorSms = this.userServiceProvider.default().getActiveUser().twoFactorSms;
         this.twoFactorEmail = this.userServiceProvider.default().getActiveUser().twoFactorEmail;
 
         this.dialogConfig = new MatDialogConfig();
-    }
-
-    goToApp(): void {
-        if (!this.twoFactorApp && !this.twoFactorEmail && !this.twoFactorSms) {
-            return;
-        }
-        this.loading = true;
-        this.router.navigate(['/files']);
     }
 
     // Dialogs
@@ -121,15 +109,11 @@ export class TwoFactorRegisterPageComponent implements OnInit {
             this.userServiceProvider.default().getActiveUser().email
         ).toPromise().then(() => {
             this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                this.snackBar.open('2FA disabled', null, {duration: 1500});
                 this.refreshTwoFactor();
+                this.snackBar.open('2FA disabled', null, {duration: 1500});
             }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
         });
 
-    }
-
-    disconnect(): void {
-        this.router.navigate(['/logout']);
     }
 }
 
@@ -184,15 +168,14 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
                         this.userServiceProvider.default().getActiveUser().twoFactorEmail,
                         this.userServiceProvider.default().getActiveUser().email
                     ).toPromise().then(() => {
-                        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                            this.snackBar.open('2FA activated', null, {duration: 1500});
-                            this.dialogRef.close();
-                        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                        this.userServiceProvider.default().updateSecret(this.data.secret,
+                            this.userServiceProvider.default().getActiveUser().email).toPromise().then(() => {
+                                this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                                    this.snackBar.open('2FA activated', null, {duration: 1500});
+                                    this.dialogRef.close();
+                                }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                        });
                     });
-                    console.log('Secret:', this.data.secret, '/email:',
-                        this.userServiceProvider.default().getActiveUser().email);
-                    this.userServiceProvider.default().updateSecret(this.data.secret,
-                        this.userServiceProvider.default().getActiveUser().email);
                 }
             }).catch(err => {
                 this.snackBar.open(err.error.message, null, {duration: 1500});
@@ -208,13 +191,14 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
                         this.userServiceProvider.default().getActiveUser().twoFactorEmail,
                         this.userServiceProvider.default().getActiveUser().email
                     ).toPromise().then(() => {
-                        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                            this.snackBar.open('2FA activated', null, {duration: 1500});
-                            this.dialogRef.close();
-                        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                        this.userServiceProvider.default().updatePhoneNumber(this.data.phoneNumber,
+                            this.userServiceProvider.default().getActiveUser().email).toPromise().then(() => {
+                            this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                                this.snackBar.open('2FA activated', null, {duration: 1500});
+                                this.dialogRef.close();
+                            }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                        });
                     });
-                    this.userServiceProvider.default().updatePhoneNumber(this.data.phoneNumber,
-                        this.userServiceProvider.default().getActiveUser().email);
                 }
             }).catch(err => {
                 this.snackBar.open(err.error.message, null, {duration: 1500});

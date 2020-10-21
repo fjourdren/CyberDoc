@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { TwoFactorGuard } from './two-factor-guard.service';
+import { AuthorizedGuard } from './authorized-guard.service';
 
-describe('TwoFactorGuard', () => {
-  let guard: TwoFactorGuard;
+describe('AuthorizedGuard', () => {
+  let guard: AuthorizedGuard;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    guard = TestBed.inject(TwoFactorGuard);
+    guard = TestBed.inject(AuthorizedGuard);
   });
 
   it('should be created', () => {
