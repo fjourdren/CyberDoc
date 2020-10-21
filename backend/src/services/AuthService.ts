@@ -67,14 +67,7 @@ class AuthService {
         if (!passwordIsValid)
             throw new HTTPError(HttpCodes.UNAUTHORIZED, "Invalid credentials");
 
-        let jwtToken: string;
-        if (user.twoFactorApp || user.twoFactorEmail || user.twoFactorSms) {
-            jwtToken = AuthService.generateJWTToken(user, false);
-        } else {
-            jwtToken = AuthService.generateJWTToken(user, true);
-        }
-
-        return jwtToken;
+        return AuthService.generateJWTToken(user, false); // Need to 2FA anyway
     }
 
     // forgotten password service

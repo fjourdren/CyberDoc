@@ -42,17 +42,14 @@ export class LoginPageComponent {
         this.userServiceProvider.default().login(this.loginForm.controls.email.value, this.loginForm.controls.password.value)
             .toPromise().then(token => {
             this.loading = false;
-            if (this._jwtHelper.decodeToken(token).authorized === true) {
-                this.router.navigate(['/files']);
+            if (!(this._jwtHelper.decodeToken(token).user).twoFactorApp
+                && !(this._jwtHelper.decodeToken(token).user).twoFactorSms
+                && !(this._jwtHelper.decodeToken(token).user).twoFactorEmail) {
+                // If no 2FA option is defined, force user to turn it on
+                this.router.navigate(['/two-factor-register']);
             } else {
-                if (!(this._jwtHelper.decodeToken(token).user).twoFactorApp
-                    && !(this._jwtHelper.decodeToken(token).user).twoFactorSms
-                    && !(this._jwtHelper.decodeToken(token).user).twoFactorEmail) {
-                    // If no 2FA option is defined, force user to turn it on
-                    this.router.navigate(['/two-factor-register']);
-                } else {
-                    this.router.navigate(['/two-factor']);
-                }
+                // Else, verify it is the user
+                this.router.navigate(['/two-factor']);
             }
         }, error => {
             this.loading = false;
