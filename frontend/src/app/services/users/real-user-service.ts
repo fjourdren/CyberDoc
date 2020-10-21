@@ -141,9 +141,7 @@ export class RealUserService implements UserService {
                 this._jwtHelper.getTokenExpirationDate(response.token),
                 '/',
                 this._cookieDomain);
-            if (this._jwtHelper.decodeToken(response.token).authorized === true) {
-                this._setUser(this._jwtHelper.decodeToken(response.token).user);
-            }
+            this._setUser(this._jwtHelper.decodeToken(response.token).user);
             return response.token;
         }));
     }

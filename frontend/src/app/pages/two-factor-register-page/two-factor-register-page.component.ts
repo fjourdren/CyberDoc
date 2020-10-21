@@ -127,6 +127,10 @@ export class TwoFactorRegisterPageComponent implements OnInit {
         });
 
     }
+
+    disconnect(): void {
+        this.router.navigate(['/logout']);
+    }
 }
 
 @Component({
@@ -185,6 +189,8 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
                             this.dialogRef.close();
                         }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
                     });
+                    console.log('Secret:', this.data.secret, '/email:',
+                        this.userServiceProvider.default().getActiveUser().email);
                     this.userServiceProvider.default().updateSecret(this.data.secret,
                         this.userServiceProvider.default().getActiveUser().email);
                 }
