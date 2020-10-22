@@ -26,7 +26,7 @@
                 </button>
             </mat-toolbar>
 
-            <app-files-treeview [currentDirectoryID]="currentDirectory && currentDirectory.id"></app-files-treeview>
+            <app-files-treeview *ngIf="!searchMode" [currentDirectoryID]="currentDirectory && currentDirectory._id"></app-files-treeview>
         </mat-drawer>
 
         <div *ngIf="!fileDetailDrawerLocked">
@@ -46,7 +46,7 @@
         <mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
 
         <app-files-generic-table *ngIf="!loading" [showDetailsButton]="!fileDetailDrawerLocked"
-            [currentDirectoryID]="currentDirectory && currentDirectory.id"
+            [currentDirectoryID]="currentDirectory && currentDirectory._id"
             [items]="currentDirectory && currentDirectory.directoryContent" [(selectedNode)]="selectedNode"
             (openButtonClicked)="openButtonClicked($event)" (detailsButtonClicked)="fileDetailDrawer.open()">
         </app-files-generic-table>
@@ -68,5 +68,5 @@
         <app-files-upload-progress-snackbar></app-files-upload-progress-snackbar>
 
     </mat-drawer-container>
-    <app-files-upload [currentDirectory]="currentDirectory"></app-files-upload>
+    <app-files-upload *ngIf="!searchMode" [currentDirectory]="currentDirectory"></app-files-upload>
 </div>

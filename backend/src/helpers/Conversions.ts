@@ -5,14 +5,14 @@ export function normalizePort(val: number|string): number {
 }
 
 export function streamToBuffer(stream: Readable): Promise<Buffer> {
-    return new Promise((resolve, reject) => {
-        let bufferArray: any[] = [];
+    return new Promise((resolve) => {
+        const bufferArray: any[] = [];
         stream.on('data', function(chunk: any){  
             bufferArray.push(chunk);
         });
 
         stream.on('end', function(){
-            let buffer = Buffer.concat(bufferArray);
+            const buffer = Buffer.concat(bufferArray);
             resolve(buffer);
         })
     });

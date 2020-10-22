@@ -57,9 +57,9 @@ class App {
         // OTHERS
         this.expressApp.use((req, res, next) => {
             res.header('Access-Control-Allow-Credentials','true');
-            res.header('Access-Control-Allow-Origin', process.env.FRONT_URL);
+            res.header('Access-Control-Allow-Origin', process.env.APP_FRONTEND_URL);
             res.header('Access-Control-Allow-Methods', 'OPTIONS,GET,PUT,POST,PATCH,DELETE');
-            res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+            res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, sentry-trace');
             if(req.method === 'OPTIONS') {
                 res.status(200).send();
             } else {

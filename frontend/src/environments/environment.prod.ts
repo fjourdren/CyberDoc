@@ -1,4 +1,6 @@
 export const environment = {
   production: true,
-  useSentry: false
+  useSentry: false,
+  defaultFSProviderName: "real",
+  defaultUserServiceName: "real"
 };

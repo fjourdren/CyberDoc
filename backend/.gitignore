@@ -1,3 +1,9 @@
+# tmp dir
+tmp/
+
+# sonarqube ignore
+.scannerwork/
+
 # Config files
 .env
 .env.dev
