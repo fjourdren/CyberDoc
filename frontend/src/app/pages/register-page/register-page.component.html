@@ -11,10 +11,6 @@
           <mat-card-title>{{ 'general.register' | translate }}</mat-card-title>
         </mat-card-header>
 
-        <div class="error-txt" *ngIf="emailAlreadyExistsError">
-          {{ 'accounts.email_already_exists' | translate }}
-          <a style="margin-left: 4px;" routerLink="/login" mat-stroked-button color="primary">{{ 'general.login' | translate }}</a>
-        </div>
 
         <div class="error-txt" *ngIf="genericError">
           {{ 'general.generic_error' | translate }}

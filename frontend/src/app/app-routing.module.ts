@@ -1,6 +1,8 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 
+import {PasswordRecoveryPageComponent} from './pages/password-recovery-page/password-recovery-page.component'
+import {ResetPasswordPageComponent} from './pages/reset-password-page/reset-password-page.component'
 import {NotFoundPageComponent} from './pages/not-found-page/not-found-page.component';
 import {LoginPageComponent} from './pages/login-page/login-page.component';
 import {TwoFactorPageComponent} from './pages/two-factor-page/two-factor-page.component';
@@ -29,9 +31,11 @@ const routes: Routes = [
   {path: 'files/:dirID', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard]},
   {path: 'files', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard]},
 
-  {path: 'logout', component: LogoutPageComponent, canActivate: [LoggedInGuard]},
-  {path: 'login', component: LoginPageComponent, canActivate: [LoggedOutGuard]},
-  {path: 'register', component: RegisterPageComponent, canActivate: [LoggedOutGuard]},
+  { path: 'logout', component: LogoutPageComponent, canActivate: [LoggedInGuard] },
+  { path: 'login', component: LoginPageComponent, canActivate: [LoggedOutGuard] },
+  { path: 'register', component: RegisterPageComponent, canActivate: [LoggedOutGuard] },
+  { path: 'forgottenpassword', component: PasswordRecoveryPageComponent, canActivate: [LoggedOutGuard] },
+  { path: 'passwordReset', component: ResetPasswordPageComponent, canActivate: [LoggedOutGuard] },
   {
     path: 'two-factor-register',
     component: TwoFactorRegisterPageComponent,
@@ -42,7 +46,6 @@ const routes: Routes = [
     component: TwoFactorPageComponent,
     canActivate: [LoggedInGuard, TwoFactorGuard, UnauthorizedGuard]
   },
-
   {path: 'settings', redirectTo: 'settings/profile', pathMatch: 'full'},
   {
     path: 'settings/profile',

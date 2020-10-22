@@ -183,6 +183,21 @@ export class RealUserService implements UserService {
         }));
     }
 
+    recoverPassword(email: string): Observable<void>{
+        return this.httpClient.post<any>(`${this._baseUrl}/auth/forgottenPassword`, {
+            "email": email
+        }).pipe(map(response => {
+        }));
+    }
+
+    resetPassword(token: string, newPassword: string): Observable<void>{
+        return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
+            "password": newPassword,
+            "token": token
+        }).pipe(map(response => {
+        }));
+    }
+
     searchExistingUser(email: string): Observable<User>{
         return null;
     }
