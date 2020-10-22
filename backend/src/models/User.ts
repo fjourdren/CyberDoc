@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import validator from 'validator';
 import Guid from 'guid';
 
-import ITag, { Tag } from './Tag';
+import ITag, {Tag} from './Tag';
 
 
 /**
@@ -13,7 +13,7 @@ import ITag, { Tag } from './Tag';
  */
 export enum Role {
     OWNER = 'owner',
-    COLLABORATER = 'collaborater'
+    COLLABORATOR = 'collaborator'
 }
 
 
@@ -67,29 +67,55 @@ export const UserSchema = new mongoose.Schema({
                 if (!value.replace(/[0-9a-zA-Z ]/g, "").length) return false;
                 return true;
             },
-            message: () => `Password doesn't respect the required format`
         },
+        phoneNumber: {
+            type: String,
+            trim: true,
+            validate: {
+                validator: (value: string) => validator.isMobilePhone(value, undefined, {strictMode: true}),
+                message: '{VALUE} is not a valid phone number'
+            }
+        },
+        secret: {
+            type: String,
+            trim: true,
+            validate: {
+                validator: (value: string) => value.length == 32,
+                message: '{VALUE} is not a valid secret'
+            }
+        },
+        twoFactorApp: {
+            type: Boolean,
+            required: true
+        },
+        twoFactorSms: {
+            type: Boolean,
+            required: true
+        },
+        twoFactorEmail: {
+            type: Boolean,
+            required: true
+        },
+        role: {
+            type: String,
+            enum: Object.values(Role),
+            default: Role.COLLABORATOR
+        },
+        tags: {
+            type: [Tag.schema]
+        },
+        updated_at: {
+            type: Date,
+            default: new Date().getTime()
+        },
+        created_at: {
+            type: Date,
+            default: new Date().getTime()
+        }
     },
-    role: {
-        type: String,
-        enum: Object.values(Role),
-        default: Role.COLLABORATER
-    },
-    tags: {
-        type: [Tag.schema]
-    },
-    updated_at: {
-        type: Date,
-        default: new Date().getTime()
-    },
-    created_at: {
-        type: Date,
-        default: new Date().getTime()
-    }
-},
-{
-    collection: 'User',
-});
+    {
+        collection: 'User',
+    });
 
 
 // DO NOT export this, Type script validation (= Mongoose raw model)
@@ -100,13 +126,16 @@ export interface IUser extends mongoose.Document {
     lastname: string;
     email: string;
     password: string;
+    phoneNumber: string;
+    secret: string;
+    twoFactorApp: boolean;
+    twoFactorSms: boolean;
+    twoFactorEmail: boolean;
     role: Role;
     tags: ITag[];
     updated_at: string;
     created_at: string;
 }
-
-
 
 
 /**

@@ -12,11 +12,14 @@ export interface UserService {
     editTag(tag: FileTag): Observable<void>;
     removeTag(tag: FileTag): Observable<void>;
 
-    register(user: User, password: string): Observable<User>;
+    register(user: User, password: string): Observable<any>;
     updateProfile(firstName: string, lastName: string, newEmail: string, oldEmail: string): Observable<void>;
-    updatePassword(oldPassword: string, newPassword: string, email: string)
-    login(email: string, password: string): Observable<User>;
-    searchExistingUser(email: string): Observable<User>;
+    updatePassword(oldPassword: string, newPassword: string, email: string): Observable<void>;
+    updatePhoneNumber(phoneNumber: string, email: string): Observable<void>;
+    updateSecret(secret: string, email: string): Observable<void>;
+    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, twoFactorEmail: boolean, email: string): Observable<void>;
+    login(email: string, password: string): Observable<any>;
+    updatePassword(oldPassword: string, newPassword: string, email: string);
     logout(): Observable<void>;
     deleteAccount(): Observable<void>;
 

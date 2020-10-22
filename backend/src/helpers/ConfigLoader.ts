@@ -40,9 +40,11 @@ declare global {
             SENDGRID_TEMPLATE_SEND_SHARING_CODE: string;
             SENDGRID_TEMPLATE_REQUEST_CREATE_ACCOUNT: string;
             SENDGRID_TEMPLATE_2FA_TOKEN: string;
+            TWILIO_ACCOUNT_SID: string;
+            TWILIO_AUTH_TOKEN: string;
+            TWILIO_SERVICE_ID: string;
             AMQP_URL: string;
             SONARQUBE_TOKEN: string;
-            
         }
     }
 }
