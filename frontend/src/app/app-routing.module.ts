@@ -10,6 +10,8 @@ import { SettingsProfilePageComponent } from './pages/settings-profile-page/sett
 import { SettingsSecurityPageComponent } from './pages/settings-security-page/settings-security-page.component';
 import { LoggedInGuard } from './guards/logged-in/logged-in.guard';
 import { LoggedOutGuard } from './guards/logged-out/logged-out.guard';
+import { PasswordRecoveryPageComponent } from './pages/password-recovery-page/password-recovery-page.component'
+import {ResetPasswordPageComponent} from './pages/reset-password-page/reset-password-page.component'
 
 
 const routes: Routes = [
@@ -22,6 +24,8 @@ const routes: Routes = [
   { path: 'logout', component: LogoutPageComponent, canActivate: [LoggedInGuard] },
   { path: 'login', component: LoginPageComponent, canActivate: [LoggedOutGuard] },
   { path: 'register', component: RegisterPageComponent, canActivate: [LoggedOutGuard] },
+  { path: 'passwordRecovery', component: PasswordRecoveryPageComponent, canActivate: [LoggedOutGuard] },
+  { path: 'passwordReset', component: ResetPasswordPageComponent, canActivate: [LoggedOutGuard] },
 
   { path: 'settings', redirectTo: 'settings/profile', pathMatch: 'full' },
   { path: 'settings/profile', component: SettingsProfilePageComponent, canActivate: [LoggedInGuard] },
