@@ -1,0 +1,13 @@
+
+@import "../../../../theme.scss";
+
+.full-width {
+    width: 100%;
+  }
+
+  
+.error-txt {
+  color: $warn;
+  font-weight: bold;
+  padding-bottom: 12px;
+}

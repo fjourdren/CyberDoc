@@ -2,7 +2,7 @@ import { HttpClient, HttpEventType } from '@angular/common/http';
 import { EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { CloudNode, CloudDirectory, SearchParams, FileTag, CloudFile } from 'src/app/models/files-api-models';
+import { CloudNode, CloudDirectory, SearchParams, FileTag, CloudFile, RespondShare } from 'src/app/models/files-api-models';
 import { DIRECTORY_MIMETYPE } from '../files-utils/files-utils.service';
 import { FileSystem, Upload } from './file-system';
 
@@ -21,6 +21,25 @@ export class RealFileSystem implements FileSystem {
         } else {
             this._baseUrl = "https://api.cyberdoc.fulgen.fr/v1";
         }
+    }
+    share(fileID: string, email: String): Observable<void> {
+        
+        return this.httpClient.post<any>(`${this._baseUrl}/files/${fileID}/sharing`, {
+            "email": email
+        }, {withCredentials: true}).pipe(map(response => {
+            this._refreshNeeded$.emit();
+        }, null));
+    }
+
+    getShareWith(fileID: String): Observable<RespondShare[]>{
+        return this.httpClient.get<any>(`${this._baseUrl}/files/${fileID}/sharing`, {withCredentials: true}).pipe(map(response => {    
+            return response.users as RespondShare[];
+        }));
+    }
+
+    deleteShare(fileID: string, email: String): Observable<void>{
+        return this.httpClient.delete<any>(`${this._baseUrl}/files/${fileID}/sharing/${email}`, {withCredentials: true})
+            .pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     get(nodeID: string): Observable<CloudNode> {
@@ -138,6 +157,7 @@ export class RealFileSystem implements FileSystem {
     getFilePreviewImageURL(node: CloudNode): string {
         return `${this._baseUrl}/files/${node._id}/preview`;
     }
+
 
     startFileUpload(file: File, destination: CloudDirectory): void {
         const formData = new FormData();

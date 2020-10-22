@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { FileSystem } from 'src/app/services/filesystems/file-system'
 import { MockFileSystem } from 'src/app/services/filesystems/mock-file-system'
 import { FilesUtilsService } from '../files-utils/files-utils.service';
+import { UserServiceProvider } from '../users/user-service-provider';
 import { RealFileSystem } from './real-file-system';
 import { environment } from '../../../environments/environment';
 
@@ -12,7 +13,7 @@ import { environment } from '../../../environments/environment';
 export class FileSystemProvider {
     private _instances = new Map<string, FileSystem>();
 
-    constructor(private fileUtils: FilesUtilsService, private httpClient: HttpClient){}
+    constructor(private fileUtils: FilesUtilsService, private httpClient: HttpClient, private userServiceProvider: UserServiceProvider){}
 
     default(): FileSystem {
         return this.get(environment.defaultFSProviderName);
@@ -28,7 +29,7 @@ export class FileSystemProvider {
     private _createInstance(providerName: string){
         switch (providerName){
             case "mock":
-                return new MockFileSystem(this.fileUtils);
+                return new MockFileSystem(this.fileUtils, this.userServiceProvider);
             case "real":
                 return new RealFileSystem(this.httpClient);
             default:

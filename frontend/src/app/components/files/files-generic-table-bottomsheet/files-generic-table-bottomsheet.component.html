@@ -44,4 +44,9 @@
             <mat-icon fontSet="fa" fontIcon="fa-trash"></mat-icon>{{ 'fileaction.delete' | translate }}
         </span>
     </a>
+    <a href="#" *ngIf="!data.readonlyMode" mat-list-item (click)="onBottomSheetSelection($event,'share')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>{{ 'fileaction.share' | translate }}
+        </span>
+    </a>
 </mat-nav-list>

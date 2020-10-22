@@ -7,6 +7,10 @@ import { EventEmitter } from '@angular/core';
 import { FileTag } from 'src/app/models/files-api-models';
 import { HttpErrorResponse } from '@angular/common/http';
 
+
+// Login : flavien.jourdren@gmail.com
+// Mdp : Chb44xw@@Q
+
 const DELAY = 500;
 let nextID = 0;
 const USER: User = {
@@ -178,6 +182,20 @@ export class MockUserService implements UserService {
         }));
     }
 
+    searchExistingUser(email: string): Observable<User> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            if (this.getActiveUser().email === email) {
+                this._throw400("already this user");
+            }
+            for (const user of this._users.values()) {
+                if (user.email === email) {
+                    return user;
+                }
+            }
+            this._throw404("user doesn't exist");
+        }));
+    }
+
     logout(): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
@@ -266,5 +284,13 @@ export class MockUserService implements UserService {
         });
     }
 
+    private _throw400(error: string){
+        throw new HttpErrorResponse({
+            error: error,
+            statusText: 'FORBIDDEN',
+            status: 400,
+            url: '/fake-url'
+        });
+    }
 
 }
