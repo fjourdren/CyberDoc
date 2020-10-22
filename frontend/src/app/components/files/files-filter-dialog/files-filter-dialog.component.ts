@@ -13,8 +13,7 @@ import { UserServiceProvider } from 'src/app/services/users/user-service-provide
 export class FilesFilterDialogComponent {
   noTypeFilter = NO_TYPE_FILTER;
 
-  //https://stackoverflow.com/questions/39372804/how-to-loop-through-enum-values-for-display-in-radio-buttons
-  fileTypes: string[] = Object.keys(FileType);
+  fileTypes = Object.keys(FileType) as FileType[];
   allTags: FileTag[] = [];
   selectedTags: FileTag[] = [];
 

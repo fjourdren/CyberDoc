@@ -16,7 +16,7 @@ paths:
       description: Register user
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
               required:
@@ -28,41 +28,59 @@ paths:
               properties:
                 firstname:
                   type: string
+                  example: John
                 lastname:
                   type: string
+                  example: DOE
                 email:
                   type: string
                   format: email
+                  example: john.doe@gmail.com
                 password:
                   type: string
+                  example: Hello123456789@
                 role:
                   type: string
                   enum: [owner, collaborater]
+                  example: owner
       responses:
         "201":
           description: Created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserProfileResponse"
+                type: object
+                required:
+                  - success
+                  - msg
+                  - user
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  msg:
+                    type: string
+                    example: "Success"
+                  user:
+                    $ref: "#/components/schemas/User"
         "400":
-          description: Bad request
+          description: Body is invalid (all values are required)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "409":
           description: Another user with the same email already exists
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
 
   /auth/signin:
     post:
@@ -72,7 +90,7 @@ paths:
       description: Login a user
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               required:
                 - email
@@ -82,27 +100,43 @@ paths:
                 email:
                   type: string
                   format: email
+                  example: john.doe@gmail.com
                 password:
                   type: string
+                  example: Hello123456789@
       responses:
         "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SignInResponse"
+                type: object
+                required:
+                  - success
+                  - msg
+                  - token
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  msg:
+                    type: string
+                    example: "Authentication token generated"
+                  token:
+                    type: string
+                    example: <jwt token>
         "400":
-          description: Bad request
+          description: Body is invalid (all values are required)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "403":
           description: Bad login/password
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Internal Error
 
@@ -120,19 +154,32 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UserProfileResponse"
+                type: object
+                required:
+                  - success
+                  - msg
+                  - user
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  msg:
+                    type: string
+                    example: "Success"
+                  user:
+                    $ref: "#/components/schemas/User"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
                 
     post:
       tags:
@@ -146,9 +193,9 @@ paths:
           application/json:
             schema:
               example: 
-                firstname: "Flavien"
-                lastname: "JOURDREN"
-                email: "flavien.jourdren@gmail.com"
+                firstname: "John"
+                lastname: "DOE"
+                email: "email@gmail.com"
                 password: "MyPassword"
               type: object
               properties:
@@ -167,25 +214,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericSuccessResponse"
+        "400":
+          description: Body is invalid (all values are required)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
 
           
     delete:
@@ -201,19 +248,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericSuccessResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
 
 
   "/users/tags":
@@ -226,7 +273,7 @@ paths:
       description: Create a tag
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
               required:
@@ -234,10 +281,10 @@ paths:
                 - color
               properties:
                 name:
-                  description: Tag's name to create
+                  example: TODO
                   type: string
                 color:
-                  description: Tag's color to create
+                  example: "#eeeeee"
                   type: string
       responses:
         "200":
@@ -245,25 +292,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericSuccessResponse"
+        "400":
+          description: Body is invalid (all values are required)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
 
   "/users/tags/{tagId}":
     patch: 
@@ -276,13 +323,14 @@ paths:
       parameters:
         - name: tagId
           in: path
-          description: tag ID to delete
+          description: Tag ID to edit
           required: true
           schema:
             type: string
+            format: uuid
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
               required:
@@ -290,10 +338,10 @@ paths:
                 - color
               properties:
                 name:
-                  description: New tag's name to create
+                  example: TODO
                   type: string
                 color:
-                  description: New tag's color to create
+                  example: "#eeeeee"
                   type: string
       responses:
         "200":
@@ -301,25 +349,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericSuccessResponse"
+        "400":
+          description: Body is invalid (all values are required)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "404":
-          description: Not found
+          description: Tag not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
     delete:
       tags:
         - File tags
@@ -330,7 +384,7 @@ paths:
       parameters:
         - name: tagId
           in: path
-          description: tag ID to delete
+          description: Tag ID to delete
           required: true
           schema:
             type: string
@@ -341,39 +395,71 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericSuccessResponse"
         "401":
           description: Not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "404":
-          description: Not found
+          description: Tag not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericResponse"
+                $ref: "#/components/schemas/GenericErrorResponse"
+
+  /auth/forgottenPassword:               
+    post:
+      tags:
+        - Authentication
+      summary: Forgotten password
+      description: Ask the backend to send an email to the user with a token which will be usable to change user's password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "email@gmail.com"
+      responses:
+        "200":
+          description: Success / Unknown user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericSuccessResponse"
+        "400":
+          description: Email is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
           
 components:
   securitySchemes:
     jwtToken:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT 
+      type: apiKey
+      in: cookie
+      name: access_token
 
   schemas:
     FileTag:
-      example:
-        id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
-        name: "TODO"
-        hexColor: "#eeeeee"
       description: File tag
       type: object
       required:
@@ -384,102 +470,67 @@ components:
         id:
           type: string
           format: uuid
+          example: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
         name:
           type: string
+          example: TODO
         hexColor:
           type: string
           pattern: "^#(?:[0-9a-fA-F]{3}){1,2}$"
-  
-    SignInResponse:
-      example: 
-        success: true
-        msg: "Authentication token generated"
-        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8"
-      description: Send to user his log token
+          example: "#eeeeee"
+
+    User:
+      description: User
       type: object
       required:
-        - success
-        - msg
-        - token
+        - _id
+        - directory_id
+        - firstname
+        - lastname
+        - email
+        - role
+        - updated_at
+        - created_at
+        - tags
       properties:
-        success:
-          type: boolean
-          example: true
-        msg:
+        _id:
           type: string
-          example: "Authentication token generated"
-        token:
+          format: uuid
+          example: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+        directory_id:
+          description: ID of the root directory of the user
           type: string
-          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8"
-          description: User JWTToken
-  
-    UserProfileResponse:
-      example: 
-        success: true
-        msg: "Success"
-        user: 
-          _id: "65af88e0-4d6f-80da-1cab-6ef5db2c719e"
-          role: "collaborater"
-          updated_at: "2020-09-22T11:31:20.714Z"
-          created_at: "2020-09-22T11:30:54.556Z"
-          firstname: "Flavien"
-          lastname: "JOURDREN"
-          email: "flavien.jourdren@gmail.com"
-          directory_id: "65af88e0-4d6f-80da-1cab-6ef50b2c719e"
-          tags: 
-            - id: "65af88e0-4d6f-80da-1cab-6ef5db2c719a"
-              name: "TODO"
-              hexColor: "#eeeeee"
+          format: uuid
+          example: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+        firstname:
+          type: string
+          example: John
+        lastname:
+          type: string
+          example: DOE
+        email:
+          type: string
+          format: email
+          example: john.doe@gmail.com
+        role:
+          type: string
+          enum: [owner, collaborater]
+          example: owner
+        updated_at:
+          type: string
+          format: date-time
+          example: "2020-09-22T11:31:20.714Z"
+        created_at:
+          type: string
+          format: date-time
+          example: "2020-09-21T11:31:20.714Z"
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileTag"
 
-
-      description: User's profile
-      type: object
-      required:
-        - success
-        - msg
-        - user
-      properties:
-        success:
-          type: boolean
-        msg:
-          type: string
-        user:
-          type: object
-          properties:
-            _id:
-              type: string
-              format: uuid
-            role:
-              type: string
-              enum: [owner, collaborater]
-            updated_at:
-              type: string
-              format: date-time
-            created_at:
-              type: string
-              format: date-time
-            firstname:
-              type: string
-            lastname:
-              type: string
-            email:
-              type: string
-              format: email
-            directory_id:
-              type: string
-              format: uuid
-              description: root directory ID for current user
-            file_tags:
-              type: array
-              items:
-                $ref: "#/components/schemas/FileTag"
-          description: User's profile
-          
-    GenericResponse:
-      example: 
-        success: true
-        msg: "Success"
-      description: Generic response
+    GenericSuccessResponse:
+      description: Generic error response
       type: object
       required:
         - success
@@ -488,6 +539,24 @@ components:
         success:
           type: boolean
           description: true if the operation succeeded, otherwise false
+          example: false
         msg:
           type: string
           description: msg
+          example: Success
+          
+    GenericErrorResponse:
+      description: Generic error response
+      type: object
+      required:
+        - success
+        - msg
+      properties:
+        success:
+          type: boolean
+          description: true if the operation succeeded, otherwise false
+          example: false
+        msg:
+          type: string
+          description: msg
+          example: <error message>

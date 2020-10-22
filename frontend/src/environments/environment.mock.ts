@@ -4,9 +4,9 @@
 
 export const environment = {
   production: false,
-  useSentry: false,
-  defaultFSProviderName: "real",
-  defaultUserServiceName: "real"
+  useSentry: true,
+  defaultFSProviderName: "mock",
+  defaultUserServiceName: "mock"
 };
 
 /*

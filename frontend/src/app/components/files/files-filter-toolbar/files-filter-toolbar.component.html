@@ -16,7 +16,7 @@
             <mat-chip *ngFor="let tag of tags" [style.background]="tag.hexColor"
                 [style.color]="computeTextColor(tag.hexColor)" disableRipple>
                 {{tag.name}}
-                <mat-icon (click)="removeTagFilter(tag.id)" matChipRemove>cancel</mat-icon>
+                <mat-icon (click)="removeTagFilter(tag._id)" matChipRemove>cancel</mat-icon>
             </mat-chip>
 
             <!-- Used to force mat-chip-list to have a correct size even if there are 0 chips -->

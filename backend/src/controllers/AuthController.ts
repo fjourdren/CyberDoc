@@ -47,9 +47,24 @@ class AuthController {
 
 
     // forgotten password controller
-    /*public static forgottenPassword(req: Request, res: Response) {
-        // TODO
-    }*/
+    public static async forgottenPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { email } = req.body;
+
+            requireNonNull(email);
+
+            // use try catch to not say to the user if an account exist with this email or not
+            await AuthService.forgottenPassword(email);
+
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "An email to change your password has been sent"
+            });
+        } catch(err) {
+            next(err);
+        }
+    }
 }
 
 export default AuthController;

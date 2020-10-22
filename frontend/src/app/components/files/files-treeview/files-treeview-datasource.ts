@@ -50,7 +50,7 @@ export class FilesTreeviewDataSource implements DataSource<FilesTreeviewNode> {
 
     if (expand) {
       this.loading = true;
-      this.fsProvider.default().get(node.directory.id).toPromise().then(fileNode => {
+      this.fsProvider.default().get(node.directory._id).toPromise().then(fileNode => {
         if (fileNode.isDirectory) {
           const folders = fileNode.directoryContent.filter(v => v.isDirectory) as CloudDirectory[];
           const newNodes = folders.map(v => new FilesTreeviewNode(v, index + 1, [...node.parents, node]));

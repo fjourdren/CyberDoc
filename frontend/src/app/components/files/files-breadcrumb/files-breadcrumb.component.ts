@@ -16,8 +16,8 @@ export class FilesBreadcrumbComponent {
 
   constructor(private fsProvider: FileSystemProvider) { }
 
-  loadDataForContextMenu(file: PathItem) {
-    this.contextMenuContent$ = this.fsProvider.default().get(file.id).pipe(map((val) => {
+  loadDataForContextMenu(directoryID: string) {
+    this.contextMenuContent$ = this.fsProvider.default().get(directoryID).pipe(map((val) => {
       if (val.isDirectory) {
         return val.directoryContent.filter(v => v.isDirectory) as CloudDirectory[];
       }
