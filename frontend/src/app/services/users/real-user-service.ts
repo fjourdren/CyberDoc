@@ -190,11 +190,11 @@ export class RealUserService implements UserService {
         }));
     }
 
-    resetPassword(token: string, newPassword: string): Observable<void>{
+    resetPassword(email: string, newPassword: string): Observable<void>{
         return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
             "password": newPassword,
-            "token": token
-        }).pipe(map(response => {
+            email
+        }, {withCredentials: true}).pipe(map(response => {
         }));
     }
 
