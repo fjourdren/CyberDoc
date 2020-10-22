@@ -4,6 +4,7 @@ import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CloudNode } from 'src/app/models/files-api-models';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
+import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 
 
 @Component({
@@ -22,6 +23,7 @@ export class FilesShareDialogComponent {
   // error handler:
   genericError = false;
   userError = false;
+  alreadyLoggedError = false;
 
   registerForm = this.fb.group({
     input: [null, [Validators.required, Validators.email]],
@@ -32,7 +34,8 @@ export class FilesShareDialogComponent {
 
   constructor(private fb: FormBuilder, public dialogRef: MatDialogRef<FilesShareDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public node: CloudNode,
-    private fsProvider: FileSystemProvider) {
+    private fsProvider: FileSystemProvider,
+    private userServiceProvider: UserServiceProvider) {
       
   }
   
@@ -48,6 +51,10 @@ export class FilesShareDialogComponent {
   onShareBtnClicked() {
     if (this.registerForm.invalid) {
       return;
+    }
+    console.log(this.node.ownerName);
+    if(this.registerForm.controls.input.value === this.node.ownerName){
+      this.alreadyLoggedError = true;
     }
     
     this.loading = true;
