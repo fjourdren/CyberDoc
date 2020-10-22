@@ -14,6 +14,10 @@ export enum FileType {
     DOCUMENT  = 1
 }
 
+export enum ShareMode {
+    READONLY = "readonly",
+    READWRITE = "readwrite"
+}
 
 /**
  * Building typescript & Mongoose data archs
@@ -66,6 +70,14 @@ export const FileSchema = new mongoose.Schema({
     created_at: {
         type   : Date,
         default: new Date().getTime()
+    },
+    shareMode: {
+        type: ShareMode,
+        default: ShareMode.READONLY
+    },
+    sharedWith: {
+        type: [String],
+        default: []
     }
 },
 {
@@ -87,6 +99,8 @@ export interface IFile extends mongoose.Document {
     preview       : boolean;
     updated_at    : string;
     created_at    : string;
+    shareMode     : ShareMode;
+    sharedWith    : string[];
 }
 
 

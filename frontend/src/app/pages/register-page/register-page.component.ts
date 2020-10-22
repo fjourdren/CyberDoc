@@ -11,6 +11,20 @@ import {JwtHelperService} from '@auth0/angular-jwt';
 const STRONG_PASSWORD_REGEX = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$._\-!%*?&])[A-Za-z\d$@$!%*?&].{8,}/;
 const JWT_COOKIE_NAME = 'access_token';
 
+function passwordValidator(): ValidatorFn {
+  return (control: AbstractControl): {[key: string]: any} | null => {
+    const password = control.value;
+
+    if (!password) return {passwordValidator: {invalid: true}};
+    if (!password.match(/[A-Z]/g)) return {passwordValidator: {invalid: true}};
+    if (!password.match(/[a-z]/g)) return {passwordValidator: {invalid: true}};
+    if (!password.match(/[0-9]/g)) return {passwordValidator: {invalid: true}};
+    if (!password.replace(/[0-9a-zA-Z ]/g, "").length) return {passwordValidator: {invalid: true}};
+
+    return null;
+  };
+}
+
 @Component({
     selector: 'app-register-page',
     templateUrl: './register-page.component.html',

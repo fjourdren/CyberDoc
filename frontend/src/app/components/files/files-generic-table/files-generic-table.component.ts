@@ -163,7 +163,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
         this.unselectAfterContextMenuOrBottomSheet = true;
         this.contextMenu.openMenu();
     }
-
+  
     openBottomSheet(node: CloudNode): void {
         if (this._restrictions.isContextAndBottomSheetDisabled(node)) {
             return;
@@ -298,6 +298,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
             height: '400px',
             data: new MoveCopyDialogModel(node, initialDirectoryID, isCopy)
         });
+
     }
 
     downloadFile(file: CloudFile): void {
@@ -315,4 +316,12 @@ export class FilesGenericTableComponent implements AfterViewInit {
         anchor.click();
         anchor.remove();
     }
+
+shareNode(node: CloudNode) {
+    this.dialog.open(FilesShareMenuDialogComponent, {
+      maxWidth: "800px",
+      data: node
+    });
+  }
+
 }

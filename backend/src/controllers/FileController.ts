@@ -1,106 +1,101 @@
 import { NextFunction, Request, Response } from 'express';
 
 import HttpCodes from '../helpers/HttpCodes'
-import { requireIsNull, requireNonNull } from '../helpers/DataValidation';
+import { requireNonNull } from '../helpers/DataValidation';
 import HTTPError from '../helpers/HTTPError';
 
 import FileService from '../services/FileService';
 
-import { IFile, File, FileType } from "../models/File";
+import { IFile, File, FileType, ShareMode } from "../models/File";
 import { IUser, User } from "../models/User";
 
 class FileController {
-    // upload a new file controller
+
     public static async upload(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // prepare vars
-            const user_id = res.locals.APP_JWT_TOKEN.user._id;
-            const { name, mimetype, folderID, preview } = req.body;
-            let upfile = null;
-            let file: Express.Multer.File;
-            if (req.files) {
-                for (file of (req.files as Express.Multer.File[])) {
-                    if (file.fieldname === "upfile") {
-                        upfile = file;
-                    }
-                }
-            }
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const name = requireNonNull(req.body.name, 400, "missing name");
+            const mimetype = requireNonNull(req.body.mimetype, 400, "missing mimetype");
+            const destinationDir = requireNonNull(await File.findById(req.body.folderID), 404, "destination dir not found");
+            FileService.requireFileIsDirectory(destinationDir);
 
-            requireNonNull(name);
-            requireNonNull(folderID);
-            requireNonNull(mimetype);
-
-            // build IFile
-            const fileToSave: IFile = new File();
-
-
-
-            // if file is a Directory
-            if (mimetype == "application/x-dir") {
-                fileToSave.type = FileType.DIRECTORY;
-
-                requireIsNull(upfile);
-
-                // check that preview isn't turning on on a directory
-                if (preview)
-                    throw new HTTPError(HttpCodes.BAD_REQUEST, "You can't turn on preview on a directory.");
-
-                // force preview value to false
-                fileToSave.preview = false;
-            } else { // otherwise file is a document
-                fileToSave.type = FileType.DOCUMENT;
-                requireNonNull(upfile);
-
-                if (preview)
-                    fileToSave.preview = preview;
-            }
-
-            fileToSave.mimetype = mimetype;
+            let fileToSave = new File();
             fileToSave.name = name;
-            fileToSave.parent_file_id = folderID;
-            fileToSave.owner_id = user_id;
+            fileToSave.type = mimetype === "application/x-dir" ? FileType.DIRECTORY : FileType.DOCUMENT;
+            fileToSave.mimetype = mimetype;
+            fileToSave.preview = false;
+            fileToSave.shareMode = ShareMode.READONLY;
+            fileToSave.sharedWith = [];
+            fileToSave.parent_file_id = destinationDir._id;
+            fileToSave.owner_id = currentUser._id;
             fileToSave.tags = [];
 
-            // check that user is owner
-            if (fileToSave.owner_id != user_id)
-                throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
-
-            // check that user is owner of parent place
-            await FileService.requireIsFileOwner(user_id, fileToSave.parent_file_id);
-
-            // check if file is a directory or a document and create it
-            let out: IFile;
-            if (fileToSave.type == FileType.DIRECTORY) {
-                fileToSave.mimetype = "application/x-dir";
-                out = await FileService.createDirectory(fileToSave);
+            if (FileService.fileIsDirectory(fileToSave)) {
+                fileToSave = await FileService.createDirectory(fileToSave);
             } else {
-                if (upfile == undefined)
-                    throw new HTTPError(HttpCodes.BAD_REQUEST, "upfile empty");
-
-                out = await FileService.createDocument(fileToSave, fileToSave.name, mimetype, upfile.buffer);
+                const fileContents = FileController._requireFile(req, "upfile");
+                fileToSave = await FileService.createDocument(fileToSave, fileToSave.name, mimetype, fileContents.buffer);
             }
 
-            // reply to client
             res.status(HttpCodes.OK);
             res.json({
                 success: true,
                 msg: "File created",
-                file: out
+                file: fileToSave
             });
         } catch (err) {
             next(err);
         }
     }
 
-
-    // search files
     public static async search(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const userCache = new Map<string, IUser>();
             const bodySearch: Record<string, unknown> = req.body;
+            let results: any[] = await FileService.search(currentUser, bodySearch);
 
-            const results: IFile[] = await FileService.search(res.locals.APP_JWT_TOKEN.user, bodySearch);
+            let files: IFile[] = await FileService.search(res.locals.APP_JWT_TOKEN.user, bodySearch);
+            files = files.filter(item => item._id !== currentUser.directory_id);
 
-            // reply to client
+            for (const file of files) {
+                let ownerName = "Unknown";
+                if (file.owner_id === currentUser._id) {
+                    ownerName = `${currentUser.firstname} ${currentUser.lastname}`;
+                } else {
+                    if (!userCache.has(file.owner_id)) {
+                        userCache.set(file.owner_id, requireNonNull(await User.findById(file.owner_id).exec()));
+                    }
+                    const user = userCache.get(file.owner_id);
+                    ownerName = `${user?.firstname} ${user?.lastname}`;
+                }
+
+                if (file.type == FileType.DOCUMENT) {
+                    results.push({
+                        "_id": file._id,
+                        "name": file.name,
+                        "ownerName": ownerName,
+                        "mimetype": file.mimetype,
+                        "size": file.size,
+                        "updated_at": file.updated_at,
+                        "created_at": file.created_at,
+                        "tags": file.tags,
+                        "preview": file.preview
+                    });
+                } else { // if it's a directory
+                    results.push({
+                        "_id": file._id,
+                        "name": file.name,
+                        "ownerName": ownerName,
+                        "mimetype": "application/x-dir",
+                        "updated_at": file.updated_at,
+                        "created_at": file.created_at,
+                        "tags": file.tags,
+                        "preview": false
+                    });
+                }
+            }
+
             res.status(HttpCodes.OK);
             res.json({
                 success: true,
@@ -112,28 +107,16 @@ class FileController {
         }
     }
 
-
-    // get content and informations of a file controller
     public static async get(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // prepare vars
-            const user_id = res.locals.APP_JWT_TOKEN.user._id;
-            const fileId = req.params.fileId;
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
+            await FileService.requireFileCanBeViewed(currentUser, file);
+            const fileOwner = requireNonNull(await User.findById(file.owner_id).exec());
 
-            // find file
-            const file: IFile = requireNonNull(await File.findById(fileId).exec());
-
-            // check that user is owner
-            if (file.owner_id != user_id)
-                throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
-
-            // if file is a directory
             if (file.type == FileType.DIRECTORY) {
-                // get owner
-                const owner: IUser = requireNonNull(await User.findById(file.owner_id).exec());
-
                 // === CALCULATE PATH ===
-                const pathsOutput: Record<string, any> = [];
+                const pathsOutput: Record<string, any>[] = [];
 
                 let aboveFile: IFile = file;
                 while (aboveFile.parent_file_id != undefined) {
@@ -143,6 +126,8 @@ class FileController {
                         "name": aboveFile.name
                     });
                 }
+
+                pathsOutput.reverse();
                 // ===========
 
 
@@ -160,24 +145,27 @@ class FileController {
                     // build reply content
                     if (fileInDir.type == FileType.DOCUMENT) {
                         directoryContentOutput.push({
-                            "id": fileInDir._id,
+                            "_id": fileInDir._id,
                             "name": fileInDir.name,
                             "ownerName": ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
                             "mimetype": fileInDir.mimetype,
                             "size": fileInDir.size,
                             "updated_at": fileInDir.updated_at,
                             "created_at": fileInDir.created_at,
-                            "tags": fileInDir.tags
+                            "tags": fileInDir.tags,
+                            "shareMode": fileInDir.shareMode,
+                            "preview": fileInDir.preview
                         });
                     } else { // if it's a directory
                         directoryContentOutput.push({
-                            "id": fileInDir._id,
+                            "_id": fileInDir._id,
                             "name": fileInDir.name,
                             "ownerName": ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
                             "mimetype": "application/x-dir",
                             "updated_at": fileInDir.updated_at,
                             "created_at": fileInDir.created_at,
-                            "tags": fileInDir.tags
+                            "tags": fileInDir.tags,
+                            "preview": false
                         });
                     }
                 }
@@ -190,18 +178,18 @@ class FileController {
                     success: true,
                     msg: "File informations loaded",
                     content: {
-                        "id": file._id,
-                        "ownerName": owner.firstname + " " + owner.lastname,
+                        "_id": file._id,
+                        "ownerName": fileOwner.firstname + " " + fileOwner.lastname,
                         "name": file.name,
                         "mimetype": "application/x-dir",
                         "path": pathsOutput,
                         "directoryContent": directoryContentOutput,
-                        "tags": file.tags
+                        "tags": file.tags,
+                        "preview": false
                     }
                 });
 
             } else { // otherwise it's a document
-                const owner: IUser = requireNonNull(await User.findById(file.owner_id).exec());
 
                 // reply to client
                 res.status(HttpCodes.OK);
@@ -209,14 +197,15 @@ class FileController {
                     success: true,
                     msg: "File informations loaded",
                     content: {
-                        "id": file._id,
-                        "ownerName": owner.firstname + " " + owner.lastname,
+                        "_id": file._id,
+                        "ownerName": fileOwner.firstname + " " + fileOwner.lastname,
                         "name": file.name,
                         "mimetype": file.mimetype,
                         "size": file.size,
                         "updated_at": file.updated_at,
                         "created_at": file.updated_at,
-                        "tags": file.tags
+                        "tags": file.tags,
+                        "shareMode": file.shareMode
                     }
                 });
             }
@@ -225,45 +214,18 @@ class FileController {
         }
     }
 
-
     // update content of a file
     public static async updateContent(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // prepare vars
-            let upfile = null;
-            let expressfile: Express.Multer.File;
-            if (req.files) {
-                for (expressfile of (req.files as Express.Multer.File[])) {
-                    if (expressfile.fieldname === "upfile") {
-                        upfile = expressfile;
-                    }
-                }
-            }
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
+            const fileContents = FileController._requireFile(req, "upfile");
 
-            const user_id = res.locals.APP_JWT_TOKEN.user._id;
-            const fileId = req.params.fileId;
+            await FileService.requireFileCanBeModified(currentUser, file);
+            FileService.requireFileIsDocument(file);
 
-            requireNonNull(upfile);
-            requireNonNull(fileId);
+            await FileService.updateContentDocument(file, fileContents.buffer);
 
-            // find file
-            const file: IFile = requireNonNull(await File.findById(fileId).exec());
-
-            // check that user is owner
-            if (file.owner_id != user_id)
-                throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
-
-            // check that file is a document
-            if (file.type != FileType.DOCUMENT)
-                throw new HTTPError(HttpCodes.BAD_REQUEST, "File need to be a document");
-
-            // update content in gridfs
-            if (upfile == undefined)
-                throw new HTTPError(HttpCodes.BAD_REQUEST, "upfile empty");
-
-            await FileService.updateContentDocument(file, upfile.buffer);
-
-            // reply to client
             res.status(HttpCodes.OK);
             res.json({
                 success: true,
@@ -274,36 +236,31 @@ class FileController {
         }
     }
 
-
     // edit atributes of a file controller
     public static async edit(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // prepare vars
-            const { name, directoryID, preview } = req.body;
-            const user_id = res.locals.APP_JWT_TOKEN.user._id;
-            const fileId = req.params.fileId;
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
+            await FileService.requireIsFileOwner(currentUser, file);
 
-            // find file
-            const file: IFile = requireNonNull(await File.findById(fileId).exec());
+            if (req.body.name != undefined)
+                file.name = req.body.name;
+            if (req.body.directoryID != undefined)
+                file.parent_file_id = req.body.directoryID;
 
-            // check that user is owner
-            if (file.owner_id != user_id)
-                throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
-
-            // modify vars
-            if (name != undefined)
-                file.name = name;
-            if (directoryID != undefined)
-                file.parent_file_id = directoryID;
-            if (preview != undefined) {
+            if (req.body.preview != undefined) {
                 if (file.type == FileType.DIRECTORY) {
-                    // check that preview isn't turning on on a directory
-                    if (preview)
+                    if (req.body.preview)
                         throw new HTTPError(HttpCodes.BAD_REQUEST, "You can't turn on preview on a directory.");
+                }
+                file.preview = req.body.preview;
+            }
 
-                    file.preview = false;
+            if (req.body.shareMode != undefined) {
+                if (req.body.shareMode === ShareMode.READONLY || req.body.shareMode === ShareMode.READWRITE) {
+                    file.shareMode = req.body.shareMode;
                 } else {
-                    file.preview = preview;
+                    throw new HTTPError(HttpCodes.BAD_REQUEST, "Invalid shareMode");
                 }
             }
             // save
@@ -323,22 +280,14 @@ class FileController {
         }
     }
 
-
+    
     // delete a file controller
     public static async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // prepare vars
-            const user_id = res.locals.APP_JWT_TOKEN.user._id;
-            const file_id = req.params.fileId;
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
+            await FileService.requireIsFileOwner(currentUser, file);
 
-            // find file
-            const file: IFile = requireNonNull(await File.findById(file_id).exec());
-
-            // check that user is owner
-            if (file.owner_id != user_id)
-                throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
-
-            //  delete file
             if (file.type == FileType.DIRECTORY)
                 await FileService.deleteDirectory(file);
             else
@@ -354,33 +303,18 @@ class FileController {
         }
     }
 
-
     // copy a file controller
     public static async copy(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // prepare vars
-            const { copyFileName, destID } = req.body;
-            const user_id = res.locals.APP_JWT_TOKEN.user._id;
-            const file_id = req.params.fileId;
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
+            const copyFileName = req.body.copyFileName; //undefined value is OK
+            const destination = requireNonNull(await File.findById(req.body.destID).exec(), 404, "Destination directory not found");
 
-            // check that destID isn't null
-            requireNonNull(destID);
-
-            // find user & file
-            const user: IUser = requireNonNull(await User.findById(user_id).exec());
-            const file: IFile = requireNonNull(await File.findById(file_id).exec());
-
-            // check that user is owner
-            if (file.owner_id != user_id)
-                throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
-
-            // run copy
-            let out: IFile;
-            if (file.type == FileType.DIRECTORY)
-                throw new HTTPError(HttpCodes.BAD_REQUEST, "Directory copying isn't available");
-                //out = await FileService.copyDirectory(user, file, destID, copyFileName);
-            else
-                out = await FileService.copyDocument(user, file, destID, copyFileName);
+            FileService.requireFileIsDocument(file);
+            FileService.requireFileIsDirectory(destination);
+            await FileService.requireFileCanBeCopied(currentUser, file);
+            const out = await FileService.copyDocument(currentUser, file, req.body.destID, copyFileName);
 
             // reply to user
             res.status(HttpCodes.OK);
@@ -395,101 +329,185 @@ class FileController {
         }
     }
 
-
     // ask to generate a preview of a file controller
     public static async preview(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // prepare vars
-            const user_id = res.locals.APP_JWT_TOKEN.user._id;
-            const file_id = req.params.fileId;
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
+            await FileService.requireFileCanBeViewed(currentUser, file);
 
-            // check that file_id isn't null
-            requireNonNull(file_id);
-
-            // find file
-            const file: IFile = requireNonNull(await File.findById(file_id).exec());
-
-            // check that user is owner
-            if (file.owner_id != user_id)
-                throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
-
-            // check that preview is enable & available on that file
-            if (!file.preview) {
-                throw new HTTPError(HttpCodes.FORBIDDEN, "Preview feature needs to be enable on the file")  
+            if (!file.preview){
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "Preview not allowed for this file");
             }
 
-            // get preview
-            const previewImg: any = await FileService.generatePreview(file);
+            const previewImg = await FileService.generatePreview(file);
 
-            // reply to user
             res.set('Content-Type', 'image/png');
-            res.set('Content-Disposition', 'attachment; filename="' + file.name + '"');
-
+            res.status(HttpCodes.OK);
             previewImg.pipe(res);
         } catch (err) {
             next(err);
         }
     }
 
-
     // generate file pdf
     public static async exportPDF(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // prepare vars
-            const user_id = res.locals.APP_JWT_TOKEN.user._id;
-            const file_id = req.params.fileId;
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
+            await FileService.requireFileCanBeViewed(currentUser, file);
 
-            // check that file_id isn't null
-            requireNonNull(file_id);
+            const pdfStream = await FileService.generatePDF(file);
 
-            // find file
-            const file: IFile = requireNonNull(await File.findById(file_id).exec());
-
-            // check that user is owner
-            if (file.owner_id != user_id)
-                throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
-
-            // get preview
-            const pdfStream: any = await FileService.generatePDF(file);
-
-            // reply to user
             res.set('Content-Type', 'application/pdf');
             res.set('Content-Disposition', 'attachment; filename="' + file.name + '.pdf"');
-
+            res.status(HttpCodes.OK);
             pdfStream.pipe(res);
         } catch (err) {
             next(err);
         }
     }
 
-
     // start downloading a file controller
     public static async download(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // if user is owner or have access
-            const user_id = res.locals.APP_JWT_TOKEN.user._id;
-            const file_id = req.params.fileId;
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
+            await FileService.requireFileCanBeViewed(currentUser, file);
 
-            // find file
-            const file: IFile = requireNonNull(await File.findById(file_id).exec());
-
-            // check if user can view the file
-            FileService.requireFileCanBeViewed(user_id, file_id);
-
-            // get file and start download
-            const documentGridFs: any = await FileService.getFileContent(file);
-            requireNonNull(documentGridFs.infos);
-            requireNonNull(documentGridFs.stream);
+            const documentGridFs = await FileService.getFileContent(file);
 
             // start the download
-            res.set('Content-Type', documentGridFs.infos.contentType);
+            res.set('Content-Type', (documentGridFs.infos as any).contentType);
             res.set('Content-Disposition', 'attachment; filename="' + file.name + '"');
-
+            res.status(HttpCodes.OK);
             documentGridFs.stream.pipe(res);
         } catch (err) {
             next(err);
         }
     }
+
+    public static async getSharedFiles(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const sharedFiles = await FileService.getSharedFiles(currentUser);
+
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "Success",
+                sharedFiles: sharedFiles
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    public static async getSharedAccesses(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
+            FileService.requireFileIsDocument(file);
+            await FileService.requireFileCanBeViewed(currentUser, file);
+
+            const users: Array<{email: string, name: string}> = [];
+            for (const userID of file.sharedWith) {
+                const user = requireNonNull(await User.findById(userID));
+                users.push({
+                    email: user.email,
+                    name: `${user.firstname} ${user.lastname}`
+                });
+            }
+
+            if (currentUser._id !== file.owner_id){
+                if (users.findIndex(item => item.email === currentUser.email) === -1){
+                    throw new HTTPError(HttpCodes.NOT_FOUND, "File not found");
+                }    
+            }
+
+
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "Success",
+                shared_users: users
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    public static async addSharingAccess(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
+            const user = requireNonNull(await User.findOne({"email": req.body.email}).exec(), HttpCodes.NOT_FOUND, "User not found");
+            FileService.requireFileIsDocument(file);
+            await FileService.requireIsFileOwner(currentUser, file);
+
+            if (user._id === currentUser._id){
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "You are the owner of the file, you can't share it with yourself");
+            }
+
+            if (file.sharedWith.indexOf(user._id) === -1){
+                file.sharedWith.push(user._id);
+                await file.save();    
+            }
+
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "Success"
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    public static async removeSharingAccess(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const currentUser = FileController._requireAuthenticatedUser(res);
+
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
+            const user = requireNonNull(await User.findOne({"email": req.params.email}).exec(), HttpCodes.NOT_FOUND, "User not found");
+            FileService.requireFileIsDocument(file);
+            await FileService.requireIsFileOwner(currentUser, file);
+
+            const index = file.sharedWith.indexOf(user._id);
+            if (index !== -1) {
+                file.sharedWith.splice(index, 1);
+                await file.save();
+            } else {
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "Specified email doesn't have sharing access to the file");
+            }
+
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "Success"
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    private static _requireAuthenticatedUser(res: Response): IUser {
+        return requireNonNull(res.locals.APP_JWT_TOKEN.user, HttpCodes.UNAUTHORIZED, "Auth is missing or invalid");
+    }
+
+    private static _requireFile(req: Request, fieldName: string): Express.Multer.File {
+        let file: Express.Multer.File | null = null;
+        if (req.files) {
+            for (file of (req.files as Express.Multer.File[])) {
+                if (file.fieldname === fieldName) {
+                    break;
+                }
+            }
+        }
+
+        return requireNonNull(file, HttpCodes.BAD_REQUEST, `File missing (${fieldName})`)
+    }
+
 }
 
 export default FileController;
