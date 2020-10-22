@@ -189,11 +189,8 @@ export class MockUserService implements UserService {
     }
 
     resetPassword(token: string, newPassword: string): Observable<void>{
-       
-        return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            //token est l'email.
-            this.updatePassword(this._passwords.get(token), newPassword, token);
-        }));;
+        return this.updatePassword(this._passwords.get(token), newPassword, token);
+
     }
 
     searchExistingUser(email: string): Observable<User> {
