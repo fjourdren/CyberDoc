@@ -5,6 +5,7 @@ import HttpCodes from '../helpers/HttpCodes'
 
 import TwoFactorAuthService from '../services/TwoFactorAuthService';
 import jwt from "jsonwebtoken";
+import HTTPError from '../helpers/HTTPError';
 
 class TwoFactorAuthController {
     public static async sendTokenBySms(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -40,9 +41,9 @@ class TwoFactorAuthController {
             let output: boolean;
             if (secret) {
                 const delta = await TwoFactorAuthService.verifyTokenGeneratedByApp(secret, token);
-                if (delta === null) throw new Error('Invalid token');
-                else if (delta === -1) throw new Error('Token entered too late');
-                else if (delta === 1) throw new Error('Token entered too early');
+                if (delta === null) throw new HTTPError(HttpCodes.BAD_REQUEST, "Invalid token");
+                else if (delta === -1) throw new HTTPError(HttpCodes.BAD_REQUEST, "Token entered too late");
+                else if (delta === 1) throw new HTTPError(HttpCodes.BAD_REQUEST, "Token entered too early");
 
                 jwtToken = jwt.sign({
                     user: res.locals.APP_JWT_TOKEN.user,
@@ -71,11 +72,7 @@ class TwoFactorAuthController {
                     token: jwtToken
                 });
             } else {
-                res.status(HttpCodes.BAD_REQUEST);
-                res.json({
-                    success: false,
-                    msg: "Request should have either secret, phoneNumber or email."
-                });
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "Request should have either secret, phoneNumber or email.");
             }
         } catch (err) {
             res.status(HttpCodes.FORBIDDEN);
