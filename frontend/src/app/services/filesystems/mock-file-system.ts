@@ -210,7 +210,7 @@ export class MockFileSystem implements FileSystem {
         let Respond: RespondShare = {email: "", name:""};
         let test: boolean = false;
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            if(email.startsWith("flavien.jourdren@gmail.com")){
+            if(email.startsWith("test@gmail.com")){
                 throw new HttpErrorResponse({
                     error: `Error`,
                     statusText: 'NOT FOUND',
