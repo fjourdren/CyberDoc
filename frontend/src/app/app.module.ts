@@ -74,7 +74,6 @@ import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
 import { GlobalErrorHandler } from './global-error-handler';
 import { environment } from '../environments/environment';
 import { FilesTagsInputComponent } from './components/files/files-tags-input/files-tags-input.component';
-import { FilesCreateTagDialogComponent } from './components/files/files-create-tag-dialog/files-create-tag-dialog.component';
 import { FilesShareDialogComponent } from './components/files/files-share-dialog/files-share-dialog.component';
 import { FilesFilterDialogComponent } from './components/files/files-filter-dialog/files-filter-dialog.component';
 import { FilesFilterToolbarComponent } from './components/files/files-filter-toolbar/files-filter-toolbar.component';
@@ -83,6 +82,8 @@ import { Router } from '@angular/router';
 import { FilesShareMenuDialogComponent } from './components/files/files-share-menu-dialog/files-share-menu-dialog.component';
 import { TwoFactorPageComponent } from './pages/two-factor-page/two-factor-page.component';
 import { TwoFactorRegisterDialogComponent, TwoFactorRegisterPageComponent } from './pages/two-factor-register-page/two-factor-register-page.component';
+import { SettingsDeleteTagDialogComponent } from './components/settings/settings-delete-tag-dialog/settings-delete-tag-dialog.component';
+import { SettingsCreateEditTagDialogComponent } from './components/settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
@@ -101,7 +102,6 @@ const FILES_COMPONENTS = [
     FilesGenericTableComponent,
     FilesGenericTableBottomsheetComponent,
     FilesTagsInputComponent,
-    FilesCreateTagDialogComponent,
     FilesFilterDialogComponent,
 ];
 
@@ -159,14 +159,14 @@ if (environment.useSentry) {
     SettingsProfilePageComponent,
     SettingsSecurityPageComponent,
     UnhandledErrorDialogComponent,
-    FilesCreateTagDialogComponent,
     FilesShareDialogComponent,
     FilesFilterToolbarComponent,
     FilesShareMenuDialogComponent,
-
     TwoFactorPageComponent,
     TwoFactorRegisterDialogComponent,
     TwoFactorRegisterPageComponent,
+    SettingsDeleteTagDialogComponent,
+    SettingsCreateEditTagDialogComponent,
   ],
   imports: [
     BrowserModule,
