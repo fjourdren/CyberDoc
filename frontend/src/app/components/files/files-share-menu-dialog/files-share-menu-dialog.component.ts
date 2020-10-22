@@ -52,6 +52,7 @@ export class FilesShareMenuDialogComponent implements OnInit {
         this.dataSource.data = value;
       });
       console.log(this.dataSource);
+      this.update();
       fsProvider.default().refreshNeeded().subscribe(()=>{
         this.update();
       });
@@ -60,6 +61,7 @@ export class FilesShareMenuDialogComponent implements OnInit {
   update(){
     console.log("In update");
     this.fsProvider.default().getShareWith(this.node._id).toPromise().then((value)=>{
+      console.error(value);
       this.dataSource.data = value;
     }, (error) => {
       this.genericError = true;

@@ -1,13 +1,13 @@
-import { IUser, User, Role } from "../models/User";
-import { IFile, File } from "../models/File";
+import {IUser, User, Role} from "../models/User";
+import {IFile, File} from "../models/File";
 
-import { requireNonNull } from "../helpers/DataValidation";
+import {requireNonNull} from "../helpers/DataValidation";
 
 import AuthService from "./AuthService";
 import FileService from "./FileService";
 
 class UserService {
-    
+
     // verify that a role is in a list
     public static hasRoles(rolesNeeded: Role[], role: Role): boolean {
         return rolesNeeded.includes(role);
@@ -19,23 +19,33 @@ class UserService {
     }
 
     // profile update
-    public static async updateProfile(user_id: string | undefined, firstname: string | undefined, lastname: string | undefined, email: string | undefined, password: string | undefined): Promise<Record<string, IUser | string>> {
+    public static async updateProfile(user_id: string | undefined, firstname: string | undefined, lastname: string | undefined, email: string | undefined, password: string | undefined, phoneNumber: string | undefined, secret: string | undefined, twoFactorApp: boolean | undefined, twoFactorSms: boolean | undefined, twoFactorEmail: boolean | undefined): Promise<Record<string, IUser | string>> {
         let user = requireNonNull(await User.findById(user_id).exec());
-    
-        if(firstname != undefined)
+
+        if (firstname != undefined)
             user.firstname = firstname;
-        if(lastname != undefined)
+        if (lastname != undefined)
             user.lastname = lastname;
-        if(email != undefined)
+        if (email != undefined)
             user.email = email;
-        if(password != undefined)
+        if (password != undefined)
             user.password = password;
+        if (phoneNumber != undefined)
+            user.phoneNumber = phoneNumber;
+        if (secret != undefined)
+            user.secret = secret;
+        if (twoFactorApp != undefined)
+            user.twoFactorApp = twoFactorApp;
+        if (twoFactorSms != undefined)
+            user.twoFactorSms = twoFactorSms;
+        if (twoFactorEmail != undefined)
+            user.twoFactorEmail = twoFactorEmail;
 
         user = requireNonNull(await user.save());
 
-        const newToken = AuthService.generateJWTToken(user);
+        const newToken = AuthService.generateJWTToken(user, true);
 
-        return { "user": user, "newToken": newToken };
+        return {"user": user, "newToken": newToken};
     }
 
     // delete user account service
