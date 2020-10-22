@@ -114,6 +114,8 @@
         "mail": "Enter email of destination",
         "rw": "Read and write",
         "ro": "Read only",
-        "back_to_app": "Back to the application"
+        "back_to_app": "Back to the application",
+        "share_error": "User does not exist",
+        "share_error_already_logged": "You cannot share a file with yourself"
     }
 }
