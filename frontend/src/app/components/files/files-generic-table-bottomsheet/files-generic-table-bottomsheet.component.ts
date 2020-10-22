@@ -32,6 +32,10 @@ export class FilesGenericTableBottomsheetComponent {
     return this.filesUtils.getFontAwesomeIcon(fileType);
   }
 
+  isCopyAvailable(node: CloudNode): boolean {
+    return !this.data.readonlyMode && !node.isDirectory;
+  }
+
   isPDFExportAvailable(node: CloudNode): boolean {
     const fileType = this.filesUtils.getFileTypeForMimetype(node.mimetype);
     return this.filesUtils.isPDFExportAvailable(fileType);

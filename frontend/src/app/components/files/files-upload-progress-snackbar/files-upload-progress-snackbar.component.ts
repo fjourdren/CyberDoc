@@ -23,7 +23,7 @@ export class FilesUploadProgressSnackbarComponent {
       if (state) {
         this.filename = state.filename;
         this.progressionPercent = Math.round(state.progress * 100);
-        this.remainingTimeSeconds = state.remainingSeconds;
+        this.remainingTimeSeconds = Math.round(state.remainingSeconds / 10) * 10;
         this.currentlyUploading = true;
       } else if (this.currentlyUploading) { //don't show success msg if upload canceled
         if (this.filename) {
