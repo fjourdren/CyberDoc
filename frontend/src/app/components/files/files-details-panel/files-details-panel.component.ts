@@ -1,11 +1,11 @@
-import {Component, Input} from '@angular/core';
-import {CloudFile, CloudNode, FileTag} from 'src/app/models/files-api-models';
-import {FileSystemProvider} from 'src/app/services/filesystems/file-system-provider';
-import {FilesUtilsService, FileType} from 'src/app/services/files-utils/files-utils.service';
-import {FilesCreateTagDialogComponent} from '../files-create-tag-dialog/files-create-tag-dialog.component';
-import {MatDialog} from '@angular/material/dialog';
-import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
+import { Component, Input } from '@angular/core';
+import { CloudFile, CloudNode, FileTag } from 'src/app/models/files-api-models';
+import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
+import { FilesUtilsService } from 'src/app/services/files-utils/files-utils.service';
+import { MatDialog } from '@angular/material/dialog';
+import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { SettingsCreateEditTagDialogComponent } from '../../settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
 
 @Component({
     selector: 'app-files-details-panel',
@@ -78,11 +78,11 @@ export class FilesDetailsPanelComponent {
         return this.filesUtils.fileTypeToString(fileType);
     }
 
-    createNewTag(): void {
-        this.dialog.open(FilesCreateTagDialogComponent, {
-            maxWidth: '400px'
-        });
-    }
+  createNewTag() {
+    this.dialog.open(SettingsCreateEditTagDialogComponent, {
+      maxWidth: "400px"
+    })
+  }
 
   onPreviewToogleChange(evt: MatSlideToggleChange){
     this.loading = true;

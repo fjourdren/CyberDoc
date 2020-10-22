@@ -34,7 +34,7 @@ class TagService {
         if(newName)
             updateString = Object.assign({}, { 'tags.$.name': newName });
         if(newColor)
-            updateString = Object.assign(updateString, { 'tags.$.color': newColor });
+            updateString = Object.assign(updateString, { 'tags.$.hexColor': newColor });
 
         // update mondo data
         await User.updateMany({ _id: user._id, 'tags._id': tag._id }, { '$set': updateString });
