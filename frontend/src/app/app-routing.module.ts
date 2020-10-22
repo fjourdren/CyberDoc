@@ -24,7 +24,7 @@ const routes: Routes = [
   { path: 'logout', component: LogoutPageComponent, canActivate: [LoggedInGuard] },
   { path: 'login', component: LoginPageComponent, canActivate: [LoggedOutGuard] },
   { path: 'register', component: RegisterPageComponent, canActivate: [LoggedOutGuard] },
-  { path: 'passwordRecovery', component: PasswordRecoveryPageComponent, canActivate: [LoggedOutGuard] },
+  { path: 'forgottenpassword', component: PasswordRecoveryPageComponent, canActivate: [LoggedOutGuard] },
   { path: 'passwordReset', component: ResetPasswordPageComponent, canActivate: [LoggedOutGuard] },
 
   { path: 'settings', redirectTo: 'settings/profile', pathMatch: 'full' },
