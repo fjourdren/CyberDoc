@@ -75,10 +75,10 @@ class TwoFactorAuthController {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "Request should have either secret, phoneNumber or email.");
             }
         } catch (err) {
-            res.status(HttpCodes.FORBIDDEN);
+            res.status(err.statusCode);
             res.json({
                 success: false,
-                msg: err
+                msg: err.message
             });
             next(err);
         }

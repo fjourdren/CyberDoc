@@ -279,10 +279,10 @@ export class SettingsSecurityDialogComponent implements OnInit {
                         }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
                     });
                     this.userServiceProvider.default().updateSecret(this.data.secret,
-                        this.userServiceProvider.default().getActiveUser().email);
+                        this.userServiceProvider.default().getActiveUser().email).toPromise();
                 }
             }).catch(err => {
-                this.snackBar.open(err.error.message, null, {duration: 1500});
+                this.snackBar.open(err.error.msg, null, {duration: 1500});
             });
         } else if (this.data.type === 'sms') { // 2FA SMS
             this.twoFactorServiceProvider.default()
@@ -301,10 +301,10 @@ export class SettingsSecurityDialogComponent implements OnInit {
                         }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
                     });
                     this.userServiceProvider.default().updatePhoneNumber(this.data.phoneNumber,
-                        this.userServiceProvider.default().getActiveUser().email);
+                        this.userServiceProvider.default().getActiveUser().email).toPromise();
                 }
             }).catch(err => {
-                this.snackBar.open(err.error.message, null, {duration: 1500});
+                this.snackBar.open(err.error.msg, null, {duration: 1500});
             });
         } else if (this.data.type === 'email') { // 2FA Email
             this.twoFactorServiceProvider.default()
@@ -324,7 +324,7 @@ export class SettingsSecurityDialogComponent implements OnInit {
                     });
                 }
             }).catch(err => {
-                this.snackBar.open(err.error.message, null, {duration: 1500});
+                this.snackBar.open(err.error.msg, null, {duration: 1500});
             });
         }
     }
