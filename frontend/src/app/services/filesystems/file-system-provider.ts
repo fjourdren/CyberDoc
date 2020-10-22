@@ -5,7 +5,7 @@ import { MockFileSystem } from 'src/app/services/filesystems/mock-file-system'
 import { FilesUtilsService } from '../files-utils/files-utils.service';
 import { UserServiceProvider } from '../users/user-service-provider';
 import { RealFileSystem } from './real-file-system';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments/environment.mock';
 
 @Injectable({
     providedIn: 'root'
