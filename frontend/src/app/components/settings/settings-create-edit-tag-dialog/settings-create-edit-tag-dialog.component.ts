@@ -38,16 +38,31 @@ export class SettingsCreateEditTagDialogComponent {
 
     this.dialogRef.disableClose = true;
     this.loading = true;
-    this.tag.hexColor = this.color.value;
-    this.tag.name = this.name.value;
+    if (this.tag) {
+      this.tag.hexColor = this.color.value;
+      this.tag.name = this.name.value;
 
-    this.userServiceProvider.default().editTag(this.tag).toPromise().then(() => {
-      this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-        this.dialogRef.disableClose = false;
-        this.loading = false;
-        this.dialogRef.close(true);
+      this.userServiceProvider.default().editTag(this.tag).toPromise().then(() => {
+        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+          this.dialogRef.disableClose = false;
+          this.loading = false;
+          this.dialogRef.close(true);
+        })
       })
-    })
+    } else {
+      this.tag = new FileTag();
+      this.tag.hexColor = this.color.value;
+      this.tag.name = this.name.value;
+
+      this.userServiceProvider.default().addTag(this.tag).toPromise().then(() => {
+        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+          this.dialogRef.disableClose = false;
+          this.loading = false;
+          this.dialogRef.close(true);
+        })
+      })
+
+    }
   }
 
   onCancelBtnClicked() {
