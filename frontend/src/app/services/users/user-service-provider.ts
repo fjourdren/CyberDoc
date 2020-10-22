@@ -4,7 +4,7 @@ import { MockUserService } from './mock-user-service';
 import { RealUserService } from './real-user-service';
 import { UserService } from './user-service';
 import { CookieService } from 'ngx-cookie-service';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments/environment.mock';
 
 @Injectable({
     providedIn: 'root'

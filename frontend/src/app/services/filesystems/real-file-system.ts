@@ -2,7 +2,7 @@ import { HttpClient, HttpEventType } from '@angular/common/http';
 import { EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { CloudNode, CloudDirectory, SearchParams, FileTag, CloudFile } from 'src/app/models/files-api-models';
+import { CloudNode, CloudDirectory, SearchParams, FileTag, CloudFile, RespondShare } from 'src/app/models/files-api-models';
 import { DIRECTORY_MIMETYPE } from '../files-utils/files-utils.service';
 import { FileSystem, Upload } from './file-system';
 
@@ -12,18 +12,38 @@ export class RealFileSystem implements FileSystem {
     private _currentUpload$ = new EventEmitter<Upload>();
     private _baseUrl: string;
 
+    private _uploadXhr: XMLHttpRequest;
     private _timeStarted: number = -1;
 
     constructor(private httpClient: HttpClient) {
-        if (location.toString().indexOf("localhost") > -1){
+        if (location.toString().indexOf("localhost") > -1) {
             this._baseUrl = "http://localhost:3000/v1";
         } else {
-            this._baseUrl = "http://api.cyberdoc.fulgen.fr/v1";
+            this._baseUrl = "https://api.cyberdoc.fulgen.fr/v1";
         }
+    }
+    share(fileID: string, email: String): Observable<void> {
+        
+        return this.httpClient.post<any>(`${this._baseUrl}/files/${fileID}/sharing`, {
+            "email": email
+        }, {withCredentials: true}).pipe(map(response => {
+            this._refreshNeeded$.emit();
+        }, null));
+    }
+
+    getShareWith(fileID: String): Observable<RespondShare[]>{
+        return this.httpClient.get<any>(`${this._baseUrl}/files/${fileID}/sharing`, {withCredentials: true}).pipe(map(response => {    
+            return response.users as RespondShare[];
+        }));
+    }
+
+    deleteShare(fileID: string, email: String): Observable<void>{
+        return this.httpClient.delete<any>(`${this._baseUrl}/files/${fileID}/sharing/${email}`, {withCredentials: true})
+            .pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     get(nodeID: string): Observable<CloudNode> {
-        return this.httpClient.get<any>(`${this._baseUrl}/files/${nodeID}`, {withCredentials: true}).pipe(map(response => {
+        return this.httpClient.get<any>(`${this._baseUrl}/files/${nodeID}`, { withCredentials: true }).pipe(map(response => {
             const node: CloudNode = response.content;
             node.isDirectory = node.mimetype === DIRECTORY_MIMETYPE;
             if (node.isDirectory) {
@@ -37,10 +57,10 @@ export class RealFileSystem implements FileSystem {
 
     createDirectory(name: string, parentFolder: CloudDirectory): Observable<void> {
         return this.httpClient.post<any>(`${this._baseUrl}/files`, {
-            "folderID": parentFolder.id,
+            "folderID": parentFolder._id,
             "mimetype": DIRECTORY_MIMETYPE,
             "name": name
-        }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
+        }, { withCredentials: true }).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     search(searchParams: SearchParams): Observable<CloudDirectory> {
@@ -48,7 +68,7 @@ export class RealFileSystem implements FileSystem {
         let startDate: Date;
         let endDate: Date;
 
-        if (searchParams.dateDiff !== -1){
+        if (searchParams.dateDiff !== -1) {
             startDate = new Date(currentDate);
             startDate.setHours(0);
             startDate.setMinutes(0);
@@ -64,18 +84,18 @@ export class RealFileSystem implements FileSystem {
         return this.httpClient.post<any>(`${this._baseUrl}/files/search`, {
             "tagIDs": searchParams.tagIDs.length > 0 ? searchParams.tagIDs : null,
             "name": searchParams.name,
-           /* "mimetypes": [searchParams.type], */
+            "type": searchParams.type,
             "startLastModifiedDate": startDate,
             "endLastModifiedDate": endDate
-        }, {withCredentials: true}).pipe(map(response => {
+        }, { withCredentials: true }).pipe(map(response => {
             const folder = new CloudDirectory();
 
             folder.directoryContent = response.results;
-            folder.id = "you-should-not-see-this";
-            folder.name = "you-should-not-see-this";
+            folder._id = null;
+            folder.name = null;
             folder.isDirectory = true;
             folder.mimetype = DIRECTORY_MIMETYPE;
-            folder.ownerName = "you-should-not-see-this";
+            folder.ownerName = null;
             folder.path = [];
             folder.tags = [];
 
@@ -85,103 +105,119 @@ export class RealFileSystem implements FileSystem {
     }
 
     copy(file: CloudFile, fileName: string, destination: CloudDirectory): Observable<void> {
-        return this.httpClient.post<any>(`${this._baseUrl}/files/${file.id}/copy`, {
+        return this.httpClient.post<any>(`${this._baseUrl}/files/${file._id}/copy`, {
             "copyFileName": fileName,
-            "destID": destination.id
-        }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
+            "destID": destination._id
+        }, { withCredentials: true }).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     move(node: CloudNode, destination: CloudDirectory): Observable<void> {
-        return this.httpClient.patch<any>(`${this._baseUrl}/files/${node.id}`, {
-            "directoryID": destination.id,
-        }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
+        return this.httpClient.patch<any>(`${this._baseUrl}/files/${node._id}`, {
+            "directoryID": destination._id,
+        }, { withCredentials: true }).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     rename(node: CloudNode, newName: string): Observable<void> {
-        return this.httpClient.patch<any>(`${this._baseUrl}/files/${node.id}`, {
+        return this.httpClient.patch<any>(`${this._baseUrl}/files/${node._id}`, {
             "name": newName
-        }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
+        }, { withCredentials: true }).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     delete(node: CloudNode): Observable<void> {
-        return this.httpClient.delete<any>(`${this._baseUrl}/files/${node.id}`, {withCredentials: true})
+        return this.httpClient.delete<any>(`${this._baseUrl}/files/${node._id}`, { withCredentials: true })
             .pipe(map(response => this._refreshNeeded$.emit(), null));
+    }
+
+    setPreviewEnabled(file: CloudFile, enabled: boolean): Observable<void> {
+        return this.httpClient.patch<any>(`${this._baseUrl}/files/${file._id}`, {
+            "preview": enabled,
+        }, { withCredentials: true }).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     addTag(node: CloudNode, tag: FileTag): Observable<void> {
         console.warn(tag);
-        return this.httpClient.post<any>(`${this._baseUrl}/files/${node.id}/tags`, {
+        return this.httpClient.post<any>(`${this._baseUrl}/files/${node._id}/tags`, {
             "tagId": tag._id
-        }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
+        }, { withCredentials: true }).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     removeTag(node: CloudNode, tag: FileTag): Observable<void> {
-        return this.httpClient.delete<any>(`${this._baseUrl}/files/${node.id}/${tag._id}`, {withCredentials: true})
+        return this.httpClient.delete<any>(`${this._baseUrl}/files/${node._id}/tags/${tag._id}`, { withCredentials: true })
             .pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     getDownloadURL(node: CloudNode): string {
-        return `${this._baseUrl}/files/${node.id}/download`;
+        return `${this._baseUrl}/files/${node._id}/download`;
     }
 
     getExportURL(node: CloudNode): string {
-        return `${this._baseUrl}/files/${node.id}/export`;
+        return `${this._baseUrl}/files/${node._id}/export`;
     }
 
     getFilePreviewImageURL(node: CloudNode): string {
-        return `${this._baseUrl}/files/${node.id}/preview`;
+        return `${this._baseUrl}/files/${node._id}/preview`;
     }
+
 
     startFileUpload(file: File, destination: CloudDirectory): void {
         const formData = new FormData();
-        formData.append("folderID", destination.id);
+        formData.append("folderID", destination._id);
         formData.append("mimetype", file.type || "application/octet-stream");
         formData.append("name", file.name);
         formData.append("upfile", file);
 
-        this.httpClient.post<any>(`${this._baseUrl}/files`, formData, {
-            reportProgress: true,
-            observe: 'events',
-            withCredentials: true
-        }).pipe(map(event => {
-            switch (event.type) {
-                case HttpEventType.UploadProgress: {
-                    //https://stackoverflow.com/questions/21162749/how-do-i-calculate-the-time-remaining-for-my-upload
-                    let timeElasped = 0;
-                    if (this._timeStarted === -1){
-                        this._timeStarted = Date.now();
-                        timeElasped = 1;
-                    } else {
-                        timeElasped = Date.now() - this._timeStarted;
-                    }
-
-                    const uploadSpeed = event.loaded / (timeElasped/1000);
-
-                    const obj = {
-                        filename: file.name,
-                        progress: (event.loaded / event.total),
-                        remainingSeconds: (event.total - event.loaded) / uploadSpeed
-                    }
-                    this._currentUpload$.emit(obj);
-                    break;
-                }
-                case HttpEventType.Response: {
-                    this._currentUpload$.emit(null);
-                    break;
-                }
+        //Need to use a XMLHttpRequest, to have cancel capability
+        this._uploadXhr = new XMLHttpRequest();
+        this._uploadXhr.upload.onprogress = (evt) => {
+            //https://stackoverflow.com/questions/21162749/how-do-i-calculate-the-time-remaining-for-my-upload
+            let timeElasped = 0;
+            if (this._timeStarted === -1) {
+                this._timeStarted = Date.now();
+                timeElasped = 1;
+            } else {
+                timeElasped = Date.now() - this._timeStarted;
             }
-        })).toPromise().then(()=>{
-            console.log("OK");
+
+            const uploadSpeed = evt.loaded / (timeElasped / 1000);
+            const obj = {
+                filename: file.name,
+                progress: (evt.loaded / evt.total),
+                remainingSeconds: (evt.total - evt.loaded) / uploadSpeed
+            }
+            this._currentUpload$.emit(obj);
+        }
+
+        this._uploadXhr.onerror = (evt) => {
+            this._currentUpload$.emit(null);
             this._timeStarted = -1;
-            this._refreshNeeded$.emit()
-        }).catch((err)=>{
+            this._uploadXhr = null;
+            throw new Error("Error while uploading"); //TODO better handling
+        }
+
+        this._uploadXhr.onreadystatechange = () => {
+            if (this._uploadXhr.readyState === XMLHttpRequest.DONE) {
+                this._currentUpload$.emit(null);
+                this._refreshNeeded$.emit(null);
+                this._timeStarted = -1;
+                this._uploadXhr = null;
+            }
+        }
+
+        this._uploadXhr.onabort = () => {
+            this._currentUpload$.emit(null);
             this._timeStarted = -1;
-            console.error(err);
-        })
+            this._uploadXhr = null;
+        }
+
+        this._uploadXhr.open("POST", `${this._baseUrl}/files`, true);
+        this._uploadXhr.withCredentials = true;
+        this._uploadXhr.send(formData);
     }
 
     cancelFileUpload(): void {
-        throw new Error('Method not implemented.');
+        if (this._uploadXhr) {
+            this._uploadXhr.abort();
+        }
     }
 
     getCurrentFileUpload(): Observable<Upload> {
