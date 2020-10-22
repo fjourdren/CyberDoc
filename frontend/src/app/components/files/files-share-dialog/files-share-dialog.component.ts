@@ -61,7 +61,7 @@ export class FilesShareDialogComponent {
     this.registerForm.disable();
     this.dialogRef.disableClose = true;
     //console.log(this.registerForm.controls.input.value);
-    this.fsProvider.default().share(this.node.id, this.registerForm.controls.input.value).toPromise().then(() => {
+    this.fsProvider.default().share(this.node._id, this.registerForm.controls.input.value).toPromise().then(() => {
       //console.log(this.registerForm.controls.input.value);
       this.loading = false;
       this.registerForm.enable();
