@@ -40,7 +40,7 @@ export class TwoFactorRegisterPageComponent implements OnInit {
         this.twoFactorApp = this.userServiceProvider.default().getActiveUser().twoFactorApp;
         this.twoFactorSms = this.userServiceProvider.default().getActiveUser().twoFactorSms;
         this.twoFactorEmail = this.userServiceProvider.default().getActiveUser().twoFactorEmail;
-        this.email = this.userServiceProvider.default().getActiveUser().email;j
+        this.email = this.userServiceProvider.default().getActiveUser().email;
 
         this.dialogConfig = new MatDialogConfig();
     }
