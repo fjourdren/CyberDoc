@@ -22,6 +22,7 @@ import {
 import {FilesRenameDialogComponent} from '../files-rename-dialog/files-rename-dialog.component';
 import {FileSystemProvider} from 'src/app/services/filesystems/file-system-provider';
 import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
+import { FilesShareMenuDialogComponent } from '../files-share-menu-dialog/files-share-menu-dialog.component';
 
 export type FileAction = 'open' | 'download' | 'export' | 'rename' | 'copy' | 'delete' | 'move' | 'details';
 

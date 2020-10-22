@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {FormBuilder, Validators} from '@angular/forms';
+import {AbstractControl, FormBuilder, ValidatorFn, Validators} from '@angular/forms';
 import {UserServiceProvider} from '../../services/users/user-service-provider'
 import {User} from 'src/app/models/users-api-models';
 import {MustMatch} from 'src/app/components/settings/settings-security/_helpers/must-match.validator';
