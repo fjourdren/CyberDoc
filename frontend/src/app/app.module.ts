@@ -82,64 +82,64 @@ import { Router } from '@angular/router';
 import { FilesShareMenuDialogComponent } from './components/files/files-share-menu-dialog/files-share-menu-dialog.component';
 
 // AoT requires an exported function for factories
-export function HttpLoaderFactory(httpClient: HttpClient) {
-  return new TranslateHttpLoader(httpClient);
-}
+export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
 
 const FILES_COMPONENTS = [
-  FilesDetailsPanelComponent,
-  FilesTreeviewComponent,
-  FilesMainToolbarComponent,
-  FilesUploadProgressSnackbarComponent,
-  FilesBreadcrumbComponent,
-  FilesMoveCopyDialogComponent,
-  FilesRenameDialogComponent,
-  FilesDeleteDialogComponent,
-  FilesNewFolderDialogComponent,
-  FilesUploadComponent,
-  FilesGenericTableComponent,
-  FilesGenericTableBottomsheetComponent,
-  FilesTagsInputComponent,
-  FilesCreateTagDialogComponent,
-  FilesFilterDialogComponent,
-]
+    FilesDetailsPanelComponent,
+    FilesTreeviewComponent,
+    FilesMainToolbarComponent,
+    FilesUploadProgressSnackbarComponent,
+    FilesBreadcrumbComponent,
+    FilesMoveCopyDialogComponent,
+    FilesRenameDialogComponent,
+    FilesDeleteDialogComponent,
+    FilesNewFolderDialogComponent,
+    FilesUploadComponent,
+    FilesGenericTableComponent,
+    FilesGenericTableBottomsheetComponent,
+    FilesTagsInputComponent,
+    FilesCreateTagDialogComponent,
+    FilesFilterDialogComponent,
+];
 
 const SETTINGS_COMPONENTS = [
-  SettingsMenuComponent,
-  SettingsProfileComponent,
-  SettingsSecurityComponent,
-  SettingsMainToolbarComponent
-]
+    SettingsMenuComponent,
+    SettingsProfileComponent,
+    SettingsSecurityComponent,
+    SettingsSecurityDialogComponent,
+    SettingsMainToolbarComponent
+];
 
 const LOCAL_ERROR_HANDLER = [
-  { provide: ErrorHandler, useClass: GlobalErrorHandler }
-]
+    {provide: ErrorHandler, useClass: GlobalErrorHandler}
+];
 
 const SENTRY_ERROR_HANDLER = [
-  {
-    provide: ErrorHandler,
-    useValue: Sentry.createErrorHandler({
-      showDialog: true,
-    }),
-  },
-  {
-    provide: Sentry.TraceService,
-    deps: [Router],
-  },
-  {
-    provide: APP_INITIALIZER,
-    useFactory: () => () => { },
-    deps: [Sentry.TraceService],
-    multi: true,
-  },
-]
+    {
+        provide: ErrorHandler,
+        useValue: Sentry.createErrorHandler({
+            showDialog: true,
+        }),
+    },
+    {
+        provide: Sentry.TraceService,
+        deps: [Router],
+    },
+    {
+        provide: APP_INITIALIZER,
+        useFactory: () => () => {
+        },
+        deps: [Sentry.TraceService],
+        multi: true,
+    },
+];
 
 let ERROR_HANDLER;
 
 if (environment.useSentry) {
-  ERROR_HANDLER = SENTRY_ERROR_HANDLER;
+    ERROR_HANDLER = SENTRY_ERROR_HANDLER;
 } else {
-  ERROR_HANDLER = LOCAL_ERROR_HANDLER;
+    ERROR_HANDLER = LOCAL_ERROR_HANDLER;
 }
 
 @NgModule({
@@ -211,4 +211,5 @@ if (environment.useSentry) {
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}

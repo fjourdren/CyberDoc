@@ -1,0 +1,45 @@
+<div id="root-div">
+  <div id="form-container">
+      <mat-card id="card">
+        <button mat-icon-button [routerLink]="['/logout']" >
+          <mat-icon>keyboard_arrow_left</mat-icon> Go back to login page
+        </button>
+        <mat-card-header>
+          <mat-card-title>Two-Factor Register</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          You need to enable at least one 2FA Method to continue.
+          <mat-list>
+            <mat-list-item *ngIf="twoFactorApp">
+              <button mat-flat-button color="success" class="two-factor-status">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
+              <button mat-raised-button color="primary" (click)="disableTwoFactor('app')">Disable 2FA by App</button>
+            </mat-list-item>
+            <mat-list-item *ngIf="!twoFactorApp">
+              <button mat-flat-button color="warn" class="two-factor-status">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
+              <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('app')">Enable 2FA by App</button>
+            </mat-list-item>
+            <mat-list-item *ngIf="twoFactorSms">
+              <button mat-flat-button color="success" class="two-factor-status">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
+              <button mat-raised-button color="primary" (click)="disableTwoFactor('sms')">Disable 2FA sent by SMS</button>
+            </mat-list-item>
+            <mat-list-item *ngIf="!twoFactorSms">
+              <button mat-flat-button color="warn" class="two-factor-status">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
+              <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('sms')">Enable 2FA sent by SMS</button>
+            </mat-list-item>
+            <mat-list-item *ngIf="twoFactorEmail">
+              <button mat-flat-button color="success" class="two-factor-status">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
+              <button mat-raised-button color="primary" (click)="disableTwoFactor('email')">Disable 2FA sent by emails</button>
+            </mat-list-item>
+            <mat-list-item *ngIf="!twoFactorEmail">
+              <button mat-flat-button color="warn" class="two-factor-status">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
+              <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('email')">Enable 2FA sent by emails</button>
+            </mat-list-item>
+          </mat-list>
+        </mat-card-content>
+
+        <div id="button-container">
+          <button [routerLink]="['/files']" [disabled]="(!this.twoFactorApp && !this.twoFactorSms && !this.twoFactorEmail)" mat-raised-button color="primary">Go to the app</button>
+        </div>
+      </mat-card>
+  </div>
+</div>
