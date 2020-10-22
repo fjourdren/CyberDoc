@@ -175,7 +175,7 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
                                 this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
                                     this.snackBar.open('2FA activated', null, {duration: 1500});
                                     this.dialogRef.close();
-                                }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 1500}));
                         });
                     });
                 }
@@ -198,7 +198,7 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
                             this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
                                 this.snackBar.open('2FA activated', null, {duration: 1500});
                                 this.dialogRef.close();
-                            }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                            }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 1500}));
                         });
                     });
                 }
@@ -219,7 +219,7 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
                         this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
                             this.snackBar.open('2FA activated', null, {duration: 1500});
                             this.dialogRef.close();
-                        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                        }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 1500}));
                     });
                 }
             }).catch(err => {

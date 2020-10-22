@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {FormBuilder, Validators} from '@angular/forms';
+import {AbstractControl, FormBuilder, Validators} from '@angular/forms';
 import {UserServiceProvider} from '../../services/users/user-service-provider';
 import {TwoFactorServiceProvider} from '../../services/twofactor/twofactor-service-provider';
 import {JwtHelperService} from '@auth0/angular-jwt';
@@ -25,6 +25,10 @@ export class TwoFactorPageComponent implements OnInit {
                 private userServiceProvider: UserServiceProvider,
                 private router: Router,
                 private snackBar: MatSnackBar) {
+    }
+
+    get f(): { [p: string]: AbstractControl } {
+        return this.twoFactorForm.controls;
     }
 
     ngOnInit(): void {
@@ -55,7 +59,7 @@ export class TwoFactorPageComponent implements OnInit {
                     } else {
                         this.snackBar.open('Wrong token', null, {duration: 1500});
                     }
-                });
+                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 1500}));
                 break;
             case 'sms':
                 this.twoFactorServiceProvider.default().verifyTokenBySms(this.user.phoneNumber,
@@ -65,7 +69,7 @@ export class TwoFactorPageComponent implements OnInit {
                     } else {
                         this.snackBar.open('Wrong token', null, {duration: 1500});
                     }
-                });
+                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 1500}));
                 break;
             case 'email':
                 this.twoFactorServiceProvider.default().verifyTokenByEmail(this.user.email,
@@ -75,7 +79,7 @@ export class TwoFactorPageComponent implements OnInit {
                     } else {
                         this.snackBar.open('Wrong token', null, {duration: 1500});
                     }
-                });
+                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 1500}));
                 break;
         }
     }
