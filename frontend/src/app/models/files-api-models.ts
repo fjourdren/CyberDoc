@@ -23,6 +23,7 @@ export class CloudFile {
   public tags: FileTag[];
   public preview: boolean;
   isDirectory: false;
+  public shareMode: "readonly" | "readwrite";
 }
 
 export class CloudDirectory {
@@ -35,6 +36,11 @@ export class CloudDirectory {
   public tags: FileTag[];
   public preview: false;
   isDirectory: true;
+}
+
+export interface RespondShare {
+  name: string;
+  email: string;
 }
 
 export const NO_TYPE_FILTER = FileType.Unknown;
