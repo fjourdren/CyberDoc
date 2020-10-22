@@ -27,6 +27,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSelectModule } from '@angular/material/select';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -51,7 +52,7 @@ import { FilesGenericTableBottomsheetComponent } from './components/files/files-
 
 import { SettingsMenuComponent } from './components/settings/settings-menu/settings-menu.component';
 import { SettingsProfileComponent } from './components/settings/settings-profile/settings-profile.component';
-import { SettingsSecurityComponent } from './components/settings/settings-security/settings-security.component';
+import { SettingsSecurityComponent, SettingsSecurityDialogComponent } from './components/settings/settings-security/settings-security.component';
 
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
@@ -82,66 +83,68 @@ import { Router } from '@angular/router';
 import { FilesShareMenuDialogComponent } from './components/files/files-share-menu-dialog/files-share-menu-dialog.component';
 import { PasswordRecoveryPageComponent } from './pages/password-recovery-page/password-recovery-page.component';
 import { ResetPasswordPageComponent } from './pages/reset-password-page/reset-password-page.component';
+import { TwoFactorPageComponent } from './pages/two-factor-page/two-factor-page.component';
+import { TwoFactorRegisterDialogComponent, TwoFactorRegisterPageComponent } from './pages/two-factor-register-page/two-factor-register-page.component';
 
 // AoT requires an exported function for factories
-export function HttpLoaderFactory(httpClient: HttpClient) {
-  return new TranslateHttpLoader(httpClient);
-}
+export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
 
 const FILES_COMPONENTS = [
-  FilesDetailsPanelComponent,
-  FilesTreeviewComponent,
-  FilesMainToolbarComponent,
-  FilesUploadProgressSnackbarComponent,
-  FilesBreadcrumbComponent,
-  FilesMoveCopyDialogComponent,
-  FilesRenameDialogComponent,
-  FilesDeleteDialogComponent,
-  FilesNewFolderDialogComponent,
-  FilesUploadComponent,
-  FilesGenericTableComponent,
-  FilesGenericTableBottomsheetComponent,
-  FilesTagsInputComponent,
-  FilesCreateTagDialogComponent,
-  FilesFilterDialogComponent,
-]
+    FilesDetailsPanelComponent,
+    FilesTreeviewComponent,
+    FilesMainToolbarComponent,
+    FilesUploadProgressSnackbarComponent,
+    FilesBreadcrumbComponent,
+    FilesMoveCopyDialogComponent,
+    FilesRenameDialogComponent,
+    FilesDeleteDialogComponent,
+    FilesNewFolderDialogComponent,
+    FilesUploadComponent,
+    FilesGenericTableComponent,
+    FilesGenericTableBottomsheetComponent,
+    FilesTagsInputComponent,
+    FilesCreateTagDialogComponent,
+    FilesFilterDialogComponent,
+];
 
 const SETTINGS_COMPONENTS = [
-  SettingsMenuComponent,
-  SettingsProfileComponent,
-  SettingsSecurityComponent,
-  SettingsMainToolbarComponent
-]
+    SettingsMenuComponent,
+    SettingsProfileComponent,
+    SettingsSecurityComponent,
+    SettingsSecurityDialogComponent,
+    SettingsMainToolbarComponent
+];
 
 const LOCAL_ERROR_HANDLER = [
-  { provide: ErrorHandler, useClass: GlobalErrorHandler }
-]
+    {provide: ErrorHandler, useClass: GlobalErrorHandler}
+];
 
 const SENTRY_ERROR_HANDLER = [
-  {
-    provide: ErrorHandler,
-    useValue: Sentry.createErrorHandler({
-      showDialog: true,
-    }),
-  },
-  {
-    provide: Sentry.TraceService,
-    deps: [Router],
-  },
-  {
-    provide: APP_INITIALIZER,
-    useFactory: () => () => { },
-    deps: [Sentry.TraceService],
-    multi: true,
-  },
-]
+    {
+        provide: ErrorHandler,
+        useValue: Sentry.createErrorHandler({
+            showDialog: true,
+        }),
+    },
+    {
+        provide: Sentry.TraceService,
+        deps: [Router],
+    },
+    {
+        provide: APP_INITIALIZER,
+        useFactory: () => () => {
+        },
+        deps: [Sentry.TraceService],
+        multi: true,
+    },
+];
 
 let ERROR_HANDLER;
 
 if (environment.useSentry) {
-  ERROR_HANDLER = SENTRY_ERROR_HANDLER;
+    ERROR_HANDLER = SENTRY_ERROR_HANDLER;
 } else {
-  ERROR_HANDLER = LOCAL_ERROR_HANDLER;
+    ERROR_HANDLER = LOCAL_ERROR_HANDLER;
 }
 
 @NgModule({
@@ -164,6 +167,9 @@ if (environment.useSentry) {
     FilesShareMenuDialogComponent,
     PasswordRecoveryPageComponent,
     ResetPasswordPageComponent,
+    TwoFactorPageComponent,
+    TwoFactorRegisterDialogComponent,
+    TwoFactorRegisterPageComponent,
   ],
   imports: [
     BrowserModule,
@@ -200,6 +206,7 @@ if (environment.useSentry) {
     MatChipsModule,
     MatAutocompleteModule,
     MatSelectModule,
+    MatExpansionModule,
     NgxFilesizeModule,
     NgResizeObserverPonyfillModule,
     LayoutModule,
@@ -215,4 +222,5 @@ if (environment.useSentry) {
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}

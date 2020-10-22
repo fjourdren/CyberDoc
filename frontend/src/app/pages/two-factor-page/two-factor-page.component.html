@@ -1,0 +1,38 @@
+<div id="root-div">
+    <div id="form-container">
+        <form [formGroup]="twoFactorForm" novalidate (ngSubmit)="onSubmit()">
+            <mat-card id="card">
+                <h1 id='app-title'>
+                    <img src="/assets/icons/icon-192x192.png" width="100" height="100" alt="CyberDoc Header"/>
+                    <b>{{ 'general.appname' | translate }}</b>
+                </h1>
+
+                <mat-card-header>
+                    <mat-card-title>Two-factor authentication required</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <p *ngIf="twoFactorType === 'app'">Enter token generated on your application</p>
+                    <p *ngIf="twoFactorType === 'sms'">Enter token received on your phone</p>
+                    <p *ngIf="twoFactorType === 'email'">Enter token received on your email</p>
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Token</mat-label>
+                        <input matInput formControlName="token" required>
+                        <mat-error *ngIf="twoFactorForm.controls['token'].hasError('required')">
+                            Token is <strong>required. </strong>
+                        </mat-error>
+                    </mat-form-field>
+                    <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'email') && this.user.twoFactorSms"
+                            mat-raised-button color="basic" (click)="sendTokenBySms()">Send me token by SMS
+                    </button>
+                    <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'sms') && this.user.twoFactorEmail"
+                            mat-raised-button color="basic" (click)="sendTokenByEmail()">Send me token by Email
+                    </button>
+                </mat-card-content>
+                <mat-card-actions>
+                    <button mat-raised-button color="primary" type="submit" class="submit">Validate token</button>
+                    <button routerLink="/logout" mat-stroked-button color="primary">Back to login page</button>
+                </mat-card-actions>
+            </mat-card>
+        </form>
+    </div>
+</div>
