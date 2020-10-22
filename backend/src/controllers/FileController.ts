@@ -51,13 +51,51 @@ class FileController {
     public static async search(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const currentUser = FileController._requireAuthenticatedUser(res);
-
+            const userCache = new Map<string, IUser>();
             const bodySearch: Record<string, unknown> = req.body;
             let results: IFile[] = await FileService.search(currentUser, bodySearch);
 
-            results = results.filter(item => {
-                return item._id !== currentUser.directory_id
-            });
+            let files: IFile[] = await FileService.search(res.locals.APP_JWT_TOKEN.user, bodySearch);
+            files = files.filter(item => item._id !== currentUser.directory_id);
+
+            let results = [];
+            for (const file of files) {
+                let ownerName = "Unknown";
+                if (file.owner_id === currentUser._id) {
+                    ownerName = `${currentUser.firstname} ${currentUser.lastname}`;
+                } else {
+                    if (!userCache.has(file.owner_id)) {
+                        userCache.set(file.owner_id, requireNonNull(await User.findById(file.owner_id).exec()));
+                    }
+                    const user = userCache.get(file.owner_id);
+                    ownerName = `${user?.firstname} ${user?.lastname}`;
+                }
+
+                if (file.type == FileType.DOCUMENT) {
+                    results.push({
+                        "_id": file._id,
+                        "name": file.name,
+                        "ownerName": ownerName,
+                        "mimetype": file.mimetype,
+                        "size": file.size,
+                        "updated_at": file.updated_at,
+                        "created_at": file.created_at,
+                        "tags": file.tags,
+                        "preview": file.preview
+                    });
+                } else { // if it's a directory
+                    results.push({
+                        "_id": file._id,
+                        "name": file.name,
+                        "ownerName": ownerName,
+                        "mimetype": "application/x-dir",
+                        "updated_at": file.updated_at,
+                        "created_at": file.created_at,
+                        "tags": file.tags,
+                        "preview": false
+                    });
+                }
+            }
 
             res.status(HttpCodes.OK);
             res.json({
@@ -79,7 +117,7 @@ class FileController {
 
             if (file.type == FileType.DIRECTORY) {
                 // === CALCULATE PATH ===
-                const pathsOutput: Record<string, any> = [];
+                const pathsOutput: Record<string, any>[] = [];
 
                 let aboveFile: IFile = file;
                 while (aboveFile.parent_file_id != undefined) {
@@ -89,6 +127,8 @@ class FileController {
                         "name": aboveFile.name
                     });
                 }
+
+                pathsOutput.reverse();
                 // ===========
 
 
@@ -106,7 +146,7 @@ class FileController {
                     // build reply content
                     if (fileInDir.type == FileType.DOCUMENT) {
                         directoryContentOutput.push({
-                            "id": fileInDir._id,
+                            "_id": fileInDir._id,
                             "name": fileInDir.name,
                             "ownerName": ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
                             "mimetype": fileInDir.mimetype,
@@ -115,16 +155,18 @@ class FileController {
                             "created_at": fileInDir.created_at,
                             "tags": fileInDir.tags,
                             "shareMode": fileInDir.shareMode
+                            "preview": fileInDir.preview
                         });
                     } else { // if it's a directory
                         directoryContentOutput.push({
-                            "id": fileInDir._id,
+                            "_id": fileInDir._id,
                             "name": fileInDir.name,
                             "ownerName": ownerFileInDir.firstname + " " + ownerFileInDir.lastname,
                             "mimetype": "application/x-dir",
                             "updated_at": fileInDir.updated_at,
                             "created_at": fileInDir.created_at,
-                            "tags": fileInDir.tags
+                            "tags": fileInDir.tags,
+                            "preview": false
                         });
                     }
                 }
@@ -143,7 +185,8 @@ class FileController {
                         "mimetype": "application/x-dir",
                         "path": pathsOutput,
                         "directoryContent": directoryContentOutput,
-                        "tags": file.tags
+                        "tags": file.tags,
+                        "preview": false
                     }
                 });
 
@@ -272,7 +315,6 @@ class FileController {
             FileService.requireFileIsDocument(file);
             FileService.requireFileIsDirectory(destination);
             await FileService.requireFileCanBeCopied(currentUser, file);
-
             const out = await FileService.copyDocument(currentUser, file, req.body.destID, copyFileName);
 
             // reply to user

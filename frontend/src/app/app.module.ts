@@ -74,10 +74,12 @@ import { GlobalErrorHandler } from './global-error-handler';
 import { environment } from '../environments/environment';
 import { FilesTagsInputComponent } from './components/files/files-tags-input/files-tags-input.component';
 import { FilesCreateTagDialogComponent } from './components/files/files-create-tag-dialog/files-create-tag-dialog.component';
+import { FilesShareDialogComponent } from './components/files/files-share-dialog/files-share-dialog.component';
 import { FilesFilterDialogComponent } from './components/files/files-filter-dialog/files-filter-dialog.component';
 import { FilesFilterToolbarComponent } from './components/files/files-filter-toolbar/files-filter-toolbar.component';
 import { SettingsMainToolbarComponent } from './components/settings/settings-main-toolbar/settings-main-toolbar.component';
 import { Router } from '@angular/router';
+import { FilesShareMenuDialogComponent } from './components/files/files-share-menu-dialog/files-share-menu-dialog.component';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
@@ -154,7 +156,10 @@ if (environment.useSentry) {
     SettingsProfilePageComponent,
     SettingsSecurityPageComponent,
     UnhandledErrorDialogComponent,
+    FilesCreateTagDialogComponent,
+    FilesShareDialogComponent,
     FilesFilterToolbarComponent,
+    FilesShareMenuDialogComponent,
   ],
   imports: [
     BrowserModule,

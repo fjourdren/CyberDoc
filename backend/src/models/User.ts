@@ -60,7 +60,12 @@ export const UserSchema = new mongoose.Schema({
         required: true,
         validate: {
             validator: function(value: string) {
-                return (/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$._\-!%*?&])[A-Za-z\d$@$!%*?&].{8,}/.test(value));
+                if (!value) return false;
+                if (!value.match(/[A-Z]/g)) return false;
+                if (!value.match(/[a-z]/g)) return false;
+                if (!value.match(/[0-9]/g)) return false;
+                if (!value.replace(/[0-9a-zA-Z ]/g, "").length) return false;
+                return true;
             },
             message: () => `Password doesn't respect the required format`
         },

@@ -11,6 +11,7 @@
         "video": "Video",
         "image": "Image",
         "pdf": "PDF",
+        "text": "Text",
         "archive": "Archive",
         "unknown": "Unknown",
         "document": "Document",
@@ -37,8 +38,11 @@
         "rename": "Rename",
         "delete": "Delete",
         "create": "Create",
-        "export": "PDF export",
-        "delete_confirm": "Are you sure you want to delete '{{filename}}' ?"
+        "delete_confirm": "Are you sure you want to delete '{{filename}}' ?",
+        "share": "Share",
+        "newShare": "New share",
+        "sharewith": "Share with :",
+        "export": "PDF export"
     },
     "file": {
         "preview": "Preview",
@@ -55,6 +59,7 @@
         "drop_div_text": "Drop a file to import",
         "success": "File successfully uploaded",
         "canceled": "Upload canceled",
+        "under_ten_seconds": "under 10 seconds remaining",
         "finishing_upload": "Finishing upload..."
     },
     "tags": {
@@ -109,6 +114,11 @@
         "error_title": "Error",
         "error_content": "An error occured. Please check your Internet connection, then refresh the page.",
         "go_to_homepage": "Go to homepage",
-        "back_to_app": "Back to the application"
+        "mail": "Enter email of destination",
+        "rw": "Read and write",
+        "ro": "Read only",
+        "back_to_app": "Back to the application",
+        "share_error": "User does not exist",
+        "share_error_already_logged": "You cannot share a file with yourself"
     }
 }

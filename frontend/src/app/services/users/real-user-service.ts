@@ -23,7 +23,7 @@ export class RealUserService implements UserService {
             this._baseUrl = "http://localhost:3000/v1";
             this._cookieDomain = "localhost";
         } else {
-            this._baseUrl = "http://api.cyberdoc.fulgen.fr/v1";
+            this._baseUrl = "https://api.cyberdoc.fulgen.fr/v1";
             this._cookieDomain = "cyberdoc.fulgen.fr";
         }
     }
@@ -118,6 +118,10 @@ export class RealUserService implements UserService {
             this._setUser(this._jwtHelper.decodeToken(response.token).user);
             return this.getActiveUser();
         }));
+    }
+
+    searchExistingUser(email: string): Observable<User>{
+        return null;
     }
 
     logout(): Observable<void> {
