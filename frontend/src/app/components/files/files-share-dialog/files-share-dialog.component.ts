@@ -52,14 +52,21 @@ export class FilesShareDialogComponent {
     if (this.registerForm.invalid) {
       return;
     }
-    console.log(this.node.ownerName);
-    if(this.registerForm.controls.input.value === this.node.ownerName){
-      this.alreadyLoggedError = true;
-    }
-    
+
     this.loading = true;
     this.registerForm.disable();
     this.dialogRef.disableClose = true;
+
+    console.log(this.userServiceProvider.default().getActiveUser().email);
+    if(this.registerForm.controls.input.value === this.userServiceProvider.default().getActiveUser().email){
+      this.alreadyLoggedError = true;
+      this.loading = false;
+      this.registerForm.enable();
+      this.dialogRef.disableClose = false;
+      return;
+    }
+    
+    
     //console.log(this.registerForm.controls.input.value);
     this.fsProvider.default().share(this.node._id, this.registerForm.controls.input.value).toPromise().then(() => {
       //console.log(this.registerForm.controls.input.value);
