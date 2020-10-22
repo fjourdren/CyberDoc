@@ -5,8 +5,7 @@ import { MockFileSystem } from 'src/app/services/filesystems/mock-file-system'
 import { FilesUtilsService } from '../files-utils/files-utils.service';
 import { UserServiceProvider } from '../users/user-service-provider';
 import { RealFileSystem } from './real-file-system';
-
-const DEFAULT_FS_PROVIDER_NAME = "mock";
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
@@ -17,7 +16,7 @@ export class FileSystemProvider {
     constructor(private fileUtils: FilesUtilsService, private httpClient: HttpClient, private userServiceProvider: UserServiceProvider){}
 
     default(): FileSystem {
-        return this.get(DEFAULT_FS_PROVIDER_NAME);
+        return this.get(environment.defaultFSProviderName);
     }
 
     get(providerName: string): FileSystem {

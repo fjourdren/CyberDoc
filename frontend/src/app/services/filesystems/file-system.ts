@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { CloudDirectory, CloudNode, FileTag, RespondShare, SearchParams } from 'src/app/models/files-api-models';
+import { CloudDirectory, CloudFile, CloudNode, FileTag, RespondShare, SearchParams } from 'src/app/models/files-api-models';
 
 export interface Upload {
     filename: string;
@@ -13,15 +13,17 @@ export interface FileSystem {
     createDirectory(name: string, parentFolder: CloudDirectory): Observable<void>;
     search(searchParams: SearchParams): Observable<CloudDirectory>;
 
-    copy(node: CloudNode, fileName: string, destination: CloudDirectory): Observable<void>;
+    copy(file: CloudFile, fileName: string, destination: CloudDirectory): Observable<void>;
     move(node: CloudNode, destination: CloudDirectory): Observable<void>;
     rename(node: CloudNode, newName: string): Observable<void>;
     delete(node: CloudNode): Observable<void>;
+    setPreviewEnabled(file: CloudFile, enabled: boolean): Observable<void>;
+
     share(fileID: string, email: String): Observable<void>;
     // MOCK : share(fileID: string, email: String): Observable<RespondShare>;
     getShareWith(fileID: String): Observable<RespondShare[]>;
     deleteShare(fileID: string, email: String): Observable<void>;
-
+  
     addTag(node: CloudNode, tag: FileTag): Observable<void>;
     removeTag(node: CloudNode, tag: FileTag): Observable<void>;
 

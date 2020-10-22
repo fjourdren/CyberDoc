@@ -8,6 +8,7 @@ import { IUser, User, Role } from "../models/User";
 import { requireNonNull } from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
+import Mailer from '../helpers/Mailer';
 
 class AuthService {
 
@@ -34,13 +35,24 @@ class AuthService {
         root_user_dir._id = Guid.raw();
         root_user_dir.type = FileType.DIRECTORY;
         root_user_dir.mimetype = "application/x-dir"
-        root_user_dir.name = "Root";
+        root_user_dir.name = "My safebox";
         root_user_dir.owner_id = newUser._id;
         root_user_dir.tags = [];
 
         newUser.directory_id = root_user_dir._id;
+        try {
+            requireNonNull(await newUser.save());
+        }catch (e) {
+            const error: Error = e;
+            if (error.message.indexOf("expected `email` to be unique.") !== -1){
+                requireNonNull(null, 409, "Another account with this mail already exists");
+            } else {
+                throw e;
+            }
+        }
+
         requireNonNull(await root_user_dir.save());
-        return requireNonNull(await newUser.save());
+        return newUser;
     }
 
     // login service
@@ -58,9 +70,18 @@ class AuthService {
     }
 
     // forgotten password service
-    /*public static forgottenPassword() {
-        // TODO
-    }*/
+    public static async forgottenPassword(email: string): Promise<void> {
+        requireNonNull(await User.findOne({ email: email }).exec());
+
+        const token: string = jwt.sign({ email }, process.env.JWT_SECRET, {
+            expiresIn: 36000 // 10 hours
+        });
+
+        const url: string = process.env.APP_FRONTEND_URL + "/forgottenpassword?token=" + token;
+        
+        //await Mailer.sendTextEmail(email, process.env.SENDGRID_MAIL_FROM, "hello", "hello", "hello");
+        await Mailer.sendTemplateEmail(email, process.env.SENDGRID_MAIL_FROM, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, { url: url });
+    }
 
     // validate that the token is correct
     public static validateToken(jwtToken: string): string[] {

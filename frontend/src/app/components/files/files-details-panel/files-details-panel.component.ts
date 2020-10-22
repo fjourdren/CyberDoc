@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
-import { CloudNode, FileTag } from 'src/app/models/files-api-models';
+import { CloudFile, CloudNode, FileTag } from 'src/app/models/files-api-models';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { FilesUtilsService, FileType } from 'src/app/services/files-utils/files-utils.service';
 import { FilesCreateTagDialogComponent } from '../files-create-tag-dialog/files-create-tag-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-files-details-panel',
@@ -80,6 +81,13 @@ export class FilesDetailsPanelComponent {
     this.dialog.open(FilesCreateTagDialogComponent, {
       maxWidth: "400px"
     })
+  }
+
+  onPreviewToogleChange(evt: MatSlideToggleChange){
+    this.loading = true;
+    this.fsProvider.default().setPreviewEnabled(this.node as CloudFile, evt.checked).toPromise().then(()=>{
+      this.loading = false;
+    });
   }
 
 }

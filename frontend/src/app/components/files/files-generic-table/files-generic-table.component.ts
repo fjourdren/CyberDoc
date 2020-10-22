@@ -116,6 +116,10 @@ export class FilesGenericTableComponent implements AfterViewInit {
     this.selectedNodeChange.emit(node);
   }
 
+  isCopyAvailable(node: CloudNode): boolean {
+    return node && !this.isReadOnly(node) && !node.isDirectory;
+  }
+
   isPDFExportAvailable(node: CloudNode): boolean {
     if (!node) return;
 
@@ -134,7 +138,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   isReadOnly(node: CloudNode) {
-    return this.restrictions.isReadOnly(node) || node && node.name === "..";
+    return this.restrictions.isReadOnly(node);
   }
 
   onContextMenu(event: MouseEvent, node: CloudNode) {

@@ -40,6 +40,14 @@
                 }
               ]
             },
+            "mock": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.mock.ts"
+                }
+              ]
+            },
             "production": {
               "fileReplacements": [
                 {
@@ -83,6 +91,9 @@
             },
             "vps": {
               "browserTarget": "cyberdoc:build:vps"
+            },
+            "mock": {
+              "browserTarget": "cyberdoc:build:mock"
             }
           }
         },
@@ -137,6 +148,9 @@
             },
             "vps": {
               "devServerTarget": "cyberdoc:serve:vps"
+            },
+            "mock": {
+              "devServerTarget": "cyberdoc:serve:mock"
             }
           }
         }

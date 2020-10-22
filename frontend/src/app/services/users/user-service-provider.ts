@@ -4,8 +4,7 @@ import { MockUserService } from './mock-user-service';
 import { RealUserService } from './real-user-service';
 import { UserService } from './user-service';
 import { CookieService } from 'ngx-cookie-service';
-
-const DEFAULT_USER_SERVICE_PROVIDER_NAME = "mock";
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
@@ -16,7 +15,7 @@ export class UserServiceProvider {
     constructor(private httpClient: HttpClient, private cookieService: CookieService){}
 
     default(): UserService {
-        return this.get(DEFAULT_USER_SERVICE_PROVIDER_NAME);
+        return this.get(environment.defaultUserServiceName);
     }
 
     get(providerName: string): UserService {
