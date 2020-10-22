@@ -5,6 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { CloudNode, RespondShare } from 'src/app/models/files-api-models';
 import { User } from 'src/app/models/users-api-models';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
+import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { FilesShareDialogComponent } from '../files-share-dialog/files-share-dialog.component';
 
 export interface PeriodicElement {
@@ -44,9 +45,10 @@ export class FilesShareMenuDialogComponent implements OnInit {
   constructor(private fb: FormBuilder, public dialogRef: MatDialogRef<FilesShareMenuDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public node: CloudNode,
     private fsProvider: FileSystemProvider,
-    private dialog: MatDialog) {
+    private dialog: MatDialog,
+    private userServiceProvider: UserServiceProvider) {
       
-      fsProvider.default().getShareWith(node.id).toPromise().then((value)=>{
+      fsProvider.default().getShareWith(node._id).toPromise().then((value)=>{
         this.dataSource.data = value;
       });
       console.log(this.dataSource);
@@ -57,7 +59,7 @@ export class FilesShareMenuDialogComponent implements OnInit {
   
   update(){
     console.log("In update");
-    this.fsProvider.default().getShareWith(this.node.id).toPromise().then((value)=>{
+    this.fsProvider.default().getShareWith(this.node._id).toPromise().then((value)=>{
       this.dataSource.data = value;
     }, (error) => {
       this.genericError = true;
@@ -74,7 +76,7 @@ export class FilesShareMenuDialogComponent implements OnInit {
   delete(email: string){
     console.log(email);
     this.loading = true;
-    this.fsProvider.default().deleteShare(this.node.id, email).toPromise().then(() => {
+    this.fsProvider.default().deleteShare(this.node._id, email).toPromise().then(() => {
       this.loading = false;    
     }, (error) => {
       this.loading = false; 

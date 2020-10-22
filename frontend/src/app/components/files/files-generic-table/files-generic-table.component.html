@@ -93,7 +93,7 @@
             <mat-icon fontSet="fa" fontIcon="fa-trash"></mat-icon>
             <span>{{ 'fileaction.delete' | translate }}</span>
         </button>
-        <button *ngIf="!isReadOnly(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('share')">
+        <button *ngIf="!isReadOnly(selectedNode) && !selectedNode.isDirectory" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('share')">
             <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>
             <span>{{ 'fileaction.share' | translate }}</span>
         </button>
