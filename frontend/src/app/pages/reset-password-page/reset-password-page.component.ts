@@ -37,8 +37,6 @@ export class ResetPasswordPageComponent {
 
   hidePassword = true;
   loading = false;
-
-  emailAlreadyExistsError = false;
   genericError = false;
 
   //gestion token :
@@ -59,6 +57,7 @@ export class ResetPasswordPageComponent {
 
   onSubmit() {
     if (this.resetForm.invalid || this.token.includes("empty")) {
+      this.router.navigate(["/login"]);
       return;
     }
     console.log(this.token);
@@ -75,12 +74,8 @@ export class ResetPasswordPageComponent {
     }, error => {
       this.loading = false;
       this.resetForm.enable();
-
-      if (error instanceof HttpErrorResponse && error.status == 409) {
-        this.emailAlreadyExistsError = true;
-      } else {
-        this.genericError = true;
-      }
+      this.genericError = true;
+      
     });
   }
 

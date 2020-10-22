@@ -41,7 +41,6 @@ export class RegisterPageComponent {
   hidePassword = true;
   loading = false;
 
-  emailAlreadyExistsError = false;
   genericError = false;
 
   constructor(private fb: FormBuilder,
@@ -56,7 +55,7 @@ export class RegisterPageComponent {
     this.loading = true;
     this.registerForm.disable();
     this.genericError = false;
-    this.emailAlreadyExistsError = false;
+
 
     const user = {
       "role": this.registerForm.controls.role.value,
@@ -71,12 +70,8 @@ export class RegisterPageComponent {
     }, error => {
       this.loading = false;
       this.registerForm.enable();
-
-      if (error instanceof HttpErrorResponse && error.status == 409) {
-        this.emailAlreadyExistsError = true;
-      } else {
-        this.genericError = true;
-      }
+      this.genericError = true;
+      
     });
   }
 
