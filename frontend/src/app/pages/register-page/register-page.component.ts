@@ -31,17 +31,18 @@ function passwordValidator(): ValidatorFn {
     styleUrls: ['./register-page.component.scss']
 })
 export class RegisterPageComponent {
-    registerForm = this.fb.group({
-            firstName: [null, Validators.required],
-            lastName: [null, Validators.required],
-            email: [null, [Validators.required, Validators.email]],
-            password: [null, [Validators.required, Validators.pattern(STRONG_PASSWORD_REGEX)]],
-            repeat: [null, Validators.required],
-            role: ['owner', Validators.required],
-        },
-        {
-            validator: MustMatch('password', 'repeat')
-        });
+  registerForm = this.fb.group({
+    firstName: [null, Validators.required],
+    lastName: [null, Validators.required],
+    email: [null, [Validators.required, Validators.email]],
+    password: [null, [Validators.required, passwordValidator()]],
+    repeat: [null, Validators.required],
+    role: ['owner', Validators.required],
+  },
+    {
+      validator: MustMatch('password', 'repeat')
+    });
+  
     hidePassword = true;
     loading = false;
     emailAlreadyExistsError = false;

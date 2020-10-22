@@ -81,6 +81,8 @@ import { FilesFilterToolbarComponent } from './components/files/files-filter-too
 import { SettingsMainToolbarComponent } from './components/settings/settings-main-toolbar/settings-main-toolbar.component';
 import { Router } from '@angular/router';
 import { FilesShareMenuDialogComponent } from './components/files/files-share-menu-dialog/files-share-menu-dialog.component';
+import { PasswordRecoveryPageComponent } from './pages/password-recovery-page/password-recovery-page.component';
+import { ResetPasswordPageComponent } from './pages/reset-password-page/reset-password-page.component';
 import { TwoFactorPageComponent } from './pages/two-factor-page/two-factor-page.component';
 import { TwoFactorRegisterDialogComponent, TwoFactorRegisterPageComponent } from './pages/two-factor-register-page/two-factor-register-page.component';
 
@@ -163,7 +165,8 @@ if (environment.useSentry) {
     FilesShareDialogComponent,
     FilesFilterToolbarComponent,
     FilesShareMenuDialogComponent,
-
+    PasswordRecoveryPageComponent,
+    ResetPasswordPageComponent,
     TwoFactorPageComponent,
     TwoFactorRegisterDialogComponent,
     TwoFactorRegisterPageComponent,
