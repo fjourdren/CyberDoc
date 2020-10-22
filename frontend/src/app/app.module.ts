@@ -27,6 +27,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSelectModule } from '@angular/material/select';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -51,7 +52,7 @@ import { FilesGenericTableBottomsheetComponent } from './components/files/files-
 
 import { SettingsMenuComponent } from './components/settings/settings-menu/settings-menu.component';
 import { SettingsProfileComponent } from './components/settings/settings-profile/settings-profile.component';
-import { SettingsSecurityComponent } from './components/settings/settings-security/settings-security.component';
+import { SettingsSecurityComponent, SettingsSecurityDialogComponent } from './components/settings/settings-security/settings-security.component';
 
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
@@ -80,6 +81,8 @@ import { FilesFilterToolbarComponent } from './components/files/files-filter-too
 import { SettingsMainToolbarComponent } from './components/settings/settings-main-toolbar/settings-main-toolbar.component';
 import { Router } from '@angular/router';
 import { FilesShareMenuDialogComponent } from './components/files/files-share-menu-dialog/files-share-menu-dialog.component';
+import { TwoFactorPageComponent } from './pages/two-factor-page/two-factor-page.component';
+import { TwoFactorRegisterDialogComponent, TwoFactorRegisterPageComponent } from './pages/two-factor-register-page/two-factor-register-page.component';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
@@ -160,6 +163,10 @@ if (environment.useSentry) {
     FilesShareDialogComponent,
     FilesFilterToolbarComponent,
     FilesShareMenuDialogComponent,
+
+    TwoFactorPageComponent,
+    TwoFactorRegisterDialogComponent,
+    TwoFactorRegisterPageComponent,
   ],
   imports: [
     BrowserModule,
@@ -196,6 +203,7 @@ if (environment.useSentry) {
     MatChipsModule,
     MatAutocompleteModule,
     MatSelectModule,
+    MatExpansionModule,
     NgxFilesizeModule,
     NgResizeObserverPonyfillModule,
     LayoutModule,

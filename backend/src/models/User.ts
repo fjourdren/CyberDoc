@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import validator from 'validator';
 import Guid from 'guid';
 
-import ITag, {Tag} from './Tag';
+import ITag, { Tag } from './Tag';
 
 
 /**
@@ -59,7 +59,7 @@ export const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         validate: {
-            validator: function(value: string) {
+            validator: function (value: string) {
                 if (!value) return false;
                 if (!value.match(/[A-Z]/g)) return false;
                 if (!value.match(/[a-z]/g)) return false;
@@ -68,51 +68,52 @@ export const UserSchema = new mongoose.Schema({
                 return true;
             },
         },
-        phoneNumber: {
-            type: String,
-            trim: true,
-            validate: {
-                validator: (value: string) => validator.isMobilePhone(value, undefined, {strictMode: true}),
-                message: '{VALUE} is not a valid phone number'
-            }
-        },
-        secret: {
-            type: String,
-            trim: true,
-            validate: {
-                validator: (value: string) => value.length == 32,
-                message: '{VALUE} is not a valid secret'
-            }
-        },
-        twoFactorApp: {
-            type: Boolean,
-            required: true
-        },
-        twoFactorSms: {
-            type: Boolean,
-            required: true
-        },
-        twoFactorEmail: {
-            type: Boolean,
-            required: true
-        },
-        role: {
-            type: String,
-            enum: Object.values(Role),
-            default: Role.COLLABORATOR
-        },
-        tags: {
-            type: [Tag.schema]
-        },
-        updated_at: {
-            type: Date,
-            default: new Date().getTime()
-        },
-        created_at: {
-            type: Date,
-            default: new Date().getTime()
+    },
+    phoneNumber: {
+        type: String,
+        trim: true,
+        validate: {
+            validator: (value: string) => validator.isMobilePhone(value, undefined, { strictMode: true }),
+            message: '{VALUE} is not a valid phone number'
         }
     },
+    secret: {
+        type: String,
+        trim: true,
+        validate: {
+            validator: (value: string) => value.length == 32,
+            message: '{VALUE} is not a valid secret'
+        }
+    },
+    twoFactorApp: {
+        type: Boolean,
+        required: true
+    },
+    twoFactorSms: {
+        type: Boolean,
+        required: true
+    },
+    twoFactorEmail: {
+        type: Boolean,
+        required: true
+    },
+    role: {
+        type: String,
+        enum: Object.values(Role),
+        default: Role.COLLABORATOR
+    },
+    tags: {
+        type: [Tag.schema]
+    },
+    updated_at: {
+        type: Date,
+        default: new Date().getTime()
+    },
+    created_at: {
+        type: Date,
+        default: new Date().getTime()
+    }
+},
     {
         collection: 'User',
     });

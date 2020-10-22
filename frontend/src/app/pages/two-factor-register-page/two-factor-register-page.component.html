@@ -38,7 +38,7 @@
         </mat-card-content>
 
         <div id="button-container">
-          <button [routerLink]="['/files']" [disabled]="(!this.twoFactorApp && !this.twoFactorSms && !this.twoFactorEmail)" mat-raised-button color="primary">Go to the app</button>
+          <a [routerLink]="['/files']" [disabled]="(!this.twoFactorApp && !this.twoFactorSms && !this.twoFactorEmail)" mat-raised-button color="primary">Go to the app</a>
         </div>
       </mat-card>
   </div>
