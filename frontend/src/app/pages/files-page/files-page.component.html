@@ -5,7 +5,7 @@
         </app-files-main-toolbar>
 
         <div *ngIf="!searchMode" class="app-files-breadcrumb-container">
-            <app-files-breadcrumb [(currentDirectory)]="currentDirectory"></app-files-breadcrumb>
+            <app-files-breadcrumb [currentDirectory]="currentDirectory"></app-files-breadcrumb>
         </div>
 
         <div *ngIf="searchMode" class="app-files-filter-dialog-container">
@@ -35,7 +35,7 @@
             </app-files-main-toolbar>
 
             <div *ngIf="!searchMode" class="app-files-breadcrumb-container">
-                <app-files-breadcrumb [(currentDirectory)]="currentDirectory"></app-files-breadcrumb>
+                <app-files-breadcrumb [currentDirectory]="currentDirectory"></app-files-breadcrumb>
             </div>
 
             <div *ngIf="searchMode" class="app-files-filter-dialog-container">

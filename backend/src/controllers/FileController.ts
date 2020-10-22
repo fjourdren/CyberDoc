@@ -53,12 +53,11 @@ class FileController {
             const currentUser = FileController._requireAuthenticatedUser(res);
             const userCache = new Map<string, IUser>();
             const bodySearch: Record<string, unknown> = req.body;
-            let results: IFile[] = await FileService.search(currentUser, bodySearch);
+            let results: any[] = await FileService.search(currentUser, bodySearch);
 
             let files: IFile[] = await FileService.search(res.locals.APP_JWT_TOKEN.user, bodySearch);
             files = files.filter(item => item._id !== currentUser.directory_id);
 
-            let results = [];
             for (const file of files) {
                 let ownerName = "Unknown";
                 if (file.owner_id === currentUser._id) {
@@ -154,7 +153,7 @@ class FileController {
                             "updated_at": fileInDir.updated_at,
                             "created_at": fileInDir.created_at,
                             "tags": fileInDir.tags,
-                            "shareMode": fileInDir.shareMode
+                            "shareMode": fileInDir.shareMode,
                             "preview": fileInDir.preview
                         });
                     } else { // if it's a directory
@@ -179,7 +178,7 @@ class FileController {
                     success: true,
                     msg: "File informations loaded",
                     content: {
-                        "id": file._id,
+                        "_id": file._id,
                         "ownerName": fileOwner.firstname + " " + fileOwner.lastname,
                         "name": file.name,
                         "mimetype": "application/x-dir",
@@ -198,7 +197,7 @@ class FileController {
                     success: true,
                     msg: "File informations loaded",
                     content: {
-                        "id": file._id,
+                        "_id": file._id,
                         "ownerName": fileOwner.firstname + " " + fileOwner.lastname,
                         "name": file.name,
                         "mimetype": file.mimetype,
@@ -420,9 +419,12 @@ class FileController {
                 });
             }
 
-            if (users.findIndex(item => item.email === currentUser.email) === -1){
-                throw new HTTPError(HttpCodes.NOT_FOUND, "File not found");
+            if (currentUser._id !== file.owner_id){
+                if (users.findIndex(item => item.email === currentUser.email) === -1){
+                    throw new HTTPError(HttpCodes.NOT_FOUND, "File not found");
+                }    
             }
+
 
             res.status(HttpCodes.OK);
             res.json({

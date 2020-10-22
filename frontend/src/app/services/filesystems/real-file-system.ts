@@ -22,8 +22,8 @@ export class RealFileSystem implements FileSystem {
             this._baseUrl = "https://api.cyberdoc.fulgen.fr/v1";
         }
     }
+    
     share(fileID: string, email: String): Observable<void> {
-        
         return this.httpClient.post<any>(`${this._baseUrl}/files/${fileID}/sharing`, {
             "email": email
         }, {withCredentials: true}).pipe(map(response => {
@@ -33,7 +33,7 @@ export class RealFileSystem implements FileSystem {
 
     getShareWith(fileID: String): Observable<RespondShare[]>{
         return this.httpClient.get<any>(`${this._baseUrl}/files/${fileID}/sharing`, {withCredentials: true}).pipe(map(response => {    
-            return response.users as RespondShare[];
+            return response.shared_users as RespondShare[];
         }));
     }
 
