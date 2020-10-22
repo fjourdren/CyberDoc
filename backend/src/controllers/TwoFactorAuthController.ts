@@ -16,6 +16,11 @@ class TwoFactorAuthController {
             res.status(HttpCodes.OK);
             res.json(verificationInstance);
         } catch (err) {
+            res.status(HttpCodes.FORBIDDEN);
+            res.json({
+                success: false,
+                msg: err.message
+            });
             next(err);
         }
     }
@@ -28,6 +33,11 @@ class TwoFactorAuthController {
             res.status(HttpCodes.OK);
             res.json(verificationInstance);
         } catch (err) {
+            res.status(HttpCodes.FORBIDDEN);
+            res.json({
+                success: false,
+                msg: err.message
+            });
             next(err);
         }
     }
@@ -95,6 +105,11 @@ class TwoFactorAuthController {
             res.status(HttpCodes.OK);
             res.json(secretUriAndQr);
         } catch (err) {
+            res.status(HttpCodes.FORBIDDEN);
+            res.json({
+                success: false,
+                msg: err.message
+            });
             next(err);
         }
     }

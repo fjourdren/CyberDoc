@@ -86,6 +86,7 @@ import { TwoFactorPageComponent } from './pages/two-factor-page/two-factor-page.
 import { TwoFactorRegisterDialogComponent, TwoFactorRegisterPageComponent } from './pages/two-factor-register-page/two-factor-register-page.component';
 import { SettingsDeleteTagDialogComponent } from './components/settings/settings-delete-tag-dialog/settings-delete-tag-dialog.component';
 import { SettingsCreateEditTagDialogComponent } from './components/settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
+import {Ng2TelInputModule} from "ng2-tel-input";
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
@@ -172,48 +173,49 @@ if (environment.useSentry) {
     SettingsDeleteTagDialogComponent,
     SettingsCreateEditTagDialogComponent,
   ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient]
-      }
-    }),
-    FormsModule,
-    ReactiveFormsModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    MatSortModule,
-    MatTableModule,
-    MatIconModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatTreeModule,
-    MatSnackBarModule,
-    MatSidenavModule,
-    MatInputModule,
-    MatCardModule,
-    MatProgressBarModule,
-    MatListModule,
-    MatFormFieldModule,
-    MatMenuModule,
-    MatBottomSheetModule,
-    MatDialogModule,
-    MatSlideToggleModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatAutocompleteModule,
-    MatSelectModule,
-    MatExpansionModule,
-    NgxFilesizeModule,
-    NgResizeObserverPonyfillModule,
-    LayoutModule,
-    MatRadioModule,
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
-  ],
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        TranslateModule.forRoot({
+            loader: {
+                provide: TranslateLoader,
+                useFactory: HttpLoaderFactory,
+                deps: [HttpClient]
+            }
+        }),
+        FormsModule,
+        ReactiveFormsModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        MatSortModule,
+        MatTableModule,
+        MatIconModule,
+        MatToolbarModule,
+        MatButtonModule,
+        MatTreeModule,
+        MatSnackBarModule,
+        MatSidenavModule,
+        MatInputModule,
+        MatCardModule,
+        MatProgressBarModule,
+        MatListModule,
+        MatFormFieldModule,
+        MatMenuModule,
+        MatBottomSheetModule,
+        MatDialogModule,
+        MatSlideToggleModule,
+        MatProgressSpinnerModule,
+        MatChipsModule,
+        MatAutocompleteModule,
+        MatSelectModule,
+        MatExpansionModule,
+        NgxFilesizeModule,
+        NgResizeObserverPonyfillModule,
+        LayoutModule,
+        MatRadioModule,
+        ServiceWorkerModule.register('ngsw-worker.js', {enabled: environment.production}),
+        Ng2TelInputModule
+    ],
   providers: [
     ...ERROR_HANDLER,
     CookieService,
