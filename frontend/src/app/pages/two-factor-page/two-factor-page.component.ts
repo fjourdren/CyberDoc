@@ -32,11 +32,9 @@ export class TwoFactorPageComponent implements OnInit {
         if (this.user.twoFactorApp) {
             this.twoFactorType = 'app';
         } else if (this.user.twoFactorSms) {
-            this.twoFactorType = 'sms';
-            this.twoFactorServiceProvider.default().sendTokenBySms(this.user.phoneNumber);
+            this.sendTokenBySms();
         } else if (this.user.twoFactorEmail) {
-            this.twoFactorType = 'email';
-            this.twoFactorServiceProvider.default().sendTokenByEmail(this.user.email);
+            this.sendTokenByEmail();
         }
 
         this.twoFactorForm = this.fb.group({
