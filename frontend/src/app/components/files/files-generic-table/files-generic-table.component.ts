@@ -24,7 +24,7 @@ import {FileSystemProvider} from 'src/app/services/filesystems/file-system-provi
 import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
 import { FilesShareMenuDialogComponent } from '../files-share-menu-dialog/files-share-menu-dialog.component';
 
-export type FileAction = 'open' | 'download' | 'export' | 'rename' | 'copy' | 'delete' | 'move' | 'details';
+export type FileAction = 'open' | 'download' | 'export' | 'rename' | 'copy' | 'delete' | 'move' | 'details' | 'share';
 
 @Component({
     selector: 'app-files-generic-table',
@@ -273,6 +273,10 @@ export class FilesGenericTableComponent implements AfterViewInit {
             }
             case 'copy': {
                 this.moveOrCopyNode(this.selectedNode, true);
+                break;
+            }
+            case 'share': {
+                this.shareNode(this.selectedNode);
                 break;
             }
         }
