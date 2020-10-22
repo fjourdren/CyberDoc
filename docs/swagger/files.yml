@@ -915,7 +915,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GenericErrorResponse"
-
     
   "/files/{fileId}/sharing/{email}":
     delete:
@@ -1052,6 +1051,7 @@ components:
         - ownerName
         - name
         - mimetype
+        - shareWith
         - size
         - updated_at
         - created_at
@@ -1076,6 +1076,17 @@ components:
           type: string
           description: File type
           example: application/pdf
+        shareType:
+          type: string
+          enum:
+            - readonly
+            - readwrite
+          description: Sharing type
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileTag"
+          description: File tag
         size:
           type: integer
           description: File size
@@ -1152,7 +1163,7 @@ components:
             oneOf:
               - $ref: "#/components/schemas/CloudFile"
               - $ref: "#/components/schemas/CloudDirectory"
-          
+              
     FileShareAccess:
       description: User who have a share access to a file
       type: object
@@ -1174,6 +1185,7 @@ components:
       required:
         - success
         - msg
+        - results
       properties:
         success:
           type: boolean

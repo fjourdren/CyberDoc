@@ -14,8 +14,8 @@ import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
 import { streamToBuffer } from '../helpers/Conversions';
 
-import IUser from "../models/User";
-import { IFile, File, FileType } from "../models/File";
+import {IUser, User} from "../models/User";
+import { IFile, File, FileType, ShareMode } from "../models/File";
 
 enum PreciseFileType {
     Folder = "Folder",
@@ -38,49 +38,56 @@ class FileService {
 
     /* === Basic permissions === */
     // check if user is file's owner
-    public static async isFileOwner(user_id: string, file_id: string): Promise<boolean> {
-        const file: IFile = requireNonNull(await File.findById(file_id).exec());
-        return (file.owner_id == user_id);
+    public static async isFileOwner(user: IUser | string, file: IFile | string): Promise<boolean> {
+        user = await this.resolveUserIfNeeded(user);
+        file = await this.resolveFileIfNeeded(file);
+        return user._id === file.owner_id;
     }
 
-    public static async requireIsFileOwner(user_id: string, file_id:string): Promise<void> {
-        if(!await FileService.isFileOwner(user_id, file_id))
-            throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't file owner");
+    public static async requireIsFileOwner(user: IUser | string, file: IFile | string): Promise<void> {
+        if (!await this.isFileOwner(user, file)) {
+            throw new HTTPError(HttpCodes.FORBIDDEN, "User isn't file owner");
+        }
     }
 
-
-
-    /* === Advanced permissions === */
-    /* check if user can view a file
-    - if user is owner
-    - TODO : if user has been put in share list
-    */
-    public static async fileCanBeViewed(user_id: string, file_id: string): Promise<boolean> {
-        return await this.isFileOwner(user_id, file_id);
+    public static async fileCanBeViewed(user: IUser | string, file: IFile | string): Promise<boolean> {
+        user = await this.resolveUserIfNeeded(user);
+        file = await this.resolveFileIfNeeded(file);
+        return file.owner_id === user._id || file.sharedWith.indexOf(user._id) !== -1;
     }
 
-    // thrower
-    public static requireFileCanBeViewed(user_id: string, file_id: string): void {
-        if(!FileService.fileCanBeViewed(user_id, file_id))
-            throw new HTTPError(HttpCodes.UNAUTHORIZED, "Unauthorized to read this file");
+    public static async requireFileCanBeViewed(user: IUser | string, file: IFile | string): Promise<void> {
+        if (!await this.fileCanBeViewed(user, file)) {
+            throw new HTTPError(HttpCodes.FORBIDDEN, "Unauthorized to read this file");
+        }
     }
 
-    /* check if user can modify a file
-    - if user is owner
-    - if user has been put in share list
-    */
-    public static async fileCanBeModified(user_id: string, file_id: string): Promise<boolean> {
-        return await this.fileCanBeViewed(user_id, file_id);
+    public static async fileCanBeModified(user: IUser | string, file: IFile | string): Promise<boolean> {
+        user = await this.resolveUserIfNeeded(user);
+        file = await this.resolveFileIfNeeded(file);
+        return file.owner_id === user._id || (file.shareMode === ShareMode.READWRITE && file.sharedWith.indexOf(user._id) !== -1);
+    }
+
+    public static async requireFileCanBeModified(user: IUser | string, file: IFile | string): Promise<void> {
+        if (!await this.fileCanBeModified(user, file)) {
+            throw new HTTPError(HttpCodes.FORBIDDEN, "Unauthorized to read this file");
+        }
     }
 
     // check if user can copy a file
-    public static async fileCanBeCopied(user_id: string, file_id: string): Promise<boolean> {
-        return await this.fileCanBeViewed(user_id, file_id);
+    public static async fileCanBeCopied(user: IUser | string, file: IFile | string): Promise<boolean> {
+        return await this.fileCanBeViewed(user, file);
+    }
+
+    public static async requireFileCanBeCopied(user: IUser | string, file: IFile | string): Promise<void> {
+        if (!await this.fileCanBeCopied(user, file)) {
+            throw new HTTPError(HttpCodes.FORBIDDEN, "Unauthorized to copy this file");
+        }
     }
 
     // check if an user can move a file
-    public static async fileCanBeMoved(user_id: string, file_id: string): Promise<boolean> {
-        return await this.isFileOwner(user_id, file_id);
+    public static async fileCanBeMoved(user: IUser | string, file: IFile | string): Promise<boolean> {
+        return await this.isFileOwner(user, file);
     }
 
 
@@ -151,6 +158,10 @@ class FileService {
         return await file.save();
     }
 
+    public static async getSharedFiles(user: IUser): Promise<IFile[]> {
+        return await File.find({ "sharedWith": user._id }).exec();
+    }
+    
     public static async search(user: IUser, searchBody: Record<string, unknown>): Promise<IFile[]> {
         const { name, startLastModifiedDate, endLastModifiedDate, tagIDs } = searchBody;
         const preciseFileType = searchBody.type as PreciseFileType;
@@ -399,6 +410,8 @@ class FileService {
         newFile.document_id    = objectId;   
         newFile.parent_file_id = destination_id;
         newFile.owner_id       = user._id;
+        newFile.shareMode = ShareMode.READONLY;
+        newFile.sharedWith = [];
 
         return await newFile.save(); // save the new file
     }
@@ -541,6 +554,21 @@ class FileService {
 
         return readableOutput;
     }
+
+    private static async resolveUserIfNeeded(user: IUser | string) {
+        if (typeof user === "string") {
+            return requireNonNull(await User.findById(user), 404, "User not found");
+        }
+        return user;
+    }
+
+    private static async resolveFileIfNeeded(file: IFile | string) {
+        if (typeof file === "string") {
+            file = requireNonNull(await File.findById(file), 404, "File not found");
+        }
+        return file;
+    }
+
 
 }
 
