@@ -157,7 +157,6 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
 
     onSubmitPhoneNumber(): void {
         this.loading = true;
-        this.phoneNumber = this.phoneNumberForm.get("phoneNumber").value;
         this.twoFactorServiceProvider.default().sendTokenBySms(this.phoneNumber).toPromise().then(() => {
             this.loading = false;
             this.data.phoneNumber = this.phoneNumber;
