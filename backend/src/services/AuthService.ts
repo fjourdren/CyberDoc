@@ -78,7 +78,7 @@ class AuthService {
             expiresIn: 36000 // 10 hours
         });
 
-        const url: string = process.env.APP_FRONTEND_URL + "/forgottenpassword?token=" + token;
+        const url: string = process.env.APP_FRONTEND_URL + "/passwordReset?token=" + token;
 
         //await Mailer.sendTextEmail(email, process.env.SENDGRID_MAIL_FROM, "hello", "hello", "hello");
         await Mailer.sendTemplateEmail(email, process.env.SENDGRID_MAIL_FROM, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, {url: url});
