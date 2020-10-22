@@ -119,6 +119,14 @@
         "ro": "Read only",
         "back_to_app": "Back to the application",
         "share_error": "User does not exist",
-        "share_error_already_logged": "You cannot share a file with yourself"
+        "share_error_already_logged": "You cannot share a file with yourself",
+        "password_recovery": "Forgot your password ?",
+        "password_recovery_mail": "Please indicate your account email so that we can send you a link to recover your password :", 
+        "back_login": "Going back to login",
+        "confirm_recover": "Send email",
+        "email_sended": "If an account exist with this adress, it will receive shortly a mail with all indication on how to recover your password.",
+        "reset_password": "Enter your new password",
+        "reset_password_confirm": "Reset password",
+        "password_resetted": "Your password has been reset, you can now go back to the login page."
     }
 }
