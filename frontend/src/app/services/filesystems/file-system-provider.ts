@@ -5,7 +5,7 @@ import { MockFileSystem } from 'src/app/services/filesystems/mock-file-system'
 import { FilesUtilsService } from '../files-utils/files-utils.service';
 import { UserServiceProvider } from '../users/user-service-provider';
 import { RealFileSystem } from './real-file-system';
-import { environment } from '../../../environments/environment.mock';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
@@ -27,6 +27,7 @@ export class FileSystemProvider {
     }
 
     private _createInstance(providerName: string){
+        console.log(providerName);
         switch (providerName){
             case "mock":
                 return new MockFileSystem(this.fileUtils, this.userServiceProvider);

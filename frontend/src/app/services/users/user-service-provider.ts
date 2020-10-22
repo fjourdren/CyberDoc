@@ -4,7 +4,7 @@ import { MockUserService } from './mock-user-service';
 import { RealUserService } from './real-user-service';
 import { UserService } from './user-service';
 import { CookieService } from 'ngx-cookie-service';
-import { environment } from '../../../environments/environment.mock';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
@@ -26,6 +26,7 @@ export class UserServiceProvider {
     }
 
     private _createInstance(providerName: string){
+        console.log(providerName);
         switch (providerName){
             case "mock":
                 return new MockUserService();
