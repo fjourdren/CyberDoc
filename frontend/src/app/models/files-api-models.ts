@@ -14,28 +14,36 @@ export type PathItem = {
 export type CloudNode = CloudFile | CloudDirectory;
 
 export class CloudFile {
-  public id: string;
+  public _id: string;
   public ownerName: string;
   public name: string;
   public mimetype: Exclude<string, "application/x-dir">;
   public size: number;
   public updated_at: Date;
   public tags: FileTag[];
+  public preview: boolean;
   isDirectory: false;
+  public shareMode: "readonly" | "readwrite";
 }
 
 export class CloudDirectory {
-  public id: string;
+  public _id: string;
   public ownerName: string;
   public name: string;
   public mimetype: "application/x-dir";
   public path: PathItem[];
   public directoryContent: CloudNode[];
   public tags: FileTag[];
+  public preview: false;
   isDirectory: true;
 }
 
-export const NO_TYPE_FILTER = "any";
+export interface RespondShare {
+  name: string;
+  email: string;
+}
+
+export const NO_TYPE_FILTER = FileType.Unknown;
 export const NO_DATEDIFF_DEFAULT = -1;
 export const VALID_DATEDIFF_VALUES = [-1, 0, 1, 7, 30, 60, 90, 365];
 export const NO_NAME_FILTER = "";
@@ -49,7 +57,7 @@ export const EMPTY_SEARCH_PARAMS: SearchParams = {
 
 export interface SearchParams {
   name: string;
-  type: string;
+  type: FileType;
   dateDiff: number;
   tagIDs: string[];
 }

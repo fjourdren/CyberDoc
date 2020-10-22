@@ -82,4 +82,12 @@ export class FilesDetailsPanelComponent {
             maxWidth: '400px'
         });
     }
+
+  onPreviewToogleChange(evt: MatSlideToggleChange){
+    this.loading = true;
+    this.fsProvider.default().setPreviewEnabled(this.node as CloudFile, evt.checked).toPromise().then(()=>{
+      this.loading = false;
+    });
+  }
+
 }

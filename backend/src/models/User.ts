@@ -21,48 +21,51 @@ export enum Role {
  * Building typescript & Mongoose data archs
  */
 export const UserSchema = new mongoose.Schema({
-        _id: {
-            type: String,
-            unique: true,
-            uniqueCaseInsensitive: true,
-            default: () => Guid.raw()
-        },
-        directory_id: {
-            type: String,
-            required: true,
-        },
-        firstname: {
-            type: String,
-            required: true,
-            uniqueCaseInsensitive: true,
-            trim: true
-        },
-        lastname: {
-            type: String,
-            required: true,
-            uniqueCaseInsensitive: true,
-            trim: true
-        },
-        email: {
-            type: String,
-            required: true,
-            unique: true,
-            uniqueCaseInsensitive: true,
-            trim: true,
-            minlength: 5,
-            validate: {
-                validator: (value: string) => validator.isEmail(value),
-                message: '{VALUE} is not a valid email'
-            }
-        },
-        password: {
-            type: String,
-            required: true,
-            validate: {
-                validator: function (value: string) {
-                    return (/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$._\-!%*?&])[A-Za-z\d$@$!%*?&].{8,}/.test(value));
-                },
-                message: () => `Password doesn't respect the required format`
+    _id: {
+        type: String,
+        unique: true,
+        uniqueCaseInsensitive: true,
+        default: () => Guid.raw()
+    },
+    directory_id: {
+        type: String,
+        required: true,
+    },
+    firstname: {
+        type: String,
+        required: true,
+        uniqueCaseInsensitive: true,
+        trim: true
+    },
+    lastname: {
+        type: String,
+        required: true,
+        uniqueCaseInsensitive: true,
+        trim: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        uniqueCaseInsensitive: true,
+        trim: true,
+        minlength: 5,
+        validate: {
+            validator: (value: string) => validator.isEmail(value),
+            message: '{VALUE} is not a valid email'
+        }
+    },
+    password: {
+        type: String,
+        required: true,
+        validate: {
+            validator: function(value: string) {
+                if (!value) return false;
+                if (!value.match(/[A-Z]/g)) return false;
+                if (!value.match(/[a-z]/g)) return false;
+                if (!value.match(/[0-9]/g)) return false;
+                if (!value.replace(/[0-9a-zA-Z ]/g, "").length) return false;
+                return true;
             },
         },
         phoneNumber: {

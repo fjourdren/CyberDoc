@@ -48,7 +48,7 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr (contextmenu)="onContextMenu($event, row)" class="example-box" mat-row
         *matRowDef="let row; columns: displayedColumns;"
-        [ngClass]="{'disabled': restrictions.isDisabled(row), 'selected': !isTouchScreen && selectedNode && selectedNode.id === row.id}">
+        [ngClass]="{'disabled': restrictions.isDisabled(row), 'selected': !isTouchScreen && selectedNode && selectedNode._id === row._id}">
     </tr>
 
 </table>
@@ -92,6 +92,10 @@
         <button *ngIf="!isReadOnly(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('delete')">
             <mat-icon fontSet="fa" fontIcon="fa-trash"></mat-icon>
             <span>{{ 'fileaction.delete' | translate }}</span>
+        </button>
+        <button *ngIf="!isReadOnly(selectedNode) && !selectedNode.isDirectory" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('share')">
+            <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>
+            <span>{{ 'fileaction.share' | translate }}</span>
         </button>
     </ng-template>
 </mat-menu>

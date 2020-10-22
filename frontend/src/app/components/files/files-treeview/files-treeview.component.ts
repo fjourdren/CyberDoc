@@ -13,22 +13,39 @@ import {FilesTreeviewNode} from './files-treeview-node';
 })
 export class FilesTreeviewComponent {
 
-    private readonly _loading: boolean = false;
-    private _currentDirectoryID: string;
+  private _loading = false;
+  private _currentDirectoryID: string;
 
-    constructor(
-        private fsProvider: FileSystemProvider,
-        private userServiceProvider: UserServiceProvider
-    ) {
-        this.treeControl = new FlatTreeControl<FilesTreeviewNode>(this.getLevel, this.isExpandable);
-        this.dataSource = new FilesTreeviewDataSource(this.treeControl, fsProvider);
-        this._loading = true;
-        fsProvider.default().get(this.userServiceProvider.default().getActiveUser().directory_id).toPromise().then(root => {
-            if (root.isDirectory) {
-                this.dataSource.data = [new FilesTreeviewNode(root, 0, [], true, true)];
-            }
-        });
-        this._loading = false;
+  constructor(
+    private fsProvider: FileSystemProvider,
+    private userServiceProvider: UserServiceProvider
+  ) {
+    this.treeControl = new FlatTreeControl<FilesTreeviewNode>(this.getLevel, this.isExpandable);
+    this.dataSource = new FilesTreeviewDataSource(this.treeControl, fsProvider);
+    this._loading = true;
+    fsProvider.default().get(userServiceProvider.default().getActiveUser().directory_id).toPromise().then(root => {
+      if (root.isDirectory) {
+        this.dataSource.data = [new FilesTreeviewNode(root, 0, [], true, true)];
+      }
+    });
+    this._loading = false;
+  }
+
+  get loading() {
+    return this._loading || this.dataSource.loading;
+  }
+
+  get currentDirectoryID() {
+    return this._currentDirectoryID;
+  }
+
+  @Input()
+  set currentDirectoryID(val: string) {
+    this._currentDirectoryID = val;
+    if (this.treeControl.dataNodes) {
+      for (const node of this.treeControl.dataNodes) {
+        node.selected = node.directory._id === val;
+      }
     }
 
     get loading(): boolean {

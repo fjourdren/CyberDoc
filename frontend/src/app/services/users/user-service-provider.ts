@@ -26,6 +26,7 @@ export class UserServiceProvider {
     }
 
     private _createInstance(providerName: string){
+        console.log(providerName);
         switch (providerName){
             case 'mock':
                 return new MockUserService();
