@@ -73,7 +73,7 @@ export class ResetPasswordPageComponent {
             this.baseUrl = 'http://localhost:3000/v1';
             this.cookieDomain = 'localhost';
         } else {
-            this.baseUrl = 'http://api.cyberdoc.fulgen.fr/v1';
+            this.baseUrl = 'https://api.cyberdoc.fulgen.fr/v1';
             this.cookieDomain = 'cyberdoc.fulgen.fr';
         }
     }
@@ -92,6 +92,7 @@ export class ResetPasswordPageComponent {
         this.userServiceProvider.default().resetPassword(this.email, this.resetForm.controls.password.value).toPromise().then(value => {
             this.loading = false;
             this.reset = true;
+            this.cookieService.delete(JWT_COOKIE_NAME);
         }, error => {
             this.loading = false;
             this.resetForm.enable();
