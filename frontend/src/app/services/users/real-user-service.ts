@@ -228,6 +228,8 @@ export class RealUserService implements UserService {
 
     private _setUser(user: User) {
         localStorage.setItem('real_user', JSON.stringify(user));
-        this._userUpdated$.emit(user);
+        if (user){
+            this._userUpdated$.emit(user);
+        }
     }
 }
