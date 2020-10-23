@@ -16,7 +16,7 @@ export interface UserService {
     updateProfile(firstName: string, lastName: string, newEmail: string, oldEmail: string): Observable<void>;
   
     recoverPassword(email: string): Observable<void>;
-    resetPassword(token: string, newPassword: string): Observable<void>;
+    resetPassword(resetPasswordJWTToken: string, email: string, password): Observable<void>;
     searchExistingUser(email: string): Observable<User>;
 
     updatePassword(oldPassword: string, newPassword: string, email: string): Observable<void>;
