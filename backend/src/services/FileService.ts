@@ -538,6 +538,9 @@ class FileService {
         };
 
         // generate image
+        console.warn("tempInputFile = ", path.resolve(tempInputFile));
+        console.warn("tempOutputImage = ", path.resolve(tempOutputImage));
+
         filepreview.generateSync(tempInputFile, tempOutputImage, options);
 
         // resize
