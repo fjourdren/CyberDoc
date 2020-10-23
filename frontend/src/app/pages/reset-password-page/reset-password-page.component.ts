@@ -4,8 +4,6 @@ import {UserServiceProvider} from '../../services/users/user-service-provider'
 import {MustMatch} from 'src/app/components/settings/settings-security/_helpers/must-match.validator';
 import {ActivatedRoute, Router} from '@angular/router';
 import {JwtHelperService} from "@auth0/angular-jwt";
-import {HttpClient} from "@angular/common/http";
-import {CookieService} from "ngx-cookie-service";
 
 function passwordValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
@@ -20,8 +18,6 @@ function passwordValidator(): ValidatorFn {
         return null;
     };
 }
-
-const JWT_COOKIE_NAME = 'access_token'
 
 @Component({
     selector: 'app-reset-password-page',
@@ -56,26 +52,11 @@ export class ResetPasswordPageComponent {
     constructor(private fb: FormBuilder,
                 private userServiceProvider: UserServiceProvider,
                 private router: Router,
-                private route: ActivatedRoute,
-                private cookieService: CookieService) {
+                private route: ActivatedRoute) {
         this.route.queryParams.subscribe(params => {
             this.token = params['token'];
-            this.cookieService.set(
-                JWT_COOKIE_NAME,
-                this.token,
-                this.jwtHelper.getTokenExpirationDate(this.token),
-                '/',
-                this.cookieDomain);
-
             this.email = this.jwtHelper.decodeToken(this.token).email;
         });
-        if (location.toString().indexOf('localhost') > -1) {
-            this.baseUrl = 'http://localhost:3000/v1';
-            this.cookieDomain = 'localhost';
-        } else {
-            this.baseUrl = 'https://api.cyberdoc.fulgen.fr/v1';
-            this.cookieDomain = 'cyberdoc.fulgen.fr';
-        }
     }
 
     onSubmit() {
@@ -89,10 +70,9 @@ export class ResetPasswordPageComponent {
         this.resetForm.disable();
         this.genericError = false;
 
-        this.userServiceProvider.default().resetPassword(this.email, this.resetForm.controls.password.value).toPromise().then(value => {
+        this.userServiceProvider.default().resetPassword(this.token, this.email, this.resetForm.controls.password.value).toPromise().then(value => {
             this.loading = false;
             this.reset = true;
-            this.cookieService.delete(JWT_COOKIE_NAME);
         }, error => {
             this.loading = false;
             this.resetForm.enable();

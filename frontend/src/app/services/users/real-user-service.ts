@@ -1,4 +1,4 @@
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {EventEmitter} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {map} from 'rxjs/operators';
@@ -190,12 +190,17 @@ export class RealUserService implements UserService {
         }));
     }
 
-    resetPassword(email: string, newPassword: string): Observable<void>{
+    resetPassword(resetPasswordJWTToken: string, email: string, password: any): Observable<void> {
+        console.warn("Authorization",  `Bearer ${resetPasswordJWTToken}`);
         return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
-            "password": newPassword,
-            email
-        }, {withCredentials: true}).pipe(map(response => {
-        }));
+            "email": email,
+            "password": password
+        }, {
+            headers: {
+                "Authorization":  `Bearer ${resetPasswordJWTToken}`,
+            },
+            withCredentials: true
+        }).pipe(map(response => {}));
     }
 
     searchExistingUser(email: string): Observable<User>{
