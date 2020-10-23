@@ -541,7 +541,9 @@ class FileService {
         console.warn("tempInputFile = ", path.resolve(tempInputFile));
         console.warn("tempOutputImage = ", path.resolve(tempOutputImage));
 
+        console.warn("before generateSync");
         filepreview.generateSync(tempInputFile, tempOutputImage, options);
+        console.warn("after generateSync");
 
         // resize
         const contentOutputFile: Buffer = await sharp(tempOutputImage).resize({ width: 200 }).extract({ left: 0, top: 0, width: 200, height: 130 }).png().toBuffer();
