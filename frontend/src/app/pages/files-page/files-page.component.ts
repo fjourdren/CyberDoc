@@ -94,6 +94,7 @@ export class FilesPageComponent implements AfterViewInit {
     if (this.searchMode) {
       promise = this.fsProvider.default().search(this.routeSearchParams).toPromise();
     } else {
+      if (!directoryID && !this.currentDirectory) return; //FIXME
       const id = directoryID || this.currentDirectory._id || this.userServiceProvider.default().getActiveUser().directory_id;
       promise = this.fsProvider.default().get(id).toPromise();
     }
