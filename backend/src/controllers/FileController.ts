@@ -53,9 +53,7 @@ class FileController {
             const currentUser = FileController._requireAuthenticatedUser(res);
             const userCache = new Map<string, IUser>();
             const bodySearch: Record<string, unknown> = req.body;
-            let results: any[] = await FileService.search(currentUser, bodySearch);
-
-            let files: IFile[] = await FileService.search(res.locals.APP_JWT_TOKEN.user, bodySearch);
+            let files: any[] = await FileService.search(res.locals.APP_JWT_TOKEN.user, bodySearch);
             files = files.filter(item => item._id !== currentUser.directory_id);
 
             for (const file of files) {
@@ -71,7 +69,7 @@ class FileController {
                 }
 
                 if (file.type == FileType.DOCUMENT) {
-                    results.push({
+                    files.push({
                         "_id": file._id,
                         "name": file.name,
                         "ownerName": ownerName,
@@ -83,7 +81,7 @@ class FileController {
                         "preview": file.preview
                     });
                 } else { // if it's a directory
-                    results.push({
+                    files.push({
                         "_id": file._id,
                         "name": file.name,
                         "ownerName": ownerName,
@@ -100,7 +98,7 @@ class FileController {
             res.json({
                 success: true,
                 msg: "Done",
-                results: results
+                results: files
             });
         } catch (err) {
             next(err);
