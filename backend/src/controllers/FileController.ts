@@ -56,6 +56,8 @@ class FileController {
             let files: any[] = await FileService.search(res.locals.APP_JWT_TOKEN.user, bodySearch);
             files = files.filter(item => item._id !== currentUser.directory_id);
 
+            const results = [];
+
             for (const file of files) {
                 let ownerName = "Unknown";
                 if (file.owner_id === currentUser._id) {
@@ -69,7 +71,7 @@ class FileController {
                 }
 
                 if (file.type == FileType.DOCUMENT) {
-                    files.push({
+                    results.push({
                         "_id": file._id,
                         "name": file.name,
                         "ownerName": ownerName,
@@ -81,7 +83,7 @@ class FileController {
                         "preview": file.preview
                     });
                 } else { // if it's a directory
-                    files.push({
+                    results.push({
                         "_id": file._id,
                         "name": file.name,
                         "ownerName": ownerName,
@@ -98,7 +100,7 @@ class FileController {
             res.json({
                 success: true,
                 msg: "Done",
-                results: files
+                results: results
             });
         } catch (err) {
             next(err);
