@@ -5,7 +5,6 @@ import { FileSystemProvider } from 'src/app/services/filesystems/file-system-pro
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { FilesTreeviewDataSource } from './files-treeview-datasource';
 import { FilesTreeviewNode } from './files-treeview-node';
-import {Role} from "../../../../../../backend/src/models/User";
 
 @Component({
   selector: 'app-files-treeview',
@@ -25,7 +24,7 @@ export class FilesTreeviewComponent {
     this.dataSource = new FilesTreeviewDataSource(this.treeControl, fsProvider);
     this._loading = true;
     let nodes: FilesTreeviewNode[] = [];
-    if(userServiceProvider.default().getActiveUser().role === Role.OWNER) {
+    if(userServiceProvider.default().getActiveUser().role === "owner") {
       fsProvider.default().get(userServiceProvider.default().getActiveUser().directory_id).toPromise().then(root => {
         if (root.isDirectory) {
           nodes.push(new FilesTreeviewNode(root, 0, [], true, true));

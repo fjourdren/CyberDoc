@@ -6,7 +6,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CloudDirectory, CloudNode, isValidSearchParams, SearchParams } from 'src/app/models/files-api-models';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
-import {Role} from "../../../../../backend/src/models/User";
 
 @Component({
   selector: 'app-files-page',
@@ -62,12 +61,12 @@ export class FilesPageComponent implements AfterViewInit {
                 if (isValidSearchParams(this.routeSearchParams, this.userServiceProvider.default().getActiveUser().tags.map(tag => tag._id))) {
                   this.refresh();
                 } else{
-                  this.router.navigate(['/files', (this.userServiceProvider.default().getActiveUser().role === Role.OWNER ?
+                  this.router.navigate(['/files', (this.userServiceProvider.default().getActiveUser().role === "owner" ?
                       this.userServiceProvider.default().getActiveUser().directory_id : // if Owner, display his safe
                       this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId)]); // if Collaborator, display shared files]);
                 }
               } else {
-                this.router.navigate(['/files', (this.userServiceProvider.default().getActiveUser().role === Role.OWNER ?
+                this.router.navigate(['/files', (this.userServiceProvider.default().getActiveUser().role === "owner" ?
                     this.userServiceProvider.default().getActiveUser().directory_id : // if Owner, display his safe
                     this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId)]); // if Collaborator, display shared files]);
               }
@@ -82,7 +81,7 @@ export class FilesPageComponent implements AfterViewInit {
                 this.refresh(paramMap.get("dirID"));
               } else {
                 this.router.navigate(['/files',
-                  this.userServiceProvider.default().getActiveUser().role === Role.OWNER ?
+                  this.userServiceProvider.default().getActiveUser().role === "owner" ?
                     this.userServiceProvider.default().getActiveUser().directory_id : // if Owner, display his safe
                     this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId]); // if Collaborator, display shared files
               }
@@ -104,7 +103,7 @@ export class FilesPageComponent implements AfterViewInit {
     } else {
       if (!directoryID && !this.currentDirectory) return; //FIXME
       const id = directoryID || this.currentDirectory._id ||
-          (this.userServiceProvider.default().getActiveUser().role === Role.OWNER ?
+          (this.userServiceProvider.default().getActiveUser().role === "owner" ?
           this.userServiceProvider.default().getActiveUser().directory_id : // if Owner, display his safe
           this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId) // if Collaborator, display shared files
       promise = this.fsProvider.default().get(id).toPromise();
@@ -124,7 +123,7 @@ export class FilesPageComponent implements AfterViewInit {
           }
         }
       } else {
-        this.router.navigate(['/files', (this.userServiceProvider.default().getActiveUser().role === Role.OWNER ?
+        this.router.navigate(['/files', (this.userServiceProvider.default().getActiveUser().role === "owner" ?
             this.userServiceProvider.default().getActiveUser().directory_id : // if Owner, display his safe
             this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId)]); // if Collaborator, display shared files]);
       }
