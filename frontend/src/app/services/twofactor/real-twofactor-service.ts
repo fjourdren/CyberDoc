@@ -17,7 +17,7 @@ export class RealTwoFactorService implements TwoFactorService {
             this.baseUrl = 'http://localhost:3000/v1';
             this.cookieDomain = 'localhost';
         } else {
-            this.baseUrl = 'https://api.cyberdoc.fulgen.fr/v1';
+            this.baseUrl = 'http://api.cyberdoc.fulgen.fr/v1';
             this.cookieDomain = 'cyberdoc.fulgen.fr';
         }
     }
