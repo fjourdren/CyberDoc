@@ -63,6 +63,9 @@
             <app-files-details-panel [loading]="loading"
                 [node]="selectedNode || (currentDirectory && currentDirectory.path.length === 0 ? null : currentDirectory)">
             </app-files-details-panel>
+            <app-files-details-panel [loading]="loading"
+                 [node]="selectedNode || (currentDirectory && currentDirectory.path.length === 0 ? null : currentDirectory)">
+            </app-files-details-panel>
         </mat-drawer>
 
         <app-files-upload-progress-snackbar></app-files-upload-progress-snackbar>
