@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CloudDirectory } from 'src/app/models/files-api-models';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { FilesNewFolderDialogComponent } from '../files-new-folder-dialog/files-new-folder-dialog.component';
+import {UserServiceProvider} from "../../../services/users/user-service-provider";
 
 @Component({
   selector: 'app-files-upload',
@@ -21,6 +22,7 @@ export class FilesUploadComponent implements AfterViewInit {
 
   constructor(
     private fsProvider: FileSystemProvider,
+    private userServiceProvider: UserServiceProvider,
     private dialog: MatDialog
   ) {
     fsProvider.default().getCurrentFileUpload().subscribe(val => {
@@ -30,7 +32,7 @@ export class FilesUploadComponent implements AfterViewInit {
 
   @HostListener('document:dragover', ['$event'])
   onDragOver(evt: DragEvent) {
-    if (this.currentlyUploading) return;
+    if (this.currentlyUploading || this.currentDirectory._id === this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId) return;
 
     evt.preventDefault();
     evt.stopPropagation();
@@ -41,7 +43,7 @@ export class FilesUploadComponent implements AfterViewInit {
 
   @HostListener('document:drop', ['$event'])
   onDrop(evt: DragEvent) {
-    if (this.currentlyUploading) return;
+    if (this.currentlyUploading || this.currentDirectory._id === this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId) return;
 
     evt.preventDefault();
     evt.stopPropagation();

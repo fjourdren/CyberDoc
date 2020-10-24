@@ -16,5 +16,6 @@ export class User {
     public created_at: string;
     public role: string;
     public directory_id: string;
+    public sharedFilesDirectoryId: string;
     public tags: FileTag[];
 }

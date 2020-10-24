@@ -22,7 +22,7 @@ import {
 import {FilesRenameDialogComponent} from '../files-rename-dialog/files-rename-dialog.component';
 import {FileSystemProvider} from 'src/app/services/filesystems/file-system-provider';
 import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
-import { FilesShareMenuDialogComponent } from '../files-share-menu-dialog/files-share-menu-dialog.component';
+import {FilesShareMenuDialogComponent} from '../files-share-menu-dialog/files-share-menu-dialog.component';
 
 export type FileAction = 'open' | 'download' | 'export' | 'rename' | 'copy' | 'delete' | 'move' | 'details' | 'share';
 
@@ -38,22 +38,31 @@ export class FilesGenericTableComponent implements AfterViewInit {
     in
     window;
     unselectAfterContextMenuOrBottomSheet = false;
-    private _touchStartEventTrigerred = false;
-
     displayedColumns = ['icon', 'name', 'type', 'size', 'date', 'menubutton'];
     dataSource = new MatTableDataSource([]);
     contextMenuPosition = {x: '0px', y: '0px'};
     @ViewChild(MatSort) sort: MatSort;
     @ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
-
     @Input() currentDirectoryID: string | null;
     @Input() showDetailsButton: boolean;
     @Output() selectedNodeChange = new EventEmitter<CloudNode>();
     @Output() openButtonClicked = new EventEmitter<CloudNode>();
     @Output() detailsButtonClicked = new EventEmitter<CloudNode>();
+    private _touchStartEventTrigerred = false;
+
+    constructor(
+        private bottomSheet: MatBottomSheet,
+        private dialog: MatDialog,
+        private ngZone: NgZone,
+        private filesUtils: FilesUtilsService,
+        private resize: NgResizeObserver,
+        private fsProvider: FileSystemProvider,
+        private userServiceProvider: UserServiceProvider
+    ) {
+        resize.pipe(map(entry => entry.contentRect.width)).subscribe(this.onTableWidthChanged.bind(this));
+    }
 
     private _selectedNode: CloudNode | null;
-    private _restrictions: FilesTableRestrictions = NO_RESTRICTIONS;
 
     get selectedNode(): CloudNode {
         return this._selectedNode;
@@ -67,18 +76,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
         this._selectedNode = val;
     }
 
-    get items(): CloudNode[] {
-        return this.dataSource.data;
-    }
-
-    @Input()
-    set items(val: CloudNode[]) {
-        if (!val) {
-            this.dataSource.data = [];
-        } else {
-            this.dataSource.data = val;
-        }
-    }
+    private _restrictions: FilesTableRestrictions = NO_RESTRICTIONS;
 
     get restrictions(): FilesTableRestrictions {
         return this._restrictions;
@@ -93,16 +91,17 @@ export class FilesGenericTableComponent implements AfterViewInit {
         }
     }
 
-    constructor(
-        private bottomSheet: MatBottomSheet,
-        private dialog: MatDialog,
-        private ngZone: NgZone,
-        private filesUtils: FilesUtilsService,
-        private resize: NgResizeObserver,
-        private fsProvider: FileSystemProvider,
-        private userServiceProvider: UserServiceProvider
-    ) {
-        resize.pipe(map(entry => entry.contentRect.width)).subscribe(this.onTableWidthChanged.bind(this));
+    get items(): CloudNode[] {
+        return this.dataSource.data;
+    }
+
+    @Input()
+    set items(val: CloudNode[]) {
+        if (!val) {
+            this.dataSource.data = [];
+        } else {
+            this.dataSource.data = val;
+        }
     }
 
     ngAfterViewInit(): void {
@@ -164,7 +163,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
         this.unselectAfterContextMenuOrBottomSheet = true;
         this.contextMenu.openMenu();
     }
-  
+
     openBottomSheet(node: CloudNode): void {
         if (this._restrictions.isContextAndBottomSheetDisabled(node)) {
             return;
@@ -322,11 +321,11 @@ export class FilesGenericTableComponent implements AfterViewInit {
         anchor.remove();
     }
 
-shareNode(node: CloudNode) {
-    this.dialog.open(FilesShareMenuDialogComponent, {
-      maxWidth: "800px",
-      data: node
-    });
-  }
+    shareNode(node: CloudNode) {
+        this.dialog.open(FilesShareMenuDialogComponent, {
+            maxWidth: "800px",
+            data: node
+        });
+    }
 
 }

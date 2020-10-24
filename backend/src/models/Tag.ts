@@ -22,7 +22,7 @@ export const TagSchema = new mongoose.Schema({
         uniqueCaseInsensitive: true,
         trim: true,
         validate: {
-            validator: function(value: string) {
+            validator: function (value: string) {
                 return (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(value));
             },
             message: () => `Color needs to be a hexadecimal value`

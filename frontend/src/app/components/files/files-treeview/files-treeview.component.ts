@@ -5,6 +5,7 @@ import { FileSystemProvider } from 'src/app/services/filesystems/file-system-pro
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { FilesTreeviewDataSource } from './files-treeview-datasource';
 import { FilesTreeviewNode } from './files-treeview-node';
+import {Role} from "../../../../../../backend/src/models/User";
 
 @Component({
   selector: 'app-files-treeview',
@@ -23,9 +24,18 @@ export class FilesTreeviewComponent {
     this.treeControl = new FlatTreeControl<FilesTreeviewNode>(this.getLevel, this.isExpandable);
     this.dataSource = new FilesTreeviewDataSource(this.treeControl, fsProvider);
     this._loading = true;
-    fsProvider.default().get(userServiceProvider.default().getActiveUser().directory_id).toPromise().then(root => {
+    let nodes: FilesTreeviewNode[] = [];
+    if(userServiceProvider.default().getActiveUser().role === Role.OWNER) {
+      fsProvider.default().get(userServiceProvider.default().getActiveUser().directory_id).toPromise().then(root => {
+        if (root.isDirectory) {
+          nodes.push(new FilesTreeviewNode(root, 0, [], true, true));
+        }
+      });
+    }
+    fsProvider.default().get(userServiceProvider.default().getActiveUser().sharedFilesDirectoryId).toPromise().then(root => {
       if (root.isDirectory) {
-        this.dataSource.data = [new FilesTreeviewNode(root, 0, [], true, true)];
+        nodes.push(new FilesTreeviewNode(root, 0, [], true, true));
+        this.dataSource.data = nodes;
       }
     });
     this._loading = false;
