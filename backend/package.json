@@ -15,7 +15,7 @@
     "startdev": "cross-env APP_ENV=dev ts-node src/server.ts",
     "lint": "eslint . --ext .ts",
     "start": "cross-env APP_ENV=prod node dist/server.js",
-    "sonarqube": "cross-env APP_ENV=dev ts-node src/sonarqube.ts || true"
+    "sonarqube": "ts-node src/sonarqube.ts || true"
   },
   "dependencies": {
     "@sendgrid/mail": "^7.2.6",
