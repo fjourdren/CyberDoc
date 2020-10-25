@@ -43,16 +43,16 @@ class AuthService {
         root_user_dir.tags = [];
 
         // build user's "Shared with me" directory
-        const shared_files_directory: IFile = new File();
-        shared_files_directory._id = Guid.raw();
-        shared_files_directory.type = FileType.DIRECTORY;
-        shared_files_directory.mimetype = "application/x-dir"
-        shared_files_directory.name = "Shared with me";
-        shared_files_directory.owner_id = newUser._id;
-        shared_files_directory.tags = [];
+        const sharedFilesDirectory: IFile = new File();
+        sharedFilesDirectory._id = Guid.raw();
+        sharedFilesDirectory.type = FileType.DIRECTORY;
+        sharedFilesDirectory.mimetype = "application/x-dir"
+        sharedFilesDirectory.name = "Shared with me";
+        sharedFilesDirectory.owner_id = newUser._id;
+        sharedFilesDirectory.tags = [];
 
         newUser.directory_id = root_user_dir._id;
-        newUser.sharedFilesDirectoryId = shared_files_directory._id;
+        newUser.sharedFilesDirectoryId = sharedFilesDirectory._id;
         try {
             requireNonNull(await newUser.save());
         } catch (e) {
@@ -65,7 +65,7 @@ class AuthService {
         }
 
         requireNonNull(await root_user_dir.save());
-        requireNonNull(await shared_files_directory.save());
+        requireNonNull(await sharedFilesDirectory.save());
         return AuthService.generateJWTToken(newUser, true);
     }
 

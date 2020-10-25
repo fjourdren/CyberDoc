@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FileDetailsPanelComponent } from './files-details-panel.component';
+import { FilesDetailsPanelComponent } from './files-details-panel.component';
 
 describe('FileDetailsPanelComponent', () => {
-  let component: FileDetailsPanelComponent;
-  let fixture: ComponentFixture<FileDetailsPanelComponent>;
+  let component: FilesDetailsPanelComponent;
+  let fixture: ComponentFixture<FilesDetailsPanelComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FileDetailsPanelComponent ]
+      declarations: [ FilesDetailsPanelComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FileDetailsPanelComponent);
+    fixture = TestBed.createComponent(FilesDetailsPanelComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -23,6 +23,7 @@ import {FilesRenameDialogComponent} from '../files-rename-dialog/files-rename-di
 import {FileSystemProvider} from 'src/app/services/filesystems/file-system-provider';
 import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
 import {FilesShareMenuDialogComponent} from '../files-share-menu-dialog/files-share-menu-dialog.component';
+import {isDirectory} from "@angular-devkit/build-angular/src/angular-cli-files/utilities/is-directory";
 
 export type FileAction = 'open' | 'download' | 'export' | 'rename' | 'copy' | 'delete' | 'move' | 'details' | 'share';
 
@@ -44,6 +45,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
     @ViewChild(MatSort) sort: MatSort;
     @ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
     @Input() currentDirectoryID: string | null;
+    @Input() isSharedFilesDirectory: boolean;
     @Input() showDetailsButton: boolean;
     @Output() selectedNodeChange = new EventEmitter<CloudNode>();
     @Output() openButtonClicked = new EventEmitter<CloudNode>();
@@ -123,7 +125,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
     }
 
     isCopyAvailable(node: CloudNode): boolean {
-        return !this.isReadOnly(node) && !node.isDirectory;
+        return !node.isDirectory && !this.isReadOnly(node as CloudFile) && this.userServiceProvider.default().getActiveUser().role === "owner";
     }
 
     isPDFExportAvailable(node: CloudNode): boolean {
@@ -133,6 +135,10 @@ export class FilesGenericTableComponent implements AfterViewInit {
 
         const fileType = this.filesUtils.getFileTypeForMimetype(node.mimetype);
         return this.filesUtils.isPDFExportAvailable(fileType);
+    }
+
+    isOwner() {
+        return this.userServiceProvider.default().getActiveUser().role === "owner";
     }
 
     getIconForMimetype(mimetype: string): string {
@@ -145,8 +151,8 @@ export class FilesGenericTableComponent implements AfterViewInit {
         return this.filesUtils.fileTypeToString(fileType);
     }
 
-    isReadOnly(node: CloudNode): boolean {
-        return this.restrictions.isReadOnly(node) || node && node.name === '..';
+    isReadOnly(file: CloudFile): boolean {
+        return this.restrictions.isReadOnly(file) || file && file.name === '..';
     }
 
     onContextMenu(event: MouseEvent, node: CloudNode): void {
@@ -174,7 +180,8 @@ export class FilesGenericTableComponent implements AfterViewInit {
         this.bottomSheet.open(FilesGenericTableBottomsheetComponent, {
             data: {
                 callback: this.onContextMenuOrBottomSheetSelection.bind(this),
-                readonlyMode: this.isReadOnly(node),
+                isSharedFilesDirectory: this.isSharedFilesDirectory,
+                readonlyMode: this.isSharedFilesDirectory && this.isReadOnly(node as CloudFile),
                 showDetailsEntry: this.showDetailsButton,
                 node,
                 onBottomSheetClose: this.onBottomSheetClose.bind(this)
@@ -327,5 +334,4 @@ export class FilesGenericTableComponent implements AfterViewInit {
             data: node
         });
     }
-
 }

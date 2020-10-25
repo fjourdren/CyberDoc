@@ -1,42 +1,45 @@
 <div *ngIf="node">
-  <div class="mat-title">
-    <mat-icon fontSet="fa" fontIcon="{{getIconForMimetype(node.mimetype)}}"></mat-icon>
-    {{node.name}}
-  </div>
+    <div class="mat-title">
+        <mat-icon fontSet="fa" fontIcon="{{getIconForMimetype(node.mimetype)}}"></mat-icon>
+        {{node.name}}
+    </div>
 
-  <div *ngIf="node && node.preview" id="filepreview">
-    <img [src]="getFilePreviewImageURL()">
-  </div>
-  <mat-slide-toggle *ngIf="!node.isDirectory" (change)="onPreviewToogleChange($event)" [checked]="node.preview" >{{ 'file.preview' | translate }}</mat-slide-toggle>
+    <div *ngIf="node && node.preview" id="filepreview">
+        <img [src]="getFilePreviewImageURL()">
+    </div>
+    <mat-slide-toggle *ngIf="!node.isDirectory && !isSharedFilesDirectory" (change)="onPreviewToggleChange($event)"
+                      [checked]="node.preview">{{ 'file.preview' | translate }}</mat-slide-toggle>
 
-  <table id="details-table">
-    <tr *ngIf="!node.isDirectory">
-      <td class="mat-body-strong">{{ 'file.modified' | translate }}</td>
-      <td>{{node.updated_at | date}}&nbsp;&nbsp;</td>
-    </tr>
-    <tr>
-      <td class="mat-body-strong">{{ 'file.owner' | translate }}</td>
-      <td>{{node.ownerName}}&nbsp;&nbsp;</td>
-    </tr>
-    <tr *ngIf="!node.isDirectory">
-      <td class="mat-body-strong">{{ 'file.size' | translate }}</td>
-      <td>{{node.size | filesize}}&nbsp;&nbsp;</td>
-    </tr>
-    <tr>
-      <td class="mat-body-strong">{{ 'file.type' | translate }}</td>
-      <td [title]="node.mimetype">{{getFileTypeFromMimetype(node.mimetype) | translate }}&nbsp;&nbsp;</td>
-    </tr>
-  </table>
+    <table id="details-table">
+        <tr *ngIf="!node.isDirectory">
+            <td class="mat-body-strong">{{ 'file.modified' | translate }}</td>
+            <td>{{node.updated_at | date}}&nbsp;&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="mat-body-strong">{{ 'file.owner' | translate }}</td>
+            <td>{{node.ownerName}}&nbsp;&nbsp;</td>
+        </tr>
+        <tr *ngIf="!node.isDirectory">
+            <td class="mat-body-strong">{{ 'file.size' | translate }}</td>
+            <td>{{node.size | filesize}}&nbsp;&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="mat-body-strong">{{ 'file.type' | translate }}</td>
+            <td [title]="node.mimetype">{{getFileTypeFromMimetype(node.mimetype) | translate }}&nbsp;&nbsp;</td>
+        </tr>
+    </table>
 
-  <mat-divider></mat-divider>
-  <div id="title-div" class="mat-h3">
-    <span id="title-span">{{'tags.tags' | translate}}</span>
-    <button id="add-tag-btn" mat-stroked-button mat-button (click)="createNewTag()">
-      {{'tags.create_new_tag' | translate}}
-    </button>
-  </div>
+    <mat-divider></mat-divider>
+    <div id="title-div" class="mat-h3" *ngIf="!isSharedFilesDirectory">
+        <span id="title-span">{{'tags.tags' | translate}}</span>
+        <button id="add-tag-btn" mat-stroked-button mat-button (click)="createNewTag()">
+            {{'tags.create_new_tag' | translate}}
+        </button>
+    </div>
 
-  <app-files-tags-input [allTags]="allTags" [selectedTags]="nodeTags" (tagAdded)="onTagAdded($event)" (tagRemoved)="onTagRemoved($event)"></app-files-tags-input>
+    <app-files-tags-input [allTags]="allTags" [selectedTags]="nodeTags" (tagAdded)="onTagAdded($event)"
+                          (tagRemoved)="onTagRemoved($event)" *ngIf="!isSharedFilesDirectory">
+    </app-files-tags-input>
 
 </div>
 
