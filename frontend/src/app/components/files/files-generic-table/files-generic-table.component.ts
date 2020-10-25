@@ -324,8 +324,9 @@ export class FilesGenericTableComponent implements AfterViewInit {
 
 shareNode(node: CloudNode) {
     this.dialog.open(FilesShareMenuDialogComponent, {
-      maxWidth: "800px",
-      data: node
+        width: '400px',
+        height: '400px',
+        data: node
     });
   }
 
