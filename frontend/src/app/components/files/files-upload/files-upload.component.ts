@@ -54,15 +54,10 @@ export class FilesUploadComponent implements AfterViewInit {
     }
 
     uploadSelectedFile(file: File) {
-        if (this.currentDirectory._id === this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId) {
-            // TODO : Recursive call to disable this action in every single subdirectory
-            alert('You can\'t upload a file in "Shared with me"')
-        } else {
-            this.fsProvider.default().startFileUpload(
-                file,
-                this.currentDirectory
-            );
-        }
+        this.fsProvider.default().startFileUpload(
+            file,
+            this.currentDirectory
+        );
     }
 
     ngAfterViewInit(): void {
@@ -78,14 +73,9 @@ export class FilesUploadComponent implements AfterViewInit {
     }
 
     createFolder() {
-        if (this.currentDirectory._id === this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId) {
-            // TODO : Recursive call to disable this action in every single subdirectory
-            alert('You can\'t create a directory in "Shared with me"')
-        } else {
-            this.dialog.open(FilesNewFolderDialogComponent, {
-                maxWidth: "400px",
-                data: this.currentDirectory
-            });
-        }
+        this.dialog.open(FilesNewFolderDialogComponent, {
+            maxWidth: "400px",
+            data: this.currentDirectory
+        });
     }
 }

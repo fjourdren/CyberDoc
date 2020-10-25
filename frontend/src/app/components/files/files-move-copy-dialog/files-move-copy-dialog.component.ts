@@ -25,7 +25,7 @@ export class FilesMoveCopyDialogComponent {
 
     this.filesTableRestrictions = {
       isSelectable: (node: CloudNode) => node.isDirectory && node._id !== data.node._id,
-      isReadOnly: (file: CloudFile) => file.shareMode === "readonly",
+      isReadOnly: (node: CloudNode) => true,
       isDisabled: (node: CloudNode) => !node.isDirectory || node._id === data.node._id,
       isContextAndBottomSheetDisabled: (node: CloudNode) => true
     }

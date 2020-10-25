@@ -81,7 +81,7 @@
             <span>{{ 'fileaction.details' | translate }}</span>
         </button>
         <!-- We can move every files that are in "My safebox" as an Owner -->
-        <button *ngIf="isOwner() && !isSharedFilesDirectory" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('move')">
+        <button *ngIf="isOwner() && !sharedWithMeMode" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('move')">
             <mat-icon fontSet="fa" fontIcon="fa-file-export"></mat-icon>
             <span>{{ 'fileaction.move' | translate }}</span>
         </button>
@@ -90,18 +90,18 @@
             <mat-icon fontSet="fa" fontIcon="fa-copy"></mat-icon>
             <span>{{ 'fileaction.copy' | translate }}</span>
         </button>
-        <!-- We can't rename a read-only file shared with us -->
-        <button *ngIf="!isReadOnly(selectedNode) && !isSharedFilesDirectory" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('rename')">
+        <!-- We can't rename a file shared in "read-only" mode -->
+        <button *ngIf="!sharedWithMeMode" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('rename')">
             <mat-icon fontSet="fa" fontIcon="fa-pen"></mat-icon>
             <span>{{ 'fileaction.rename' | translate }}</span>
         </button>
         <!-- We can't delete a file shared with us -->
-        <button *ngIf="!isSharedFilesDirectory" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('delete')">
+        <button *ngIf="!sharedWithMeMode" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('delete')">
             <mat-icon fontSet="fa" fontIcon="fa-trash"></mat-icon>
             <span>{{ 'fileaction.delete' | translate }}</span>
         </button>
         <!-- We can't share a directory, a read-only file shared with us neither -->
-        <button *ngIf="!selectedNode.isDirectory && !this.isSharedFilesDirectory && !isReadOnly(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('share')">
+        <button *ngIf="!selectedNode.isDirectory && !this.sharedWithMeMode && !isReadOnly(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('share')">
             <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>
             <span>{{ 'fileaction.share' | translate }}</span>
         </button>

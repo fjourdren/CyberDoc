@@ -16,7 +16,7 @@ export class FilesDetailsPanelComponent {
     @Input() loading: boolean;
     @Input() allTags: FileTag[];
     @Input() nodeTags: FileTag[];
-    @Input() isSharedFilesDirectory: boolean;
+    @Input() sharedWithMeMode: boolean;
 
     constructor(
         private filesUtils: FilesUtilsService,

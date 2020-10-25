@@ -45,7 +45,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
     @ViewChild(MatSort) sort: MatSort;
     @ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
     @Input() currentDirectoryID: string | null;
-    @Input() isSharedFilesDirectory: boolean;
+    @Input() sharedWithMeMode: boolean;
     @Input() showDetailsButton: boolean;
     @Output() selectedNodeChange = new EventEmitter<CloudNode>();
     @Output() openButtonClicked = new EventEmitter<CloudNode>();
@@ -180,8 +180,8 @@ export class FilesGenericTableComponent implements AfterViewInit {
         this.bottomSheet.open(FilesGenericTableBottomsheetComponent, {
             data: {
                 callback: this.onContextMenuOrBottomSheetSelection.bind(this),
-                isSharedFilesDirectory: this.isSharedFilesDirectory,
-                readonlyMode: this.isSharedFilesDirectory && this.isReadOnly(node as CloudFile),
+                sharedWithMeMode: this.sharedWithMeMode,
+                readonlyMode: this.sharedWithMeMode && this.isReadOnly(node as CloudFile),
                 showDetailsEntry: this.showDetailsButton,
                 node,
                 onBottomSheetClose: this.onBottomSheetClose.bind(this)

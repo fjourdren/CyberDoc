@@ -54,7 +54,7 @@ class FileController {
             const userCache = new Map<string, IUser>();
             const bodySearch: Record<string, unknown> = req.body;
             let files: any[] = await FileService.search(res.locals.APP_JWT_TOKEN.user, bodySearch);
-            files = files.filter(item => item._id !== currentUser.directory_id && item.id !== currentUser.sharedFilesDirectoryId);
+            files = files.filter(item => item._id !== currentUser.directory_id);
 
             const results = [];
 
@@ -241,14 +241,20 @@ class FileController {
         try {
             const currentUser = FileController._requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
-            await FileService.requireIsFileOwner(currentUser, file);
 
-            if (req.body.name != undefined)
+            // You can edit name of a readwrite file
+            if (req.body.name != undefined) {
+                await FileService.requireFileCanBeModified(currentUser, file);
                 file.name = req.body.name;
-            if (req.body.directoryID != undefined)
+            }
+
+            if (req.body.directoryID != undefined) {
+                await FileService.requireIsFileOwner(currentUser, file);
                 file.parent_file_id = req.body.directoryID;
+            }
 
             if (req.body.preview != undefined) {
+                await FileService.requireIsFileOwner(currentUser, file);
                 if (file.type == FileType.DIRECTORY) {
                     if (req.body.preview)
                         throw new HTTPError(HttpCodes.BAD_REQUEST, "You can't turn on preview on a directory.");
@@ -257,6 +263,7 @@ class FileController {
             }
 
             if (req.body.shareMode != undefined) {
+                await FileService.requireIsFileOwner(currentUser, file);
                 if (req.body.shareMode === ShareMode.READONLY || req.body.shareMode === ShareMode.READWRITE) {
                     file.shareMode = req.body.shareMode;
                 } else {

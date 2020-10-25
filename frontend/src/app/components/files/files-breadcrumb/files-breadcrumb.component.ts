@@ -12,7 +12,7 @@ import {FileSystemProvider} from 'src/app/services/filesystems/file-system-provi
 export class FilesBreadcrumbComponent {
 
   @Input() currentDirectory: CloudDirectory;
-  @Input() isSharedFilesDirectory: boolean;
+  @Input() sharedWithMeMode: boolean;
   contextMenuContent$: Observable<CloudDirectory[]>;
 
   constructor(private fsProvider: FileSystemProvider) {
