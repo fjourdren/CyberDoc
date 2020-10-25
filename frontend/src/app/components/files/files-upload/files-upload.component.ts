@@ -32,7 +32,7 @@ export class FilesUploadComponent implements AfterViewInit {
 
     @HostListener('document:dragover', ['$event'])
     onDragOver(evt: DragEvent) {
-        if (this.currentlyUploading || this.currentDirectory._id === this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId) return;
+        if (this.currentlyUploading) return;
 
         evt.preventDefault();
         evt.stopPropagation();
@@ -43,7 +43,7 @@ export class FilesUploadComponent implements AfterViewInit {
 
     @HostListener('document:drop', ['$event'])
     onDrop(evt: DragEvent) {
-        if (this.currentlyUploading || this.currentDirectory._id === this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId) return;
+        if (this.currentlyUploading) return;
 
         evt.preventDefault();
         evt.stopPropagation();

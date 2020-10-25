@@ -1,8 +1,8 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { CloudDirectory, PathItem } from 'src/app/models/files-api-models';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
+import {Component, Input} from '@angular/core';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {CloudDirectory} from 'src/app/models/files-api-models';
+import {FileSystemProvider} from 'src/app/services/filesystems/file-system-provider';
 
 @Component({
   selector: 'app-files-breadcrumb',
@@ -12,9 +12,11 @@ import { FileSystemProvider } from 'src/app/services/filesystems/file-system-pro
 export class FilesBreadcrumbComponent {
 
   @Input() currentDirectory: CloudDirectory;
+  @Input() isSharedFilesDirectory: boolean;
   contextMenuContent$: Observable<CloudDirectory[]>;
 
-  constructor(private fsProvider: FileSystemProvider) { }
+  constructor(private fsProvider: FileSystemProvider) {
+  }
 
   loadDataForContextMenu(directoryID: string) {
     this.contextMenuContent$ = this.fsProvider.default().get(directoryID).pipe(map((val) => {

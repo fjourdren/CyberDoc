@@ -6,7 +6,7 @@
         </button>
     </div>
     <a [routerLink]="['/files', currentDirectory._id]" mat-button>{{currentDirectory.name}}</a>
-    <button mat-icon-button (click)="loadDataForContextMenu(currentDirectory._id)" [matMenuTriggerFor]="menu">
+    <button *ngIf="!isSharedFilesDirectory" mat-icon-button (click)="loadDataForContextMenu(currentDirectory._id)" [matMenuTriggerFor]="menu">
         <mat-icon>keyboard_arrow_right</mat-icon>
     </button>
 </mat-toolbar>

@@ -32,7 +32,7 @@ export class FileSystemProvider {
             case "mock":
                 return new MockFileSystem(this.fileUtils, this.userServiceProvider);
             case "real":
-                return new RealFileSystem(this.httpClient);
+                return new RealFileSystem(this.httpClient, this.userServiceProvider);
             default:
                 throw new Error(`Unknown FS provider : ${providerName}`);
         }

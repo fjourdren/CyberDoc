@@ -390,13 +390,42 @@ class FileController {
     public static async getSharedFiles(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const currentUser = FileController._requireAuthenticatedUser(res);
+            const userCache = new Map<string, IUser>();
             const sharedFiles = await FileService.getSharedFiles(currentUser);
+
+            const results = [];
+            for (const file of sharedFiles) {
+                let ownerName = "Unknown";
+                if (file.owner_id === currentUser._id) {
+                    ownerName = `${currentUser.firstname} ${currentUser.lastname}`;
+                } else {
+                    if (!userCache.has(file.owner_id)) {
+                        userCache.set(file.owner_id, requireNonNull(await User.findById(file.owner_id).exec()));
+                    }
+                    const user = userCache.get(file.owner_id);
+                    ownerName = `${user?.firstname} ${user?.lastname}`;
+                }
+
+                if (file.type == FileType.DOCUMENT) {
+                    results.push({
+                        "_id": file._id,
+                        "name": file.name,
+                        "ownerName": ownerName,
+                        "mimetype": file.mimetype,
+                        "size": file.size,
+                        "updated_at": file.updated_at,
+                        "created_at": file.created_at,
+                        "preview": file.preview,
+                        "shareMode": file.shareMode
+                    });
+                }
+            }
 
             res.status(HttpCodes.OK);
             res.json({
                 success: true,
                 msg: "Success",
-                sharedFiles: sharedFiles
+                results
             });
         } catch (err) {
             next(err);
