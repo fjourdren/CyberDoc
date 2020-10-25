@@ -54,7 +54,7 @@ class FileController {
             const userCache = new Map<string, IUser>();
             const bodySearch: Record<string, unknown> = req.body;
             let files: any[] = await FileService.search(res.locals.APP_JWT_TOKEN.user, bodySearch);
-            files = files.filter(item => item._id !== currentUser.directory_id);
+            files = files.filter(item => item._id !== currentUser.directory_id && item.id !== currentUser.sharedFilesDirectoryId);
 
             const results = [];
 

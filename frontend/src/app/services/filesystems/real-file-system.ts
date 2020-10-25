@@ -55,6 +55,22 @@ export class RealFileSystem implements FileSystem {
         }));
     }
 
+    getSharedFiles(): Observable<CloudDirectory> {
+        return this.httpClient.get<any>(`${this._baseUrl}/files/shared`, {withCredentials: true}).pipe(map(response => {
+            const folder = new CloudDirectory();
+
+            folder.directoryContent = response.sharedFiles;
+            folder._id = null;
+            folder.name = null;
+            folder.isDirectory = true;
+            folder.mimetype = DIRECTORY_MIMETYPE;
+            folder.ownerName = null;
+            folder.path = [];
+            folder.tags = [];
+            return folder;
+        }));
+    }
+
     createDirectory(name: string, parentFolder: CloudDirectory): Observable<void> {
         return this.httpClient.post<any>(`${this._baseUrl}/files`, {
             "folderID": parentFolder._id,

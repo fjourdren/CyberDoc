@@ -33,7 +33,7 @@ export class FilesTreeviewComponent {
     }
     fsProvider.default().get(userServiceProvider.default().getActiveUser().sharedFilesDirectoryId).toPromise().then(root => {
       if (root.isDirectory) {
-        nodes.push(new FilesTreeviewNode(root, 0, [], true, true));
+        nodes.push(new FilesTreeviewNode(root, 0, [], false, true));
         this.dataSource.data = nodes;
       }
     });

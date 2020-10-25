@@ -23,7 +23,6 @@ export class FilesPageComponent implements AfterViewInit {
   searchMode = false;
 
   currentDirectory: CloudDirectory;
-  shareDirectory: CloudDirectory;
   selectedNode: CloudNode;
   routeSearchParams: SearchParams;
 
@@ -106,7 +105,11 @@ export class FilesPageComponent implements AfterViewInit {
           (this.userServiceProvider.default().getActiveUser().role === "owner" ?
           this.userServiceProvider.default().getActiveUser().directory_id : // if Owner, display his safe
           this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId) // if Collaborator, display shared files
-      promise = this.fsProvider.default().get(id).toPromise();
+      if(directoryID !== this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId) {
+        promise = this.fsProvider.default().get(id).toPromise();
+      } else {
+        promise = this.fsProvider.default().getSharedFiles().toPromise();
+      }
     }
 
     this.selectedNode = null;
