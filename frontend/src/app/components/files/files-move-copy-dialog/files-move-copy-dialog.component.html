@@ -3,7 +3,8 @@
         [disabled]="!(!loading && currentDirectory && currentDirectory.path.length > 0)" mat-icon-button>
         <mat-icon>arrow_back</mat-icon>
     </button>
-    <div id="mat-dialog-title-div">{{data.copy ? ('fileaction.copy' | translate) : ('fileaction.move' | translate)}}
+    <div id="mat-dialog-title-div">
+        {{currentDirectory ? currentDirectory.name : ""}}
     </div>
 </h1>
 
