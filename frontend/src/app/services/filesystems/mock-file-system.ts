@@ -242,6 +242,10 @@ export class MockFileSystem implements FileSystem {
         }));
     }
 
+    getSharedFiles(): Observable<CloudDirectory> {
+        return null
+    }
+
     deleteShare(fileID: string, email: string): Observable<void>{
         let currentFile: InternalFileElement;
         let Respond: RespondShare = {email: "", name:""};
