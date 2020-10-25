@@ -68,8 +68,8 @@ export class RealFileSystem implements FileSystem {
             const folder = new CloudDirectory();
 
             folder.directoryContent = response.results;
-            folder._id = response.sharedFilesDirectoryId;
-            folder.name = "Shared with me";
+            folder._id = null;
+            folder.name = null;
             folder.isDirectory = true;
             folder.mimetype = DIRECTORY_MIMETYPE;
             folder.ownerName = this.userServiceProvider.default().getActiveUser().firstname + " " + this.userServiceProvider.default().getActiveUser().lastname;

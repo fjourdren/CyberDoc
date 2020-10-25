@@ -20,7 +20,7 @@ export class FilesPageComponent implements AfterViewInit {
     smallScreen = false;
     loading = false;
     searchMode = false;
-    isSharedFilesDirectory = false;
+    sharedWithMeMode = false;
 
     currentDirectory: CloudDirectory;
     selectedNode: CloudNode;
@@ -56,6 +56,7 @@ export class FilesPageComponent implements AfterViewInit {
                         case this.route.toString().indexOf("files-search") !== -1: {
                             if (paramMap.has("searchParams")) {
                                 this.searchMode = true;
+                                this.sharedWithMeMode = false;
                                 this.routeSearchParams = JSON.parse(paramMap.get("searchParams"));
                                 if (isValidSearchParams(this.routeSearchParams, this.userServiceProvider.default().getActiveUser().tags.map(tag => tag._id))) {
                                     this.refresh();
@@ -71,13 +72,22 @@ export class FilesPageComponent implements AfterViewInit {
                         //files
                         case this.route.toString().indexOf("files") !== -1: {
                             if (paramMap.has("dirID")) {
+                                this.sharedWithMeMode = false;
                                 this.searchMode = false;
-                                this.isSharedFilesDirectory = this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId === paramMap.get("dirID");
                                 this.routeSearchParams = null;
                                 this.refresh(paramMap.get("dirID"));
                             } else {
                                 this.redirectToDefaultPage();
                             }
+                            break;
+                        }
+
+                        //files
+                        case this.route.toString().indexOf("shared-with-me") !== -1: {
+                            this.sharedWithMeMode = true;
+                            this.searchMode = false;
+                            this.routeSearchParams = null;
+                            this.refresh();
                             break;
                         }
                     }
@@ -93,17 +103,12 @@ export class FilesPageComponent implements AfterViewInit {
 
         if (this.searchMode) {
             promise = this.fsProvider.default().search(this.routeSearchParams).toPromise();
+        } else if (this.sharedWithMeMode) {
+            promise = this.fsProvider.default().getSharedFiles().toPromise();
         } else {
             if (!directoryID && !this.currentDirectory) return; //FIXME
-            const id = directoryID || this.currentDirectory._id ||
-                (this.userServiceProvider.default().getActiveUser().role === "owner" ?
-                    this.userServiceProvider.default().getActiveUser().directory_id : // if Owner, display his safe
-                    this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId) // if Collaborator, display shared files
-            if (directoryID !== this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId) {
-                promise = this.fsProvider.default().get(id).toPromise();
-            } else {
-                promise = this.fsProvider.default().getSharedFiles().toPromise();
-            }
+            const id = directoryID || this.currentDirectory._id || this.userServiceProvider.default().getActiveUser().directory_id;
+            promise = this.fsProvider.default().get(id).toPromise();
         }
 
         this.selectedNode = null;
@@ -143,7 +148,7 @@ export class FilesPageComponent implements AfterViewInit {
         if (this.userServiceProvider.default().getActiveUser().role === "owner") {
             this.router.navigate(['/files', this.userServiceProvider.default().getActiveUser().directory_id]);
         } else {
-          this.router.navigate(['/files', this.userServiceProvider.default().getActiveUser().sharedFilesDirectoryId]);
+            this.router.navigate(['/shared-with-me']);
         }
     }
 }

@@ -5,7 +5,7 @@ import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bott
 import {UserServiceProvider} from "../../../services/users/user-service-provider";
 
 export interface FilesGenericTableBottomsheetData {
-  isSharedFilesDirectory: boolean;
+  sharedWithMeMode: boolean;
   callback: (action: string) => void;
   showDetailsEntry: boolean;
   readonlyMode: boolean;

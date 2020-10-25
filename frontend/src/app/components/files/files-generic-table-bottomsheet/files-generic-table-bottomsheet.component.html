@@ -33,7 +33,7 @@
         </span>
     </a>
     <!-- We can move every files that are in "My safebox" as an Owner -->
-    <a href="#" *ngIf="isOwner() && !data.isSharedFilesDirectory" mat-list-item (click)="onBottomSheetSelection($event,'move')">
+    <a href="#" *ngIf="isOwner() && !data.sharedWithMeMode" mat-list-item (click)="onBottomSheetSelection($event,'move')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-file-export"></mat-icon>
             {{ 'fileaction.move' | translate }}
@@ -46,22 +46,22 @@
             {{ 'fileaction.copy' | translate }}
         </span>
     </a>
-    <!-- We can't rename a read-only file shared with us -->
-    <a href="#" *ngIf="!data.readonlyMode && !data.isSharedFilesDirectory" mat-list-item (click)="onBottomSheetSelection($event,'rename')">
+    <!-- We can't rename a file shared in "read-only" mode -->
+    <a href="#" *ngIf="!data.sharedWithMeMode" mat-list-item (click)="onBottomSheetSelection($event,'rename')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-pen"></mat-icon>
             {{ 'fileaction.rename' | translate }}
         </span>
     </a>
     <!-- We can't delete a file shared with us -->
-    <a href="#" *ngIf="!data.isSharedFilesDirectory" mat-list-item (click)="onBottomSheetSelection($event,'delete')">
+    <a href="#" *ngIf="!data.sharedWithMeMode" mat-list-item (click)="onBottomSheetSelection($event,'delete')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-trash"></mat-icon>
             {{ 'fileaction.delete' | translate }}
         </span>
     </a>
     <!-- We can't share a directory, a read-only file shared with us neither -->
-    <a href="#" *ngIf="!data.node.isDirectory && !data.isSharedFilesDirectory  && !data.readonlyMode" mat-list-item
+    <a href="#" *ngIf="!data.node.isDirectory && !data.sharedWithMeMode  && !data.readonlyMode" mat-list-item
        (click)="onBottomSheetSelection($event,'share')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>

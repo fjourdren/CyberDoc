@@ -27,7 +27,6 @@ const USER: User = {
     twoFactorSms: false,
     twoFactorEmail: false,
     directory_id: 'root',
-    sharedFilesDirectoryId: 'sharedFilesDirectoryId',
     tags: [
         {
             _id: '65af88e0-4d6f-80da-1cab-6ef5db2c7188',

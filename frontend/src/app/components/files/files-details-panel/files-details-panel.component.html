@@ -7,7 +7,7 @@
     <div *ngIf="node && node.preview" id="filepreview">
         <img [src]="getFilePreviewImageURL()">
     </div>
-    <mat-slide-toggle *ngIf="!node.isDirectory && !isSharedFilesDirectory" (change)="onPreviewToggleChange($event)"
+    <mat-slide-toggle *ngIf="!node.isDirectory && !sharedWithMeMode" (change)="onPreviewToggleChange($event)"
                       [checked]="node.preview">{{ 'file.preview' | translate }}</mat-slide-toggle>
 
     <table id="details-table">
@@ -30,7 +30,7 @@
     </table>
 
     <mat-divider></mat-divider>
-    <div id="title-div" class="mat-h3" *ngIf="!isSharedFilesDirectory">
+    <div id="title-div" class="mat-h3" *ngIf="!sharedWithMeMode">
         <span id="title-span">{{'tags.tags' | translate}}</span>
         <button id="add-tag-btn" mat-stroked-button mat-button (click)="createNewTag()">
             {{'tags.create_new_tag' | translate}}
@@ -38,7 +38,7 @@
     </div>
 
     <app-files-tags-input [allTags]="allTags" [selectedTags]="nodeTags" (tagAdded)="onTagAdded($event)"
-                          (tagRemoved)="onTagRemoved($event)" *ngIf="!isSharedFilesDirectory">
+                          (tagRemoved)="onTagRemoved($event)" *ngIf="!sharedWithMeMode">
     </app-files-tags-input>
 
 </div>

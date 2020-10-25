@@ -5,7 +5,7 @@
         </app-files-main-toolbar>
 
         <div *ngIf="!searchMode" class="app-files-breadcrumb-container">
-            <app-files-breadcrumb [currentDirectory]="currentDirectory" [isSharedFilesDirectory]="isSharedFilesDirectory"></app-files-breadcrumb>
+            <app-files-breadcrumb [currentDirectory]="currentDirectory" [sharedWithMeMode]="sharedWithMeMode"></app-files-breadcrumb>
         </div>
 
         <div *ngIf="searchMode" class="app-files-filter-dialog-container">
@@ -44,7 +44,7 @@
 
         <mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
 
-        <app-files-generic-table *ngIf="!loading" [showDetailsButton]="!fileDetailDrawerLocked" [isSharedFilesDirectory]="isSharedFilesDirectory"
+        <app-files-generic-table *ngIf="!loading" [showDetailsButton]="!fileDetailDrawerLocked" [sharedWithMeMode]="sharedWithMeMode"
             [currentDirectoryID]="currentDirectory && currentDirectory._id"
             [items]="currentDirectory && currentDirectory.directoryContent" [(selectedNode)]="selectedNode"
             (openButtonClicked)="openButtonClicked($event)" (detailsButtonClicked)="fileDetailDrawer.open()">
@@ -59,7 +59,7 @@
                 {{ 'general.filedetails' | translate }}
                 <div class="take-remaining-space"></div>
             </mat-toolbar>
-            <app-files-details-panel [loading]="loading" [isSharedFilesDirectory]="isSharedFilesDirectory"
+            <app-files-details-panel [loading]="loading" [sharedWithMeMode]="sharedWithMeMode"
                 [node]="selectedNode || (currentDirectory && currentDirectory.path.length === 0 ? null : currentDirectory)">
             </app-files-details-panel>
         </mat-drawer>
@@ -67,5 +67,5 @@
         <app-files-upload-progress-snackbar></app-files-upload-progress-snackbar>
 
     </mat-drawer-container>
-    <app-files-upload *ngIf="!searchMode && !isSharedFilesDirectory" [currentDirectory]="currentDirectory"></app-files-upload>
+    <app-files-upload *ngIf="!searchMode && !sharedWithMeMode" [currentDirectory]="currentDirectory"></app-files-upload>
 </div>

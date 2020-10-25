@@ -31,10 +31,6 @@ export const UserSchema = new mongoose.Schema({
             type: String,
             required: true,
         },
-        sharedFilesDirectoryId: {
-            type: String,
-            required: true,
-        },
         firstname: {
             type: String,
             required: true,
@@ -127,7 +123,6 @@ export const UserSchema = new mongoose.Schema({
 export interface IUser extends mongoose.Document {
     _id: string;
     directory_id: string;
-    sharedFilesDirectoryId: string;
     firstname: string;
     lastname: string;
     email: string;

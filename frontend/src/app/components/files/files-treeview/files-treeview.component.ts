@@ -1,67 +1,69 @@
-import { FlatTreeControl } from '@angular/cdk/tree';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CloudDirectory } from 'src/app/models/files-api-models';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
-import { FilesTreeviewDataSource } from './files-treeview-datasource';
-import { FilesTreeviewNode } from './files-treeview-node';
+import {FlatTreeControl} from '@angular/cdk/tree';
+import {Component, Input} from '@angular/core';
+import {FileSystemProvider} from 'src/app/services/filesystems/file-system-provider';
+import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
+import {FilesTreeviewDataSource} from './files-treeview-datasource';
+import {FilesTreeviewNode} from './files-treeview-node';
 
 @Component({
-  selector: 'app-files-treeview',
-  templateUrl: './files-treeview.component.html',
-  styleUrls: ['./files-treeview.component.scss']
+    selector: 'app-files-treeview',
+    templateUrl: './files-treeview.component.html',
+    styleUrls: ['./files-treeview.component.scss']
 })
 export class FilesTreeviewComponent {
 
-  private _loading = false;
-  private _currentDirectoryID: string;
+    treeControl: FlatTreeControl<FilesTreeviewNode>;
+    dataSource: FilesTreeviewDataSource;
 
-  constructor(
-    private fsProvider: FileSystemProvider,
-    private userServiceProvider: UserServiceProvider
-  ) {
-    this.treeControl = new FlatTreeControl<FilesTreeviewNode>(this.getLevel, this.isExpandable);
-    this.dataSource = new FilesTreeviewDataSource(this.treeControl, fsProvider);
-    this._loading = true;
-    let nodes: FilesTreeviewNode[] = [];
-    if(userServiceProvider.default().getActiveUser().role === "owner") {
-      fsProvider.default().get(userServiceProvider.default().getActiveUser().directory_id).toPromise().then(root => {
-        if (root.isDirectory) {
-          nodes.push(new FilesTreeviewNode(root, 0, [], true, true));
+    constructor(
+        private fsProvider: FileSystemProvider,
+        private userServiceProvider: UserServiceProvider
+    ) {
+        this.treeControl = new FlatTreeControl<FilesTreeviewNode>(this.getLevel, this.isExpandable);
+        this.dataSource = new FilesTreeviewDataSource(this.treeControl, fsProvider);
+        this._loading = true;
+        let nodes: FilesTreeviewNode[] = [];
+
+        Promise.all([
+            fsProvider.default().get(userServiceProvider.default().getActiveUser().directory_id).toPromise(),
+            fsProvider.default().getSharedFiles().toPromise()]).then((values) => {
+              if (userServiceProvider.default().getActiveUser().role === "owner") {
+                if (values[0].isDirectory) {
+                  nodes.push(new FilesTreeviewNode(values[0], 0, [], true, true));
+                }
+              }
+              nodes.push(new FilesTreeviewNode(values[1], 0, [], false, userServiceProvider.default().getActiveUser().role !== "owner"));
+              this.dataSource.data = nodes;
+            }
+        )
+
+
+        this._loading = false;
+    }
+
+    private _loading = false;
+
+    get loading() {
+        return this._loading || this.dataSource.loading;
+    }
+
+    private _currentDirectoryID: string;
+
+    get currentDirectoryID() {
+        return this._currentDirectoryID;
+    }
+
+    @Input()
+    set currentDirectoryID(val: string) {
+        this._currentDirectoryID = val;
+        if (this.treeControl.dataNodes) {
+            for (const node of this.treeControl.dataNodes) {
+                node.selected = node.directory._id === val;
+            }
         }
-      });
     }
-    fsProvider.default().get(userServiceProvider.default().getActiveUser().sharedFilesDirectoryId).toPromise().then(root => {
-      if (root.isDirectory) {
-        nodes.push(new FilesTreeviewNode(root, 0, [], false, true));
-        this.dataSource.data = nodes;
-      }
-    });
-    this._loading = false;
-  }
 
-  get loading() {
-    return this._loading || this.dataSource.loading;
-  }
-
-  get currentDirectoryID() {
-    return this._currentDirectoryID;
-  }
-
-  @Input()
-  set currentDirectoryID(val: string) {
-    this._currentDirectoryID = val;
-    if (this.treeControl.dataNodes) {
-      for (const node of this.treeControl.dataNodes) {
-        node.selected = node.directory._id === val;
-      }
-    }
-  }
-
-  treeControl: FlatTreeControl<FilesTreeviewNode>;
-  dataSource: FilesTreeviewDataSource;
-
-  getLevel = (node: FilesTreeviewNode) => node.level;
-  isExpandable = (node: FilesTreeviewNode) => node.expandable;
-  hasChild = (_: number, nodeData: FilesTreeviewNode) => nodeData.expandable;
+    getLevel = (node: FilesTreeviewNode) => node.level;
+    isExpandable = (node: FilesTreeviewNode) => node.expandable;
+    hasChild = (_: number, nodeData: FilesTreeviewNode) => nodeData.expandable;
 }
