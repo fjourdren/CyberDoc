@@ -134,6 +134,12 @@ export class RealFileSystem implements FileSystem {
         }, { withCredentials: true }).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
+    setShareMode(file: CloudFile, shareMode: string): Observable<void> {
+        return this.httpClient.patch<any>(`${this._baseUrl}/files/${file._id}`, {
+            "shareMode": shareMode,
+        }, { withCredentials: true }).pipe(map(response => this._refreshNeeded$.emit(), null));
+    }
+
     addTag(node: CloudNode, tag: FileTag): Observable<void> {
         console.warn(tag);
         return this.httpClient.post<any>(`${this._baseUrl}/files/${node._id}/tags`, {

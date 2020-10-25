@@ -39,6 +39,11 @@ export class MockFileSystem implements FileSystem {
         
     }
 
+    setShareMode(file: CloudFile, shareMode: string): Observable<void> {
+        console.warn("TODO", "setShareMode", file, shareMode);
+        return of(null).pipe(delay(DELAY));
+    }
+
     getFilePreviewImageURL(node: CloudNode): string {
         return `https://via.placeholder.com/300x200`;
     }
