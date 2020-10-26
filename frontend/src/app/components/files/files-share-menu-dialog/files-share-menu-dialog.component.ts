@@ -35,7 +35,7 @@ export class FilesShareMenuDialogComponent {
     this._setIsLoading(true);
     Promise.all([
       this.fsProvider.default().get(this.file._id).toPromise(),
-      this.fsProvider.default().getShareWith(this.file._id).toPromise()
+      this.fsProvider.default().getSharedWith(this.file._id).toPromise()
     ]).then(values => {
       this._setIsLoading(false);
       if (!values[0].isDirectory) {
