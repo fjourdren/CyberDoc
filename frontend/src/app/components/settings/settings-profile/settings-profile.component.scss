@@ -1,3 +1,5 @@
+@import '../../../../theme.scss';
+
 mat-form-field {
     width: 100%;
 }
@@ -25,4 +27,12 @@ mat-card, mat-expansion-panel {
 
 #add-tag-btn, #delete-account-btn {
   margin-top: 16px;;
+}
+
+#danger-zone-title {
+  color: $warn;
+}
+
+#delete-account-card {
+  border: 2px $warn solid;
 }
