@@ -34,6 +34,18 @@ class DeviceService {
         return requireNonNull(await User.findById(user._id).exec()).devices;
     }
 
+    // edit device
+    public static async edit(user: IUser, device: IDevice, newName: string): Promise<void> {
+        // generate updater string
+        let updateString: Record<string, unknown> = {};
+    
+        if(newName)
+            updateString = Object.assign({}, { 'devices.$.name': newName });
+
+        // update mongo data
+        await User.updateMany({ _id: user._id, 'devices._id': device._id }, { '$set': updateString });
+    }
+
     // delete a device
     public static async delete(user: IUser, deviceName: string): Promise<IUser> {
         // non null check

@@ -17,6 +17,7 @@ UserRouter.delete('/tags/:tagId', AuthMiddleware.isAuthenticate, UserTagControll
 
 UserRouter.post('/devices', AuthMiddleware.isAuthenticate, UserDeviceController.create);
 UserRouter.get('/devices', AuthMiddleware.isAuthenticate, UserDeviceController.get);
+UserRouter.patch('/devices/:name', AuthMiddleware.isAuthenticate, UserDeviceController.edit);
 UserRouter.delete('/devices/:name', AuthMiddleware.isAuthenticate, UserDeviceController.delete);
 
 export default UserRouter;
