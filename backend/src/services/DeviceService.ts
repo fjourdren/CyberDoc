@@ -38,6 +38,13 @@ class DeviceService {
     public static async edit(user: IUser, device: IDevice, newName: string): Promise<void> {
         // generate updater string
         let updateString: Record<string, unknown> = {};
+
+        // check that there is not already a device with this name
+        const devices: IDevice[] = await DeviceService.get(user);
+        for(let i = 0; i < devices.length; i++)
+            if(devices[i].name == newName)
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "This Device name is already used");
+ 
     
         if(newName)
             updateString = Object.assign({}, { 'devices.$.name': newName });
