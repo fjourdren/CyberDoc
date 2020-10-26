@@ -69,7 +69,7 @@ class UserDeviceController {
             requireNonNull(user, HttpCodes.NOT_FOUND, "User not found");
 
             // found device and edit
-            const deviceToEdit = requireNonNull(user.devices.find(tag => tag.name === name));
+            const deviceToEdit = requireNonNull(user.devices.find(device => device.name === name));
             await DeviceService.edit(user, deviceToEdit, newName);
 
             // reply client
