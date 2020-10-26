@@ -1,0 +1,11 @@
+@import "../../../../theme.scss";
+
+.error-txt {
+    color: $warn;
+    font-weight: bold;
+    padding-bottom: 12px;
+  }
+
+  mat-form-field {
+    width: 100%;
+  }

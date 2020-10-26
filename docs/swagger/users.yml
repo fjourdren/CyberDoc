@@ -295,7 +295,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericSuccessResponse"
         "400":
-          description: Body is invalid (all values are required)
+          description: Body is invalid (all values are required), or another tag with the same name already exists
           content:
             application/json:
               schema:
@@ -352,7 +352,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericSuccessResponse"
         "400":
-          description: Body is invalid (all values are required)
+          description: Body is invalid (all values are required), or another tag with the same name already exists
           content:
             application/json:
               schema:
