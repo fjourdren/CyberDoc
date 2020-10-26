@@ -3,7 +3,9 @@ import IUser from "../models/User";
 
 
 class EncryptionFileService {
-    /** RSA to manage user permission to acess to a file */
+    /** 
+     * RSA to manage user permission to acess to a file 
+    */
     // generate user's RSA keys
     public static async generateRSAKeys(user: IUser) {
 
@@ -25,7 +27,9 @@ class EncryptionFileService {
     }
 
 
-    /** Encrypt / Decrypt a file with his AES encryption key */
+    /** 
+     * Encrypt / Decrypt a file with his AES encryption key
+     * */
     // Encrypt File's AES key with user's public RSA key
     public static async encryptFileKeyWithUserPublicKey(user: IUser, file: IFile, file_aes_key: string) {
 
@@ -43,7 +47,9 @@ class EncryptionFileService {
 
 
 
-    /** Manage sharing by getting file's AES and encrypt it with user's public RSA key */
+    /** 
+     * Manage sharing by getting file's AES and encrypt it with user's public RSA key 
+     **/
     // Share a file with a new user
     public static async addFileKeyToUser(user: IUser, file: IFile, aes_key: string) {
 
@@ -56,7 +62,9 @@ class EncryptionFileService {
 
 
 
-    /** Delete a File */
+    /**
+     *  Delete a File
+    */
     // Delete the keys from Users' spaces
     public static async deleteFileKeys(file: IFile) {
 
