@@ -15,7 +15,7 @@ export enum FileType {
 }
 
 export enum ShareMode {
-    READONLY = "readonly",
+    READONLY  = "readonly",
     READWRITE = "readwrite"
 }
 

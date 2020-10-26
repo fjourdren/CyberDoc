@@ -30,6 +30,7 @@ paths:
                 - name
                 - mimetype
                 - folderID
+                - user_enpryption_key
               properties:
                 upfile:
                   description: File to upload, `null` to create a directory
@@ -47,6 +48,9 @@ paths:
                   description: ID of the folder which will contains the new file
                   type: string
                   example: <folder UUID>
+                user_enpryption_key:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       responses:
         "201":
           description: Created
@@ -169,6 +173,15 @@ paths:
         - jwtToken: [ ]
       summary: Get file/directory by ID
       description: Get file/directory by ID
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                user_enpryption_key:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       parameters:
         - name: fileId
           in: path
@@ -243,11 +256,15 @@ paths:
               type: object
               required:
                 - upfile
+                - user_enpryption_key
               properties:
                 upfile:
                   description: File to upload
                   type: string
                   format: binary
+                user_enpryption_key:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       responses:
         "200":
           description: Success
@@ -480,6 +497,17 @@ paths:
         - jwtToken: [ ]
       summary: Get file preview
       description: Get file preview
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - user_enpryption_key
+              properties:
+                user_enpryption_key:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       parameters:
         - name: fileId
           in: path
@@ -645,6 +673,17 @@ paths:
         - jwtToken: [ ]
       summary: Download file
       description: Download file
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - user_enpryption_key
+              properties:
+                user_enpryption_key:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       parameters:
         - name: fileId
           in: path
@@ -697,6 +736,17 @@ paths:
         - jwtToken: [ ]
       summary: Export file in PDF format
       description: Export file in PDF format
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - user_enpryption_key
+              properties:
+                user_enpryption_key:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       parameters:
         - name: fileId
           in: path
@@ -876,11 +926,15 @@ paths:
             schema:
               required:
                 - email
+                - user_enpryption_key
               type: object
               properties:
                 email:
                   type: string
                   format: email
+                user_enpryption_key:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       responses:
         "200":
           description: Success
@@ -924,6 +978,17 @@ paths:
         - jwtToken: [ ]
       summary: Remove share access of a file with a user
       description: Remove share access of a file with a user
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - user_enpryption_key
+              properties:
+                user_enpryption_key:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       parameters:
         - name: fileId
           in: path
@@ -1032,6 +1097,7 @@ components:
       type: object
       required:
         - destID
+        - user_enpryption_key
       properties:
         copyFileName:
           type: string
@@ -1042,6 +1108,9 @@ components:
           format: uuid
           example: 9b81d950-b605-471f-a654-4fffba6bcfc5
           description: ID of the destination directory
+        user_enpryption_key:
+          example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+          type: string
 
     CloudFile:
       description: Represents a classic file, sent by the server
@@ -1158,7 +1227,27 @@ components:
             oneOf:
               - $ref: "#/components/schemas/CloudFile"
               - $ref: "#/components/schemas/CloudDirectory"
-              
+
+    FileTag:
+      description: File tag
+      type: object
+      required:
+        - id
+        - name
+        - hexColor
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+        name:
+          type: string
+          example: TODO
+        hexColor:
+          type: string
+          pattern: "^#(?:[0-9a-fA-F]{3}){1,2}$"
+          example: "#eeeeee"
+
     FileShareAccess:
       description: User who have a share access to a file
       type: object
@@ -1206,23 +1295,3 @@ components:
           type: string
           description: msg
           example: <error message>
-
-    FileTag:
-      description: File tag
-      type: object
-      required:
-        - id
-        - name
-        - hexColor
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
-        name:
-          type: string
-          example: TODO
-        hexColor:
-          type: string
-          pattern: "^#(?:[0-9a-fA-F]{3}){1,2}$"
-          example: "#eeeeee"

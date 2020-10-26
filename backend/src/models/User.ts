@@ -6,6 +6,8 @@ import validator from 'validator';
 import Guid from 'guid';
 
 import ITag, { Tag } from './Tag';
+import IUserEncryptionKeys, { UserEncryptionKeys } from './UserEncryptionKeys';
+import IFileEncryptionKeys, { FileEncryptionKeys } from './FileEncryptionKeys';
 
 
 /**
@@ -105,6 +107,13 @@ export const UserSchema = new mongoose.Schema({
     tags: {
         type: [Tag.schema]
     },
+    // file encryption data
+    userKeys: {
+        type: [UserEncryptionKeys.schema]
+    },
+    filesKeys: {
+        type: [FileEncryptionKeys.schema]
+    },
     updated_at: {
         type: Date,
         default: new Date().getTime()
@@ -134,6 +143,8 @@ export interface IUser extends mongoose.Document {
     twoFactorEmail: boolean;
     role: Role;
     tags: ITag[];
+    userKeys: IUserEncryptionKeys[],
+    filesKeys: IFileEncryptionKeys[],
     updated_at: string;
     created_at: string;
 }
