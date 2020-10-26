@@ -140,12 +140,12 @@ paths:
         "500":
           description: Internal Error
 
-  /auth/passwordcheck:
+  /auth/forgottenPassword:               
     post:
       tags:
-        - Check password
-      summary: Check if user enters valid password
-      description: Check if user enters valid password
+        - Authentication
+      summary: Forgotten password
+      description: Ask the backend to send an email to the user with a token which will be usable to change user's password
       requestBody:
         content:
           application/json:
@@ -187,7 +187,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericErrorResponse"
         "500":
-          description: Internal Error
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
 
   /users/profile:
     get:
@@ -465,31 +469,41 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericErrorResponse"
 
-  /auth/forgottenPassword:               
-    post:
+  "/users/encryptfile":
+    get: 
       tags:
-        - Authentication
-      summary: Forgotten password
-      description: Ask the backend to send an email to the user with a token which will be usable to change user's password
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: "email@gmail.com"
+        - File encryption
+      security:
+        - jwtToken: []  
+      summary: Get user's encryption keys
+      description: Get user's encryption keys (public key not encrypted and private key encrypted)
       responses:
         "200":
-          description: Success / Unknown user
+          description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericSuccessResponse"
-        "400":
-          description: Email is invalid
+                type: object
+                required:
+                  - success
+                  - msg
+                  - public_key
+                  - encrypted_private_key
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  msg:
+                    type: string
+                    example: "Success"
+                  public_key:
+                    type: string
+                    example: "JIjefsueu5f45sefsffiosejfefsefbhtrtf"
+                  encrypted_private_key:
+                    type: string
+                    example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+        "401":
+          description: Not logged in
           content:
             application/json:
               schema:
@@ -501,6 +515,55 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericErrorResponse"
 
+    post: 
+      tags:
+        - File encryption
+      security:
+        - jwtToken: []  
+      summary: Change user's encryption keys
+      description: Change user's encryption keys (public key not encrypted and private key encrypted)
+      parameters:
+        - name: tagId
+          in: path
+          description: Tag ID to edit
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - public_key
+                - encrypted_private_key
+              properties:
+                public_key:
+                  example: "JIjefsueu5f45sefsffiosejfefsefbhtrtf"
+                  type: string
+                encrypted_private_key:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericSuccessResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
   /users/devices:
     get:
       security:
