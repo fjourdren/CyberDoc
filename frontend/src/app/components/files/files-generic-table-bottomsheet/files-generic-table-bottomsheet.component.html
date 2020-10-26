@@ -21,7 +21,7 @@
     </a>
     <a href="#" *ngIf="!data.readonlyMode && !data.node.isDirectory" mat-list-item (click)="onBottomSheetSelection($event,'share')">
         <span>
-            <mat-icon>share</mat-icon>{{ 'fileaction.share' | translate }}
+            <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>{{ 'fileaction.share' | translate }}
         </span>
     </a>
     <a href="#" *ngIf="data.showDetailsEntry" mat-list-item (click)="onBottomSheetSelection($event,'details')">

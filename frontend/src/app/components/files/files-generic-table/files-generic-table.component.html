@@ -74,7 +74,7 @@
             <span>{{ 'fileaction.export' | translate }}</span>
         </button>
         <button *ngIf="!isReadOnly(selectedNode) && !selectedNode.isDirectory" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('share')">
-            <mat-icon>share</mat-icon>
+            <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>
             <span>{{ 'fileaction.share' | translate }}</span>
         </button>
         <button *ngIf="showDetailsButton" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('details')">
