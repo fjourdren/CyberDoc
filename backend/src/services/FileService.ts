@@ -10,12 +10,13 @@ const filepreview = require('pngenerator');
 import { v4 as uuidv4 } from "uuid";
 import { promisify } from "util";
 import { execFile as _oldExecFile } from "child_process";
-import { writeFile as _oldWriteFile, unlink as _oldUnlink, readFile as _oldReadFile } from "fs";
+import { writeFile as _oldWriteFile, unlink as _oldUnlink, readFile as _oldReadFile, mkdir as _oldMkdir } from "fs";
 
 const execFile = promisify(_oldExecFile);
 const writeFile = promisify(_oldWriteFile);
 const unlink = promisify(_oldUnlink);
 const readFile = promisify(_oldReadFile);
+const mkdir = promisify(_oldMkdir);
 
 import GridFSTalker from "../helpers/GridFSTalker";
 import { requireNonNull, requireIsNull } from '../helpers/DataValidation';
@@ -495,15 +496,23 @@ class FileService {
         const inputBuffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
 
         const randomUUID = uuidv4();
-        await writeFile(`/tmp/${randomUUID}`, inputBuffer);
+        const directory = path.join("tmp", "pdf-export");
+        const inputFilePath = path.resolve(path.join("tmp", "pdf-export", `pdf-${randomUUID}`));
+        
+        //pdf extension is added by soffice
+        const outputFilePath = path.resolve(path.join("tmp", "pdf-export", `pdf-${randomUUID}.pdf`));
+
+        await mkdir(directory);
+        await writeFile(inputFilePath, inputBuffer);
         await execFile("soffice", [
             "--convert-to pdf:writer_pdf_Export",
             "-env:UserInstallation=file:///tmp/soffice-conversion",
-            `--outdir /tmp`,
-            `/tmp/${randomUUID}`
+            `--outdir ${directory}`,
+            inputFilePath
         ]);
-        const outputBuffer = await readFile(`/tmp/${randomUUID}.pdf`);
-        await unlink(`/tmp/${randomUUID}`);
+        const outputBuffer = await readFile(outputFilePath);
+        await unlink(inputFilePath);
+        await unlink(outputFilePath);
 
         const readablePDF = new Readable();
         readablePDF.push(outputBuffer);
