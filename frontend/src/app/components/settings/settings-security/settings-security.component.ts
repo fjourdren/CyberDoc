@@ -224,10 +224,12 @@ export class SettingsSecurityComponent implements OnInit {
 @Component({
     selector: 'app-settings-security-dialog',
     templateUrl: 'settings-security-dialog.component.html',
+    styleUrls: ['./settings-security.component.css']
 })
 export class SettingsSecurityDialogComponent implements OnInit {
     phoneNumberForm = new FormGroup({
-        phoneNumber: new FormControl('', [Validators.required, Validators.minLength(6), Validators.maxLength(11)])
+        // E.164 allows for a maximum of 15 digits, up to 3 of which are the country code,
+        phoneNumber: new FormControl('', [Validators.required, Validators.maxLength(15)])
     });
     tokenForm: FormGroup;
     phoneNumber: any;
@@ -262,7 +264,7 @@ export class SettingsSecurityDialogComponent implements OnInit {
             this.data.phoneNumber = this.phoneNumber;
         }).catch(err => {
             this.loading = false;
-            this.snackBar.open(err.error.msg, null, {duration: 1500})
+            this.snackBar.open(err.error.msg, null, {duration: 1500});
         });
     }
 
@@ -272,7 +274,6 @@ export class SettingsSecurityDialogComponent implements OnInit {
             this.twoFactorServiceProvider.default()
                 .verifyTokenByApp(this.data.secret, this.tokenForm.get('token').value)
                 .toPromise().then(res => {
-                this.loading = false;
                 if (res) {
                     this.userServiceProvider.default().updateTwoFactor(
                         true,
@@ -281,6 +282,7 @@ export class SettingsSecurityDialogComponent implements OnInit {
                         this.userServiceProvider.default().getActiveUser().email
                     ).toPromise().then(() => {
                         this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                            this.loading = false;
                             this.snackBar.open('2FA activated', null, {duration: 1500});
                             this.dialogRef.close();
                         }).catch(err => {
@@ -302,7 +304,6 @@ export class SettingsSecurityDialogComponent implements OnInit {
             this.twoFactorServiceProvider.default()
                 .verifyTokenBySms(this.data.phoneNumber, this.tokenForm.get('token').value)
                 .toPromise().then(res => {
-                this.loading = false;
                 if (res) {
                     this.userServiceProvider.default().updateTwoFactor(
                         this.userServiceProvider.default().getActiveUser().twoFactorApp,
@@ -311,6 +312,7 @@ export class SettingsSecurityDialogComponent implements OnInit {
                         this.userServiceProvider.default().getActiveUser().email
                     ).toPromise().then(() => {
                         this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                            this.loading = false;
                             this.snackBar.open('2FA activated', null, {duration: 1500});
                             this.dialogRef.close();
                         }).catch(err => {
@@ -332,7 +334,6 @@ export class SettingsSecurityDialogComponent implements OnInit {
             this.twoFactorServiceProvider.default()
                 .verifyTokenByEmail(this.userServiceProvider.default().getActiveUser().email, this.tokenForm.get('token').value)
                 .toPromise().then(res => {
-                this.loading = false;
                 if (res) {
                     this.userServiceProvider.default().updateTwoFactor(
                         this.userServiceProvider.default().getActiveUser().twoFactorApp,
@@ -341,6 +342,7 @@ export class SettingsSecurityDialogComponent implements OnInit {
                         this.userServiceProvider.default().getActiveUser().email
                     ).toPromise().then(() => {
                         this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                            this.loading = false;
                             this.snackBar.open('2FA activated', null, {duration: 1500});
                             this.dialogRef.close();
                         }).catch(err => {
