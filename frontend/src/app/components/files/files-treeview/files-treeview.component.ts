@@ -25,15 +25,15 @@ export class FilesTreeviewComponent {
         let nodes: FilesTreeviewNode[] = [];
 
         Promise.all([
-            fsProvider.default().get(userServiceProvider.default().getActiveUser().directory_id).toPromise(),
+            userServiceProvider.default().getActiveUser().directory_id ? fsProvider.default().get(userServiceProvider.default().getActiveUser().directory_id).toPromise() : null,
             fsProvider.default().getSharedFiles().toPromise()]).then((values) => {
-              if (userServiceProvider.default().getActiveUser().role === "owner") {
-                if (values[0].isDirectory) {
-                  nodes.push(new FilesTreeviewNode(values[0], 0, [], true, true));
+                if (userServiceProvider.default().getActiveUser().role === "owner") {
+                    if (values[0].isDirectory) {
+                        nodes.push(new FilesTreeviewNode(values[0], 0, [], true, true));
+                    }
                 }
-              }
-              nodes.push(new FilesTreeviewNode(values[1], 0, [], false, userServiceProvider.default().getActiveUser().role !== "owner"));
-              this.dataSource.data = nodes;
+                nodes.push(new FilesTreeviewNode(values[1], 0, [], false, userServiceProvider.default().getActiveUser().role !== "owner"));
+                this.dataSource.data = nodes;
             }
         )
 

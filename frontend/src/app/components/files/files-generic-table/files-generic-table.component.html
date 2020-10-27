@@ -101,7 +101,7 @@
             <span>{{ 'fileaction.delete' | translate }}</span>
         </button>
         <!-- We can't share a directory, a read-only file shared with us neither -->
-        <button *ngIf="!selectedNode.isDirectory && !this.sharedWithMeMode && !isReadOnly(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('share')">
+        <button *ngIf="selectedNode && !selectedNode.isDirectory && !this.sharedWithMeMode && !isReadOnly(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('share')">
             <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>
             <span>{{ 'fileaction.share' | translate }}</span>
         </button>
