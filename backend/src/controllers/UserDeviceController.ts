@@ -20,7 +20,7 @@ class UserDeviceController {
             requireNonNull(OS);
 
             // get user
-            const user: IUser = requireNonNull(await User.findById(res.locals.APP_JWT_TOKEN.user._id).exec(), HttpCodes.NOT_FOUND, "User not found");
+            const user: IUser = requireNonNull(await User.findById(res.locals.APP_JWT_TOKEN.user._id).exec(), HttpCodes.INTERNAL_ERROR, "User not found");
 
             // add device
             requireNonNull(await DeviceService.create(user, name, browser, OS));
@@ -39,7 +39,7 @@ class UserDeviceController {
     public static async get(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             // get user
-            const user: IUser = requireNonNull(await User.findById(res.locals.APP_JWT_TOKEN.user._id).exec(), HttpCodes.NOT_FOUND, "User not found");
+            const user: IUser = requireNonNull(await User.findById(res.locals.APP_JWT_TOKEN.user._id).exec(), HttpCodes.INTERNAL_ERROR, "User not found");
 
             // get device list
             const devices: IDevice[] = await DeviceService.get(user);
@@ -60,18 +60,16 @@ class UserDeviceController {
             const name: string = req.params.name;
 
             const newName: string  = req.body.name;
-            const newBrowser: string  = req.body.browser;
-            const newOS: string  = req.body.OS;
 
             // check non null
             requireNonNull(name);
 
             // get user
-            const user: IUser = requireNonNull(await User.findById(res.locals.APP_JWT_TOKEN.user._id).exec(), HttpCodes.NOT_FOUND, "User not found");
+            const user: IUser = requireNonNull(await User.findById(res.locals.APP_JWT_TOKEN.user._id).exec(), HttpCodes.INTERNAL_ERROR, "User not found");
 
             // found device and edit
             const deviceToEdit = requireNonNull(user.devices.find(device => device.name === name));
-            await DeviceService.edit(user, deviceToEdit, newName, newBrowser, newOS);
+            await DeviceService.edit(user, deviceToEdit, newName);
 
             // reply client
             res.status(HttpCodes.OK);
@@ -92,7 +90,7 @@ class UserDeviceController {
             requireNonNull(name);
 
             // get user
-            const user: IUser = requireNonNull(await User.findById(res.locals.APP_JWT_TOKEN.user._id).exec(), HttpCodes.NOT_FOUND, "User not found");
+            const user: IUser = requireNonNull(await User.findById(res.locals.APP_JWT_TOKEN.user._id).exec(), HttpCodes.INTERNAL_ERROR, "User not found");
 
             // delete device
             await DeviceService.delete(user, name);

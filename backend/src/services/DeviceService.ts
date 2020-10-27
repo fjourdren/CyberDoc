@@ -37,7 +37,7 @@ class DeviceService {
     }
 
     // edit device
-    public static async edit(user: IUser, device: IDevice, newName: string, newBrowser: string, newOS: string): Promise<void> {
+    public static async edit(user: IUser, device: IDevice, newName: string): Promise<void> {
         // generate updater string
         let updateString: Record<string, unknown> = {};
 
@@ -49,12 +49,6 @@ class DeviceService {
 
         if(newName)
             updateString = Object.assign({}, { 'devices.$.name': newName });
-
-        if(newBrowser)
-            updateString = Object.assign(updateString, { 'devices.$.browser': newBrowser });
-        
-        if(newOS)
-            updateString = Object.assign(updateString, { 'devices.$.OS': newOS });
 
         // update mongo data
         await User.updateMany({ _id: user._id, 'devices._id': device._id }, { '$set': updateString });

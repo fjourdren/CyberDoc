@@ -524,7 +524,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericSuccessResponse"
         "400":
-          description: Body is invalid (all values are required)
+          description: Body is invalid (all values are required) or name already used
           content:
             application/json:
               schema:
@@ -564,14 +564,8 @@ paths:
               type: object
               required:
                 - name
-                - browser
-                - OS
               properties:
                 name:
-                  type: string
-                browser:
-                  type: string
-                OS:
                   type: string
       responses:
         "200":
@@ -581,7 +575,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericSuccessResponse"
         "400":
-          description: Body is invalid (all values are required)
+          description: Body is invalid (all values are required) or name already used
           content:
             application/json:
               schema:
@@ -716,13 +710,19 @@ components:
 
     Devices:
       description: Device used by user to access to the service
-      type: object
+      type: array
       required:
         - name
       properties:
         name:
           type: string
-          example: Device name
+          example: Device's name
+        browser:
+          type: string
+          example: Device's browser
+        OS:
+          type: string
+          example: Device's operating system
 
     GenericSuccessResponse:
       description: Generic error response
