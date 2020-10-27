@@ -7,7 +7,7 @@ import HttpCodes from "../helpers/HttpCodes";
 
 class DeviceService {
     // create a device
-    public static async create(user: IUser, name: string): Promise<IDevice> {
+    public static async create(user: IUser, name: string, browser: string, OS: string): Promise<IDevice> {
         // check that both variable aren't null
         requireNonNull(name);
 
@@ -20,6 +20,8 @@ class DeviceService {
         // create Device object
         const newDevice: IDevice = new Device();
         newDevice.name = name;
+        newDevice.browser = browser;
+        newDevice.OS = OS;
 
         // add device to user
         user.devices.push(newDevice);
@@ -35,7 +37,7 @@ class DeviceService {
     }
 
     // edit device
-    public static async edit(user: IUser, device: IDevice, newName: string): Promise<void> {
+    public static async edit(user: IUser, device: IDevice, newName: string, newBrowser: string, newOS: string): Promise<void> {
         // generate updater string
         let updateString: Record<string, unknown> = {};
 
@@ -48,6 +50,12 @@ class DeviceService {
     
         if(newName)
             updateString = Object.assign({}, { 'devices.$.name': newName });
+
+        if(newBrowser)
+            updateString = Object.assign({}, { 'devices.$.browser': newBrowser });
+        
+        if(newOS)
+            updateString = Object.assign({}, { 'devices.$.browser': newOS });
 
         // update mongo data
         await User.updateMany({ _id: user._id, 'devices._id': device._id }, { '$set': updateString });

@@ -506,9 +506,15 @@ paths:
             schema:
               example: 
                 name: "Office computer"
+                browser: "Firefox"
+                OS: "Microsoft Windows 10"
               type: object
               properties:
                 name:
+                  type: string
+                browser:
+                  type: string
+                OS:
                   type: string
       responses:
         "200":
@@ -558,10 +564,15 @@ paths:
               type: object
               required:
                 - name
+                - browser
+                - OS
               properties:
                 name:
                   type: string
-                  example: New name
+                browser:
+                  type: string
+                OS:
+                  type: string
       responses:
         "200":
           description: Success
