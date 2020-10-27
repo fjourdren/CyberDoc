@@ -16,11 +16,13 @@ class TwoFactorAuthController {
             res.status(HttpCodes.OK);
             res.json(verificationInstance);
         } catch (err) {
-            res.status(HttpCodes.FORBIDDEN);
-            res.json({
-                success: false,
-                msg: err.message
-            });
+            if(err.code && err.code === 60200) {
+                res.status(HttpCodes.BAD_REQUEST);
+                res.json({
+                    success: false,
+                    msg: "This phone number is invalid"
+                });
+            }
             next(err);
         }
     }
@@ -33,11 +35,13 @@ class TwoFactorAuthController {
             res.status(HttpCodes.OK);
             res.json(verificationInstance);
         } catch (err) {
-            res.status(HttpCodes.FORBIDDEN);
-            res.json({
-                success: false,
-                msg: err.message
-            });
+            if(err.code && err.code === 60200) {
+                res.status(HttpCodes.BAD_REQUEST);
+                res.json({
+                    success: false,
+                    msg: "This email is invalid"
+                });
+            }
             next(err);
         }
     }
@@ -51,9 +55,8 @@ class TwoFactorAuthController {
             let output: boolean;
             if (secret) {
                 const delta = await TwoFactorAuthService.verifyTokenGeneratedByApp(secret, token);
-                if (delta === null) throw new HTTPError(HttpCodes.BAD_REQUEST, "Invalid token");
-                else if (delta === -1) throw new HTTPError(HttpCodes.BAD_REQUEST, "Token entered too late");
-                else if (delta === 1) throw new HTTPError(HttpCodes.BAD_REQUEST, "Token entered too early");
+                console.log(delta);
+                if (delta === null || delta === -1 || delta === 1) throw new HTTPError(HttpCodes.BAD_REQUEST, "Invalid token");
 
                 jwtToken = jwt.sign({
                     user: res.locals.APP_JWT_TOKEN.user,
@@ -85,11 +88,6 @@ class TwoFactorAuthController {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "Request should have either secret, phoneNumber or email.");
             }
         } catch (err) {
-            res.status(err.statusCode);
-            res.json({
-                success: false,
-                msg: err.message
-            });
             next(err);
         }
     }
@@ -105,12 +103,7 @@ class TwoFactorAuthController {
             res.status(HttpCodes.OK);
             res.json(secretUriAndQr);
         } catch (err) {
-            res.status(HttpCodes.FORBIDDEN);
-            res.json({
-                success: false,
-                msg: err.message
-            });
-            next(err);
+           next(err);
         }
     }
 }
