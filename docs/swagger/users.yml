@@ -619,6 +619,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GenericErrorResponse"
+        "404":
+          description: Device not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
         "500":
           description: Server error
           content:
