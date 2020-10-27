@@ -23,7 +23,7 @@ export class RealFileSystem implements FileSystem {
     private _uploadXhr: XMLHttpRequest;
     private _timeStarted: number = -1;
 
-    constructor(private httpClient: HttpClient, private userServiceProvider: UserServiceProvider) {
+    constructor(private httpClient: HttpClient) {
         if (location.toString().indexOf("localhost") > -1) {
             this._baseUrl = "http://localhost:3000/v1";
         } else {
@@ -72,7 +72,7 @@ export class RealFileSystem implements FileSystem {
             folder.name = null;
             folder.isDirectory = true;
             folder.mimetype = DIRECTORY_MIMETYPE;
-            folder.ownerName = this.userServiceProvider.default().getActiveUser().firstname + " " + this.userServiceProvider.default().getActiveUser().lastname;
+            folder.ownerName = null;
             folder.path = [];
             folder.tags = [];
             return folder;

@@ -760,7 +760,7 @@ paths:
                 required:
                   - success
                   - msg
-                  - sharedFiles
+                  - results
                 properties:
                   success:
                     type: boolean
@@ -770,7 +770,7 @@ paths:
                     type: string
                     description: msg
                     example: Success
-                  sharedFiles:
+                  results:
                     type: array
                     items:
                       $ref: "#/components/schemas/CloudFile"

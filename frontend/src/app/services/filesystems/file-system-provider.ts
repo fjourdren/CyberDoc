@@ -30,9 +30,9 @@ export class FileSystemProvider {
         console.log(providerName);
         switch (providerName){
             case "mock":
-                return new MockFileSystem(this.fileUtils, this.userServiceProvider);
+                return new MockFileSystem(this.fileUtils);
             case "real":
-                return new RealFileSystem(this.httpClient, this.userServiceProvider);
+                return new RealFileSystem(this.httpClient);
             default:
                 throw new Error(`Unknown FS provider : ${providerName}`);
         }

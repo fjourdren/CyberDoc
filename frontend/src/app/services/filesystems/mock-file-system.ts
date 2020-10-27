@@ -6,7 +6,6 @@ import { CloudNode, CloudDirectory, SearchParams, FileTag, CloudFile, PathItem, 
 import { DIRECTORY_MIMETYPE, FilesUtilsService, FileType } from '../files-utils/files-utils.service';
 import { FileSystem, Upload } from './file-system';
 import { UserServiceProvider } from '../users/user-service-provider'
-import { User } from 'src/app/models/users-api-models';
 
 interface InternalFileElement {
     parentID?: string;
@@ -34,7 +33,7 @@ export class MockFileSystem implements FileSystem {
     private _uploadCancelRequested = false;
     
 
-    constructor(private fileUtils: FilesUtilsService, private userServiceProvider: UserServiceProvider) {
+    constructor(private fileUtils: FilesUtilsService) {
         this._load();
         
     }
@@ -243,7 +242,7 @@ export class MockFileSystem implements FileSystem {
     }
 
     getSharedFiles(): Observable<CloudDirectory> {
-        return null
+        return of(new CloudDirectory());
     }
 
     deleteShare(fileID: string, email: string): Observable<void>{
