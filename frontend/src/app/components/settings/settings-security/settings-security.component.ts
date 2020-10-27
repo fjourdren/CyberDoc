@@ -79,7 +79,7 @@ export class SettingsSecurityComponent implements OnInit {
                 this.userServiceProvider.default().getActiveUser().email
             ).toPromise().then(() => {
                 this.snackBar.open('Password updated', null, {duration: 1500});
-            }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+            }).catch(err => this.snackBar.open(err.msg, null, {duration: 1500}));
         } else {
             this.snackBar.open('Password aren\'t equals', null, {duration: 1500});
         }
@@ -172,7 +172,7 @@ export class SettingsSecurityComponent implements OnInit {
                         this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
                             this.snackBar.open('2FA disabled', null, {duration: 1500});
                             this.refreshTwoFactor();
-                        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                        }).catch(err => this.snackBar.open(err.msg, null, {duration: 1500}));
                     });
                 } else {
                     this.snackBar.open('You have to keep at least one 2FA option to use the application.',
@@ -191,7 +191,7 @@ export class SettingsSecurityComponent implements OnInit {
                         this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
                             this.snackBar.open('2FA disabled', null, {duration: 1500});
                             this.refreshTwoFactor();
-                        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                        }).catch(err => this.snackBar.open(err.msg, null, {duration: 1500}));
                     });
                 } else {
                     this.snackBar.open('You have to keep at least one 2FA option to use the application.',
@@ -210,7 +210,7 @@ export class SettingsSecurityComponent implements OnInit {
                         this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
                             this.snackBar.open('2FA disabled', null, {duration: 1500});
                             this.refreshTwoFactor();
-                        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                        }).catch(err => this.snackBar.open(err.msg, null, {duration: 1500}));
                     });
                 } else {
                     this.snackBar.open('You have to keep at least one 2FA option to use the application.',
@@ -264,100 +264,86 @@ export class SettingsSecurityDialogComponent implements OnInit {
             this.data.phoneNumber = this.phoneNumber;
         }).catch(err => {
             this.loading = false;
-            this.snackBar.open(err.error.msg, null, {duration: 1500});
+            this.snackBar.open(err.msg, null, {duration: 1500});
         });
     }
 
     onSubmitToken(): void {
         this.loading = true;
-        if (this.data.type === 'app') { // 2FA APP
-            this.twoFactorServiceProvider.default()
-                .verifyTokenByApp(this.data.secret, this.tokenForm.get('token').value)
-                .toPromise().then(res => {
-                if (res) {
-                    this.userServiceProvider.default().updateTwoFactor(
-                        true,
-                        this.userServiceProvider.default().getActiveUser().twoFactorSms,
-                        this.userServiceProvider.default().getActiveUser().twoFactorEmail,
-                        this.userServiceProvider.default().getActiveUser().email
-                    ).toPromise().then(() => {
-                        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                            this.loading = false;
-                            this.snackBar.open('2FA activated', null, {duration: 1500});
-                            this.dialogRef.close();
-                        }).catch(err => {
-                            this.snackBar.open(err.error.msg, null, {duration: 1500});
+        try {
+            if (this.data.type === 'app') { // 2FA APP
+                this.twoFactorServiceProvider.default()
+                    .verifyTokenByApp(this.data.secret, this.tokenForm.get('token').value)
+                    .toPromise().then(res => {
+                    if (res) {
+                        this.userServiceProvider.default().updateTwoFactor(
+                            true,
+                            this.userServiceProvider.default().getActiveUser().twoFactorSms,
+                            this.userServiceProvider.default().getActiveUser().twoFactorEmail,
+                            this.userServiceProvider.default().getActiveUser().email
+                        ).toPromise().then(() => {
+                            this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                                this.loading = false;
+                                this.snackBar.open('2FA activated', null, {duration: 1500});
+                                this.dialogRef.close();
+                            });
                         });
-                    }).catch(err => {
-                        this.snackBar.open(err.error.msg, null, {duration: 1500});
-                    });
-                    this.userServiceProvider.default().updateSecret(this.data.secret,
-                        this.userServiceProvider.default().getActiveUser().email).toPromise();
-                } else {
-                    this.snackBar.open('Invalid token', null, {duration: 1500});
-                }
-            }).catch(err => {
-                this.loading = false;
-                this.snackBar.open(err.error.msg, null, {duration: 1500});
-            });
-        } else if (this.data.type === 'sms') { // 2FA SMS
-            this.twoFactorServiceProvider.default()
-                .verifyTokenBySms(this.data.phoneNumber, this.tokenForm.get('token').value)
-                .toPromise().then(res => {
-                if (res) {
-                    this.userServiceProvider.default().updateTwoFactor(
-                        this.userServiceProvider.default().getActiveUser().twoFactorApp,
-                        true,
-                        this.userServiceProvider.default().getActiveUser().twoFactorEmail,
-                        this.userServiceProvider.default().getActiveUser().email
-                    ).toPromise().then(() => {
-                        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                            this.loading = false;
-                            this.snackBar.open('2FA activated', null, {duration: 1500});
-                            this.dialogRef.close();
-                        }).catch(err => {
-                            this.snackBar.open(err.error.msg, null, {duration: 1500});
+                        this.userServiceProvider.default().updateSecret(this.data.secret,
+                            this.userServiceProvider.default().getActiveUser().email).toPromise();
+                    } else {
+                        this.snackBar.open('Invalid token', null, {duration: 1500});
+                    }
+                });
+            } else if (this.data.type === 'sms') { // 2FA SMS
+                this.twoFactorServiceProvider.default()
+                    .verifyTokenBySms(this.data.phoneNumber, this.tokenForm.get('token').value)
+                    .toPromise().then(res => {
+                    if (res) {
+                        this.userServiceProvider.default().updateTwoFactor(
+                            this.userServiceProvider.default().getActiveUser().twoFactorApp,
+                            true,
+                            this.userServiceProvider.default().getActiveUser().twoFactorEmail,
+                            this.userServiceProvider.default().getActiveUser().email
+                        ).toPromise().then(() => {
+                            this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                                this.loading = false;
+                                this.snackBar.open('2FA activated', null, {duration: 1500});
+                                this.dialogRef.close();
+                            }).catch(err => {
+                                this.snackBar.open(err.msg, null, {duration: 1500});
+                            });
                         });
-                    }).catch(err => {
-                        this.snackBar.open(err.error.msg, null, {duration: 1500});
-                    });
-                    this.userServiceProvider.default().updatePhoneNumber(this.data.phoneNumber,
-                        this.userServiceProvider.default().getActiveUser().email).toPromise();
-                } else {
-                    this.snackBar.open('Invalid token', null, {duration: 1500});
-                }
-            }).catch(err => {
-                this.loading = false;
-                this.snackBar.open(err.error.msg, null, {duration: 1500});
-            });
-        } else if (this.data.type === 'email') { // 2FA Email
-            this.twoFactorServiceProvider.default()
-                .verifyTokenByEmail(this.userServiceProvider.default().getActiveUser().email, this.tokenForm.get('token').value)
-                .toPromise().then(res => {
-                if (res) {
-                    this.userServiceProvider.default().updateTwoFactor(
-                        this.userServiceProvider.default().getActiveUser().twoFactorApp,
-                        this.userServiceProvider.default().getActiveUser().twoFactorSms,
-                        true,
-                        this.userServiceProvider.default().getActiveUser().email
-                    ).toPromise().then(() => {
-                        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                            this.loading = false;
-                            this.snackBar.open('2FA activated', null, {duration: 1500});
-                            this.dialogRef.close();
-                        }).catch(err => {
-                            this.snackBar.open(err.error.msg, null, {duration: 1500});
+                        this.userServiceProvider.default().updatePhoneNumber(this.data.phoneNumber,
+                            this.userServiceProvider.default().getActiveUser().email).toPromise();
+                    } else {
+                        this.snackBar.open('Invalid token', null, {duration: 1500});
+                    }
+                });
+            } else if (this.data.type === 'email') { // 2FA Email
+                this.twoFactorServiceProvider.default()
+                    .verifyTokenByEmail(this.userServiceProvider.default().getActiveUser().email, this.tokenForm.get('token').value)
+                    .toPromise().then(res => {
+                    if (res) {
+                        this.userServiceProvider.default().updateTwoFactor(
+                            this.userServiceProvider.default().getActiveUser().twoFactorApp,
+                            this.userServiceProvider.default().getActiveUser().twoFactorSms,
+                            true,
+                            this.userServiceProvider.default().getActiveUser().email
+                        ).toPromise().then(() => {
+                            this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                                this.loading = false;
+                                this.snackBar.open('2FA activated', null, {duration: 1500});
+                                this.dialogRef.close();
+                            });
                         });
-                    }).catch(err => {
-                        this.snackBar.open(err.error.msg, null, {duration: 1500});
-                    });
-                } else {
-                    this.snackBar.open('Invalid token', null, {duration: 1500});
-                }
-            }).catch(err => {
-                this.loading = false;
-                this.snackBar.open(err.error.msg, null, {duration: 1500});
-            });
+                    } else {
+                        this.snackBar.open('Invalid token', null, {duration: 1500});
+                    }
+                });
+            }
+        } catch (err) {
+            this.loading = false;
+            this.snackBar.open(err.msg, null, {duration: 1500});
         }
     }
 

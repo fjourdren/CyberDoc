@@ -16,13 +16,7 @@ class TwoFactorAuthController {
             res.status(HttpCodes.OK);
             res.json(verificationInstance);
         } catch (err) {
-            if(err.code && err.code === 60200) {
-                res.status(HttpCodes.BAD_REQUEST);
-                res.json({
-                    success: false,
-                    msg: "This phone number is invalid"
-                });
-            }
+            if(err.code && err.code === 60200) next(new HTTPError(HttpCodes.BAD_REQUEST, "This phone number is invalid"));
             next(err);
         }
     }
@@ -35,13 +29,7 @@ class TwoFactorAuthController {
             res.status(HttpCodes.OK);
             res.json(verificationInstance);
         } catch (err) {
-            if(err.code && err.code === 60200) {
-                res.status(HttpCodes.BAD_REQUEST);
-                res.json({
-                    success: false,
-                    msg: "This email is invalid"
-                });
-            }
+            if(err.code && err.code === 60200) next(new HTTPError(HttpCodes.BAD_REQUEST, "This email is invalid"));
             next(err);
         }
     }
@@ -55,7 +43,6 @@ class TwoFactorAuthController {
             let output: boolean;
             if (secret) {
                 const delta = await TwoFactorAuthService.verifyTokenGeneratedByApp(secret, token);
-                console.log(delta);
                 if (delta === null || delta === -1 || delta === 1) throw new HTTPError(HttpCodes.BAD_REQUEST, "Invalid token");
 
                 jwtToken = jwt.sign({

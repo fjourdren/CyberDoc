@@ -52,42 +52,58 @@ export class TwoFactorPageComponent implements OnInit {
             return;
         }
         this.loading = true;
-        switch (this.twoFactorType) {
-            case 'app':
-                this.twoFactorServiceProvider.default().verifyTokenByApp(this.user.secret,
-                    this.tokenForm.get('token').value).toPromise().then(res => {
-                    if (res) {
-                        this.router.navigate(['/files']);
-                    } else {
-                        this.snackBar.open('Invalid token', null, {duration: 1500});
-                    }
-                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 1500}));
-                break;
-            case 'sms':
-                this.twoFactorServiceProvider.default().verifyTokenBySms(this.user.phoneNumber,
-                    this.tokenForm.get('token').value).toPromise().then(res => {
-                    if (res) {
-                        this.router.navigate(['/files']);
-                    } else {
-                        this.snackBar.open('Invalid token', null, {duration: 1500});
-                    }
-                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 1500}));
-                break;
-            case 'email':
-                this.twoFactorServiceProvider.default().verifyTokenByEmail(this.user.email,
-                    this.tokenForm.get('token').value).toPromise().then(res => {
-                    if (res) {
-                        this.router.navigate(['/files']);
-                    } else {
-                        this.snackBar.open('Invalid token', null, {duration: 1500});
-                    }
-                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 1500}));
-                break;
+        try {
+            switch (this.twoFactorType) {
+                case 'app':
+                    this.twoFactorServiceProvider.default().verifyTokenByApp(this.user.secret,
+                        this.tokenForm.get('token').value).toPromise().then(res => {
+                        this.loading = false;
+                        if (res) {
+                            this.router.navigate(['/files']);
+                        } else {
+                            this.snackBar.open('Invalid token', null, {duration: 1500});
+                        }
+                    }).catch(err => {
+                        this.loading = false;
+                        this.snackBar.open(err.error.msg, null, {duration: 1500});
+                    });
+                    break;
+                case 'sms':
+                    this.twoFactorServiceProvider.default().verifyTokenBySms(this.user.phoneNumber,
+                        this.tokenForm.get('token').value).toPromise().then(res => {
+                        this.loading = false;
+                        if (res) {
+                            this.router.navigate(['/files']);
+                        } else {
+                            this.snackBar.open('Invalid token', null, {duration: 1500});
+                        }
+                    }).catch(err => {
+                        this.loading = false;
+                        this.snackBar.open(err.error.msg, null, {duration: 1500});
+                    });
+                    break;
+                case 'email':
+                    this.twoFactorServiceProvider.default().verifyTokenByEmail(this.user.email,
+                        this.tokenForm.get('token').value).toPromise().then(res => {
+                        this.loading = false;
+                        if (res) {
+                            this.router.navigate(['/files']);
+                        } else {
+                            this.snackBar.open('Invalid token', null, {duration: 1500});
+                        }
+                    }).catch(err => {
+                        this.loading = false;
+                        this.snackBar.open(err.error.msg, null, {duration: 1500});
+                    });
+                    break;
+            }
+        } catch (err) {
+            this.loading = false;
+            this.snackBar.open(err.msg, null, {duration: 1500});
         }
-        this.loading = false;
     }
 
-    dialogTokenByApp() {
+    dialogTokenByApp(): void {
         this.twoFactorType = 'app';
     }
 

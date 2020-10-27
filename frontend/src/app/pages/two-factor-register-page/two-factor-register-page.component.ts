@@ -115,7 +115,7 @@ export class TwoFactorRegisterPageComponent implements OnInit {
                 this.loading = false;
                 this.refreshTwoFactor();
                 this.snackBar.open('2FA disabled', null, {duration: 1500});
-            }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+            }).catch(err => this.snackBar.open(err.msg, null, {duration: 1500}));
         });
 
     }
@@ -190,6 +190,9 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
                             });
                         });
                     }
+                }).catch(err => {
+                    this.loading = false;
+                    this.snackBar.open(err.error.msg, null, {duration: 1500});
                 });
             } else if (this.data.type === 'sms') { // 2FA SMS
                 this.twoFactorServiceProvider.default()
@@ -214,7 +217,7 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
                     }
                 }).catch(err => {
                     this.loading = false;
-                    this.snackBar.open(err.error.message, null, {duration: 1500});
+                    this.snackBar.open(err.error.msg, null, {duration: 1500});
                 });
             } else if (this.data.type === 'email') { // 2FA Email
                 this.twoFactorServiceProvider.default()
@@ -234,11 +237,14 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
                             });
                         });
                     }
+                }).catch(err => {
+                    this.loading = false;
+                    this.snackBar.open(err.error.msg, null, {duration: 1500});
                 });
             }
         } catch (err) {
             this.loading = false;
-            this.snackBar.open(err.message, null, {duration: 1500})
+            this.snackBar.open(err.error.msg, null, {duration: 1500});
         }
     }
 
