@@ -46,28 +46,27 @@ class DeviceService {
         for(let i = 0; i < devices.length; i++)
             if(devices[i].name == newName)
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "This Device name is already used");
- 
-    
+
         if(newName)
             updateString = Object.assign({}, { 'devices.$.name': newName });
 
         if(newBrowser)
-            updateString = Object.assign({}, { 'devices.$.browser': newBrowser });
+            updateString = Object.assign(updateString, { 'devices.$.browser': newBrowser });
         
         if(newOS)
-            updateString = Object.assign({}, { 'devices.$.browser': newOS });
+            updateString = Object.assign(updateString, { 'devices.$.OS': newOS });
 
         // update mongo data
         await User.updateMany({ _id: user._id, 'devices._id': device._id }, { '$set': updateString });
     }
 
     // delete a device
-    public static async delete(user: IUser, deviceName: string): Promise<IUser> {
+    public static async delete(user: IUser, deviceName: string): Promise<void> {
         // non null check
         requireNonNull(deviceName);
 
         // remove the device
-        return requireNonNull(await User.update({'_id': user._id }, { $pull: { "devices": { "name": deviceName }} }, {'multi': true}).exec());
+        await User.updateOne( {'_id': user._id }, { $pull: { "devices": { "name": deviceName }} }, {'multi': true }).exec();
     }
 }
 
