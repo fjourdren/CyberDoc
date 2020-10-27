@@ -12,7 +12,7 @@ class UserDeviceController {
 
     public static async create(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { name } = req.body;
+            const { name, browser, OS } = req.body;
 
             // check non null
             requireNonNull(name);
@@ -22,7 +22,7 @@ class UserDeviceController {
             requireNonNull(user, HttpCodes.NOT_FOUND, "User not found");
 
             // add device
-            requireNonNull(await DeviceService.create(user, name));
+            requireNonNull(await DeviceService.create(user, name, browser, OS));
 
             // reply client
             res.status(HttpCodes.OK);
@@ -58,11 +58,16 @@ class UserDeviceController {
     public static async edit(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const name: string = req.params.name;
+
             const newName: string  = req.body.name;
+            const newBrowser: string  = req.body.browser;
+            const newOS: string  = req.body.OS;
 
             // check non null
             requireNonNull(name);
             requireNonNull(newName);
+            requireNonNull(newBrowser);
+            requireNonNull(newOS);
 
             // get user
             const user: IUser = requireNonNull(await User.findById(res.locals.APP_JWT_TOKEN.user._id).exec());
@@ -70,7 +75,7 @@ class UserDeviceController {
 
             // found device and edit
             const deviceToEdit = requireNonNull(user.devices.find(device => device.name === name));
-            await DeviceService.edit(user, deviceToEdit, newName);
+            await DeviceService.edit(user, deviceToEdit, newName, newBrowser, newOS);
 
             // reply client
             res.status(HttpCodes.OK);
