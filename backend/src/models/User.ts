@@ -6,6 +6,7 @@ import validator from 'validator';
 import Guid from 'guid';
 
 import ITag, { Tag } from './Tag';
+import IDevice, { Device } from './Device';
 
 
 /**
@@ -105,6 +106,9 @@ export const UserSchema = new mongoose.Schema({
     tags: {
         type: [Tag.schema]
     },
+    devices: {
+        type: [Device.schema]
+    },
     updated_at: {
         type: Date,
         default: new Date().getTime()
@@ -134,6 +138,7 @@ export interface IUser extends mongoose.Document {
     twoFactorEmail: boolean;
     role: Role;
     tags: ITag[];
+    devices: IDevice[];
     updated_at: string;
     created_at: string;
 }
