@@ -479,7 +479,8 @@ paths:
                     type: string
                     example: "Success"
                   devices:
-                    $ref: "#/components/schemas/Devices"
+                    items:
+                      $ref: "#/components/schemas/Devices"
         "401":
           description: Not logged in
           content:
@@ -542,7 +543,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericErrorResponse"
 
-  /users/devices/{name}:
+  "/users/devices/{name}":
     patch: 
       tags:
         - User's devices
@@ -606,6 +607,13 @@ paths:
         - jwtToken: []  
       summary: Delete a device
       description: Delete a device
+      parameters:
+        - name: name
+          in: path
+          description: Device's name
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: Success
@@ -716,7 +724,7 @@ components:
 
     Devices:
       description: Device used by user to access to the service
-      type: array
+      type: object
       required:
         - name
       properties:
