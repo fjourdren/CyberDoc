@@ -56,8 +56,6 @@ export class FilesShareDialogComponent {
     this.loading = true;
     this.registerForm.disable();
     this.dialogRef.disableClose = true;
-
-    console.log(this.userServiceProvider.default().getActiveUser().email);
     if(this.registerForm.controls.input.value === this.userServiceProvider.default().getActiveUser().email){
       this.alreadyLoggedError = true;
       this.loading = false;

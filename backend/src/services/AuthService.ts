@@ -20,7 +20,7 @@ class AuthService {
     }
 
     // register service
-    public static async signup(firstname: string, lastname: string, email: string, password: string, role: Role): Promise<string> {
+    public static async signup(firstname: string, lastname: string, email: string, password: string, role: Role, fileId: string): Promise<string> {
         // build object
         const newUser: IUser = new User();
         newUser._id = Guid.raw()
@@ -45,6 +45,14 @@ class AuthService {
         newUser.directory_id = root_user_dir._id;
         try {
             requireNonNull(await newUser.save());
+            if (fileId) {
+                const file = await File.findById(fileId).exec();
+                if(file) {
+                    file.sharedWith.push(newUser._id);
+                    // TODO : Should remove user from sharedWithPending
+                    await file.save();
+                }
+            }
         } catch (e) {
             const error: Error = e;
             if (error.message.indexOf("expected `email` to be unique.") !== -1) {
