@@ -5,6 +5,7 @@ import {UserServiceProvider} from 'src/app/services/users/user-service-provider'
 import {MustMatch} from './_helpers/must-match.validator';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material/dialog';
 import {TwoFactorServiceProvider} from 'src/app/services/twofactor/twofactor-service-provider';
+import {PhoneNumberValidator} from "../../../pages/two-factor-register-page/phonenumber.validator";
 
 export interface DialogData {
     type: string;
@@ -228,11 +229,9 @@ export class SettingsSecurityComponent implements OnInit {
 })
 export class SettingsSecurityDialogComponent implements OnInit {
     phoneNumberForm = new FormGroup({
-        // E.164 allows for a maximum of 15 digits, up to 3 of which are the country code,
-        phoneNumber: new FormControl('', [Validators.required, Validators.maxLength(15)])
+        phoneNumber: new FormControl('', PhoneNumberValidator('FR'))
     });
     tokenForm: FormGroup;
-    phoneNumber: any;
     loading = false;
 
     constructor(private fb: FormBuilder,
@@ -243,13 +242,9 @@ export class SettingsSecurityDialogComponent implements OnInit {
                 @Inject(MAT_DIALOG_DATA) public data: DialogData) {
     }
 
-    get f(): { [p: string]: AbstractControl } {
-        return this.tokenForm.controls;
-    }
-
     ngOnInit(): void {
         this.tokenForm = this.fb.group({
-            token: [null, [Validators.required, Validators.pattern('[0-9]{6}'), Validators.minLength(6), Validators.maxLength(6)]]
+            token: [null, [Validators.required, Validators.pattern('[0-9]{6}')]]
         });
     }
 
@@ -259,12 +254,12 @@ export class SettingsSecurityDialogComponent implements OnInit {
 
     onSubmitPhoneNumber(): void {
         this.loading = true;
-        this.twoFactorServiceProvider.default().sendTokenBySms(this.phoneNumber).toPromise().then(() => {
+        this.twoFactorServiceProvider.default().sendTokenBySms('+33' + this.phoneNumberForm.get('phoneNumber').value).toPromise().then(() => {
             this.loading = false;
-            this.data.phoneNumber = this.phoneNumber;
+            this.data.phoneNumber = this.phoneNumberForm.get('phoneNumber').value;
         }).catch(err => {
             this.loading = false;
-            this.snackBar.open(err.msg, null, {duration: 1500});
+            this.snackBar.open(err.error.msg, null, {duration: 1500});
         });
     }
 
@@ -343,11 +338,15 @@ export class SettingsSecurityDialogComponent implements OnInit {
             }
         } catch (err) {
             this.loading = false;
-            this.snackBar.open(err.msg, null, {duration: 1500});
+            this.snackBar.open(err.error.msg, null, {duration: 1500});
         }
     }
 
-    getNumber(obj): void {
-        this.phoneNumber = obj; // [country_code][phone_number]
+    numberOnly(event): boolean {
+        const charCode = (event.which) ? event.which : event.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
     }
 }
