@@ -4,6 +4,7 @@ import {MAT_DIALOG_DATA, MatDialog, MatDialogConfig, MatDialogRef} from '@angula
 import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {TwoFactorServiceProvider} from '../../services/twofactor/twofactor-service-provider';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {PhoneNumberValidator} from "./phonenumber.validator";
 
 export interface DialogData {
     type: string;
@@ -127,10 +128,9 @@ export class TwoFactorRegisterPageComponent implements OnInit {
 })
 export class TwoFactorRegisterDialogComponent implements OnInit {
     phoneNumberForm = new FormGroup({
-        phoneNumber: new FormControl('')
+        phoneNumber: new FormControl('', PhoneNumberValidator('FR'))
     });
     tokenForm: FormGroup;
-    phoneNumber: any;
     loading = false;
 
     constructor(private fb: FormBuilder,
@@ -147,7 +147,7 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
 
     ngOnInit(): void {
         this.tokenForm = this.fb.group({
-            token: [null, [Validators.required, Validators.pattern('[0-9]{6}'), Validators.minLength(6), Validators.maxLength(6)]]
+            token: [null, [Validators.required, Validators.pattern('[0-9]{6}')]]
         });
     }
 
@@ -157,12 +157,12 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
 
     onSubmitPhoneNumber(): void {
         this.loading = true;
-        this.twoFactorServiceProvider.default().sendTokenBySms(this.phoneNumber).toPromise().then(() => {
+        this.twoFactorServiceProvider.default().sendTokenBySms('+33' + this.phoneNumberForm.get('phoneNumber').value).toPromise().then(() => {
             this.loading = false;
-            this.data.phoneNumber = this.phoneNumber;
+            this.data.phoneNumber = this.phoneNumberForm.get('phoneNumber').value;
         }).catch(err => {
             this.loading = false;
-            this.snackBar.open(err.msg, null, {duration: 1500})
+            this.snackBar.open(err.error.msg, null, {duration: 1500});
         });
     }
 
@@ -248,7 +248,11 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
         }
     }
 
-    getNumber(obj): void {
-        this.phoneNumber = obj; // [country_code][phone_number]
+    numberOnly(event): boolean {
+        const charCode = (event.which) ? event.which : event.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
     }
 }
