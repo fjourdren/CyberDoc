@@ -43,13 +43,14 @@ export class RealUserService implements UserService {
         return this.cookieService.get(JWT_COOKIE_NAME);
     }
 
-    register(user: User, password: string): Observable<any> {
+    register(user: User, password: string, fileId: string): Observable<any> {
         return this.httpClient.post<any>(`${this._baseUrl}/auth/signup`, {
             email: user.email,
             firstname: user.firstname,
             lastname: user.lastname,
             role: user.role,
-            password
+            password,
+            fileId
         }).pipe(map(response => {
             this.cookieService.set(
                 JWT_COOKIE_NAME,

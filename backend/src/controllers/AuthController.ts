@@ -6,15 +6,17 @@ import HttpCodes from '../helpers/HttpCodes'
 import AuthService from '../services/AuthService';
 
 import IUser from '../models/User';
+import FileService from "../services/FileService";
+import {File} from "../models/File";
 
 class AuthController {
 
     // register controller
     public static async signup(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { firstname, lastname, email, password, role } = req.body;
+            const { firstname, lastname, email, password, role, fileId } = req.body;
 
-            const jwtToken = requireNonNull(await AuthService.signup(firstname, lastname, email, password, role));
+            const jwtToken = requireNonNull(await AuthService.signup(firstname, lastname, email, password, role, fileId));
             res.status(HttpCodes.CREATED);
             res.json({
                 success: true,

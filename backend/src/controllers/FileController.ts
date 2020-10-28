@@ -440,13 +440,14 @@ class FileController {
     }
 
     public static async addSharingAccess(req: Request, res: Response, next: NextFunction): Promise<void> {
+        let status: string;
         try {
             const currentUser = FileController._requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
             FileService.requireFileIsDocument(file);
             await FileService.requireIsFileOwner(currentUser, file);
-
-            const user = await User.findOne({"email": req.body.email}).exec();
+            const otherUserEmail = req.body.email;
+            const user = await User.findOne({"email": otherUserEmail}).exec();
             if (user) {
                 if (user._id === currentUser._id) {
                     throw new HTTPError(HttpCodes.BAD_REQUEST, "You are the owner of the file, you can't share it with yourself");
@@ -456,28 +457,60 @@ class FileController {
                     }
                     file.sharedWith.push(user._id);
                     await file.save();
-                    const url: string = process.env.APP_FRONTEND_URL + "/files/" + file._id;
-                    await Mailer.sendTemplateEmail(req.body.email,
+                    const url: string = process.env.APP_FRONTEND_URL + "/shared-with-me";
+                    await Mailer.sendTemplateEmail(otherUserEmail,
                         process.env.SENDGRID_MAIL_FROM,
-                        process.env.SENDGRID_TEMPLATE_SHARED_WITH_YOU,
+                        "d-283a81b12d80405eac022e1ddc8bdd0e",
                         {
-                            owner_name: currentUser.firstname,
+                            file_owner_email: currentUser.email,
                             filename: file.name,
                             url: url
+                        }).then(() => {
+                        console.log('[Debug] An email has been sent to ' + otherUserEmail);
+                        status = "Success";
+                        res.status(HttpCodes.OK);
+                        res.json({
+                            success: true,
+                            msg: status
                         });
+                    }).catch(() => {
+                        throw new HTTPError(HttpCodes.INTERNAL_ERROR, "The email hasn't been sent");
+                    });
                 }
             } else {
-                // We create a user without password, will need to register
-                const url: string = process.env.APP_FRONTEND_URL + "/signup?token=" + token;
-                await Mailer.sendTemplateEmail(req.body.email, process.env.SENDGRID_MAIL_FROM, process.env.SENDGRID_TEMPLATE_REQUEST_CREATE_ACCOUNT, {url});
+                // TODO: Should verify if email is already in sharedWithPending
+                // if (file.sharedWithPending.find({otherUserEmail})) {
+                //     throw new HTTPError(HttpCodes.BAD_REQUEST, "This user has already received an email to collaborate on this file.");
+                // }
+                const token = jwt.sign({
+                    email: otherUserEmail,
+                    fileOwnerEmail: currentUser.email,
+                    fileId: file._id
+                }, process.env.JWT_SECRET, {
+                    expiresIn: 36000
+                });
+                const url: string = process.env.APP_FRONTEND_URL + "/register?token=" + token;
+                await Mailer.sendTemplateEmail(otherUserEmail,
+                    process.env.SENDGRID_MAIL_FROM,
+                    process.env.SENDGRID_TEMPLATE_REQUEST_CREATE_ACCOUNT,
+                    {
+                        file_owner_email: currentUser.email,
+                        filename: file.name,
+                        url: url
+                    }).then(() => {
+                    console.log('[Debug] An email has been sent to ' + otherUserEmail);
+                    // TODO: Should had email to sharedWithPending
+                    // file.sharedWithPending.push({'email': otherUserEmail});
+                    status = "Waiting";
+                    res.status(HttpCodes.OK);
+                    res.json({
+                        success: true,
+                        msg: status
+                    });
+                }).catch(() => {
+                    throw new HTTPError(HttpCodes.INTERNAL_ERROR, "The email hasn't been sent");
+                });
             }
-
-
-            res.status(HttpCodes.OK);
-            res.json({
-                success: true,
-                msg: "Success"
-            });
         } catch (err) {
             next(err);
         }
