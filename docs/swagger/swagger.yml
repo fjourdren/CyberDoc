@@ -2,33 +2,6 @@ components:
   schemas:
     CloudDirectory:
       description: Represents a directory, sent by the server
-      example:
-        directoryContent:
-        - directoryContent: []
-          id: 9b81d950-b605-471f-a654-4fffba6bcfc3
-          mimetype: application/x-dir
-          name: subsubsubdir
-          ownerName: John Doe
-          path: []
-        - id: 9b81d950-b605-471f-a654-4fffba6bcfc5
-          lastModified: '2017-07-21T17:32:28Z'
-          mimetype: application/pdf
-          name: File.pdf
-          ownerName: John Doe
-          size: 666
-        id: 9b81d950-b605-471f-a654-4fffba6bcfc5
-        mimetype: application/x-dir
-        name: subsubdir
-        ownerName: John Doe
-        path:
-        - id: 9b81d950-b605-471f-a654-4fffba6bcfc1
-          name: root
-        - id: 9b81d950-b605-471f-a654-4fffba6bcfc2
-          name: subdir
-        tags:
-        - hexColor: '#eeeeee'
-          id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
-          name: TODO
       properties:
         directoryContent:
           description: Content of the directory (if returns CloudDirectory, the directoryContent
@@ -80,26 +53,16 @@ components:
       type: object
     CloudFile:
       description: Represents a classic file, sent by the server
-      example:
-        id: 9b81d950-b605-471f-a654-4fffba6bcfc5
-        lastModified: '2017-07-21T17:32:28Z'
-        mimetype: application/pdf
-        name: File.pdf
-        ownerName: John Doe
-        size: 666
-        tags:
-        - hexColor: '#eeeeee'
-          id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
-          name: TODO
       properties:
+        created_at:
+          description: File creation date
+          example: '2017-07-21T15:32:28Z'
+          format: date-time
+          type: string
         id:
           description: File ID
           example: 9b81d950-b605-471f-a654-4fffba6bcfc5
           format: uuid
-          type: string
-        lastModified:
-          description: File last modification date
-          format: date-time
           type: string
         mimetype:
           description: File type
@@ -107,30 +70,44 @@ components:
           type: string
         name:
           description: File name
-          example: FileName.pdf
+          example: File.pdf
           type: string
         ownerName:
           description: Owner ID
-          example: John Doe
+          example: John DOE
           format: uuid
+          type: string
+        shareMode:
+          description: Sharing mode
+          enum:
+          - readonly
+          - readwrite
+          example: readonly
           type: string
         size:
           description: File size
-          example: '666'
+          example: 666
           type: integer
         tags:
           description: File tag
           items:
             $ref: '#/components/schemas/FileTag'
           type: array
+        updated_at:
+          description: File last modification date
+          example: '2017-07-21T17:32:28Z'
+          format: date-time
+          type: string
       required:
       - id
       - ownerName
       - name
       - mimetype
       - size
-      - lastModified
+      - updated_at
+      - created_at
       - tags
+      - shareMode
       type: object
     FileCopyBody:
       properties:
@@ -146,67 +123,64 @@ components:
       required:
       - destID
       type: object
-    FileResponse:
-      example:
-        file:
-          id: 9b81d950-b605-471f-a654-4fffba6bcfc5
-          lastModified: '2017-07-21T17:32:28Z'
-          mimetype: application/pdf
-          name: File.pdf
-          ownerName: John Doe
-          size: 666
-          tags:
-          - hexColor: '#eeeeee'
-            id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
-            name: TODO
-        msg: File created
-        success: true
+    FileShareAccess:
+      description: User who have a share access to a file
       properties:
-        file:
-          oneOf:
-          - $ref: '#/components/schemas/CloudFile'
-          - $ref: '#/components/schemas/CloudDirectory'
-        msg:
-          description: msg
+        email:
+          example: john.doe@gmail.com
+          format: email
           type: string
-        success:
-          description: true if the operation succeeded, otherwise false
-          type: boolean
+        name:
+          example: John DOE
+          type: string
       required:
-      - success
-      - msg
+      - email
+      - name
       type: object
     FileTag:
       description: File tag
-      example:
-        hexColor: '#eeeeee'
-        id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
-        name: TODO
       properties:
         hexColor:
+          example: '#eeeeee'
           pattern: ^#(?:[0-9a-fA-F]{3}){1,2}$
           type: string
         id:
+          example: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
           format: uuid
           type: string
         name:
+          example: TODO
           type: string
       required:
       - id
       - name
       - hexColor
       type: object
-    GenericResponse:
-      description: Generic response
-      example:
-        msg: Success
-        success: true
+    GenericErrorResponse:
+      description: Generic error response
       properties:
         msg:
           description: msg
+          example: <error message>
           type: string
         success:
           description: true if the operation succeeded, otherwise false
+          example: false
+          type: boolean
+      required:
+      - success
+      - msg
+      type: object
+    GenericSuccessResponse:
+      description: Generic error response
+      properties:
+        msg:
+          description: msg
+          example: Success
+          type: string
+        success:
+          description: true if the operation succeeded, otherwise false
+          example: false
           type: boolean
       required:
       - success
@@ -257,141 +231,119 @@ components:
             type: string
           type: array
       type: object
-    SearchResponse:
-      example:
-        msg: OK
-        results:
-        - id: 9b81d950-b605-471f-a654-4fffba6bcfc5
-          lastModified: '2017-07-21T17:32:28Z'
-          mimetype: application/pdf
-          name: File.pdf
-          ownerName: John Doe
-          size: 666
-          tags:
-          - hexColor: '#eeeeee'
-            id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
-            name: TODO
-        success: true
+    User:
+      description: User
       properties:
-        msg:
-          description: msg
+        _id:
+          example: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+          format: uuid
           type: string
-        results:
+        created_at:
+          example: '2020-09-21T11:31:20.714Z'
+          format: date-time
+          type: string
+        directory_id:
+          description: ID of the root directory of the user
+          example: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+          format: uuid
+          type: string
+        email:
+          example: john.doe@gmail.com
+          format: email
+          type: string
+        firstname:
+          example: John
+          type: string
+        lastname:
+          example: DOE
+          type: string
+        role:
+          enum:
+          - owner
+          - collaborater
+          example: owner
+          type: string
+        tags:
           items:
-            $ref: '#/components/schemas/CloudDirectory'
+            $ref: '#/components/schemas/FileTag'
           type: array
-        success:
-          description: true if the operation succeeded, otherwise false
-          type: boolean
-      required:
-      - success
-      - msg
-      type: object
-    SignInResponse:
-      description: Send to user his log token
-      example:
-        msg: Authentication token generated
-        success: true
-        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8
-      properties:
-        msg:
-          example: Authentication token generated
-          type: string
-        success:
-          example: true
-          type: boolean
-        token:
-          description: User JWTToken
-          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InJvbGUiOiJjb2xsYWJvcmF0ZXIiLCJ1cGRhdGVkX2F0IjoiMjAyMC0wOS0yMlQxMTozMToyMC43MTRaIiwiY3JlYXRlZF9hdCI6IjIwMjAtMDktMjJUMTE6MzA6NTQuNTU2WiIsIl9pZCI6IjY1YWY4OGUwLTRkNmYtODBkYS0xY2FiLTZlZjVkYjJjNzE5ZSIsImZpcnN0bmFtZSI6IkZsYXZpZW4iLCJsYXN0bmFtZSI6IkpPVVJEUkVOIiwiZW1haWwiOiJmbGF2aWVuLmpvdXJkcmVuQGdtYWlsLmNvbSJ9LCJpYXQiOjE2MDA3NzQyODMsImV4cCI6MTYwMDg2MDY4M30.kHhr6DWSg1ZLkmBFH5FTLbDtTpoX9HGKv0ewmUkQFK8
+        updated_at:
+          example: '2020-09-22T11:31:20.714Z'
+          format: date-time
           type: string
       required:
-      - success
-      - msg
-      - token
-      type: object
-    UserProfileResponse:
-      description: User's profile
-      example:
-        msg: Success
-        success: true
-        user:
-          _id: 65af88e0-4d6f-80da-1cab-6ef5db2c719e
-          created_at: '2020-09-22T11:30:54.556Z'
-          directory_id: 65af88e0-4d6f-80da-1cab-6ef50b2c719e
-          email: flavien.jourdren@gmail.com
-          firstname: Flavien
-          lastname: JOURDREN
-          role: collaborater
-          tags:
-          - hexColor: '#eeeeee'
-            id: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
-            name: TODO
-          updated_at: '2020-09-22T11:31:20.714Z'
-      properties:
-        msg:
-          type: string
-        success:
-          type: boolean
-        user:
-          description: User's profile
-          properties:
-            _id:
-              format: uuid
-              type: string
-            created_at:
-              format: date-time
-              type: string
-            directory_id:
-              description: root directory ID for current user
-              format: uuid
-              type: string
-            email:
-              format: email
-              type: string
-            file_tags:
-              items:
-                $ref: '#/components/schemas/FileTag'
-              type: array
-            firstname:
-              type: string
-            lastname:
-              type: string
-            role:
-              enum:
-              - owner
-              - collaborater
-              type: string
-            updated_at:
-              format: date-time
-              type: string
-          type: object
-      required:
-      - success
-      - msg
-      - user
+      - _id
+      - directory_id
+      - firstname
+      - lastname
+      - email
+      - role
+      - updated_at
+      - created_at
+      - tags
       type: object
   securitySchemes:
     jwtToken:
-      bearerFormat: JWT
-      scheme: bearer
-      type: http
+      in: cookie
+      name: access_token
+      type: apiKey
 info:
+  description: "- The application defines three rights for each node :\n  - `read`\n\
+    \  - `write`\n  - `owner`\n"
   title: CyberDoc API
   version: 1.0.0
 openapi: 3.0.0
 paths:
+  /auth/forgottenPassword:
+    post:
+      description: Ask the backend to send an email to the user with a token which
+        will be usable to change user's password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  example: email@gmail.com
+                  format: email
+                  type: string
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+          description: Success / Unknown user
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Email is invalid
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Server error
+      summary: Forgotten password
+      tags:
+      - Authentication
   /auth/signin:
     post:
       description: Login a user
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               properties:
                 email:
+                  example: john.doe@gmail.com
                   format: email
                   type: string
                 password:
+                  example: Hello123456789@
                   type: string
               required:
               - email
@@ -402,19 +354,33 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SignInResponse'
+                properties:
+                  msg:
+                    example: Authentication token generated
+                    type: string
+                  success:
+                    example: true
+                    type: boolean
+                  token:
+                    example: <jwt token>
+                    type: string
+                required:
+                - success
+                - msg
+                - token
+                type: object
           description: Success
         '400':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Bad request
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Body is invalid (all values are required)
         '403':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Bad login/password
         '500':
           description: Internal Error
@@ -426,22 +392,27 @@ paths:
       description: Register user
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               properties:
                 email:
+                  example: john.doe@gmail.com
                   format: email
                   type: string
                 firstname:
+                  example: John
                   type: string
                 lastname:
+                  example: DOE
                   type: string
                 password:
+                  example: Hello123456789@
                   type: string
                 role:
                   enum:
                   - owner
                   - collaborater
+                  example: owner
                   type: string
               required:
               - firstname
@@ -455,25 +426,38 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserProfileResponse'
+                properties:
+                  msg:
+                    example: Success
+                    type: string
+                  success:
+                    example: true
+                    type: boolean
+                  user:
+                    $ref: '#/components/schemas/User'
+                required:
+                - success
+                - msg
+                - user
+                type: object
           description: Created
         '400':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Bad request
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Body is invalid (all values are required)
         '409':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Another user with the same email already exists
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       summary: Register user
       tags:
@@ -488,12 +472,15 @@ paths:
               properties:
                 folderID:
                   description: ID of the folder which will contains the new file
+                  example: <folder UUID>
                   type: string
                 mimetype:
                   description: File mimetype, `application/x-dir` to create a directory
+                  example: application/pdf
                   type: string
                 name:
                   description: File name
+                  example: File.pdf
                   type: string
                 upfile:
                   description: File to upload, `null` to create a directory
@@ -509,31 +496,55 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FileResponse'
+                properties:
+                  file:
+                    oneOf:
+                    - $ref: '#/components/schemas/CloudFile'
+                    - $ref: '#/components/schemas/CloudDirectory'
+                  msg:
+                    description: msg
+                    example: Success
+                    type: string
+                  success:
+                    description: true if the operation succeeded, otherwise false
+                    example: true
+                    type: boolean
+                required:
+                - success
+                - msg
+                - file
+                type: object
           description: Created
         '400':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Bad request
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: '- `name` field is invalid
+
+            - `mimetype` field is invalid
+
+            - if `mimetype != application/x-dir` AND `upfile == null`
+
+            '
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Not Found / Forbidden
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: "- `folderID` is not a valid directory\n- The current user\
+            \ don't have `owner` access on `folderID` \n"
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
@@ -554,37 +565,94 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SearchResponse'
+                properties:
+                  msg:
+                    description: msg
+                    example: Success
+                    type: string
+                  results:
+                    items:
+                      oneOf:
+                      - $ref: '#/components/schemas/CloudFile'
+                      - $ref: '#/components/schemas/CloudDirectory'
+                    type: array
+                  success:
+                    description: true if the operation succeeded, otherwise false
+                    example: true
+                    type: boolean
+                required:
+                - success
+                - msg
+                - results
+                type: object
           description: Success
         '400':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Bad request
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Bad request (missing, `null` or invalid fields)
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Not Found / Forbidden
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
       summary: Search
       tags:
       - Files
+  /files/shared:
+    get:
+      description: Get files shared with current user
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  msg:
+                    description: msg
+                    example: Success
+                    type: string
+                  sharedFiles:
+                    items:
+                      $ref: '#/components/schemas/CloudFile'
+                    type: array
+                  success:
+                    description: true if the operation succeeded, otherwise false
+                    example: true
+                    type: boolean
+                required:
+                - success
+                - msg
+                - sharedFiles
+                type: object
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Not logged in
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Get files shared with current user
+      tags:
+      - File sharing
   /files/{fileId}:
     delete:
       description: Delete a file/directory
@@ -600,25 +668,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FileResponse'
+                $ref: '#/components/schemas/GenericSuccessResponse'
           description: Success
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Not Found / Forbidden
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: "- `fileId` is not a valid node\n- The current user don't have\
+            \ `owner` access on this node \n"
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
@@ -640,25 +709,43 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FileResponse'
+                properties:
+                  content:
+                    oneOf:
+                    - $ref: '#/components/schemas/CloudFile'
+                    - $ref: '#/components/schemas/CloudDirectory'
+                  msg:
+                    description: msg
+                    example: Success
+                    type: string
+                  success:
+                    description: true if the operation succeeded, otherwise false
+                    example: true
+                    type: boolean
+                required:
+                - success
+                - msg
+                - content
+                type: object
           description: Success
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Not Found / Forbidden
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: "- `fileId` is not a valid node\n- The current user don't have\
+            \ `read` access on this node \n"
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
@@ -666,7 +753,7 @@ paths:
       tags:
       - Files
     patch:
-      description: Edit file/directory metadata (name & directoryID)
+      description: Edit file/directory metadata
       parameters:
       - description: File ID
         in: path
@@ -688,6 +775,16 @@ paths:
                   description: File name
                   example: FileName.pdf
                   type: string
+                preview:
+                  description: If preview for this file is allowed or not
+                  type: boolean
+                shareMode:
+                  description: Sharing mode
+                  enum:
+                  - readonly
+                  - readwrite
+                  example: readonly
+                  type: string
               required:
               - name
               - directoryID
@@ -698,29 +795,30 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FileResponse'
+                $ref: '#/components/schemas/GenericSuccessResponse'
           description: Success
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Not Found / Forbidden
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: "- `fileId` is not a valid node\n- The current user don't have\
+            \ `owner` access on this node \n"
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
-      summary: Edit file/directory metadata (name & directoryID)
+      summary: Edit file/directory metadata
       tags:
       - Files
     put:
@@ -749,31 +847,36 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FileResponse'
+                $ref: '#/components/schemas/GenericSuccessResponse'
           description: Success
         '400':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Bad request
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: '- `fileId` is a directory
+
+            - `upfile == null`
+
+            '
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Not Found / Forbidden
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: "- `fileId` is not a valid file\n- The current user don't have\
+            \ `write` access on this file \n"
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
@@ -802,31 +905,52 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FileResponse'
+                properties:
+                  file:
+                    $ref: '#/components/schemas/CloudFile'
+                  msg:
+                    description: msg
+                    example: Success
+                    type: string
+                  success:
+                    description: true if the operation succeeded, otherwise false
+                    example: true
+                    type: boolean
+                required:
+                - success
+                - msg
+                - file
+                type: object
           description: Success
         '400':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Bad request
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: '- `fileId` is a directory
+
+            - `copyFileName` field is invalid
+
+            '
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Not Found / Forbidden
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: "- `fileId` is not a valid file\n- The current user don't have\
+            \ `read` access on this file \n- The current user don't have `owner` access\
+            \ on `destID` \n"
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
@@ -856,25 +980,28 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Bad request
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: '`fileId` is a directory
+
+            '
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Not Found / Forbidden
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: "- `fileId` is not a valid file\n- The current user don't have\
+            \ `read` access on this file \n"
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
@@ -883,7 +1010,7 @@ paths:
       - Files
   /files/{fileId}/export:
     get:
-      description: Export file in PDF format (only for docs, spreasheets and presentations)
+      description: Export file in PDF format
       parameters:
       - description: ID of file
         in: path
@@ -903,25 +1030,30 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Bad request
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: '- PDF export for `fileId` is not available
+
+            - `fileId` is a directory
+
+            '
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Not Found / Forbidden
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: "- `fileId` is not a valid file\n- The current user don't have\
+            \ `read` access on this file \n"
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
@@ -946,29 +1078,223 @@ paths:
                 format: binary
                 type: string
           description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: '- Preview for `fileId` is disabled
+
+            - Preview for `fileId` is not available
+
+            - `fileId` is a directory
+
+            '
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Not Found / Forbidden
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: "- `fileId` is not a valid file\n- The current user don't have\
+            \ `read` access on this file \n"
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
       summary: Get file preview
       tags:
       - Files
+  /files/{fileId}/sharing:
+    get:
+      description: Get all users who have share access to a file
+      parameters:
+      - description: ID of file
+        in: path
+        name: fileId
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  msg:
+                    description: msg
+                    example: Success
+                    type: string
+                  success:
+                    description: true if the operation succeeded, otherwise false
+                    example: true
+                    type: boolean
+                  users:
+                    items:
+                      $ref: '#/components/schemas/FileShareAccess'
+                    type: array
+                required:
+                - success
+                - msg
+                - users
+                type: object
+          description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: '`fileId` is a directory
+
+            '
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: "- `fileId` is not a valid file\n- The current user don't have\
+            \ `read` access on this file \n"
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Get all users who have share access to a file
+      tags:
+      - File sharing
+    post:
+      description: Add share access of a file with a user
+      parameters:
+      - description: ID of file
+        in: path
+        name: fileId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                email:
+                  format: email
+                  type: string
+              required:
+              - email
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+          description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Bad request - fileId is a directory or current user is the
+            owner of the fileId
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: "- `fileId` is not a valid file\n- The current user don't have\
+            \ `owner` access on this file \n- The application don't have a user with\
+            \ the specified `email`\n"
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Add share access of a file with a user
+      tags:
+      - File sharing
+  /files/{fileId}/sharing/{email}:
+    delete:
+      description: Remove share access of a file with a user
+      parameters:
+      - description: ID of file
+        in: path
+        name: fileId
+        required: true
+        schema:
+          type: string
+      - description: User email
+        in: path
+        name: email
+        required: true
+        schema:
+          format: email
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+          description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Bad request - fileId is a directory or specified email doesn't
+            have sharing access to the file
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: "- `fileId` is not a valid file\n- The current user don't have\
+            \ `owner` access on this file \n- The application don't have a user with\
+            \ the specified `email`\n"
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Remove share access of a file with a user
+      tags:
+      - File sharing
   /files/{fileId}/tags:
     post:
       description: Add a tag
@@ -981,7 +1307,7 @@ paths:
           type: string
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               properties:
                 tagid:
@@ -992,28 +1318,28 @@ paths:
       responses:
         '200':
           content:
-            image/png:
+            application/json:
               schema:
-                format: binary
-                type: string
+                $ref: '#/components/schemas/GenericSuccessResponse'
           description: Success
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Not Found / Forbidden
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: "- `fileId` is not a valid node\n- The current user don't have\
+            \ `owner` access on this node \n- `tagId` is not a valid tag\n"
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
@@ -1041,28 +1367,36 @@ paths:
       responses:
         '200':
           content:
-            image/png:
+            application/json:
               schema:
-                format: binary
-                type: string
+                $ref: '#/components/schemas/GenericSuccessResponse'
           description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: '`fileId` don''t have `tagId` on it
+
+            '
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Not Found / Forbidden
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: "- `fileId` is not a valid file\n- The current user don't have\
+            \ `owner` access on this file \n"
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
@@ -1077,19 +1411,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericSuccessResponse'
           description: Success
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
@@ -1103,19 +1437,32 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserProfileResponse'
+                properties:
+                  msg:
+                    example: Success
+                    type: string
+                  success:
+                    example: true
+                    type: boolean
+                  user:
+                    $ref: '#/components/schemas/User'
+                required:
+                - success
+                - msg
+                - user
+                type: object
           description: Success
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
@@ -1129,9 +1476,9 @@ paths:
           application/json:
             schema:
               example:
-                email: flavien.jourdren@gmail.com
-                firstname: Flavien
-                lastname: JOURDREN
+                email: email@gmail.com
+                firstname: John
+                lastname: DOE
                 password: MyPassword
               properties:
                 email:
@@ -1149,25 +1496,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericSuccessResponse'
           description: Success
         '400':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Bad request
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Body is invalid (all values are required)
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
@@ -1179,14 +1526,14 @@ paths:
       description: Create a tag
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               properties:
                 color:
-                  description: Tag's color to create
+                  example: '#eeeeee'
                   type: string
                 name:
-                  description: Tag's name to create
+                  example: TODO
                   type: string
               required:
               - name
@@ -1197,25 +1544,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericSuccessResponse'
           description: Success
         '400':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Bad request
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Body is invalid (all values are required)
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
@@ -1226,7 +1573,7 @@ paths:
     delete:
       description: Delete a tag
       parameters:
-      - description: tag ID to delete
+      - description: Tag ID to delete
         in: path
         name: tagId
         required: true
@@ -1238,25 +1585,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericSuccessResponse'
           description: Success
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Not found
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Tag not found
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []
@@ -1266,22 +1613,23 @@ paths:
     patch:
       description: Modify a tag
       parameters:
-      - description: tag ID to delete
+      - description: Tag ID to edit
         in: path
         name: tagId
         required: true
         schema:
+          format: uuid
           type: string
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               properties:
                 color:
-                  description: New tag's color to create
+                  example: '#eeeeee'
                   type: string
                 name:
-                  description: New tag's name to create
+                  example: TODO
                   type: string
               required:
               - name
@@ -1292,25 +1640,31 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericSuccessResponse'
           description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Body is invalid (all values are required)
         '401':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Not logged in
         '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
-          description: Not found
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Tag not found
         '500':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GenericResponse'
+                $ref: '#/components/schemas/GenericErrorResponse'
           description: Server error
       security:
       - jwtToken: []

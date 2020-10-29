@@ -6,10 +6,6 @@
     <mat-form-field appearance="fill" [color]="typeControl.value">
         <mat-label>{{'file.type' | translate}}</mat-label>
         <mat-select [formControl]="typeControl">
-            <mat-option [value]="noTypeFilter">
-                <mat-icon fontSet="fa" fontIcon="fa-file"></mat-icon>
-                <span>Any</span>
-            </mat-option>
             <mat-option [value]="type" *ngFor="let type of fileTypes">
                 <mat-icon fontSet="fa" [fontIcon]="getIconForFileType(type)"></mat-icon>
                 <span>{{ getTranslationForFileType(type) | translate }}</span>
