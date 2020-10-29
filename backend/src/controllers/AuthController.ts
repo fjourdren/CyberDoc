@@ -14,9 +14,9 @@ class AuthController {
     // register controller
     public static async signup(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { firstname, lastname, email, password, role, fileId } = req.body;
+            const { firstname, lastname, email, password, role } = req.body;
 
-            const jwtToken = requireNonNull(await AuthService.signup(firstname, lastname, email, password, role, fileId));
+            const jwtToken = requireNonNull(await AuthService.signup(firstname, lastname, email, password, role));
             res.status(HttpCodes.CREATED);
             res.json({
                 success: true,

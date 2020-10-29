@@ -48,7 +48,7 @@ export class FilesShareMenuDialogComponent implements OnInit {
     private dialog: MatDialog,
     private userServiceProvider: UserServiceProvider) {
       
-      fsProvider.default().getShareWith(node._id).toPromise().then((value)=>{
+      fsProvider.default().getSharedWith(node._id).toPromise().then((value)=>{
         this.dataSource.data = value;
       });
       console.log(this.dataSource);
@@ -60,7 +60,7 @@ export class FilesShareMenuDialogComponent implements OnInit {
   
   update(){
     console.log("In update");
-    this.fsProvider.default().getShareWith(this.node._id).toPromise().then((value)=>{
+    this.fsProvider.default().getSharedWith(this.node._id).toPromise().then((value)=>{
       console.error(value);
       this.dataSource.data = value;
     }, (error) => {

@@ -21,7 +21,8 @@ export interface FileSystem {
 
     share(fileID: string, email: String): Observable<void>;
     // MOCK : share(fileID: string, email: String): Observable<RespondShare>;
-    getShareWith(fileID: String): Observable<RespondShare[]>;
+    getSharedWith(fileID: String): Observable<RespondShare[]>;
+    getSharedWithPending(fileID: String): Observable<string[]>;
     deleteShare(fileID: string, email: String): Observable<void>;
   
     addTag(node: CloudNode, tag: FileTag): Observable<void>;

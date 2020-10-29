@@ -31,9 +31,15 @@ export class RealFileSystem implements FileSystem {
         }, null));
     }
 
-    getShareWith(fileID: String): Observable<RespondShare[]>{
+    getSharedWith(fileID: String): Observable<RespondShare[]>{
         return this.httpClient.get<any>(`${this._baseUrl}/files/${fileID}/sharing`, {withCredentials: true}).pipe(map(response => {    
             return response.shared_users as RespondShare[];
+        }));
+    }
+
+    getSharedWithPending(fileID: String): Observable<string[]>{
+        return this.httpClient.get<any>(`${this._baseUrl}/files/${fileID}/sharing`, {withCredentials: true}).pipe(map(response => {
+            return response.shared_users_pending as string[];
         }));
     }
 

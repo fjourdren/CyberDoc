@@ -432,7 +432,8 @@ class FileController {
             res.json({
                 success: true,
                 msg: "Success",
-                shared_users: users
+                shared_users: users,
+                shared_users_pending: file.sharedWithPending
             });
         } catch (err) {
             next(err);
@@ -460,7 +461,7 @@ class FileController {
                     const url: string = process.env.APP_FRONTEND_URL + "/shared-with-me";
                     await Mailer.sendTemplateEmail(otherUserEmail,
                         process.env.SENDGRID_MAIL_FROM,
-                        "d-283a81b12d80405eac022e1ddc8bdd0e",
+                        process.env.SENDGRID_TEMPLATE_SHARED_WITH_YOU as string,
                         {
                             file_owner_email: currentUser.email,
                             filename: file.name,
@@ -478,14 +479,12 @@ class FileController {
                     });
                 }
             } else {
-                // TODO: Should verify if email is already in sharedWithPending
-                // if (file.sharedWithPending.find({otherUserEmail})) {
-                //     throw new HTTPError(HttpCodes.BAD_REQUEST, "This user has already received an email to collaborate on this file.");
-                // }
+                if (file.sharedWithPending.includes(otherUserEmail)) {
+                    throw new HTTPError(HttpCodes.BAD_REQUEST, "This user has already received an email to collaborate on this file.");
+                }
                 const token = jwt.sign({
                     email: otherUserEmail,
-                    fileOwnerEmail: currentUser.email,
-                    fileId: file._id
+                    fileOwnerEmail: currentUser.email
                 }, process.env.JWT_SECRET, {
                     expiresIn: 36000
                 });
@@ -499,8 +498,7 @@ class FileController {
                         url: url
                     }).then(() => {
                     console.log('[Debug] An email has been sent to ' + otherUserEmail);
-                    // TODO: Should had email to sharedWithPending
-                    // file.sharedWithPending.push({'email': otherUserEmail});
+                    file.sharedWithPending.push(otherUserEmail);
                     status = "Waiting";
                     res.status(HttpCodes.OK);
                     res.json({
