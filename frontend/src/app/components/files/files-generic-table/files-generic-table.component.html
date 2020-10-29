@@ -61,14 +61,17 @@
 
 <mat-menu #contextMenu="matMenu">
     <ng-template matMenuContent>
+        <!-- We can open every files -->
         <button mat-menu-item (click)="onContextMenuOrBottomSheetSelection('open')">
             <mat-icon fontSet="fa" fontIcon="fa-external-link-alt"></mat-icon>
             <span>{{ 'fileaction.open' | translate }}</span>
         </button>
+        <!-- We can download every files -->
         <button *ngIf="selectedNode && !selectedNode.isDirectory" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('download')">
             <mat-icon fontSet="fa" fontIcon="fa-file-download"></mat-icon>
             <span>{{ 'fileaction.download' | translate }}</span>
         </button>
+        <!-- We can export PDF when it is available -->
         <button *ngIf="isPDFExportAvailable(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('export')">
             <mat-icon fontSet="fa" fontIcon="fa-file-pdf"></mat-icon>
             <span>{{ 'fileaction.export' | translate }}</span>
@@ -77,23 +80,28 @@
             <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>
             <span>{{ 'fileaction.share' | translate }}</span>
         </button>
-        <button *ngIf="showDetailsButton" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('details')">
+        <!-- We can't share a directory, a read-only file shared with us neither -->
+        <button *ngIf="selectedNode && !selectedNode.isDirectory && !this.sharedWithMeMode && !isReadOnly(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('share')">
             <mat-icon fontSet="fa" fontIcon="fa-info-circle"></mat-icon>
             <span>{{ 'fileaction.details' | translate }}</span>
         </button>
-        <button *ngIf="!isReadOnly(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('move')">
+        <!-- We can move every files that are in "My safebox" as an Owner -->
+        <button *ngIf="isOwner() && !sharedWithMeMode" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('move')">
             <mat-icon fontSet="fa" fontIcon="fa-file-export"></mat-icon>
             <span>{{ 'fileaction.move' | translate }}</span>
         </button>
-        <button *ngIf="isCopyAvailable(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('copy')">
+        <!-- We can always copy files as an Owner -->
+        <button *ngIf="isOwner()" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('copy')">
             <mat-icon fontSet="fa" fontIcon="fa-copy"></mat-icon>
             <span>{{ 'fileaction.copy' | translate }}</span>
         </button>
-        <button *ngIf="!isReadOnly(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('rename')">
+        <!-- We can't rename a file shared in "read-only" mode -->
+        <button *ngIf="!sharedWithMeMode" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('rename')">
             <mat-icon fontSet="fa" fontIcon="fa-pen"></mat-icon>
             <span>{{ 'fileaction.rename' | translate }}</span>
         </button>
-        <button *ngIf="!isReadOnly(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('delete')">
+        <!-- We can't delete a file shared with us -->
+        <button *ngIf="!sharedWithMeMode" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('delete')">
             <mat-icon fontSet="fa" fontIcon="fa-trash"></mat-icon>
             <span>{{ 'fileaction.delete' | translate }}</span>
         </button>

@@ -1,28 +1,29 @@
-import {AfterViewInit, Component, EventEmitter, HostListener, Input, NgZone, Output, ViewChild} from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, HostListener, Input, NgZone, Output, ViewChild } from '@angular/core';
 
-import {MatTableDataSource} from '@angular/material/table';
-import {MatSort} from '@angular/material/sort';
-import {MatMenuTrigger} from '@angular/material/menu';
-import {MatBottomSheet} from '@angular/material/bottom-sheet';
-import {MatDialog} from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
+import { MatMenuTrigger } from '@angular/material/menu';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 
-import {NgResizeObserver, ngResizeObserverProviders} from 'ng-resize-observer';
-import {map} from 'rxjs/operators';
+import { NgResizeObserver, ngResizeObserverProviders } from 'ng-resize-observer';
+import { map } from 'rxjs/operators';
 
-import {FilesTableRestrictions, NO_RESTRICTIONS} from './files-table-restrictions';
-import {CloudFile, CloudNode} from 'src/app/models/files-api-models';
-import {FilesDeleteDialogComponent} from '../files-delete-dialog/files-delete-dialog.component';
-import {FilesMoveCopyDialogComponent} from '../files-move-copy-dialog/files-move-copy-dialog.component';
-import {MoveCopyDialogModel} from '../files-move-copy-dialog/move-copy-dialog-model';
-import {FilesUtilsService} from 'src/app/services/files-utils/files-utils.service';
+import { FilesTableRestrictions, NO_RESTRICTIONS } from './files-table-restrictions';
+import { CloudFile, CloudNode } from 'src/app/models/files-api-models';
+import { FilesDeleteDialogComponent } from '../files-delete-dialog/files-delete-dialog.component';
+import { FilesMoveCopyDialogComponent } from '../files-move-copy-dialog/files-move-copy-dialog.component';
+import { MoveCopyDialogModel } from '../files-move-copy-dialog/move-copy-dialog-model';
+import { FilesUtilsService } from 'src/app/services/files-utils/files-utils.service';
 import {
     FilesGenericTableBottomsheetComponent,
     FilesGenericTableBottomsheetData
 } from '../files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
-import {FilesRenameDialogComponent} from '../files-rename-dialog/files-rename-dialog.component';
-import {FileSystemProvider} from 'src/app/services/filesystems/file-system-provider';
-import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
+import { FilesRenameDialogComponent } from '../files-rename-dialog/files-rename-dialog.component';
+import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
+import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { FilesShareMenuDialogComponent } from '../files-share-menu-dialog/files-share-menu-dialog.component';
+import { isDirectory } from "@angular-devkit/build-angular/src/angular-cli-files/utilities/is-directory";
 
 export type FileAction = 'open' | 'download' | 'export' | 'rename' | 'copy' | 'delete' | 'move' | 'details' | 'share';
 
@@ -37,22 +38,32 @@ export class FilesGenericTableComponent implements AfterViewInit {
     isTouchScreen = 'ontouchstart' in window;
     bottomSheetIsOpened = false;
     unselectAfterContextMenuOrBottomSheet = false;
-    private _touchStartEventTrigerred = false;
-
     displayedColumns = ['icon', 'name', 'type', 'size', 'date', 'menubutton'];
     dataSource = new MatTableDataSource([]);
-    contextMenuPosition = {x: '0px', y: '0px'};
+    contextMenuPosition = { x: '0px', y: '0px' };
     @ViewChild(MatSort) sort: MatSort;
     @ViewChild(MatMenuTrigger) contextMenu: MatMenuTrigger;
-
     @Input() currentDirectoryID: string | null;
+    @Input() sharedWithMeMode: boolean;
     @Input() showDetailsButton: boolean;
     @Output() selectedNodeChange = new EventEmitter<CloudNode>();
     @Output() openButtonClicked = new EventEmitter<CloudNode>();
     @Output() detailsButtonClicked = new EventEmitter<CloudNode>();
+    private _touchStartEventTrigerred = false;
+
+    constructor(
+        private bottomSheet: MatBottomSheet,
+        private dialog: MatDialog,
+        private ngZone: NgZone,
+        private filesUtils: FilesUtilsService,
+        private resize: NgResizeObserver,
+        private fsProvider: FileSystemProvider,
+        private userServiceProvider: UserServiceProvider
+    ) {
+        resize.pipe(map(entry => entry.contentRect.width)).subscribe(this.onTableWidthChanged.bind(this));
+    }
 
     private _selectedNode: CloudNode | null;
-    private _restrictions: FilesTableRestrictions = NO_RESTRICTIONS;
 
     get selectedNode(): CloudNode {
         return this._selectedNode;
@@ -64,6 +75,21 @@ export class FilesGenericTableComponent implements AfterViewInit {
             return;
         }
         this._selectedNode = val;
+    }
+
+    private _restrictions: FilesTableRestrictions = NO_RESTRICTIONS;
+
+    get restrictions(): FilesTableRestrictions {
+        return this._restrictions;
+    }
+
+    @Input()
+    set restrictions(val: FilesTableRestrictions) {
+        if (val) {
+            this._restrictions = val;
+        } else {
+            this._restrictions = NO_RESTRICTIONS;
+        }
     }
 
     get items(): CloudNode[] {
@@ -79,31 +105,6 @@ export class FilesGenericTableComponent implements AfterViewInit {
         }
     }
 
-    get restrictions(): FilesTableRestrictions {
-        return this._restrictions;
-    }
-
-    @Input()
-    set restrictions(val: FilesTableRestrictions) {
-        if (val) {
-            this._restrictions = val;
-        } else {
-            this._restrictions = NO_RESTRICTIONS;
-        }
-    }
-
-    constructor(
-        private bottomSheet: MatBottomSheet,
-        private dialog: MatDialog,
-        private ngZone: NgZone,
-        private filesUtils: FilesUtilsService,
-        private resize: NgResizeObserver,
-        private fsProvider: FileSystemProvider,
-        private userServiceProvider: UserServiceProvider
-    ) {
-        resize.pipe(map(entry => entry.contentRect.width)).subscribe(this.onTableWidthChanged.bind(this));
-    }
-
     ngAfterViewInit(): void {
         this.dataSource.sort = this.sort;
         this.contextMenu.menuClosed.subscribe(() => {
@@ -117,7 +118,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
     @HostListener('document:click')
     onDocumentClick() {
         this.contextMenu.closeMenu();
-        if (this.bottomSheetIsOpened){
+        if (this.bottomSheetIsOpened) {
             this.bottomSheet.dismiss();
         }
     }
@@ -131,7 +132,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
     }
 
     isCopyAvailable(node: CloudNode): boolean {
-        return !this.isReadOnly(node) && !node.isDirectory;
+        return !node.isDirectory && !this.isReadOnly(node as CloudFile) && this.userServiceProvider.default().getActiveUser().role === "owner";
     }
 
     isPDFExportAvailable(node: CloudNode): boolean {
@@ -141,6 +142,10 @@ export class FilesGenericTableComponent implements AfterViewInit {
 
         const fileType = this.filesUtils.getFileTypeForMimetype(node.mimetype);
         return this.filesUtils.isPDFExportAvailable(fileType);
+    }
+
+    isOwner() {
+        return this.userServiceProvider.default().getActiveUser().role === "owner";
     }
 
     getIconForMimetype(mimetype: string): string {
@@ -153,8 +158,8 @@ export class FilesGenericTableComponent implements AfterViewInit {
         return this.filesUtils.fileTypeToString(fileType);
     }
 
-    isReadOnly(node: CloudNode): boolean {
-        return this.restrictions.isReadOnly(node) || node && node.name === '..';
+    isReadOnly(file: CloudFile): boolean {
+        return this.restrictions.isReadOnly(file) || file && file.name === '..';
     }
 
     onContextMenu(event: MouseEvent, node: CloudNode): void {
@@ -166,12 +171,12 @@ export class FilesGenericTableComponent implements AfterViewInit {
         this.setSelectedNode(node);
         this.contextMenuPosition.x = event.clientX + 'px';
         this.contextMenuPosition.y = event.clientY + 'px';
-        this.contextMenu.menuData = {item: node};
+        this.contextMenu.menuData = { item: node };
         this.contextMenu.menu.focusFirstItem('mouse');
         this.unselectAfterContextMenuOrBottomSheet = true;
         this.contextMenu.openMenu();
     }
-  
+
     openBottomSheet(node: CloudNode): void {
         if (this._restrictions.isContextAndBottomSheetDisabled(node)) {
             return;
@@ -182,15 +187,16 @@ export class FilesGenericTableComponent implements AfterViewInit {
         const ref = this.bottomSheet.open(FilesGenericTableBottomsheetComponent, {
             data: {
                 callback: this.onContextMenuOrBottomSheetSelection.bind(this),
-                readonlyMode: this.isReadOnly(node),
+                sharedWithMeMode: this.sharedWithMeMode,
+                readonlyMode: this.sharedWithMeMode && this.isReadOnly(node as CloudFile),
                 showDetailsEntry: this.showDetailsButton,
                 node,
                 onBottomSheetClose: this.onBottomSheetClose.bind(this)
             } as FilesGenericTableBottomsheetData
         });
 
-        ref.afterOpened().toPromise().then(()=>{this.bottomSheetIsOpened = true;});
-        ref.afterDismissed().toPromise().then(()=>{this.bottomSheetIsOpened = false;});
+        ref.afterOpened().toPromise().then(() => { this.bottomSheetIsOpened = true; });
+        ref.afterDismissed().toPromise().then(() => { this.bottomSheetIsOpened = false; });
     }
 
     onContextMenuOrBottomSheetSelection(action: FileAction): void {
@@ -332,12 +338,12 @@ export class FilesGenericTableComponent implements AfterViewInit {
         anchor.remove();
     }
 
-shareNode(node: CloudNode) {
-    this.dialog.open(FilesShareMenuDialogComponent, {
-        width: '400px',
-        height: '400px',
-        data: node
-    });
-  }
+    shareNode(node: CloudNode) {
+        this.dialog.open(FilesShareMenuDialogComponent, {
+            width: '400px',
+            height: '400px',
+            data: node
+        });
+    }
 
 }
