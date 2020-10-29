@@ -18,6 +18,7 @@ export interface FileSystem {
     rename(node: CloudNode, newName: string): Observable<void>;
     delete(node: CloudNode): Observable<void>;
     setPreviewEnabled(file: CloudFile, enabled: boolean): Observable<void>;
+    setShareMode(file: CloudFile, shareMode: string): Observable<void>;
 
     share(fileID: string, email: String): Observable<void>;
     // MOCK : share(fileID: string, email: String): Observable<RespondShare>;

@@ -39,8 +39,6 @@
         "delete": "Delete",
         "create": "Create",
         "share": "Share",
-        "newShare": "New share",
-        "sharewith": "Share with :",
         "export": "PDF export",
         "delete_confirm": "Are you sure you want to delete '{{name}}' ?"
     },
@@ -52,6 +50,14 @@
         "type": "Type",
         "owner": "Owner",
         "copy_new_name": "Copy of {{filename}}"
+    },
+    "sharing": {
+        "sharewith": "Share with",
+        "add_email": "Add an email...",
+        "invalid_or_unknown_email": "Invalid or unknown account",
+        "share_access": "Share access",
+        "view": "View",
+        "edit": "Edit"
     },
     "upload": {
         "import_file": "Import file",
@@ -67,7 +73,8 @@
         "edit_tag": "Edit a tag",
         "tags": "Tags",
         "tag_name": "Tag name",
-        "enter_tag": "Enter a tag..."
+        "enter_tag": "Enter a tag...",
+        "another_tag_with_same_name_exists": "Another tag with the same name already exists"
     },
     "accounts": {
         "first_name": "First name",
@@ -121,6 +128,7 @@
         "remaining": "remaining",
         "loading": "Loading...",
         "noitems": "No items",
+        "close": "Close",
         "no_empty": "Cannot be empty",
         "filedetails": "File details",
         "page_not_found": "Page not found",
@@ -128,8 +136,6 @@
         "error_content": "An error occured. Please check your Internet connection, then refresh the page.",
         "go_to_homepage": "Go to homepage",
         "mail": "Enter email of destination",
-        "rw": "Read and write",
-        "ro": "Read only",
         "back_to_app": "Back to the application",
         "share_error": "User does not exist",
         "share_error_already_logged": "You cannot share a file with yourself",

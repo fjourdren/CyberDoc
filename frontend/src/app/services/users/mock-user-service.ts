@@ -235,6 +235,12 @@ export class MockUserService implements UserService {
         }));
     }
 
+    validatePassword(password: string): Observable<boolean> {
+        return of(null).pipe(delay(DELAY)).pipe(map(() => {
+            return true;
+        }));
+    }
+
     recoverPassword(email: string): Observable<void>{
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             

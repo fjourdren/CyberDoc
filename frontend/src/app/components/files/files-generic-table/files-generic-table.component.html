@@ -73,6 +73,10 @@
             <mat-icon fontSet="fa" fontIcon="fa-file-pdf"></mat-icon>
             <span>{{ 'fileaction.export' | translate }}</span>
         </button>
+        <button *ngIf="!isReadOnly(selectedNode) && !selectedNode.isDirectory" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('share')">
+            <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>
+            <span>{{ 'fileaction.share' | translate }}</span>
+        </button>
         <button *ngIf="showDetailsButton" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('details')">
             <mat-icon fontSet="fa" fontIcon="fa-info-circle"></mat-icon>
             <span>{{ 'fileaction.details' | translate }}</span>
@@ -92,10 +96,6 @@
         <button *ngIf="!isReadOnly(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('delete')">
             <mat-icon fontSet="fa" fontIcon="fa-trash"></mat-icon>
             <span>{{ 'fileaction.delete' | translate }}</span>
-        </button>
-        <button *ngIf="!isReadOnly(selectedNode) && !selectedNode.isDirectory" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('share')">
-            <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>
-            <span>{{ 'fileaction.share' | translate }}</span>
         </button>
     </ng-template>
 </mat-menu>

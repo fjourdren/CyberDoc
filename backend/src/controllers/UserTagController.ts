@@ -6,6 +6,7 @@ import { requireNonNull } from '../helpers/DataValidation';
 import TagService from '../services/TagService';
 
 import { User } from '../models/User';
+import HTTPError from '../helpers/HTTPError';
 
 
 class UserTagController {
@@ -14,6 +15,13 @@ class UserTagController {
         try {
             const { name, color } = req.body;
             const user = requireNonNull(await User.findById(res.locals.APP_JWT_TOKEN.user._id).exec());
+
+            for (const tag of user.tags){
+                if (tag.name === name) {
+                    throw new HTTPError(HttpCodes.BAD_REQUEST, "Another tag with the same name already exists");
+                }
+            }
+
             const savedTag = requireNonNull(await TagService.create(user, name, color));
 
             res.status(HttpCodes.OK);
@@ -38,6 +46,14 @@ class UserTagController {
             user = requireNonNull(user, HttpCodes.NOT_FOUND, "Tag not found for this user");
 
             const tagToEdit = requireNonNull(user.tags.find(tag => tag.id === tagId));
+            if (tagToEdit.name !== newName){
+                for (const tag of user.tags){
+                    if (tag.name === newName) {
+                        throw new HTTPError(HttpCodes.BAD_REQUEST, "Another tag with the same name already exists");
+                    }
+                }    
+            }
+
             await TagService.edit(user, tagToEdit, newName, newColor);
             
             // reply user
