@@ -17,7 +17,7 @@ class TwoFactorAuthController {
             res.json(verificationInstance);
         } catch (err) {
             if(err.code && err.code === 60200) next(new HTTPError(HttpCodes.BAD_REQUEST, "This phone number is invalid"));
-            next(err);
+            else next(err);
         }
     }
 
@@ -30,7 +30,7 @@ class TwoFactorAuthController {
             res.json(verificationInstance);
         } catch (err) {
             if(err.code && err.code === 60200) next(new HTTPError(HttpCodes.BAD_REQUEST, "This email is invalid"));
-            next(err);
+            else next(err);
         }
     }
 
