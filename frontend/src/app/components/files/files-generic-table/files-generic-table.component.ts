@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, EventEmitter, Input, NgZone, Output, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, HostListener, Input, NgZone, Output, ViewChild} from '@angular/core';
 
 import {MatTableDataSource} from '@angular/material/table';
 import {MatSort} from '@angular/material/sort';
@@ -34,9 +34,8 @@ export type FileAction = 'open' | 'download' | 'export' | 'rename' | 'copy' | 'd
 })
 export class FilesGenericTableComponent implements AfterViewInit {
 
-    isTouchScreen = 'ontouchstart'
-    in
-    window;
+    isTouchScreen = 'ontouchstart' in window;
+    bottomSheetIsOpened = false;
     unselectAfterContextMenuOrBottomSheet = false;
     private _touchStartEventTrigerred = false;
 
@@ -115,6 +114,14 @@ export class FilesGenericTableComponent implements AfterViewInit {
         });
     }
 
+    @HostListener('document:click')
+    onDocumentClick() {
+        this.contextMenu.closeMenu();
+        if (this.bottomSheetIsOpened){
+            this.bottomSheet.dismiss();
+        }
+    }
+
     setSelectedNode(node: CloudNode): void {
         if (node && !this._restrictions.isSelectable(node)) {
             return;
@@ -172,7 +179,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
 
         this.setSelectedNode(node);
         this.unselectAfterContextMenuOrBottomSheet = true;
-        this.bottomSheet.open(FilesGenericTableBottomsheetComponent, {
+        const ref = this.bottomSheet.open(FilesGenericTableBottomsheetComponent, {
             data: {
                 callback: this.onContextMenuOrBottomSheetSelection.bind(this),
                 readonlyMode: this.isReadOnly(node),
@@ -181,6 +188,9 @@ export class FilesGenericTableComponent implements AfterViewInit {
                 onBottomSheetClose: this.onBottomSheetClose.bind(this)
             } as FilesGenericTableBottomsheetData
         });
+
+        ref.afterOpened().toPromise().then(()=>{this.bottomSheetIsOpened = true;});
+        ref.afterDismissed().toPromise().then(()=>{this.bottomSheetIsOpened = false;});
     }
 
     onContextMenuOrBottomSheetSelection(action: FileAction): void {
@@ -324,8 +334,9 @@ export class FilesGenericTableComponent implements AfterViewInit {
 
 shareNode(node: CloudNode) {
     this.dialog.open(FilesShareMenuDialogComponent, {
-      maxWidth: "800px",
-      data: node
+        width: '400px',
+        height: '400px',
+        data: node
     });
   }
 

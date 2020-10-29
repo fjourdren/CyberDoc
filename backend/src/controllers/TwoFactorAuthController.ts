@@ -16,7 +16,8 @@ class TwoFactorAuthController {
             res.status(HttpCodes.OK);
             res.json(verificationInstance);
         } catch (err) {
-            next(err);
+            if(err.code && err.code === 60200) next(new HTTPError(HttpCodes.BAD_REQUEST, "This phone number is invalid"));
+            else next(err);
         }
     }
 
@@ -28,7 +29,8 @@ class TwoFactorAuthController {
             res.status(HttpCodes.OK);
             res.json(verificationInstance);
         } catch (err) {
-            next(err);
+            if(err.code && err.code === 60200) next(new HTTPError(HttpCodes.BAD_REQUEST, "This email is invalid"));
+            else next(err);
         }
     }
 
@@ -41,9 +43,7 @@ class TwoFactorAuthController {
             let output: boolean;
             if (secret) {
                 const delta = await TwoFactorAuthService.verifyTokenGeneratedByApp(secret, token);
-                if (delta === null) throw new HTTPError(HttpCodes.BAD_REQUEST, "Invalid token");
-                else if (delta === -1) throw new HTTPError(HttpCodes.BAD_REQUEST, "Token entered too late");
-                else if (delta === 1) throw new HTTPError(HttpCodes.BAD_REQUEST, "Token entered too early");
+                if (delta === null || delta === -1 || delta === 1) throw new HTTPError(HttpCodes.BAD_REQUEST, "Invalid token");
 
                 jwtToken = jwt.sign({
                     user: res.locals.APP_JWT_TOKEN.user,
@@ -75,11 +75,6 @@ class TwoFactorAuthController {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "Request should have either secret, phoneNumber or email.");
             }
         } catch (err) {
-            res.status(err.statusCode);
-            res.json({
-                success: false,
-                msg: err.message
-            });
             next(err);
         }
     }
@@ -95,7 +90,7 @@ class TwoFactorAuthController {
             res.status(HttpCodes.OK);
             res.json(secretUriAndQr);
         } catch (err) {
-            next(err);
+           next(err);
         }
     }
 }

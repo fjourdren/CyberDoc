@@ -519,7 +519,7 @@ class FileController {
             const currentUser = FileController._requireAuthenticatedUser(res);
 
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
-            const user = requireNonNull(await User.findOne({"email": req.params.email}).exec(), HttpCodes.NOT_FOUND, "User not found");
+            const user = requireNonNull(await User.findOne({"email": req.params.email.toLowerCase()}).exec(), HttpCodes.NOT_FOUND, "User not found");
             FileService.requireFileIsDocument(file);
             await FileService.requireIsFileOwner(currentUser, file);
 

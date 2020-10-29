@@ -29,7 +29,7 @@ class UserController {
             // if we are using a change password token to access, then we allow user only to change his password
             if(res.locals.APP_JWT_TOKEN.email) {
                 const user_email = res.locals.APP_JWT_TOKEN.email;
-                const user: IUser = requireNonNull(await User.findOne({ email: user_email }).exec());
+                const user: IUser = requireNonNull(await User.findOne({ email: user_email.toLowerCase() }).exec());
 
                 requireNonNull(await UserService.updateProfile(user._id, undefined, undefined, undefined, password, undefined, undefined,undefined, undefined, undefined));
 

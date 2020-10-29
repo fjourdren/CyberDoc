@@ -79,7 +79,7 @@ class AuthService {
 
     // login service
     public static async login(email: string, password: string): Promise<string> {
-        const user: IUser = requireNonNull(await User.findOne({email: email}).exec(), HttpCodes.UNAUTHORIZED, "Invalid credentials");
+        const user: IUser = requireNonNull(await User.findOne({email: email.toLowerCase()}).exec(), HttpCodes.UNAUTHORIZED, "Invalid credentials");
 
         const passwordIsValid = bcrypt.compareSync(password, user.password);
 
@@ -89,9 +89,21 @@ class AuthService {
         return AuthService.generateJWTToken(user, false); // Need to 2FA anyway
     }
 
+    // isPasswordValid ?
+    public static async isPasswordValid(email: string, password: string): Promise<boolean> {
+        const user: IUser = requireNonNull(await User.findOne({email: email}).exec(), HttpCodes.UNAUTHORIZED, "Invalid user");
+
+        const isPasswordValid = bcrypt.compareSync(password, user.password);
+
+        if (!isPasswordValid)
+            throw new HTTPError(HttpCodes.UNAUTHORIZED, "Incorrect password");
+
+        return isPasswordValid;
+    }
+
     // forgotten password service
     public static async forgottenPassword(email: string): Promise<void> {
-        requireNonNull(await User.findOne({email: email}).exec());
+        requireNonNull(await User.findOne({email: email.toLowerCase()}).exec());
 
         const token: string = jwt.sign({email}, process.env.JWT_SECRET, {
             expiresIn: 36000 // 10 hours

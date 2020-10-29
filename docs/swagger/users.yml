@@ -140,6 +140,55 @@ paths:
         "500":
           description: Internal Error
 
+  /auth/passwordcheck:
+    post:
+      tags:
+        - Check password
+      summary: Check if user enters valid password
+      description: Check if user enters valid password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - password
+              type: object
+              properties:
+                password:
+                  type: string
+                  example: Hello123456789@
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - msg
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  msg:
+                    type: string
+                    example: "Valid credentials"
+        "400":
+          description: Body is invalid (all values are required)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "403":
+          description: Bad login/password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "500":
+          description: Internal Error
+
   /users/profile:
     get:
       security:
@@ -295,7 +344,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericSuccessResponse"
         "400":
-          description: Body is invalid (all values are required)
+          description: Body is invalid (all values are required), or another tag with the same name already exists
           content:
             application/json:
               schema:
@@ -352,7 +401,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericSuccessResponse"
         "400":
-          description: Body is invalid (all values are required)
+          description: Body is invalid (all values are required), or another tag with the same name already exists
           content:
             application/json:
               schema:

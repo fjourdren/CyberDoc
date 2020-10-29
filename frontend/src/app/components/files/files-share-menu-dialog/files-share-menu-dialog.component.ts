@@ -1,104 +1,125 @@
-import {  Component, ElementRef, HostListener, Inject, ViewChild, OnInit } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, HostListener, Inject, NgZone } from '@angular/core';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
-import { CloudNode, RespondShare } from 'src/app/models/files-api-models';
-import { User } from 'src/app/models/users-api-models';
+import { CloudFile } from 'src/app/models/files-api-models';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
-import { FilesShareDialogComponent } from '../files-share-dialog/files-share-dialog.component';
-
-export interface PeriodicElement {
-  id: number;
-  name: string;
-  mail: string;
-  right: string;
-}
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  {id:1, mail: "alegal@enssat.fr", name: 'Alexis LE GAL', right: "Read only"},
-  {id:2, mail: "cforgeard@enssat.fr", name: 'Clément FORGEARD', right: "Read and write"},
-  {id:3, mail: "fjourdren@enssat.fr", name: 'Flavien JOURDREN', right: "Read and write"},
-];
-
 
 @Component({
   selector: 'app-files-share-menu-dialog',
   templateUrl: './files-share-menu-dialog.component.html',
   styleUrls: ['./files-share-menu-dialog.component.scss']
 })
-export class FilesShareMenuDialogComponent implements OnInit {
+export class FilesShareMenuDialogComponent {
 
   loading = false;
-  //input = new FormControl('', [Validators.required, Validators.email]);
-  //rank = new FormControl('state', [Validators.required]);
-
-  //Error var :
-  genericError = false;
-
-  displayedColumns: string[] = ['email', 'name', 'delete'];
-  //dataSource: RespondShare[];
+  newShareForm = this.fb.group({ email: [null, [Validators.email]] });
+  shareModeForm = this.fb.group({ shareMode: [null] });
+  shareAccessFormControl = new FormControl("readonly");
+  displayedColumns: string[] = ['email-and-name', 'delete'];
   dataSource = new MatTableDataSource([]);
-
-  @ViewChild('inputElement') inputElement: ElementRef<HTMLInputElement>;
-
   constructor(private fb: FormBuilder, public dialogRef: MatDialogRef<FilesShareMenuDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public node: CloudNode,
+    @Inject(MAT_DIALOG_DATA) public file: CloudFile,
     private fsProvider: FileSystemProvider,
-    private dialog: MatDialog,
     private userServiceProvider: UserServiceProvider) {
       
-      fsProvider.default().getSharedWith(node._id).toPromise().then((value)=>{
-        this.dataSource.data = value;
-      });
-      console.log(this.dataSource);
+    this.update();
+    fsProvider.default().refreshNeeded().subscribe(() => {
       this.update();
-      fsProvider.default().refreshNeeded().subscribe(()=>{
-        this.update();
-      });
-  }
-  
-  update(){
-    console.log("In update");
-    this.fsProvider.default().getSharedWith(this.node._id).toPromise().then((value)=>{
-      console.error(value);
-      this.dataSource.data = value;
-    }, (error) => {
-      this.genericError = true;
     });
+  }
+
+  update() {
+    this._setIsLoading(true);
+    Promise.all([
+      this.fsProvider.default().get(this.file._id).toPromise(),
+      this.fsProvider.default().getSharedWith(this.file._id).toPromise()
+    ]).then(values => {
+      this._setIsLoading(false);
+      if (!values[0].isDirectory) {
+        this.shareModeForm.get("shareMode").setValue((values[0] as CloudFile).shareMode);
+        this.dataSource.data = values[1];
+      }
+    })
   }
 
   @HostListener("keydown", ['$event'])
   onKeyDown(evt: KeyboardEvent) {
     if (evt.key === "Enter") {
-      this.shareNode();
+      this.onCloseBtnClicked();
     }
   }
 
-  delete(email: string){
-    console.log(email);
-    this.loading = true;
-    this.fsProvider.default().deleteShare(this.node._id, email).toPromise().then(() => {
-      this.loading = false;    
-    }, (error) => {
-      this.loading = false; 
-      this.genericError = true;
+  onInputKeyDown(evt: KeyboardEvent) {
+    if (evt.key === "Enter") {
+      evt.stopPropagation();
+      this.addEntry();
+    }
+  }
+
+  deleteEntry(email: string) {
+    this._setIsLoading(true);
+    this.fsProvider.default().deleteShare(this.file._id, email).toPromise().then(() => {
+      this._setIsLoading(false);
     })
   }
 
-  shareNode() {
-    this.dialog.open(FilesShareDialogComponent, {
-      maxWidth: "800px",
-      data: this.node
+  addEntry() {
+    const formField = this.newShareForm.get('email');
+    formField.setErrors(null);
+
+    if (!this.newShareForm.get('email').valid){
+      formField.setErrors({'invalid': true});
+      return;
+    }
+
+    // If the email entered is the email of the current user, ignore it
+    if (this.userServiceProvider.default().getActiveUser().email === formField.value) {
+      return;
+    }
+
+    // If the user associated with the email entered already have access, ignore it
+    for (const item of this.dataSource.data) {
+      if (item.email === formField.value) {
+        return;
+      }
+    }
+
+    this._setIsLoading(true);
+    this.fsProvider.default().share(this.file._id, formField.value).toPromise().then(() => {
+      this._setIsLoading(false);
+      this.newShareForm.get('email').setValue("");
+    }).catch(err => {
+      if (err instanceof HttpErrorResponse && err.status === 404) {
+        this._setIsLoading(false);
+        formField.setErrors({'invalid': true});
+      }
     });
   }
 
-  onCancelBtnClicked() {
+  onCloseBtnClicked() {
     this.dialogRef.close(false);
   }
 
-  ngOnInit() {
-
+  updateFileShareMode() {
+    const shareMode = this.shareModeForm.get("shareMode").value;
+    this._setIsLoading(true);
+    this.fsProvider.default().setShareMode(this.file, shareMode).toPromise().then(() => {
+      this._setIsLoading(false);
+    });
   }
 
+  private _setIsLoading(value: boolean) {
+    this.loading = value;
+    this.dialogRef.disableClose = value;
+    if (value) {
+      this.newShareForm.disable();
+      this.shareModeForm.disable();
+    } else {
+      this.newShareForm.enable();
+      this.shareModeForm.enable();
+    }
+  }
 }
