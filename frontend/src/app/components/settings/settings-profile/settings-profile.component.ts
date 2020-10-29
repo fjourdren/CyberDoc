@@ -11,7 +11,7 @@ import { SettingsCreateEditTagDialogComponent } from '../settings-create-edit-ta
 @Component({
     selector: 'app-settings-profile',
     templateUrl: './settings-profile.component.html',
-    styleUrls: ['./settings-profile.component.css']
+    styleUrls: ['./settings-profile.component.scss']
 })
 export class SettingsProfileComponent {
   profileForm: FormGroup;
