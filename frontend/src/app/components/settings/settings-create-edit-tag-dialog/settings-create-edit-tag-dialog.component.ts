@@ -7,13 +7,14 @@ import { UserServiceProvider } from 'src/app/services/users/user-service-provide
 @Component({
   selector: 'app-settings-create-edit-tag-dialog',
   templateUrl: './settings-create-edit-tag-dialog.component.html',
-  styleUrls: ['./settings-create-edit-tag-dialog.component.css']
+  styleUrls: ['./settings-create-edit-tag-dialog.component.scss']
 })
 export class SettingsCreateEditTagDialogComponent {
 
   loading = false;
   name = new FormControl('', [Validators.required]);
   color = new FormControl('#000000', [Validators.required]);
+  tagAlreadyExistsError = false;
 
   constructor(public dialogRef: MatDialogRef<SettingsCreateEditTagDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public tag: FileTag | undefined,
@@ -35,6 +36,16 @@ export class SettingsCreateEditTagDialogComponent {
   onSaveBtnClicked() {
     if (!this.name.valid) { return; }
     if (!this.color.valid) { return; }
+    this.tagAlreadyExistsError = false;
+
+    if (!this.tag || this.name.value !== this.tag.name) {
+      for (const tag of this.userServiceProvider.default().getActiveUser().tags) {
+        if (tag.name === this.name.value) {
+          this.tagAlreadyExistsError = true;
+          return;
+        }
+      }
+    }
 
     this.dialogRef.disableClose = true;
     this.loading = true;

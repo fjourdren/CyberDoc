@@ -67,7 +67,8 @@
         "edit_tag": "Edit a tag",
         "tags": "Tags",
         "tag_name": "Tag name",
-        "enter_tag": "Enter a tag..."
+        "enter_tag": "Enter a tag...",
+        "another_tag_with_same_name_exists": "Another tag with the same name already exists"
     },
     "accounts": {
         "first_name": "First name",
