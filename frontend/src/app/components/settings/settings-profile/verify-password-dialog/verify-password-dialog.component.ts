@@ -47,7 +47,7 @@ export class VerifyPasswordDialogComponent implements OnInit {
             }
         }).catch(err => {
             this.loading = false;
-            this.snackBar.open(err.error.msg, null, {duration: 1500});
+            this.snackBar.open(err.error.msg, null, {duration: 2500});
         });
     }
 }
