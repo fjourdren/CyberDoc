@@ -622,7 +622,7 @@ paths:
                     description: msg
                     example: Success
                     type: string
-                  sharedFiles:
+                  results:
                     items:
                       $ref: '#/components/schemas/CloudFile'
                     type: array
@@ -633,7 +633,7 @@ paths:
                 required:
                 - success
                 - msg
-                - sharedFiles
+                - results
                 type: object
           description: Success
         '401':

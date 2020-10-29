@@ -30,6 +30,7 @@ const routes: Routes = [
   },
   {path: 'files/:dirID', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard]},
   {path: 'files', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard]},
+  {path: 'shared-with-me', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard]},
 
   { path: 'logout', component: LogoutPageComponent, canActivate: [LoggedInGuard] },
   { path: 'login', component: LoginPageComponent, canActivate: [LoggedOutGuard] },

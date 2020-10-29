@@ -8,7 +8,6 @@ import Guid from 'guid';
 import ITag, { Tag } from './Tag';
 import IDevice, { Device } from './Device';
 
-
 /**
  * Users role enum
  */
@@ -22,102 +21,99 @@ export enum Role {
  * Building typescript & Mongoose data archs
  */
 export const UserSchema = new mongoose.Schema({
-    _id: {
-        type: String,
-        unique: true,
-        uniqueCaseInsensitive: true,
-        default: () => Guid.raw()
-    },
-    directory_id: {
-        type: String,
-        required: true,
-    },
-    firstname: {
-        type: String,
-        required: true,
-        uniqueCaseInsensitive: true,
-        trim: true
-    },
-    lastname: {
-        type: String,
-        required: true,
-        uniqueCaseInsensitive: true,
-        trim: true
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        uniqueCaseInsensitive: true,
-        trim: true,
-        minlength: 5,
-        validate: {
-            validator: (value: string) => validator.isEmail(value),
-            message: '{VALUE} is not a valid email'
-        }
-    },
-    password: {
-        type: String,
-        required: true,
-        validate: {
-            validator: function (value: string) {
-                if (!value) return false;
-                if (!value.match(/[A-Z]/g)) return false;
-                if (!value.match(/[a-z]/g)) return false;
-                if (!value.match(/[0-9]/g)) return false;
-                if (!value.replace(/[0-9a-zA-Z ]/g, "").length) return false;
-                return true;
+        _id: {
+            type: String,
+            unique: true,
+            uniqueCaseInsensitive: true,
+            default: () => Guid.raw()
+        },
+        directory_id: {
+            type: String,
+            required: true,
+        },
+        firstname: {
+            type: String,
+            required: true,
+            uniqueCaseInsensitive: true,
+            trim: true
+        },
+        lastname: {
+            type: String,
+            required: true,
+            uniqueCaseInsensitive: true,
+            trim: true
+        },
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            uniqueCaseInsensitive: true,
+            trim: true,
+            minlength: 5,
+            validate: {
+                validator: (value: string) => validator.isEmail(value),
+                message: '{VALUE} is not a valid email'
+            }
+        },
+        password: {
+            type: String,
+            required: true,
+            validate: {
+                validator: function (value: string) {
+                    if (!value) return false;
+                    if (!value.match(/[A-Z]/g)) return false;
+                    if (!value.match(/[a-z]/g)) return false;
+                    if (!value.match(/[0-9]/g)) return false;
+                    if (!value.replace(/[0-9a-zA-Z ]/g, "").length) return false;
+                    return true;
+                },
             },
         },
-    },
-    phoneNumber: {
-        type: String,
-        trim: true,
-        validate: {
-            validator: (value: string) => validator.isMobilePhone(value, undefined, { strictMode: true }),
-            message: '{VALUE} is not a valid phone number'
+        phoneNumber: {
+            type: String,
+            trim: true,
+            validate: {
+                validator: (value: string) => validator.isMobilePhone(value, undefined, {strictMode: true}),
+                message: '{VALUE} is not a valid phone number'
+            }
+        },
+        secret: {
+            type: String,
+            trim: true,
+            validate: {
+                validator: (value: string) => value.length == 32,
+                message: '{VALUE} is not a valid secret'
+            }
+        },
+        twoFactorApp: {
+            type: Boolean,
+            required: true
+        },
+        twoFactorSms: {
+            type: Boolean,
+            required: true
+        },
+        twoFactorEmail: {
+            type: Boolean,
+            required: true
+        },
+        role: {
+            type: String,
+            enum: Object.values(Role),
+            default: Role.COLLABORATOR
+        },
+        tags: {
+            type: [Tag.schema]
+        },
+        updated_at: {
+            type: Date,
+            default: new Date().getTime()
+        },
+        created_at: {
+            type: Date,
+            default: new Date().getTime()
         }
     },
-    secret: {
-        type: String,
-        trim: true,
-        validate: {
-            validator: (value: string) => value.length == 32,
-            message: '{VALUE} is not a valid secret'
-        }
-    },
-    twoFactorApp: {
-        type: Boolean,
-        required: true
-    },
-    twoFactorSms: {
-        type: Boolean,
-        required: true
-    },
-    twoFactorEmail: {
-        type: Boolean,
-        required: true
-    },
-    role: {
-        type: String,
-        enum: Object.values(Role),
-        default: Role.COLLABORATOR
-    },
-    tags: {
-        type: [Tag.schema]
-    },
-    devices: {
-        type: [Device.schema]
-    },
-    updated_at: {
-        type: Date,
-        default: new Date().getTime()
-    },
-    created_at: {
-        type: Date,
-        default: new Date().getTime()
-    }
-},
     {
         collection: 'User',
     });

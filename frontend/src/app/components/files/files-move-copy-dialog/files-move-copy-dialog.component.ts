@@ -1,10 +1,10 @@
-import { Component, ElementRef, HostListener, Inject, ViewChild } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { TranslateService } from '@ngx-translate/core';
-import { CloudDirectory, CloudFile, CloudNode } from 'src/app/models/files-api-models';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
-import { FilesTableRestrictions } from '../files-generic-table/files-table-restrictions';
-import { MoveCopyDialogModel } from './move-copy-dialog-model';
+import {Component, HostListener, Inject} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {TranslateService} from '@ngx-translate/core';
+import {CloudDirectory, CloudFile, CloudNode} from 'src/app/models/files-api-models';
+import {FileSystemProvider} from 'src/app/services/filesystems/file-system-provider';
+import {FilesTableRestrictions} from '../files-generic-table/files-table-restrictions';
+import {MoveCopyDialogModel} from './move-copy-dialog-model';
 
 @Component({
   selector: 'app-files-move-copy-dialog',
@@ -12,17 +12,15 @@ import { MoveCopyDialogModel } from './move-copy-dialog-model';
   styleUrls: ['./files-move-copy-dialog.component.css']
 })
 export class FilesMoveCopyDialogComponent {
-  private _directoryID: string;
   loading = false;
-
   selectedNode: CloudNode;
   currentDirectory: CloudDirectory;
   filesTableRestrictions: FilesTableRestrictions;
 
   constructor(public dialogRef: MatDialogRef<FilesMoveCopyDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: MoveCopyDialogModel,
-    private fsProvider: FileSystemProvider,
-    private translate: TranslateService) {
+              @Inject(MAT_DIALOG_DATA) public data: MoveCopyDialogModel,
+              private fsProvider: FileSystemProvider,
+              private translate: TranslateService) {
     this.directoryID = data.initialDirID;
 
     this.filesTableRestrictions = {
@@ -32,6 +30,8 @@ export class FilesMoveCopyDialogComponent {
       isContextAndBottomSheetDisabled: (node: CloudNode) => true
     }
   }
+
+  private _directoryID: string;
 
   get directoryID() {
     return this._directoryID;
@@ -88,7 +88,7 @@ export class FilesMoveCopyDialogComponent {
     this.loading = true;
     this.dialogRef.disableClose = true;
     if (this.data.copy && !this.data.node.isDirectory) {
-      this.translate.get("file.copy_new_name", { "filename": this.data.node.name }).toPromise().then(newName => {
+      this.translate.get("file.copy_new_name", {"filename": this.data.node.name}).toPromise().then(newName => {
         this.fsProvider.default().copy(this.data.node as CloudFile, newName, destination).toPromise().then(() => {
           this.loading = false;
           this.filesTableRestrictions = oldRestrictions;

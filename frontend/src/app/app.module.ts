@@ -111,7 +111,7 @@ const FILES_COMPONENTS = [
     FilesGenericTableComponent,
     FilesGenericTableBottomsheetComponent,
     FilesTagsInputComponent,
-    FilesFilterDialogComponent,
+    FilesFilterDialogComponent
 ];
 
 const SETTINGS_COMPONENTS = [
