@@ -4,7 +4,6 @@ import {requireNonNull} from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes'
 
 import AuthService from '../services/AuthService';
-import HTTPError from "../helpers/HTTPError";
 
 class AuthController {
 
@@ -48,13 +47,12 @@ class AuthController {
     public static async validatePassword(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const {password} = req.body;
-            if (await AuthService.isPasswordValid(res.locals.APP_JWT_TOKEN.user.email, password)) {
-                res.status(HttpCodes.OK);
-                res.json({
-                    success: true,
-                    msg: "Correct password"
-                });
-            } else throw new HTTPError(HttpCodes.INTERNAL_ERROR, "isPasswordValid - Unknown error");
+            await AuthService.isPasswordValid(res.locals.APP_JWT_TOKEN.user.email, password);
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "Correct password"
+            });
         } catch (err) {
             next(err);
         }
