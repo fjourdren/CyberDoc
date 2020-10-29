@@ -11,7 +11,7 @@ import { FileSystemProvider } from 'src/app/services/filesystems/file-system-pro
 export class FilesDeleteDialogComponent {
 
   loading = false;
-  translateParams = {filename: this.node.name};
+  translateParams = {name: this.node.name};
 
   constructor(public dialogRef: MatDialogRef<FilesDeleteDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public node: CloudNode,
