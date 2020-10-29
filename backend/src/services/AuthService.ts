@@ -20,7 +20,7 @@ class AuthService {
     }
 
     // register service
-    public static async signup(firstname: string, lastname: string, email: string, password: string, role: Role, fileId: string): Promise<string> {
+    public static async signup(firstname: string, lastname: string, email: string, password: string, role: Role): Promise<string> {
         // build object
         const newUser: IUser = new User();
         newUser._id = Guid.raw()
@@ -45,14 +45,25 @@ class AuthService {
         newUser.directory_id = root_user_dir._id;
         try {
             requireNonNull(await newUser.save());
-            if (fileId) {
-                const file = await File.findById(fileId).exec();
-                if(file) {
+
+            // Check if user has received invitations to collaborate on files
+            File.find({sharedWithPending: newUser.email}).then(res => {
+                res.forEach(file => {
+                    // We remove user from sharedWithPending array
+                    File.update(
+                        {_id: file._id},
+                        {
+                            $pull:
+                                {"sharedWithPending": newUser.email}
+                        }
+                    ).then(() => {
+                        console.log('[Debug] ' + newUser.email + ' removed from sharedWithPending (' + file.name + ')')
+                    });
+                    // and add it to sharedWith array
                     file.sharedWith.push(newUser._id);
-                    // TODO : Should remove user from sharedWithPending
-                    await file.save();
-                }
-            }
+                    console.log('[Debug] ' + newUser.email + ' added to sharedWith (' + file.name + ')');
+                })
+            });
         } catch (e) {
             const error: Error = e;
             if (error.message.indexOf("expected `email` to be unique.") !== -1) {

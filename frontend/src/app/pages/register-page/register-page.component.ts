@@ -57,7 +57,6 @@ export class RegisterPageComponent {
             if(params['token']) {
                 this.fileOwnerEmail = this.jwtHelper.decodeToken(params['token']).fileOwnerEmail;
                 this.tokenEmail = this.jwtHelper.decodeToken(params['token']).email;
-                this.fileId = this.jwtHelper.decodeToken(params['token']).fileId;
             }
         });
 

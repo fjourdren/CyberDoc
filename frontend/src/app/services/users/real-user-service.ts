@@ -49,8 +49,7 @@ export class RealUserService implements UserService {
             firstname: user.firstname,
             lastname: user.lastname,
             role: user.role,
-            password,
-            fileId
+            password
         }).pipe(map(response => {
             this.cookieService.set(
                 JWT_COOKIE_NAME,
