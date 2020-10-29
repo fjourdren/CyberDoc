@@ -65,12 +65,13 @@ class TwoFactorAuthController {
                 }, process.env.JWT_SECRET, {
                     expiresIn: 36000
                 });
-                output = verificationInstance.status === 'approved';
-                res.status(HttpCodes.OK);
-                res.json({
-                    success: output,
-                    token: jwtToken
-                });
+                if(verificationInstance.status === 'approved') {
+                    res.status(HttpCodes.OK);
+                    res.json({
+                        success: true,
+                        token: jwtToken
+                    });
+                } else throw new HTTPError(HttpCodes.UNAUTHORIZED, "Invalid token");
             } else {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "Request should have either secret, phoneNumber or email.");
             }

@@ -53,56 +53,46 @@ export class TwoFactorDialogComponent implements OnInit {
         switch (this.twoFactorType) {
             case 'app':
                 this.twoFactorServiceProvider.default().verifyTokenByApp(this.user.secret,
-                    this.twoFactorForm.get('token').value).toPromise().then(res => {
-                    if (res) {
-                        this.userServiceProvider.default().deleteAccount().toPromise().then(() => {
-                            this.twoFactorDialog.close();
-                            this.snackBar.open('Your account has been successfully deleted', null, {duration: 1500});
-                            this.router.navigate(['/logout']);
-                        });
-                    } else {
-                        this.snackBar.open('Wrong token', null, {duration: 1500});
-                    }
-                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 1500}));
+                    this.twoFactorForm.get('token').value).toPromise().then(() => {
+                    this.userServiceProvider.default().deleteAccount().toPromise().then(() => {
+                        this.twoFactorDialog.close();
+                        this.snackBar.open('Your account has been successfully deleted', null, {duration: 2500});
+                        this.router.navigate(['/logout']);
+                    });
+                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 2500}));
                 break;
             case 'sms':
                 this.twoFactorServiceProvider.default().verifyTokenBySms(this.user.phoneNumber,
-                    this.twoFactorForm.get('token').value).toPromise().then(res => {
-                    if (res) {
-                        this.userServiceProvider.default().deleteAccount().toPromise().then(() => {
-                            this.twoFactorDialog.close();
-                            this.snackBar.open('Your account has been successfully deleted', null, {duration: 1500});
-                            this.router.navigate(['/logout']);
-                        });
-                    } else {
-                        this.snackBar.open('Wrong token', null, {duration: 1500});
-                    }
-                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 1500}));
+                    this.twoFactorForm.get('token').value).toPromise().then(() => {
+                    this.userServiceProvider.default().deleteAccount().toPromise().then(() => {
+                        this.twoFactorDialog.close();
+                        this.snackBar.open('Your account has been successfully deleted', null, {duration: 2500});
+                        this.router.navigate(['/logout']);
+                    });
+                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 2500}));
                 break;
             case 'email':
                 this.twoFactorServiceProvider.default().verifyTokenByEmail(this.user.email,
-                    this.twoFactorForm.get('token').value).toPromise().then(res => {
-                    if (res) {
-                        this.userServiceProvider.default().deleteAccount().toPromise().then(() => {
-                            this.twoFactorDialog.close();
-                            this.snackBar.open('Your account has been successfully deleted', null, {duration: 1500});
-                            this.router.navigate(['/logout']);
-                        });
-                    } else {
-                        this.snackBar.open('Wrong token', null, {duration: 1500});
-                    }
-                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 1500}));
+                    this.twoFactorForm.get('token').value).toPromise().then(() => {
+                    this.userServiceProvider.default().deleteAccount().toPromise().then(() => {
+                        this.twoFactorDialog.close();
+                        this.snackBar.open('Your account has been successfully deleted', null, {duration: 2500});
+                        this.router.navigate(['/logout']);
+                    });
+                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 2500}));
                 break;
         }
     }
 
     sendTokenBySms(): void {
         this.twoFactorType = 'sms';
-        this.twoFactorServiceProvider.default().sendTokenBySms(this.user.phoneNumber).toPromise();
+        this.twoFactorServiceProvider.default().sendTokenBySms(this.user.phoneNumber).toPromise()
+            .catch(err => this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {duration: 2500}));
     }
 
     sendTokenByEmail(): void {
         this.twoFactorType = 'email';
-        this.twoFactorServiceProvider.default().sendTokenByEmail(this.user.email).toPromise();
+        this.twoFactorServiceProvider.default().sendTokenByEmail(this.user.email).toPromise()
+            .catch(err => this.snackBar.open('Email cannot be sent : ' + err.error.msg, null, {duration: 2500}));
     }
 }
