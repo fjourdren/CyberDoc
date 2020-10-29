@@ -488,6 +488,8 @@ class FileController {
                 }, process.env.JWT_SECRET, {
                     expiresIn: 36000
                 });
+                file.sharedWithPending.push(otherUserEmail);
+                await file.save();
                 const url: string = process.env.APP_FRONTEND_URL + "/register?token=" + token;
                 await Mailer.sendTemplateEmail(otherUserEmail,
                     process.env.SENDGRID_MAIL_FROM,
@@ -498,7 +500,6 @@ class FileController {
                         url: url
                     }).then(() => {
                     console.log('[Debug] An email has been sent to ' + otherUserEmail);
-                    file.sharedWithPending.push(otherUserEmail);
                     status = "Waiting";
                     res.status(HttpCodes.OK);
                     res.json({
