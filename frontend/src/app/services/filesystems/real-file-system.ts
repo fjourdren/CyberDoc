@@ -31,7 +31,7 @@ export class RealFileSystem implements FileSystem {
         }, null));
     }
 
-    getShareWith(fileID: String): Observable<RespondShare[]>{
+    getSharedWith(fileID: String): Observable<RespondShare[]>{
         return this.httpClient.get<any>(`${this._baseUrl}/files/${fileID}/sharing`, {withCredentials: true}).pipe(map(response => {    
             return response.shared_users as RespondShare[];
         }));
@@ -131,6 +131,12 @@ export class RealFileSystem implements FileSystem {
     setPreviewEnabled(file: CloudFile, enabled: boolean): Observable<void> {
         return this.httpClient.patch<any>(`${this._baseUrl}/files/${file._id}`, {
             "preview": enabled,
+        }, { withCredentials: true }).pipe(map(response => this._refreshNeeded$.emit(), null));
+    }
+
+    setShareMode(file: CloudFile, shareMode: string): Observable<void> {
+        return this.httpClient.patch<any>(`${this._baseUrl}/files/${file._id}`, {
+            "shareMode": shareMode,
         }, { withCredentials: true }).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
