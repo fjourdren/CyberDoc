@@ -3,56 +3,49 @@
 table {
     width: 100%;
 }
-  
 
 .error-txt {
-    color: $warn;
-    font-weight: bold;
-    padding-bottom: 12px;
+  color: $warn;
+  font-weight: bold;
+  padding-bottom: 12px;
 }
 
-.mat-column-email {
-    word-wrap: break-word !important;
-    white-space: unset !important;
-    flex: 0 0 8% !important;
-    width: 45% !important;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  
-    word-break: break-word;
-  
-    -ms-hyphens: auto;
-    -moz-hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphens: auto;
-  }
-  .mat-column-name {
-    word-wrap: break-word !important;
-    white-space: unset !important;
-    flex: 0 0 8% !important;
-    width: 45% !important;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  
-    word-break: break-word;
-  
-    -ms-hyphens: auto;
-    -moz-hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphens: auto;
-  }
-  .mat-column-delete {
-    word-wrap: break-word !important;
-    white-space: unset !important;
-    flex: 0 0 8% !important;
-    width: 10% !important;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  
-    word-break: break-word;
-  
-    -ms-hyphens: auto;
-    -moz-hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphens: auto;
-  }
+.deletebutton-column {
+  width: 32px;
+  padding-left: 16px;
+}
+
+.email-and-name-column {
+  word-break: break-all;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+[mat-dialog-actions] {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+#shareModeFormField {
+  width: 100px;
+}
+
+mat-spinner {
+  margin-right: 16px;
+}
+
+.fill {
+  flex: 1 1 auto;
+}
+
+#table-container {
+  height: calc(100% - 193px); /*HACK*/
+  overflow-y: auto;
+}
+
+mat-form-field {
+  margin-bottom: 8px;
+}

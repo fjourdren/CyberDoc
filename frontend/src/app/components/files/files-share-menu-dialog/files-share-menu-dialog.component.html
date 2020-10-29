@@ -1,40 +1,48 @@
-<h1 mat-dialog-title>
-    {{'fileaction.sharewith' | translate}}
-</h1>
+<div mat-dialog-title class="mat-headline">
+  {{'sharing.sharewith' | translate}}
+</div>
 
-<div class="error-txt" *ngIf="genericError">{{ 'general.generic_error' | translate }}</div>
+<mat-form-field [formGroup]="newShareForm" appearance="fill">
+  <mat-label>{{'sharing.add_email' | translate}}</mat-label>
+  <input formControlName="email" matInput type="text" (keydown)="onInputKeyDown($event)">
+  <button [disabled]="loading" matSuffix mat-icon-button (click)="addEntry()">
+    <mat-icon>add</mat-icon>
+  </button>
+  <mat-error *ngIf="newShareForm.controls['email'].hasError('invalid')">{{'sharing.invalid_or_unknown_email' | translate}}</mat-error>
+</mat-form-field>
 
+<div id="table-container">
+  <table mat-table [dataSource]="dataSource">
 
-<table mat-table [dataSource]="dataSource" >
-
-    <!--- Note that these columns can be defined in any order.
-          The actual rendered columns are set as a property on the row definition" -->
-  
-    <!-- Mail Column -->
-    <ng-container matColumnDef="email">
-      <th mat-header-cell *matHeaderCellDef> Email </th>
-      <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+    <ng-container matColumnDef="email-and-name">
+      <td class="email-and-name-column" mat-cell *matCellDef="let element">
+        <b>{{element.name}}</b>
+        <br>
+        {{element.email}}
+      </td>
     </ng-container>
-  
-    <!-- Name Column -->
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef> Name </th>
-      <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-    </ng-container>
 
-    <!-- Delete Column -->
     <ng-container matColumnDef="delete">
-        <th mat-header-cell *matHeaderCellDef> Delete ? </th>
-        <td mat-cell *matCellDef="let element"> <button color="warn" [disabled]="loading" mat-button (click)="delete(element.email)">Delete</button> </td>
-      </ng-container>
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <td class="deletebutton-column" mat-cell *matCellDef="let element">
+        <button [disabled]="loading" mat-icon-button (click)="deleteEntry(element.email)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
-  
+</div>
 
 <div mat-dialog-actions align="end">
-    <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
-    <button [disabled]="loading" mat-button (click)="onCancelBtnClicked()">{{'general.cancel' | translate}}</button>
-    <button [disabled]="loading" mat-raised-button color="primary"
-        (click)="shareNode()">{{'fileaction.newShare' | translate}}</button>
+  <mat-form-field id="shareModeFormField" [formGroup]="shareModeForm">
+    <mat-label>{{'sharing.share_access' | translate}}</mat-label>
+    <select formControlName="shareMode" matNativeControl (change)="updateFileShareMode()">
+      <option value="readonly">{{'sharing.view' | translate}}</option>
+      <option value="readwrite">{{'sharing.edit' | translate}}</option>
+    </select>
+  </mat-form-field>
+  <div class="fill"></div>
+  <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+  <button [disabled]="loading" mat-raised-button color="primary"
+    (click)="onCloseBtnClicked()">{{'general.close' | translate}}</button>
 </div>
