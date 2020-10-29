@@ -104,8 +104,7 @@ export class FilesUtilsService {
     return [
       FileType.Document,
       FileType.Spreadsheet,
-      FileType.Presentation,
-      FileType.PDF
+      FileType.Presentation
     ].indexOf(fileType) !== -1;
   }
 }
