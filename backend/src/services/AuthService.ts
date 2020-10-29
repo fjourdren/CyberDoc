@@ -61,6 +61,7 @@ class AuthService {
                     });
                     // and add it to sharedWith array
                     file.sharedWith.push(newUser._id);
+                    file.save();
                     console.log('[Debug] ' + newUser.email + ' added to sharedWith (' + file.name + ')');
                 })
             });
