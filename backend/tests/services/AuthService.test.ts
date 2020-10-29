@@ -84,7 +84,6 @@ describe('Testing AuthService tag', () => {
                 expect(e.message).toBe("Another account with this mail already exists");
                 expect(e.statusCode).toBe(409);
             }
-
         });
 
     });
@@ -112,7 +111,6 @@ describe('Testing AuthService tag', () => {
             let return_token = await AuthService.login(email_login, password_login);
             expect(return_token).toBe("valid-token");
             expect(spygenerateJWTToken).toHaveBeenCalled();
-
         });
 
         it('should not login : invalid email', async () => {
@@ -132,7 +130,6 @@ describe('Testing AuthService tag', () => {
             expect(E.message).toBe("Internal Error");
             expect(E.statusCode).toBe(500);
             expect(spygenerateJWTToken).toHaveBeenCalled();
-
         });
 
         it('should not login : invalid password', async () => {
@@ -154,7 +151,6 @@ describe('Testing AuthService tag', () => {
             expect(E.message).toBe("Invalid credentials");
             expect(E.statusCode).toBe(401);
             expect(spygenerateJWTToken).toHaveBeenCalled();
-
         });
 
     });
@@ -192,7 +188,6 @@ describe('Testing AuthService tag', () => {
 
             expect(E.statusCode).toEqual(500);
             expect(E.message).toEqual('Internal Error');
-            
         });
 
     });
@@ -206,7 +201,6 @@ describe('Testing AuthService tag', () => {
 
             const l = AuthService.validateToken("validate");
             expect(l).toStrictEqual("true");
-        
         });
 
     });
