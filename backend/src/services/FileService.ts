@@ -6,7 +6,17 @@ import fs from "fs";
 import path from 'path';
 import sharp from 'sharp'
 const filepreview = require('pngenerator');
-const libre = require("libreoffice-convert");
+
+import { v4 as uuidv4 } from "uuid";
+import { promisify } from "util";
+import { execFile as _oldExecFile } from "child_process";
+import { writeFile as _oldWriteFile, unlink as _oldUnlink, readFile as _oldReadFile, mkdir as _oldMkdir } from "fs";
+
+const execFile = promisify(_oldExecFile);
+const writeFile = promisify(_oldWriteFile);
+const unlink = promisify(_oldUnlink);
+const readFile = promisify(_oldReadFile);
+const mkdir = promisify(_oldMkdir);
 
 import GridFSTalker from "../helpers/GridFSTalker";
 import { requireNonNull, requireIsNull } from '../helpers/DataValidation';
@@ -458,34 +468,56 @@ class FileService {
 
 
     // generate pdf file
-    public static generatePDF(file: IFile): Promise<Readable> {
-        return new Promise(async (resolve, reject) => {
-            // be sure that file is a document
-            FileService.requireFileIsDocument(file);
+    public static async generatePDF(file: IFile): Promise<Readable> {
+        FileService.requireFileIsDocument(file);
 
-            // go take content in gridfs and build content buffer
-            const content: Record<string, MongoClient.GridFSBucketReadStream> = await FileService.getFileContent(file);
-            const buffer: Buffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
+        //Keep this list synced with frontend\src\app\services\files-utils\files-utils.service.ts
+        //FileType.{Text,Document,Spreadsheet,Spreadsheet}
+        const VALID_MIMEYPES_FOR_PDF_GENERATION = [
+            "text/plain",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-powerpoint",
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+            "application/vnd.oasis.opendocument.text",
+            "application/vnd.oasis.opendocument.spreadsheet",
+            "application/vnd.oasis.opendocument.presentation"
+        ];
 
-            // check that extension is available to the preview generation
-            const validExtensions = ["ez","aw","atom","atomcat","atomsvc","bdoc","ccxml","cdmia","cdmic","cdmid","cdmio","cdmiq","cu","mdp","davmount","dbk","dssc","xdssc","ecma","emma","epub","exi","pfr","woff","woff2","gml","gpx","gxf","stk","ink","inkml","ipfix","jar","war","ear","ser","class","js","json","map","json5","jsonml","jsonld","lostxml","hqx","cpt","mads","webmanifest","mrc","mrcx","ma","nb","mb","mathml","mbox","mscml","metalink","meta4","mets","mods","m21","mp21","mp4s","m4p","doc","dot","mxf","bin","dms","lrf","mar","so","dist","distz","pkg","bpk","dump","elc","deploy","exe","dll","deb","dmg","iso","img","msi","msp","msm","buffer","oda","opf","ogx","omdoc","onetoc","onetoc2","onetmp","onepkg","oxps","xer","pdf","pgp","asc","sig","prf","p10","p7m","p7c","p7s","p8","ac","cer","crl","pkipath","pki","pls","ai","eps","ps","cww","pskcxml","rdf","rif","rnc","rl","rld","rs","gbr","mft","roa","rsd","rss","rtf","sbml","scq","scs","spq","spp","sdp","setpay","setreg","shf","smi","smil","rq","srx","gram","grxml","sru","ssdl","ssml","tei","teicorpus","tfi","tsd","plb","psb","pvb","tcap","pwn","aso","imp","acu","atc","acutc","air","fcdt","fxp","fxpl","xdp","xfdf","ahead","azf","azs","azw","acc","ami","apk","cii","fti","atx","mpkg","m3u8","pkpass","swi","iota","aep","mpm","bmi","rep","cdxml","mmd","cdy","cla","rp9","c4g","c4d","c4f","c4p","c4u","c11amc","c11amz","csp","cdbcmsg","cmc","clkx","clkk","clkp","clkt","clkw","wbs","pml","ppd","car","pcurl","dart","rdz","uvf","uvvf","uvd","uvvd","uvt","uvvt","uvx","uvvx","uvz","uvvz","fe_launch","dna","mlp","dpg","dfac","kpxx","ait","svc","geo","mag","nml","esf","msf","qam","slt","ssf","es3","et3","ez2","ez3","fdf","mseed","seed","dataless","gph","ftc","fm","frame","maker","book","fnc","ltf","fsc","oas","oa2","oa3","fg5","bh2","ddd","xdw","xbd","fzs","txd","ggb","ggt","gex","gre","gxt","g2w","g3w","gmx","gdoc","gslides","gsheet","kml","kmz","gqf","gqs","gac","ghf","gim","grv","gtm","tpl","vcg","hal","zmm","hbci","les","hpgl","hpid","hps","jlt","pcl","pclxl","sfd-hdstx","mpy","afp","listafp","list3820","irm","sc","icc","icm","igl","ivp","ivu","igm","xpw","xpx","i2g","qbo","qfx","rcprofile","irp","xpr","fcs","jam","rms","jisp","joda","ktz","ktr","karbon","chrt","kfo","flw","kon","kpr","kpt","ksp","kwd","kwt","htke","kia","kne","knp","skp","skd","skt","skm","sse","lasxml","lbd","lbe","123","apr","pre","nsf","org","scm","lwp","portpkg","mcd","mc1","cdkey","mwf","mfm","flo","igx","mif","daf","dis","mbk","mqy","msl","plc","txf","mpn","mpc","xul","cil","cab","xls","xlm","xla","xlc","xlt","xlw","xlam","xlsb","xlsm","xltm","eot","chm","ims","lrm","thmx","cat","stl","ppt","pps","pot","ppam","pptm","sldm","ppsm","potm","mpp","mpt","docm","dotm","wps","wks","wcm","wdb","wpl","xps","mseq","mus","msty","taglet","nlu","ntf","nitf","nnd","nns","nnw","ngdat","n-gage","rpst","rpss","edm","edx","ext","odc","otc","odb","odf","odft","odg","otg","odi","oti","odp","otp","ods","ots","odt","odm","ott","oth","xo","dd2","oxt","pptx","sldx","ppsx","potx","xlsx","xltx","docx","dotx","mgp","dp","esa","pdb","pqa","oprc","paw","str","ei6","efif","wg","plf","pbd","box","mgz","qps","ptid","qxd","qxt","qwd","qwt","qxl","qxb","bed","mxl","musicxml","cryptonote","cod","rm","rmvb","link66","st","see","sema","semd","semf","ifm","itp","iif","ipk","twd","twds","mmf","teacher","sdkm","sdkd","dxp","sfs","sdc","sda","sdd","smf","sdw","vor","sgl","smzip","sm","sxc","stc","sxd","std","sxi","sti","sxm","sxw","sxg","stw","sus","susp","svd","sis","sisx","xsm","bdm","xdm","tao","pcap","cap","dmp","tmo","tpt","mxs","tra","ufd","ufdl","utz","umj","unityweb","uoml","vcx","vsd","vst","vss","vsw","vis","vsf","wbxml","wmlc","wmlsc","wtb","nbp","wpd","wqd","stf","xar","xfdl","hvd","hvs","hvp","osf","osfpvg","saf","spf","cmp","zir","zirz","zaz","vxml","wgt","hlp","wsdl","wspolicy","7z","abw","ace","aab","x32","u32","vox","aam","aas","bcpio","torrent","blb","blorb","bz","bz2","boz","cbr","cba","cbt","cbz","cb7","vcd","cfs","chat","pgn","crx","cco","nsc","cpio","csh","udeb","dgc","dir","dcr","dxr","cst","cct","cxt","w3d","fgd","swa","wad","ncx","dtb","res","dvi","evy","eva","bdf","gsf","psf","otf","pcf","snf","ttf","ttc","pfa","pfb","pfm","afm","arc","spl","gca","ulx","gnumeric","gramps","gtar","hdf","php","install","jardiff","jnlp","latex","luac","lzh","lha","run","mie","prc","mobi","application","lnk","wmd","wmz","xbap","mdb","obd","crd","clp","com","bat","mvb","m13","m14","wmf","emf","emz","mny","pub","scd","trm","wri","nc","cdf","pac","nzb","pl","pm","p12","pfx","p7b","spc","p7r","rar","rpm","ris","sea","sh","shar","swf","xap","sql","sit","sitx","srt","sv4cpio","sv4crc","t3","gam","tar","tcl","tk","tex","tfm","texinfo","texi","obj","ustar","src","webapp","der","crt","pem","fig","xlf","xpi","xz","z1","z2","z3","z4","z5","z6","z7","z8","xaml","xdf","xenc","xhtml","xht","xml","xsl","xsd","dtd","xop","xpl","xslt","xspf","mxml","xhvml","xvml","xvm","yang","yin","zip","adp","au","snd","mid","midi","kar","rmi","mp4a","m4a","mpga","mp2","mp2a","mp3","m2a","m3a","oga","ogg","spx","s3m","sil","uva","uvva","eol","dra","dts","dtshd","lvp","pya","ecelp4800","ecelp7470","ecelp9600","rip","wav","weba","aac","aif","aiff","aifc","caf","flac","mka","m3u","wax","wma","ram","ra","rmp","xm","cdx","cif","cmdf","cml","csml","xyz","bmp","cgm","g3","gif","ief","jpeg","jpg","jpe","ktx","png","btif","sgi","svg","svgz","tiff","tif","psd","uvi","uvvi","uvg","uvvg","djvu","djv","sub","dwg","dxf","fbs","fpx","fst","mmr","rlc","mdi","wdp","npx","wbmp","xif","webp","3ds","ras","cmx","fh","fhc","fh4","fh5","fh7","ico","jng","sid","pcx","pic","pct","pnm","pbm","pgm","ppm","rgb","tga","xbm","xpm","xwd","eml","mime","igs","iges","msh","mesh","silo","dae","dwf","gdl","gtw","mts","vtu","wrl","vrml","x3db","x3dbz","x3dv","x3dvz","x3d","x3dz","appcache","manifest","ics","ifb","coffee","litcoffee","css","csv","hjson","html","htm","shtml","jade","jsx","less","mml","n3","txt","text","conf","def","list","log","in","ini","dsc","rtx","sgml","sgm","stylus","styl","tsv","t","tr","roff","man","me","ms","ttl","uri","uris","urls","vcard","curl","dcurl","mcurl","scurl","fly","flx","gv","3dml","spot","jad","wml","wmls","vtt","s","asm","c","cc","cxx","cpp","h","hh","dic","htc","f","for","f77","f90","hbs","java","lua","markdown","md","mkd","nfo","opml","p","pas","pde","sass","scss","etx","sfv","ymp","uu","vcs","vcf","yaml","yml","3gp","3gpp","3g2","h261","h263","h264","jpgv","jpm","jpgm","mj2","mjp2","ts","mp4","mp4v","mpg4","mpeg","mpg","mpe","m1v","m2v","ogv","qt","mov","uvh","uvvh","uvm","uvvm","uvp","uvvp","uvs","uvvs","uvv","uvvv","dvb","fvt","mxu","m4u","pyv","uvu","uvvu","viv","webm","f4v","fli","flv","m4v","mkv","mk3d","mks","mng","asf","asx","vob","wm","wmv","wmx","wvx","avi","movie","smv","ice"];
-            const extension: string = path.extname(file.name); // calculate extension
-            if(!validExtensions.includes(extension.substring(1)))
-                throw new HTTPError(HttpCodes.BAD_REQUEST, "This kind of file can't be previewed");
+        if (!VALID_MIMEYPES_FOR_PDF_GENERATION.includes(file.mimetype)) {
+            throw new HTTPError(HttpCodes.BAD_REQUEST, "PDF generation is not available for this file");
+        }
 
-            // convert content
-            libre.convert(buffer, "pdf", undefined, (err: Error, data: any) => {
-                if(err)
-                    reject(err);
+        // go take content in gridfs and build content buffer
+        const content = await FileService.getFileContent(file);
+        const inputBuffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
 
-                // create readable
-                const readablePDF = new Readable();
-                readablePDF.push(data);
-                readablePDF.push(null);
+        const randomUUID = uuidv4();
+        const directory = path.join("tmp", "pdf-export");
+        const inputFilePath = path.resolve(path.join("tmp", "pdf-export", `pdf-${randomUUID}`));
+        
+        //pdf extension is added by soffice
+        const outputFilePath = path.resolve(path.join("tmp", "pdf-export", `pdf-${randomUUID}.pdf`));
 
-                resolve(readablePDF);
-            });
-        });
+        await mkdir(directory);
+        await writeFile(inputFilePath, inputBuffer);
+        await execFile("soffice", [
+            "--convert-to pdf:writer_pdf_Export",
+            "-env:UserInstallation=file:///tmp/soffice-conversion",
+            `--outdir ${directory}`,
+            inputFilePath
+        ]);
+        const outputBuffer = await readFile(outputFilePath);
+        await unlink(inputFilePath);
+        await unlink(outputFilePath);
+
+        const readablePDF = new Readable();
+        readablePDF.push(outputBuffer);
+        readablePDF.push(null);
+        return readablePDF;
     }
 
     // ask to preview a file
