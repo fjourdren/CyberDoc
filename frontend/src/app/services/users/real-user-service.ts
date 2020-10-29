@@ -183,7 +183,15 @@ export class RealUserService implements UserService {
         }));
     }
 
-    recoverPassword(email: string): Observable<void>{
+    validatePassword(password: string): Observable<boolean> {
+        return this.httpClient.post<any>(`${this._baseUrl}/auth/validatepassword`, {
+            password
+        }, {withCredentials: true}).pipe(map(response => {
+            return response.success;
+        }));
+    }
+
+    recoverPassword(email: string): Observable<void> {
         return this.httpClient.post<any>(`${this._baseUrl}/auth/forgottenPassword`, {
             "email": email
         }).pipe(map(response => {
@@ -191,19 +199,20 @@ export class RealUserService implements UserService {
     }
 
     resetPassword(resetPasswordJWTToken: string, email: string, password: any): Observable<void> {
-        console.warn("Authorization",  `Bearer ${resetPasswordJWTToken}`);
+        console.warn("Authorization", `Bearer ${resetPasswordJWTToken}`);
         return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
             "email": email,
             "password": password
         }, {
             headers: {
-                "Authorization":  `Bearer ${resetPasswordJWTToken}`,
+                "Authorization": `Bearer ${resetPasswordJWTToken}`,
             },
             withCredentials: true
-        }).pipe(map(response => {}));
+        }).pipe(map(response => {
+        }));
     }
 
-    searchExistingUser(email: string): Observable<User>{
+    searchExistingUser(email: string): Observable<User> {
         return null;
     }
 
@@ -216,9 +225,8 @@ export class RealUserService implements UserService {
 
     deleteAccount(): Observable<void> {
         return this.httpClient.delete<any>(`${this._baseUrl}/users/profile`, {withCredentials: true})
-            .pipe(map(response => {
-                this.cookieService.delete(JWT_COOKIE_NAME);
-                this._setUser(null);
+            .pipe(map(() => {
+                this.logout();
             }));
     }
 
@@ -228,7 +236,7 @@ export class RealUserService implements UserService {
 
     private _setUser(user: User) {
         localStorage.setItem('real_user', JSON.stringify(user));
-        if (user){
+        if (user) {
             this._userUpdated$.emit(user);
         }
     }

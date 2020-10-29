@@ -1,0 +1,28 @@
+<h1 mat-dialog-title>Two-factor authentication required</h1>
+<div mat-dialog-content>
+    <form [formGroup]="twoFactorForm" novalidate (ngSubmit)="onSubmit()">
+        <mat-card-content>
+            <p *ngIf="twoFactorType === 'app'">Enter token generated on your application</p>
+            <p *ngIf="twoFactorType === 'sms'">Enter token received on your phone</p>
+            <p *ngIf="twoFactorType === 'email'">Enter token received on your email</p>
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Token</mat-label>
+                <input matInput formControlName="token" required>
+                <mat-error *ngIf="twoFactorForm.controls['token'].hasError('required')">
+                    Token is <strong>required. </strong>
+                </mat-error>
+            </mat-form-field>
+            <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'email') && this.user.twoFactorSms"
+                    mat-raised-button color="basic" (click)="sendTokenBySms()">Send me token by SMS
+            </button>
+            <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'sms') && this.user.twoFactorEmail"
+                    mat-raised-button color="basic" (click)="sendTokenByEmail()">Send me token by Email
+            </button>
+        </mat-card-content>
+
+        <div id="button-container">
+            <button mat-raised-button color="primary" type="submit" class="submit">Validate token</button>
+            <button mat-button color="warn" matDialogClose>Cancel</button>
+        </div>
+    </form>
+</div>
