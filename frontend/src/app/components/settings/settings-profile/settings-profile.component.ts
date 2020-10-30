@@ -1,51 +1,85 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableDataSource } from '@angular/material/table';
+import { FileTag } from 'src/app/models/files-api-models';
+import { SettingsDeleteTagDialogComponent } from '../settings-delete-tag-dialog/settings-delete-tag-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { SettingsCreateEditTagDialogComponent } from '../settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
 
 @Component({
-  selector: 'app-settings-profile',
-  templateUrl: './settings-profile.component.html',
-  styleUrls: ['./settings-profile.component.css']
+    selector: 'app-settings-profile',
+    templateUrl: './settings-profile.component.html',
+    styleUrls: ['./settings-profile.component.css']
 })
 export class SettingsProfileComponent {
-  profileForm = new FormGroup({
-    firstName: new FormControl(''),
-    lastName: new FormControl(''),
-    newEmail: new FormControl(''),
-    oldEmail: new FormControl('')
-  });
+  profileForm: FormGroup;
+  loading = false;
 
-  constructor(private userServiceProvider: UserServiceProvider, private fb: FormBuilder, private snackBar: MatSnackBar) { }
+  //tag list
+  displayedColumns = ['tagcolor', 'name', 'editbutton', 'deletebutton'];
+  dataSource = new MatTableDataSource<FileTag>([]);
 
-  ngOnInit() {
+  constructor(private userServiceProvider: UserServiceProvider,
+    private fb: FormBuilder,
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog) {
     this.profileForm = this.fb.group({
-      firstName: [this.userServiceProvider.default().getActiveUser().firstname, Validators.required],
-      lastName: [this.userServiceProvider.default().getActiveUser().lastname, Validators.required],
-      newEmail: [this.userServiceProvider.default().getActiveUser().email, [Validators.required, Validators.email]],
-      oldEmail: [this.userServiceProvider.default().getActiveUser().email, [Validators.required, Validators.email]]
+      firstName: ["", Validators.required],
+      lastName: ["", Validators.required],
+      newEmail: ["", [Validators.required, Validators.email]]
     });
+
+    this.refresh();
+    this.userServiceProvider.default().userUpdated().subscribe(() => this.refresh());
   }
 
-  onSubmit() {
-    console.warn(this.profileForm.value);
-    this.updateProfile()
+  refresh() {
+    const user = this.userServiceProvider.default().getActiveUser();
+    this.profileForm.get("firstName").setValue(user.firstname);
+    this.profileForm.get("lastName").setValue(user.lastname);
+    this.profileForm.get("newEmail").setValue(user.email);
+    this.dataSource.data = user.tags;
   }
 
   updateProfile() {
+    this.loading = true;
+    this.profileForm.disable();
+    this.snackBar.open('Enregistrement...', null, { duration: 9999999999 });
+
     this.userServiceProvider.default().updateProfile(
       this.profileForm.get('firstName').value,
       this.profileForm.get('lastName').value,
       this.profileForm.get('newEmail').value,
       this.userServiceProvider.default().getActiveUser().email
-    ).toPromise().then(() => {
-      this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-        this.snackBar.open('Profile updated', null, { duration: 1500 });
-      }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
-    })
+    ).toPromise()
+      .then(() => {
+        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+          this.loading = false;
+          this.profileForm.enable();
+          this.snackBar.dismiss();
+          this.snackBar.open('Profile updated', null, { duration: 1500 });
+        });
+      });
   }
 
   deleteAccount() {
-    this.userServiceProvider.default().deleteAccount();
+    alert("Sorry, but this function is not available yet");
   }
+
+  addOrEditTag(tag: FileTag | undefined) {
+    this.dialog.open(SettingsCreateEditTagDialogComponent, {
+      maxWidth: "400px",
+      data: tag
+    });
+  }
+
+  deleteTag(tag: FileTag) {
+    this.dialog.open(SettingsDeleteTagDialogComponent, {
+      maxWidth: "400px",
+      data: tag
+    });
+  }
+
 }

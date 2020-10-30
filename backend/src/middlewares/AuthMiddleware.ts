@@ -35,7 +35,7 @@ class AuthMiddleware {
     }
 
 
-    // custom middleware only for forgottenPassword, allow user to use POST /profile to change data about him only with a forgottenPassword token
+    // custom middleware only for forgottenPassword or twoFactor, allow user to use POST /profile to change data about him only with a forgottenPassword token
     public static isAuthenticateOrEditToken(req: Request, res: Response, next: NextFunction): void {
         try {
             // if user is disconnected, we send an error
