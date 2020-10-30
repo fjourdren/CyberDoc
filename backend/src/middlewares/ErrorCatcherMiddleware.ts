@@ -25,12 +25,23 @@ class ErrorCatcherMiddleware {
             httpmessage = errHttp.message;
         }
 
-        // reply error
-        res.status(httpcode);
-        res.json({
-            success: false,
-            msg: httpmessage
-        });
+        //FIXME FOR DEBUG ONLY
+        const DEBUG = true;
+        if (DEBUG) {
+            res.status(httpcode);
+            res.json({
+                success: false,
+                msg: httpmessage,
+                error: JSON.stringify(err)
+            });    
+        } else {
+            res.status(httpcode);
+            res.json({
+                success: false,
+                msg: httpmessage
+            });    
+        }
+
     }
 
 }

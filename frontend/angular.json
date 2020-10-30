@@ -27,9 +27,12 @@
             "styles": [
               "src/theme.scss",
               "src/styles.scss",
-              "./node_modules/@fortawesome/fontawesome-free/css/all.css"
+              "./node_modules/@fortawesome/fontawesome-free/css/all.css",
+              "./node_modules/intl-tel-input/build/css/intlTelInput.css"
             ],
-            "scripts": []
+            "scripts": [
+              "./node_modules/intl-tel-input/build/js/intlTelInput.min.js"
+            ]
           },
           "configurations": {
             "vps": {
