@@ -124,8 +124,9 @@ export class RealUserService implements UserService {
     }
 
     updatePhoneNumber(phoneNumber: string, email: string): Observable<void> {
+        let frenchPhoneNumber = '+33' + phoneNumber;
         return this.httpClient.post<any>(`${this._baseUrl}/users/profile`, {
-            phoneNumber
+            phoneNumber: frenchPhoneNumber
         }, {withCredentials: true}).pipe(map(response => {
             this.cookieService.set(
                 JWT_COOKIE_NAME,
