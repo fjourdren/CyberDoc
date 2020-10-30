@@ -3,7 +3,7 @@ import {EventEmitter} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {FileTag} from 'src/app/models/files-api-models';
-import {User} from 'src/app/models/users-api-models';
+import {User, Devices} from 'src/app/models/users-api-models';
 import {UserService} from './user-service';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {CookieService} from 'ngx-cookie-service';
@@ -224,6 +224,12 @@ export class RealUserService implements UserService {
 
     userUpdated(): Observable<User> {
         return this._userUpdated$.asObservable();
+    }
+
+    getUserDevices(): Observable<Devices[]> {
+        return this.httpClient.get<any>(`${this._baseUrl}/users/devices`, {withCredentials: true}).pipe(map(response => {
+            return response.devices;
+        }));
     }
 
     private _setUser(user: User) {

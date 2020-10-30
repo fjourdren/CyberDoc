@@ -1,7 +1,7 @@
 import {UserService} from './user-service';
 
 import {Observable, of} from 'rxjs';
-import {User} from 'src/app/models/users-api-models';
+import {User, Devices} from 'src/app/models/users-api-models';
 import {delay, map} from 'rxjs/operators';
 import {EventEmitter} from '@angular/core';
 import {FileTag} from 'src/app/models/files-api-models';
@@ -354,5 +354,9 @@ export class MockUserService implements UserService {
             status: 400,
             url: '/fake-url'
         });
+    }
+
+    getUserDevices(): Observable<Devices[]>{
+        return null;
     }
 }

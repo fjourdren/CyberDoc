@@ -32,3 +32,8 @@ mat-form-field {
     margin-left: auto;
     width: 190px;
 }
+
+table {
+    width: 100%;
+  }
+  
