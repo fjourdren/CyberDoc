@@ -1,11 +1,11 @@
-import {Component, Inject, OnInit} from '@angular/core';
-import {AbstractControl, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import { AfterViewInit, Component, ElementRef, HostListener, Inject, OnInit, ViewChild } from '@angular/core';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
-import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
-import {MustMatch} from './_helpers/must-match.validator';
-import {MAT_DIALOG_DATA, MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material/dialog';
-import {TwoFactorServiceProvider} from 'src/app/services/twofactor/twofactor-service-provider';
+import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { MustMatch } from './_helpers/must-match.validator';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material/dialog';
+import { TwoFactorServiceProvider } from 'src/app/services/twofactor/twofactor-service-provider';
 
 export interface DialogData {
     type: string;
@@ -21,13 +21,17 @@ export interface ConnectedDevices {
     lastConnexion: string;
     devices: string;
     OS: string;
-  }
-  
-  const DEVICES_DATA: ConnectedDevices[] = [
-    {id:1, name: "test", lastConnexion: '18-04-2020', devices: 'Iphone', OS: 'Ios 1.4.2'},
-    {id:2, name: "test2", lastConnexion: '21-05-2020', devices: 'Samsung', OS: ' Android 5.5'},
-    {id:3, name: "test3", lastConnexion: '27-10-2020', devices: 'PC', OS: 'Chrome'},
-  ];
+}
+
+export interface DialogDevicesData {
+    name: string;
+}
+
+const DEVICES_DATA: ConnectedDevices[] = [
+    { id: 1, name: "test", lastConnexion: '18-04-2020', devices: 'Iphone', OS: 'Ios 1.4.2' },
+    { id: 2, name: "test2", lastConnexion: '21-05-2020', devices: 'Samsung', OS: ' Android 5.5' },
+    { id: 3, name: "test3", lastConnexion: '27-10-2020', devices: 'PC', OS: 'Chrome' },
+];
 
 @Component({
     selector: 'app-settings-security',
@@ -60,12 +64,12 @@ export class SettingsSecurityComponent implements OnInit {
     test = false;
 
     constructor(private userServiceProvider: UserServiceProvider,
-                private twoFactorServiceProvider: TwoFactorServiceProvider,
-                private fb: FormBuilder, private snackBar: MatSnackBar, private dialog: MatDialog) {
-                    userServiceProvider.default().getUserDevices().toPromise().then((value)=>{
-                        this.dataSource.data = value;
-                      });
-                      console.log(this.dataSource);                  
+        private twoFactorServiceProvider: TwoFactorServiceProvider,
+        private fb: FormBuilder, private snackBar: MatSnackBar, private dialog: MatDialog) {
+        userServiceProvider.default().getUserDevices().toPromise().then((value) => {
+            this.dataSource.data = value;
+        });
+        console.log(this.dataSource);
     }
 
     get f(): { [p: string]: AbstractControl } {
@@ -103,10 +107,10 @@ export class SettingsSecurityComponent implements OnInit {
                 this.passwordForm.get('newPassword').value,
                 this.userServiceProvider.default().getActiveUser().email
             ).toPromise().then(() => {
-                this.snackBar.open('Password updated', null, {duration: 1500});
-            }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                this.snackBar.open('Password updated', null, { duration: 1500 });
+            }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
         } else {
-            this.snackBar.open('Password aren\'t equals', null, {duration: 1500});
+            this.snackBar.open('Password aren\'t equals', null, { duration: 1500 });
         }
     }
 
@@ -136,18 +140,18 @@ export class SettingsSecurityComponent implements OnInit {
             case 'app':
                 this.twoFactorServiceProvider.default().generateSecretUriAndQr(
                     this.userServiceProvider.default().getActiveUser().email).toPromise().then(res => {
-                    refDialog = this.dialog.open(SettingsSecurityDialogComponent, {
-                        width: '500px',
-                        data: {
-                            type: 'app',
-                            qr: res.qr,
-                            secret: res.secret
-                        }
+                        refDialog = this.dialog.open(SettingsSecurityDialogComponent, {
+                            width: '500px',
+                            data: {
+                                type: 'app',
+                                qr: res.qr,
+                                secret: res.secret
+                            }
+                        });
+                        refDialog.afterClosed().toPromise().then(() => {
+                            this.refreshTwoFactor();
+                        });
                     });
-                    refDialog.afterClosed().toPromise().then(() => {
-                        this.refreshTwoFactor();
-                    });
-                });
                 break;
             case 'sms':
                 refDialog = this.dialog.open(SettingsSecurityDialogComponent, {
@@ -177,6 +181,24 @@ export class SettingsSecurityComponent implements OnInit {
         }
     }
 
+    // Dialogs Devices
+
+    openDialogDevices(name: string): void {
+        let refDialog: MatDialogRef<any>;
+        refDialog = this.dialog.open(SettingsSecurityDevicesDialogComponent, {
+            width: '500px',
+            data: {
+                'name': name
+            }
+        });
+        refDialog.afterClosed().toPromise().then(() => {
+            this.refreshTwoFactor();
+        });
+
+
+    }
+
+
     refreshTwoFactor(): void {
         this.twoFactorApp = this.userServiceProvider.default().getActiveUser().twoFactorApp;
         this.twoFactorSms = this.userServiceProvider.default().getActiveUser().twoFactorSms;
@@ -195,13 +217,13 @@ export class SettingsSecurityComponent implements OnInit {
                         this.userServiceProvider.default().getActiveUser().email
                     ).toPromise().then(() => {
                         this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                            this.snackBar.open('2FA disabled', null, {duration: 1500});
+                            this.snackBar.open('2FA disabled', null, { duration: 1500 });
                             this.refreshTwoFactor();
-                        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                        }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
                     });
                 } else {
                     this.snackBar.open('You have to keep at least one 2FA option to use the application.',
-                        null, {duration: 1500});
+                        null, { duration: 1500 });
                 }
                 break;
             case 'sms':
@@ -214,13 +236,13 @@ export class SettingsSecurityComponent implements OnInit {
                         this.userServiceProvider.default().getActiveUser().email
                     ).toPromise().then(() => {
                         this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                            this.snackBar.open('2FA disabled', null, {duration: 1500});
+                            this.snackBar.open('2FA disabled', null, { duration: 1500 });
                             this.refreshTwoFactor();
-                        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                        }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
                     });
                 } else {
                     this.snackBar.open('You have to keep at least one 2FA option to use the application.',
-                        null, {duration: 1500});
+                        null, { duration: 1500 });
                 }
                 break;
             case 'email':
@@ -233,13 +255,13 @@ export class SettingsSecurityComponent implements OnInit {
                         this.userServiceProvider.default().getActiveUser().email
                     ).toPromise().then(() => {
                         this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                            this.snackBar.open('2FA disabled', null, {duration: 1500});
+                            this.snackBar.open('2FA disabled', null, { duration: 1500 });
                             this.refreshTwoFactor();
-                        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
+                        }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
                     });
                 } else {
                     this.snackBar.open('You have to keep at least one 2FA option to use the application.',
-                        null, {duration: 1500});
+                        null, { duration: 1500 });
                 }
                 break;
         }
@@ -258,11 +280,11 @@ export class SettingsSecurityDialogComponent implements OnInit {
     phoneNumber: any;
 
     constructor(private fb: FormBuilder,
-                private twoFactorServiceProvider: TwoFactorServiceProvider,
-                private userServiceProvider: UserServiceProvider,
-                private snackBar: MatSnackBar,
-                public dialogRef: MatDialogRef<SettingsSecurityDialogComponent>,
-                @Inject(MAT_DIALOG_DATA) public data: DialogData) {
+        private twoFactorServiceProvider: TwoFactorServiceProvider,
+        private userServiceProvider: UserServiceProvider,
+        private snackBar: MatSnackBar,
+        public dialogRef: MatDialogRef<SettingsSecurityDialogComponent>,
+        @Inject(MAT_DIALOG_DATA) public data: DialogData) {
     }
 
     get f(): { [p: string]: AbstractControl } {
@@ -291,70 +313,112 @@ export class SettingsSecurityDialogComponent implements OnInit {
             this.twoFactorServiceProvider.default()
                 .verifyTokenByApp(this.data.secret, this.tokenForm.get('token').value)
                 .toPromise().then(res => {
-                if (res) {
-                    this.userServiceProvider.default().updateTwoFactor(
-                        true,
-                        this.userServiceProvider.default().getActiveUser().twoFactorSms,
-                        this.userServiceProvider.default().getActiveUser().twoFactorEmail,
-                        this.userServiceProvider.default().getActiveUser().email
-                    ).toPromise().then(() => {
-                        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                            this.snackBar.open('2FA activated', null, {duration: 1500});
-                            this.dialogRef.close();
-                        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
-                    });
-                    this.userServiceProvider.default().updateSecret(this.data.secret,
-                        this.userServiceProvider.default().getActiveUser().email).toPromise();
-                }
-            }).catch(err => {
-                this.snackBar.open(err.error.msg, null, {duration: 1500});
-            });
+                    if (res) {
+                        this.userServiceProvider.default().updateTwoFactor(
+                            true,
+                            this.userServiceProvider.default().getActiveUser().twoFactorSms,
+                            this.userServiceProvider.default().getActiveUser().twoFactorEmail,
+                            this.userServiceProvider.default().getActiveUser().email
+                        ).toPromise().then(() => {
+                            this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                                this.snackBar.open('2FA activated', null, { duration: 1500 });
+                                this.dialogRef.close();
+                            }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
+                        });
+                        this.userServiceProvider.default().updateSecret(this.data.secret,
+                            this.userServiceProvider.default().getActiveUser().email).toPromise();
+                    }
+                }).catch(err => {
+                    this.snackBar.open(err.error.msg, null, { duration: 1500 });
+                });
         } else if (this.data.type === 'sms') { // 2FA SMS
             this.twoFactorServiceProvider.default()
                 .verifyTokenBySms(this.data.phoneNumber, this.tokenForm.get('token').value)
                 .toPromise().then(res => {
-                if (res) {
-                    this.userServiceProvider.default().updateTwoFactor(
-                        this.userServiceProvider.default().getActiveUser().twoFactorApp,
-                        true,
-                        this.userServiceProvider.default().getActiveUser().twoFactorEmail,
-                        this.userServiceProvider.default().getActiveUser().email
-                    ).toPromise().then(() => {
-                        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                            this.snackBar.open('2FA activated', null, {duration: 1500});
-                            this.dialogRef.close();
-                        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
-                    });
-                    this.userServiceProvider.default().updatePhoneNumber(this.data.phoneNumber,
-                        this.userServiceProvider.default().getActiveUser().email).toPromise();
-                }
-            }).catch(err => {
-                this.snackBar.open(err.error.msg, null, {duration: 1500});
-            });
+                    if (res) {
+                        this.userServiceProvider.default().updateTwoFactor(
+                            this.userServiceProvider.default().getActiveUser().twoFactorApp,
+                            true,
+                            this.userServiceProvider.default().getActiveUser().twoFactorEmail,
+                            this.userServiceProvider.default().getActiveUser().email
+                        ).toPromise().then(() => {
+                            this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                                this.snackBar.open('2FA activated', null, { duration: 1500 });
+                                this.dialogRef.close();
+                            }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
+                        });
+                        this.userServiceProvider.default().updatePhoneNumber(this.data.phoneNumber,
+                            this.userServiceProvider.default().getActiveUser().email).toPromise();
+                    }
+                }).catch(err => {
+                    this.snackBar.open(err.error.msg, null, { duration: 1500 });
+                });
         } else if (this.data.type === 'email') { // 2FA Email
             this.twoFactorServiceProvider.default()
                 .verifyTokenByEmail(this.userServiceProvider.default().getActiveUser().email, this.tokenForm.get('token').value)
                 .toPromise().then(res => {
-                if (res) {
-                    this.userServiceProvider.default().updateTwoFactor(
-                        this.userServiceProvider.default().getActiveUser().twoFactorApp,
-                        this.userServiceProvider.default().getActiveUser().twoFactorSms,
-                        true,
-                        this.userServiceProvider.default().getActiveUser().email
-                    ).toPromise().then(() => {
-                        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                            this.snackBar.open('2FA activated', null, {duration: 1500});
-                            this.dialogRef.close();
-                        }).catch(err => this.snackBar.open(err, null, {duration: 1500}));
-                    });
-                }
-            }).catch(err => {
-                this.snackBar.open(err.error.msg, null, {duration: 1500});
-            });
+                    if (res) {
+                        this.userServiceProvider.default().updateTwoFactor(
+                            this.userServiceProvider.default().getActiveUser().twoFactorApp,
+                            this.userServiceProvider.default().getActiveUser().twoFactorSms,
+                            true,
+                            this.userServiceProvider.default().getActiveUser().email
+                        ).toPromise().then(() => {
+                            this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                                this.snackBar.open('2FA activated', null, { duration: 1500 });
+                                this.dialogRef.close();
+                            }).catch(err => this.snackBar.open(err, null, { duration: 1500 }));
+                        });
+                    }
+                }).catch(err => {
+                    this.snackBar.open(err.error.msg, null, { duration: 1500 });
+                });
         }
     }
 
     getNumber(obj): void {
         this.phoneNumber = obj; // [country_code][phone_number]
+    }
+}
+
+@Component({
+    selector: 'app-settings-security-devices-dialog',
+    templateUrl: 'settings-security-devices-dialog.component.html',
+})
+export class SettingsSecurityDevicesDialogComponent {
+
+    loading = false;
+    input = new FormControl('', [Validators.required]);
+    @ViewChild('inputElement') inputElement: ElementRef<HTMLInputElement>;
+
+    constructor(public dialogRef: MatDialogRef<SettingsSecurityDevicesDialogComponent>,
+        private UserProvider: UserServiceProvider,
+        @Inject(MAT_DIALOG_DATA) public data: DialogDevicesData) {
+        this.input.setValue(this.data.name);
+    }
+
+    @HostListener("keydown", ['$event'])
+    onKeyDown(evt: KeyboardEvent) {
+        if (evt.key === "Enter") {
+            this.onRenameBtnClicked();
+        }
+    }
+
+    onRenameBtnClicked() {
+        if (!this.input.value) { return; }
+
+        this.loading = true;
+        this.input.disable();
+        this.dialogRef.disableClose = true;
+        this.UserProvider.default().renameUserDevices(this.input.value).toPromise().then(() => {
+            this.loading = false;
+            this.input.enable();
+            this.dialogRef.disableClose = false;
+            this.dialogRef.close(true);
+        })
+    }
+
+    onCancelBtnClicked() {
+        this.dialogRef.close(false);
     }
 }

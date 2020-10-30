@@ -232,6 +232,10 @@ export class RealUserService implements UserService {
         }));
     }
 
+    renameUserDevices(name: String): Observable<void>{
+        return this.httpClient.patch<any>(`${this._baseUrl}/users/devices/${name}`, {withCredentials: true}).pipe(map(response => {}));
+    }
+
     private _setUser(user: User) {
         localStorage.setItem('real_user', JSON.stringify(user));
         if (user){

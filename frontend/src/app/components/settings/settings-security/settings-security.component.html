@@ -140,7 +140,7 @@
 					<ng-container matColumnDef="rename">
 						<th mat-header-cell *matHeaderCellDef> Rename </th>
 						<td mat-cell *matCellDef="let element"> <button color="warn" [disabled]="loading" mat-button
-								(click)="test = true">Rename</button> </td>
+								(click)="openDialogDevices(element.name)">Rename</button> </td>
 					</ng-container>
 					<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
 					<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
