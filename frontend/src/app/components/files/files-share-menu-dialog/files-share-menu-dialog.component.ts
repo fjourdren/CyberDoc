@@ -35,14 +35,21 @@ export class FilesShareMenuDialogComponent {
     this._setIsLoading(true);
     Promise.all([
       this.fsProvider.default().get(this.file._id).toPromise(),
-      this.fsProvider.default().getSharedWith(this.file._id).toPromise()
+      this.fsProvider.default().getSharedWith(this.file._id).toPromise(),
+      this.fsProvider.default().getSharedWithPending(this.file._id).toPromise()
     ]).then(values => {
       this._setIsLoading(false);
       if (!values[0].isDirectory) {
         this.shareModeForm.get("shareMode").setValue((values[0] as CloudFile).shareMode);
         this.dataSource.data = values[1];
+        values[2].forEach(email => {
+          this.dataSource.data = this.dataSource.data.concat({
+            email,
+            name: 'Pending email...'
+          });
+        });
       }
-    })
+    });
   }
 
   @HostListener("keydown", ['$event'])

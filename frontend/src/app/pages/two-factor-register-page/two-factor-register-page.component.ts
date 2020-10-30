@@ -159,7 +159,7 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
         this.loading = true;
         this.twoFactorServiceProvider.default().sendTokenBySms('+33' + this.phoneNumberForm.get('phoneNumber').value).toPromise().then(() => {
             this.loading = false;
-            this.data.phoneNumber = this.phoneNumberForm.get('phoneNumber').value;
+            this.data.phoneNumber = '+33' + this.phoneNumberForm.get('phoneNumber').value;
         }).catch(err => {
             this.loading = false;
             this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {duration: 2500});

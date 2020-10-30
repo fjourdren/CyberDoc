@@ -45,7 +45,13 @@ export class RealFileSystem implements FileSystem {
         }));
     }
 
-    deleteShare(fileID: string, email: String): Observable<void> {
+    getSharedWithPending(fileID: String): Observable<string[]>{
+        return this.httpClient.get<any>(`${this._baseUrl}/files/${fileID}/sharing`, {withCredentials: true}).pipe(map(response => {
+            return response.shared_users_pending as string[];
+        }));
+    }
+
+    deleteShare(fileID: string, email: String): Observable<void>{
         return this.httpClient.delete<any>(`${this._baseUrl}/files/${fileID}/sharing/${email}`, {withCredentials: true})
             .pipe(map(response => this._refreshNeeded$.emit(), null));
     }

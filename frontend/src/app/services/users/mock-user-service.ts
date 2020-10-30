@@ -101,7 +101,7 @@ export class MockUserService implements UserService {
         return this._getUser();
     }
 
-    register(user: User, password: string): Observable<any> {
+    register(user: User, password: string, fileId: string): Observable<any> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (this.getActiveUser()) {
                 this._throw403('already logged in');
