@@ -52,7 +52,7 @@ import { FilesGenericTableBottomsheetComponent } from './components/files/files-
 
 import { SettingsMenuComponent } from './components/settings/settings-menu/settings-menu.component';
 import { SettingsProfileComponent } from './components/settings/settings-profile/settings-profile.component';
-import { SettingsSecurityComponent, SettingsSecurityDialogComponent } from './components/settings/settings-security/settings-security.component';
+import { SettingsSecurityComponent, SettingsSecurityDialogComponent, SettingsSecurityDevicesDialogComponent } from './components/settings/settings-security/settings-security.component';
 
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
 import { RegisterPageComponent } from './pages/register-page/register-page.component';
@@ -112,6 +112,7 @@ const SETTINGS_COMPONENTS = [
     SettingsProfileComponent,
     SettingsSecurityComponent,
     SettingsSecurityDialogComponent,
+    SettingsSecurityDevicesDialogComponent,
     SettingsMainToolbarComponent
 ];
 
