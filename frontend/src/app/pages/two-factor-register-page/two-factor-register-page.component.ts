@@ -162,7 +162,7 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
             this.data.phoneNumber = this.phoneNumberForm.get('phoneNumber').value;
         }).catch(err => {
             this.loading = false;
-            this.snackBar.open(err.error.msg, null, {duration: 1500});
+            this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {duration: 2500});
         });
     }
 
@@ -192,7 +192,7 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
                     }
                 }).catch(err => {
                     this.loading = false;
-                    this.snackBar.open(err.error.msg, null, {duration: 1500});
+                    this.snackBar.open(err.error.msg, null, {duration: 2500});
                 });
             } else if (this.data.type === 'sms') { // 2FA SMS
                 this.twoFactorServiceProvider.default()
@@ -217,7 +217,7 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
                     }
                 }).catch(err => {
                     this.loading = false;
-                    this.snackBar.open(err.error.msg, null, {duration: 1500});
+                    this.snackBar.open(err.error.msg, null, {duration: 2500});
                 });
             } else if (this.data.type === 'email') { // 2FA Email
                 this.twoFactorServiceProvider.default()
@@ -239,12 +239,12 @@ export class TwoFactorRegisterDialogComponent implements OnInit {
                     }
                 }).catch(err => {
                     this.loading = false;
-                    this.snackBar.open(err.error.msg, null, {duration: 1500});
+                    this.snackBar.open(err.error.msg, null, {duration: 2500});
                 });
             }
         } catch (err) {
             this.loading = false;
-            this.snackBar.open(err.error.msg, null, {duration: 1500});
+            this.snackBar.open(err.error.msg, null, {duration: 2500});
         }
     }
 
