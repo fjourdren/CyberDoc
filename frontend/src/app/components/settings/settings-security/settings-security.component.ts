@@ -129,7 +129,8 @@ export class SettingsSecurityComponent implements OnInit {
                 refDialog = this.dialog.open(SettingsSecurityDialogComponent, {
                     width: '500px',
                     data: {
-                        type: 'sms'
+                        type: 'sms',
+                        phoneNumber: this.phoneNumber
                     }
                 });
                 refDialog.afterClosed().toPromise().then(() => {
@@ -254,7 +255,7 @@ export class SettingsSecurityDialogComponent implements OnInit {
 
     onSubmitPhoneNumber(): void {
         this.loading = true;
-        this.twoFactorServiceProvider.default().sendTokenBySms('+33' + this.phoneNumberForm.get('phoneNumber').value).toPromise().then(() => {
+        this.twoFactorServiceProvider.default().sendTokenBySms(this.phoneNumberForm.get('phoneNumber').value).toPromise().then(() => {
             this.loading = false;
             this.data.phoneNumber = this.phoneNumberForm.get('phoneNumber').value;
         }).catch(err => {

@@ -6,8 +6,10 @@ import HTTPError from '../helpers/HTTPError';
 
 import FileService from '../services/FileService';
 
-import { IFile, File, FileType, ShareMode } from "../models/File";
+import { File, FileType, IFile, ShareMode } from "../models/File";
 import { IUser, User } from "../models/User";
+import Mailer from "../helpers/Mailer";
+import jwt from "jsonwebtoken";
 
 class FileController {
 
@@ -287,7 +289,7 @@ class FileController {
         }
     }
 
-    
+
     // delete a file controller
     public static async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -343,7 +345,7 @@ class FileController {
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
             await FileService.requireFileCanBeViewed(currentUser, file);
 
-            if (!file.preview){
+            if (!file.preview) {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "Preview not allowed for this file");
             }
 
@@ -446,7 +448,7 @@ class FileController {
             FileService.requireFileIsDocument(file);
             await FileService.requireFileCanBeViewed(currentUser, file);
 
-            const users: Array<{email: string, name: string}> = [];
+            const users: Array<{ email: string, name: string }> = [];
             for (const userID of file.sharedWith) {
                 const user = requireNonNull(await User.findById(userID));
                 users.push({
@@ -455,10 +457,10 @@ class FileController {
                 });
             }
 
-            if (currentUser._id !== file.owner_id){
-                if (users.findIndex(item => item.email === currentUser.email) === -1){
+            if (currentUser._id !== file.owner_id) {
+                if (users.findIndex(item => item.email === currentUser.email) === -1) {
                     throw new HTTPError(HttpCodes.NOT_FOUND, "File not found");
-                }    
+                }
             }
 
 
@@ -466,7 +468,8 @@ class FileController {
             res.json({
                 success: true,
                 msg: "Success",
-                shared_users: users
+                shared_users: users,
+                shared_users_pending: file.sharedWithPending
             });
         } catch (err) {
             next(err);
@@ -474,27 +477,73 @@ class FileController {
     }
 
     public static async addSharingAccess(req: Request, res: Response, next: NextFunction): Promise<void> {
+        let status: string;
         try {
             const currentUser = FileController._requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
-            const user = requireNonNull(await User.findOne({"email": req.body.email.toLowerCase()}).exec(), HttpCodes.NOT_FOUND, "User not found");
             FileService.requireFileIsDocument(file);
             await FileService.requireIsFileOwner(currentUser, file);
+            const otherUserEmail = req.body.email;
+            const user = await User.findOne({ "email": otherUserEmail }).exec();
+            if (user) {
+                if (user._id === currentUser._id) {
+                    throw new HTTPError(HttpCodes.BAD_REQUEST, "You are the owner of the file, you can't share it with yourself");
+                } else {
+                    if (file.sharedWith.indexOf(user._id) !== -1) {
+                        throw new HTTPError(HttpCodes.BAD_REQUEST, "This user has already an access to this file");
+                    }
+                    file.sharedWith.push(user._id);
+                    await file.save();
+                    const url: string = process.env.APP_FRONTEND_URL + "/shared-with-me";
+                    await Mailer.sendTemplateEmail(otherUserEmail,
+                        process.env.SENDGRID_MAIL_FROM,
+                        process.env.SENDGRID_TEMPLATE_SHARED_WITH_YOU as string,
+                        {
+                            file_owner_email: currentUser.email,
+                            filename: file.name,
+                            url: url
+                        }
+                    );
 
-            if (user._id === currentUser._id){
-                throw new HTTPError(HttpCodes.BAD_REQUEST, "You are the owner of the file, you can't share it with yourself");
+                    console.log('[Debug] An email has been sent to ' + otherUserEmail);
+                    status = "Success";
+                    res.status(HttpCodes.OK);
+                    res.json({
+                        success: true,
+                        msg: status
+                    });
+                }
+            } else {
+                if (file.sharedWithPending.includes(otherUserEmail)) {
+                    throw new HTTPError(HttpCodes.BAD_REQUEST, "This user has already received an email to collaborate on this file.");
+                }
+                const token = jwt.sign({
+                    email: otherUserEmail,
+                    fileOwnerEmail: currentUser.email
+                }, process.env.JWT_SECRET, {
+                    expiresIn: 36000
+                });
+                file.sharedWithPending.push(otherUserEmail);
+                await file.save();
+                const url: string = process.env.APP_FRONTEND_URL + "/register?token=" + token;
+                await Mailer.sendTemplateEmail(otherUserEmail,
+                    process.env.SENDGRID_MAIL_FROM,
+                    process.env.SENDGRID_TEMPLATE_REQUEST_CREATE_ACCOUNT,
+                    {
+                        file_owner_email: currentUser.email,
+                        filename: file.name,
+                        url: url
+                    }
+                );
+
+                console.log('[Debug] An email has been sent to ' + otherUserEmail);
+                status = "Waiting";
+                res.status(HttpCodes.OK);
+                res.json({
+                    success: true,
+                    msg: status
+                });
             }
-
-            if (file.sharedWith.indexOf(user._id) === -1){
-                file.sharedWith.push(user._id);
-                await file.save();    
-            }
-
-            res.status(HttpCodes.OK);
-            res.json({
-                success: true,
-                msg: "Success"
-            });
         } catch (err) {
             next(err);
         }
@@ -505,7 +554,7 @@ class FileController {
             const currentUser = FileController._requireAuthenticatedUser(res);
 
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
-            const user = requireNonNull(await User.findOne({"email": req.params.email.toLowerCase()}).exec(), HttpCodes.NOT_FOUND, "User not found");
+            const user = requireNonNull(await User.findOne({ "email": req.params.email.toLowerCase() }).exec(), HttpCodes.NOT_FOUND, "User not found");
             FileService.requireFileIsDocument(file);
             await FileService.requireIsFileOwner(currentUser, file);
 
