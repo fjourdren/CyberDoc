@@ -21,7 +21,7 @@ class UserService {
     // profile update
     public static async updateProfile(user_id: string | undefined, firstname: string | undefined, lastname: string | undefined, email: string | undefined, password: string | undefined): Promise<Record<string, IUser | string>> {
         let user = requireNonNull(await User.findById(user_id).exec());
-    
+        console.log(user)
         if(firstname != undefined)
             user.firstname = firstname;
         if(lastname != undefined)
@@ -31,8 +31,10 @@ class UserService {
         if(password != undefined)
             user.password = password;
 
+        console.log(requireNonNull)
         user = requireNonNull(await user.save());
 
+        
         const newToken = AuthService.generateJWTToken(user);
 
         return { "user": user, "newToken": newToken };
