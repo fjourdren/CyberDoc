@@ -84,6 +84,12 @@ components:
           - readwrite
           example: readonly
           type: string
+        shareType:
+          description: Sharing type
+          enum:
+          - readonly
+          - readwrite
+          type: string
         size:
           description: File size
           example: 666
@@ -103,11 +109,27 @@ components:
       - ownerName
       - name
       - mimetype
+      - shareWith
       - size
       - updated_at
       - created_at
       - tags
       - shareMode
+      type: object
+    Devices:
+      description: Device used by user to access to the service
+      properties:
+        OS:
+          example: Device's operating system
+          type: string
+        browser:
+          example: Device's browser
+          type: string
+        name:
+          example: Device's name
+          type: string
+      required:
+      - name
       type: object
     FileCopyBody:
       properties:
@@ -330,6 +352,54 @@ paths:
       summary: Forgotten password
       tags:
       - Authentication
+  /auth/passwordcheck:
+    post:
+      description: Check if user enters valid password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                password:
+                  example: Hello123456789@
+                  type: string
+              required:
+              - password
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  msg:
+                    example: Valid credentials
+                    type: string
+                  success:
+                    example: true
+                    type: boolean
+                required:
+                - success
+                - msg
+                type: object
+          description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Body is invalid (all values are required)
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Bad login/password
+        '500':
+          description: Internal Error
+      summary: Check if user enters valid password
+      tags:
+      - Check password
   /auth/signin:
     post:
       description: Login a user
@@ -1403,6 +1473,190 @@ paths:
       summary: Remove a file tag
       tags:
       - File tags
+  /users/devices:
+    get:
+      description: Get devices
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  devices:
+                    items:
+                      $ref: '#/components/schemas/Devices'
+                  msg:
+                    example: Success
+                    type: string
+                  success:
+                    example: true
+                    type: boolean
+                required:
+                - success
+                - msg
+                - devices
+                type: object
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Not logged in
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Get devices
+      tags:
+      - User's devices
+    post:
+      description: Create a device
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example:
+                OS: Microsoft Windows 10
+                browser: Firefox
+                name: Office computer
+              properties:
+                OS:
+                  type: string
+                browser:
+                  type: string
+                name:
+                  type: string
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+          description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Body is invalid (all values are required) or name already used
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Not logged in
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Create a device
+      tags:
+      - User's devices
+  /users/devices/{name}:
+    delete:
+      description: Delete a device
+      parameters:
+      - description: Device's name
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Device not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Delete a device
+      tags:
+      - User's devices
+    patch:
+      description: Modify a device
+      parameters:
+      - description: Device's name
+        in: path
+        name: name
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+              required:
+              - name
+              type: object
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericSuccessResponse'
+          description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Body is invalid (all values are required) or name already used
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Not logged in
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Tag not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Server error
+      security:
+      - jwtToken: []
+      summary: Modify a device
+      tags:
+      - User's devices
   /users/profile:
     delete:
       description: Delete active user account
@@ -1470,7 +1724,7 @@ paths:
       tags:
       - Users
     post:
-      description: Set current user properties
+      description: Set current user properties and reset password (forgotten password)
       requestBody:
         content:
           application/json:
@@ -1518,7 +1772,8 @@ paths:
           description: Server error
       security:
       - jwtToken: []
-      summary: Set current user properties
+      - resetPasswordToken: []
+      summary: Set current user properties and reset password (forgotten password)
       tags:
       - Users
   /users/tags:
@@ -1551,7 +1806,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericErrorResponse'
-          description: Body is invalid (all values are required)
+          description: Body is invalid (all values are required), or another tag with
+            the same name already exists
         '401':
           content:
             application/json:
@@ -1647,7 +1903,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericErrorResponse'
-          description: Body is invalid (all values are required)
+          description: Body is invalid (all values are required), or another tag with
+            the same name already exists
         '401':
           content:
             application/json:
