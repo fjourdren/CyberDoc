@@ -1,13 +1,13 @@
-import {NextFunction, Request, Response} from 'express';
+import { NextFunction, Request, Response } from 'express';
 
 import HttpCodes from '../helpers/HttpCodes'
-import {requireNonNull} from '../helpers/DataValidation';
+import { requireNonNull } from '../helpers/DataValidation';
 import HTTPError from '../helpers/HTTPError';
 
 import FileService from '../services/FileService';
 
-import {File, FileType, IFile, ShareMode} from "../models/File";
-import {IUser, User} from "../models/User";
+import { File, FileType, IFile, ShareMode } from "../models/File";
+import { IUser, User } from "../models/User";
 import Mailer from "../helpers/Mailer";
 import jwt from "jsonwebtoken";
 
@@ -136,7 +136,7 @@ class FileController {
                 // === GET ALL FILES IN THE DIRECTORY ===
                 const directoryContentOutput: Record<string, any> = [];
 
-                const files: IFile[] = await File.find({parent_file_id: file._id}).exec();
+                const files: IFile[] = await File.find({ parent_file_id: file._id }).exec();
 
                 for (let i = 0; i < files.length; i++) {
                     const fileInDir: IFile = files[i];
@@ -448,7 +448,7 @@ class FileController {
             FileService.requireFileIsDocument(file);
             await FileService.requireIsFileOwner(currentUser, file);
             const otherUserEmail = req.body.email;
-            const user = await User.findOne({"email": otherUserEmail}).exec();
+            const user = await User.findOne({ "email": otherUserEmail }).exec();
             if (user) {
                 if (user._id === currentUser._id) {
                     throw new HTTPError(HttpCodes.BAD_REQUEST, "You are the owner of the file, you can't share it with yourself");
@@ -466,16 +466,15 @@ class FileController {
                             file_owner_email: currentUser.email,
                             filename: file.name,
                             url: url
-                        }).then(() => {
-                        console.log('[Debug] An email has been sent to ' + otherUserEmail);
-                        status = "Success";
-                        res.status(HttpCodes.OK);
-                        res.json({
-                            success: true,
-                            msg: status
-                        });
-                    }).catch(() => {
-                        throw new HTTPError(HttpCodes.INTERNAL_ERROR, "The email hasn't been sent");
+                        }
+                    );
+
+                    console.log('[Debug] An email has been sent to ' + otherUserEmail);
+                    status = "Success";
+                    res.status(HttpCodes.OK);
+                    res.json({
+                        success: true,
+                        msg: status
                     });
                 }
             } else {
@@ -498,16 +497,15 @@ class FileController {
                         file_owner_email: currentUser.email,
                         filename: file.name,
                         url: url
-                    }).then(() => {
-                    console.log('[Debug] An email has been sent to ' + otherUserEmail);
-                    status = "Waiting";
-                    res.status(HttpCodes.OK);
-                    res.json({
-                        success: true,
-                        msg: status
-                    });
-                }).catch(() => {
-                    throw new HTTPError(HttpCodes.INTERNAL_ERROR, "The email hasn't been sent");
+                    }
+                );
+
+                console.log('[Debug] An email has been sent to ' + otherUserEmail);
+                status = "Waiting";
+                res.status(HttpCodes.OK);
+                res.json({
+                    success: true,
+                    msg: status
                 });
             }
         } catch (err) {
@@ -520,7 +518,7 @@ class FileController {
             const currentUser = FileController._requireAuthenticatedUser(res);
 
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
-            const user = requireNonNull(await User.findOne({"email": req.params.email.toLowerCase()}).exec(), HttpCodes.NOT_FOUND, "User not found");
+            const user = requireNonNull(await User.findOne({ "email": req.params.email.toLowerCase() }).exec(), HttpCodes.NOT_FOUND, "User not found");
             FileService.requireFileIsDocument(file);
             await FileService.requireIsFileOwner(currentUser, file);
 

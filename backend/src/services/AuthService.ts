@@ -47,24 +47,14 @@ class AuthService {
             requireNonNull(await newUser.save());
 
             // Check if user has received invitations to collaborate on files
-            File.find({sharedWithPending: newUser.email}).then(res => {
-                res.forEach(file => {
-                    // We remove user from sharedWithPending array
-                    File.update(
-                        {_id: file._id},
-                        {
-                            $pull:
-                                {"sharedWithPending": newUser.email}
-                        }
-                    ).then(() => {
-                        console.log('[Debug] ' + newUser.email + ' removed from sharedWithPending (' + file.name + ')')
-                    });
-                    // and add it to sharedWith array
-                    file.sharedWith.push(newUser._id);
-                    file.save();
-                    console.log('[Debug] ' + newUser.email + ' added to sharedWith (' + file.name + ')');
-                })
-            });
+            const files = await File.find({sharedWithPending: newUser.email}).exec();
+            for (const file of files){
+                await File.update({_id: file._id}, {$pull:  {"sharedWithPending": newUser.email}});
+                console.log('[Debug] ' + newUser.email + ' removed from sharedWithPending (' + file.name + ')')
+                file.sharedWith.push(newUser._id);
+                await file.save();
+                console.log('[Debug] ' + newUser.email + ' added to sharedWith (' + file.name + ')');
+            }
         } catch (e) {
             const error: Error = e;
             if (error.message.indexOf("expected `email` to be unique.") !== -1) {
