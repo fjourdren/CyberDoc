@@ -6,7 +6,10 @@ export const environment = {
   production: false,
   useSentry: true,
   defaultFSProviderName: "real",
-  defaultUserServiceName: "real"
+  defaultUserServiceName: "real",
+  apiBaseURL: "http://api.cyberdoc.fulgen.fr/v1",
+  authCookieDomain: "cyberdoc.fulgen.fr",
+  authCookieName: "access_token"
 };
 
 /*

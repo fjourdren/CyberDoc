@@ -6,7 +6,10 @@ export const environment = {
   production: false,
   useSentry: true,
   defaultFSProviderName: "mock",
-  defaultUserServiceName: "mock"
+  defaultUserServiceName: "mock",
+  apiBaseURL: "<unused>",
+  authCookieDomain: "<unused>",
+  authCookieName: "access_token"
 };
 
 /*

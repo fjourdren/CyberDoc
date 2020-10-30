@@ -6,7 +6,10 @@ export const environment = {
   production: false,
   useSentry: false,
   defaultFSProviderName: "real",
-  defaultUserServiceName: "real"
+  defaultUserServiceName: "real",
+  apiBaseURL: "http://localhost:3000/v1",
+  authCookieDomain: "localhost",
+  authCookieName: "access_token"
 };
 
 /*
