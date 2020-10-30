@@ -47,9 +47,11 @@ export class LoginPageComponent {
                 && !(this._jwtHelper.decodeToken(token).user).twoFactorEmail) {
                 // If no 2FA option is defined, force user to turn it on
                 this.router.navigate(['/two-factor-register']);
+               
             } else {
                 // Else, verify it is the user
                 this.router.navigate(['/two-factor']);
+                
             }
         }, error => {
             this.loading = false;

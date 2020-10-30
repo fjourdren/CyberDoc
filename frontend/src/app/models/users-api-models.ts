@@ -18,3 +18,9 @@ export class User {
     public directory_id: string;
     public tags: FileTag[];
 }
+
+export class Devices {
+    public name: string;
+    public browser: string;
+    public OS: string;
+}
