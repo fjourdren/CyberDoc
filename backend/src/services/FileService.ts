@@ -6,6 +6,7 @@ import fs from "fs";
 import path from 'path';
 import sharp from 'sharp'
 const filepreview = require('pngenerator');
+const libre = require("libreoffice-convert");
 
 import { v4 as uuidv4 } from "uuid";
 import { promisify } from "util";
@@ -511,30 +512,8 @@ class FileService {
         const content = await FileService.getFileContent(file);
         const inputBuffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
 
-        const randomUUID = uuidv4();
-        const inputFilePath = `/tmp/pdf-export-${file._id}-${randomUUID}`;
-        const outputFilePath = `/tmp/pdf-export-${file._id}-${randomUUID}.pdf`;         //pdf extension is added by soffice
-
-        let outputBuffer: Buffer;
-
-        try {
-            // await mkdir(directory, { recursive: true });
-            await writeFile(inputFilePath, inputBuffer);
-            await execFile("soffice", [
-                "--convert-to pdf",
-                "-env:UserInstallation=file:///tmp/soffice-conversion",
-                `--outdir /tmp`,
-                inputFilePath
-            ]);
-            outputBuffer = await readFile(outputFilePath);    
-        } finally {
-            try {
-                await unlink(inputFilePath);
-                await unlink(outputFilePath);        
-            }catch(e){
-                //ignore error
-            }
-        }
+        const convertPdfFn = promisify(libre.convert);
+        const outputBuffer: Buffer = await convertPdfFn(inputBuffer, "pdf", undefined);
 
         const readablePDF = new Readable();
         readablePDF.push(outputBuffer);
