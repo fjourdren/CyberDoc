@@ -45,8 +45,8 @@
         <mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
 
         <app-files-generic-table *ngIf="!loading" [showDetailsButton]="!fileDetailDrawerLocked" [sharedWithMeMode]="sharedWithMeMode"
-            [currentDirectoryID]="currentDirectory && currentDirectory._id"
-            [items]="currentDirectory && currentDirectory.directoryContent" [(selectedNode)]="selectedNode"
+            [currentDirectoryID]="currentDirectory && currentDirectory._id" [currentDirectory]="!searchMode && !sharedWithMeMode && currentDirectory"
+            [items]="currentDirectory && currentDirectory.directoryContent" [selectedNode]="selectedNode"
             (openButtonClicked)="openButtonClicked($event)" (detailsButtonClicked)="fileDetailDrawer.open()">
         </app-files-generic-table>
 
