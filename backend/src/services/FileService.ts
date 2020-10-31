@@ -520,7 +520,7 @@ class FileService {
         let outputBuffer: Buffer;
 
         try {
-            await mkdir(directory, { recursive: true });
+            // await mkdir(directory, { recursive: true });
             await writeFile(inputFilePath, inputBuffer);
             await execFile("soffice", [
                 "--convert-to pdf:writer_pdf_Export",
@@ -569,8 +569,8 @@ class FileService {
         }
 
         // generate temp directory tree
-        fs.mkdirSync(path.join('tmp', 'input'), { recursive: true });
-        fs.mkdirSync(path.join('tmp', 'output'), { recursive: true });
+        // fs.mkdirSync(path.join('tmp', 'input'), { recursive: true });
+        // fs.mkdirSync(path.join('tmp', 'output'), { recursive: true });
 
         // calculate temp files paths
         const extension: string = path.extname(file.name); // calculate extension
