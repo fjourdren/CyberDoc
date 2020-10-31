@@ -24,7 +24,7 @@ import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
 import { streamToBuffer } from '../helpers/Conversions';
 
-import {IUser, User} from "../models/User";
+import { IUser, User } from "../models/User";
 import { IFile, File, FileType, ShareMode } from "../models/File";
 
 enum PreciseFileType {
@@ -39,7 +39,7 @@ enum PreciseFileType {
     Presentation = "Presentation",
     Archive = "Archive",
     Unknown = "Unknown"
-  }
+}
 
 class FileService {
     /**
@@ -108,19 +108,19 @@ class FileService {
     public static fileIsDocument(file: IFile): boolean {
         return (file.type == FileType.DOCUMENT);
     }
-    
+
     public static fileIsDirectory(file: IFile): boolean {
         return (file.type == FileType.DIRECTORY);
     }
 
     // throwers
     public static requireFileIsDocument(file: IFile): void {
-        if(FileService.fileIsDocument(file) == false)
+        if (FileService.fileIsDocument(file) == false)
             throw new HTTPError(HttpCodes.BAD_REQUEST, "File isn't a document");
     }
 
     public static requireFileIsDirectory(file: IFile): void {
-        if(FileService.fileIsDirectory(file) == false)
+        if (FileService.fileIsDirectory(file) == false)
             throw new HTTPError(HttpCodes.BAD_REQUEST, "File isn't a directory");
     }
 
@@ -171,7 +171,7 @@ class FileService {
     public static async getSharedFiles(user: IUser): Promise<IFile[]> {
         return await File.find({ "sharedWith": user._id }).exec();
     }
-    
+
     public static async search(user: IUser, searchBody: Record<string, unknown>): Promise<IFile[]> {
         const { name, startLastModifiedDate, endLastModifiedDate, tagIDs } = searchBody;
         const preciseFileType = searchBody.type as PreciseFileType;
@@ -180,22 +180,22 @@ class FileService {
         let searchArray: Record<string, unknown> = {};
         searchArray = Object.assign(searchArray, { 'owner_id': user._id });
 
-        if(name)
+        if (name)
             searchArray = Object.assign(searchArray, { "name": { "$regex": name, "$options": "i" } }); //"$options": "i" remove the need to manage uppercase in the user search
 
-        if (preciseFileType){
-            switch (preciseFileType){
+        if (preciseFileType) {
+            switch (preciseFileType) {
                 case PreciseFileType.Folder:
                     searchArray = Object.assign(searchArray, { "mimetype": "application/x-dir" });
                     break;
                 case PreciseFileType.Audio:
-                    searchArray = Object.assign(searchArray, { "mimetype": {"$regex": '^audio/' }});
+                    searchArray = Object.assign(searchArray, { "mimetype": { "$regex": '^audio/' } });
                     break;
                 case PreciseFileType.Video:
-                    searchArray = Object.assign(searchArray, { "mimetype": {"$regex": '^video/' }});
+                    searchArray = Object.assign(searchArray, { "mimetype": { "$regex": '^video/' } });
                     break;
                 case PreciseFileType.Image:
-                    searchArray = Object.assign(searchArray, { "mimetype": {"$regex": '^image/' }});
+                    searchArray = Object.assign(searchArray, { "mimetype": { "$regex": '^image/' } });
                     break;
                 case PreciseFileType.PDF:
                     searchArray = Object.assign(searchArray, { "mimetype": "application/pdf" });
@@ -204,51 +204,67 @@ class FileService {
                     searchArray = Object.assign(searchArray, { "mimetype": "text/plain" });
                     break;
                 case PreciseFileType.Document:
-                    searchArray = Object.assign(searchArray, { "mimetype": {"$in": [
-                        "application/msword",
-                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                        "application/vnd.oasis.opendocument.text"
-                    ]}});
+                    searchArray = Object.assign(searchArray, {
+                        "mimetype": {
+                            "$in": [
+                                "application/msword",
+                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                "application/vnd.oasis.opendocument.text"
+                            ]
+                        }
+                    });
                     break;
                 case PreciseFileType.Spreadsheet:
-                    searchArray = Object.assign(searchArray, { "mimetype": {"$in": [
-                        "application/vnd.ms-excel",
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        "application/vnd.oasis.opendocument.spreadsheet"
-                    ]}});
+                    searchArray = Object.assign(searchArray, {
+                        "mimetype": {
+                            "$in": [
+                                "application/vnd.ms-excel",
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                "application/vnd.oasis.opendocument.spreadsheet"
+                            ]
+                        }
+                    });
                     break;
                 case PreciseFileType.Presentation:
-                    searchArray = Object.assign(searchArray, { "mimetype": {"$in": [
-                        "application/vnd.ms-powerpoint",
-                        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                        "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
-                        "application/vnd.oasis.opendocument.presentation"
-                    ]}});
+                    searchArray = Object.assign(searchArray, {
+                        "mimetype": {
+                            "$in": [
+                                "application/vnd.ms-powerpoint",
+                                "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                                "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+                                "application/vnd.oasis.opendocument.presentation"
+                            ]
+                        }
+                    });
                     break;
                 case PreciseFileType.Archive:
-                    searchArray = Object.assign(searchArray, { "mimetype": {"$in": [
-                        "application/x-tar",
-                        "application/vnd.rar",
-                        "application/x-7z-compressed",
-                        "application/x-gtar",
-                        "application/zip",
-                        "application/gzip",
-                        "application/vnd.ms-cab-compressed",                       
-                    ]}});
+                    searchArray = Object.assign(searchArray, {
+                        "mimetype": {
+                            "$in": [
+                                "application/x-tar",
+                                "application/vnd.rar",
+                                "application/x-7z-compressed",
+                                "application/x-gtar",
+                                "application/zip",
+                                "application/gzip",
+                                "application/vnd.ms-cab-compressed",
+                            ]
+                        }
+                    });
                     break;
-                                                       
+
             }
         }
-        
-        if(startLastModifiedDate && endLastModifiedDate)
+
+        if (startLastModifiedDate && endLastModifiedDate)
             searchArray = Object.assign(searchArray, { "updated_at": { "$gt": startLastModifiedDate, "$lt": endLastModifiedDate } });
-        else if(startLastModifiedDate)
+        else if (startLastModifiedDate)
             searchArray = Object.assign(searchArray, { "updated_at": { "$gt": startLastModifiedDate } });
-        else if(endLastModifiedDate)
+        else if (endLastModifiedDate)
             searchArray = Object.assign(searchArray, { "updated_at": { "$lt": endLastModifiedDate } });
 
-        if(tagIDs)
-            searchArray = Object.assign(searchArray, { "tags": { $elemMatch: { "_id": { $in: tagIDs } }} });
+        if (tagIDs)
+            searchArray = Object.assign(searchArray, { "tags": { $elemMatch: { "_id": { $in: tagIDs } } } });
 
         // run the search
         return await File.find(searchArray).exec();
@@ -269,7 +285,7 @@ class FileService {
         FileService.requireFileIsDocument(file);
 
         // get file infos & content
-        const infos: any                              = await GridFSTalker.getFileInfos(Types.ObjectId(file.document_id));
+        const infos: any = await GridFSTalker.getFileInfos(Types.ObjectId(file.document_id));
         const out: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
 
         return { infos: infos, stream: out };
@@ -304,7 +320,7 @@ class FileService {
         FileService.requireFileIsDocument(file);
 
         // check that id != parent_id
-        if(file._id == file.parent_file_id)
+        if (file._id == file.parent_file_id)
             throw new HTTPError(HttpCodes.INTERNAL_ERROR, "Directory can't be parent of himself");
 
         // be sure that file has a valid parent_id
@@ -315,7 +331,7 @@ class FileService {
         FileService.requireFileIsDirectory(parentFile);
 
         // get document in GridFS to check that the document storage still existing
-        if(await GridFSTalker.exists(Types.ObjectId(file.document_id)))
+        if (await GridFSTalker.exists(Types.ObjectId(file.document_id)))
             return await file.save();
         else
             throw new HTTPError(HttpCodes.NOT_FOUND, "GridFS File doesn't exist");
@@ -327,7 +343,7 @@ class FileService {
         FileService.requireFileIsDirectory(file);
 
         // check that id != parent_id
-        if(file._id == file.parent_file_id)
+        if (file._id == file.parent_file_id)
             throw new HTTPError(HttpCodes.INTERNAL_ERROR, "Directory can't be parent of himself");
 
         // check that there is no gridfs document_id set (because a directory isn't a document)
@@ -355,7 +371,7 @@ class FileService {
         FileService.requireFileIsDirectory(file);
 
         // if file don't have parent, we don't delete it because it's a root dir
-        if(!forceDeleteRoot)
+        if (!forceDeleteRoot)
             requireNonNull(file.parent_file_id);
 
         // start deleting
@@ -363,7 +379,7 @@ class FileService {
         const files: IFile[] = await File.find({ parent_file_id: file._id }).exec();
         files.forEach(fileToDelete => {
             // delete directory and document recursively
-            if(fileToDelete.type == FileType.DIRECTORY)
+            if (fileToDelete.type == FileType.DIRECTORY)
                 FileService.deleteDirectory(fileToDelete);
             else
                 FileService.deleteDocument(fileToDelete);
@@ -379,21 +395,21 @@ class FileService {
         FileService.requireFileIsDocument(file);
 
         // get document informations from gridfs
-        const fileGridFsInformations: any                    = await GridFSTalker.getFileInfos(Types.ObjectId(file.document_id));
+        const fileGridFsInformations: any = await GridFSTalker.getFileInfos(Types.ObjectId(file.document_id));
         const fileReader: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
 
 
         // ***** generate new filename *****
-        if(copyFileName == undefined) {
+        if (copyFileName == undefined) {
             // change to something != undefined
             copyFileName = "";
 
             // split to find extension later
             const filenameSplit = file.name.split(".");
             // if there is an extension
-            if(filenameSplit.length > 1) {
+            if (filenameSplit.length > 1) {
                 // we concanate all if there is multi points
-                for(let i = 0; i < filenameSplit.length - 1; i++)
+                for (let i = 0; i < filenameSplit.length - 1; i++)
                     copyFileName += filenameSplit[i];
 
                 // generate final filename
@@ -412,14 +428,14 @@ class FileService {
 
         // generate new file informations
         const newFile: IFile = new File();
-        newFile._id            = Guid.raw();
-        newFile.type           = file.type;
-        newFile.mimetype       = file.mimetype;
-        newFile.name           = copyFileName;
-        newFile.size         = file.size;
-        newFile.document_id    = objectId;   
+        newFile._id = Guid.raw();
+        newFile.type = file.type;
+        newFile.mimetype = file.mimetype;
+        newFile.name = copyFileName;
+        newFile.size = file.size;
+        newFile.document_id = objectId;
         newFile.parent_file_id = destination_id;
-        newFile.owner_id       = user._id;
+        newFile.owner_id = user._id;
         newFile.shareMode = ShareMode.READONLY;
         newFile.sharedWith = [];
 
@@ -433,7 +449,7 @@ class FileService {
 
 
         // ***** generate new filename *****
-        if(copyFileName == undefined) {
+        if (copyFileName == undefined) {
             // change to something != undefined
             copyFileName = file.name + " - Copy"
         }
@@ -442,22 +458,22 @@ class FileService {
 
         // generate new file informations
         const newFile: IFile = new File();
-        newFile._id            = Guid.raw();
-        newFile.type           = file.type;
-        newFile.name           = copyFileName;
-        newFile.mimetype       = "application/x-dir";
+        newFile._id = Guid.raw();
+        newFile.type = file.type;
+        newFile.name = copyFileName;
+        newFile.mimetype = "application/x-dir";
         newFile.parent_file_id = destination_id;
-        newFile.owner_id       = user._id;
+        newFile.owner_id = user._id;
 
         // start copying
         const out: IFile = await newFile.save(); // save the new directory file
 
         // find all child files
         const files = await File.find({ parent_file_id: file._id }).exec();
-        for(let i = 0; i < files.length; i++) {
+        for (let i = 0; i < files.length; i++) {
             const fileToCopy: IFile = files[i];
             // copy directory and document recursively
-            if(fileToCopy.type == FileType.DIRECTORY)
+            if (fileToCopy.type == FileType.DIRECTORY)
                 await FileService.copyDirectory(user, fileToCopy, out._id, fileToCopy.name);
             else
                 await FileService.copyDocument(user, fileToCopy, out._id, fileToCopy.name);
@@ -496,23 +512,31 @@ class FileService {
         const inputBuffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
 
         const randomUUID = uuidv4();
-        const directory = path.join("tmp", "pdf-export");
+        const directory = path.resolve(path.join("tmp", "pdf-export"));
         const inputFilePath = path.resolve(path.join("tmp", "pdf-export", `pdf-${randomUUID}`));
-        
+
         //pdf extension is added by soffice
         const outputFilePath = path.resolve(path.join("tmp", "pdf-export", `pdf-${randomUUID}.pdf`));
+        let outputBuffer: Buffer;
 
-        await mkdir(directory);
-        await writeFile(inputFilePath, inputBuffer);
-        await execFile("soffice", [
-            "--convert-to pdf:writer_pdf_Export",
-            "-env:UserInstallation=file:///tmp/soffice-conversion",
-            `--outdir ${directory}`,
-            inputFilePath
-        ]);
-        const outputBuffer = await readFile(outputFilePath);
-        await unlink(inputFilePath);
-        await unlink(outputFilePath);
+        try {
+            await mkdir(directory, { recursive: true });
+            await writeFile(inputFilePath, inputBuffer);
+            await execFile("soffice", [
+                "--convert-to pdf:writer_pdf_Export",
+                "-env:UserInstallation=file:///tmp/soffice-conversion",
+                `--outdir ${directory}`,
+                inputFilePath
+            ]);
+            outputBuffer = await readFile(outputFilePath);    
+        } finally {
+            try {
+                await unlink(inputFilePath);
+                await unlink(outputFilePath);        
+            }catch(e){
+                //ignore error
+            }
+        }
 
         const readablePDF = new Readable();
         readablePDF.push(outputBuffer);
@@ -532,7 +556,7 @@ class FileService {
 
         // if file got an easy output type we use it
         const startMime: string = file.mimetype.split("/")[0];
-        if(startMime == "image") {
+        if (startMime == "image") {
             // resize
             const imageResizedBuffer: Buffer = await sharp(buffer).resize({ width: 200 }).extract({ left: 0, top: 0, width: 200, height: 130 }).png().toBuffer();
 
@@ -555,8 +579,8 @@ class FileService {
         const tempOutputImage: string = path.join("tmp", "output", file._id + ".png");
 
         // check that extension is available to the preview generation
-        const validExtensions = ["doc","dot","xml","docx","docm","dotx","dotm","wpd","wps","rtf","txt","csv","sdw","sgl","vor","uot","uof","jtd","jtt","hwp","602","pdb","psw","ods","ots","sxc","stc","xls","xlw","xlt","xlsx","xlsm","xltx","xltm","xlsb","wk1","wks","123","dif","sdc","dbf","slk","uos","htm","html","pxl","wb2","odp","odg","otp","sxi","sti","ppt","pps","pot","pptx","pptm","potx","potm","sda","sdd","sdp","uop","cgm","pdf","otg","sxd","std","jpeg","wmf","jpg","sgv","psd","pcx","bmp","pct","ppm","sgf","gif","dxf","met","pgm","ras","svm","xbm","emf","pbm","plt","tga","xpm","eps","pcd","png","tif","tiff","odf","sxm","smf","mml","odt","ott","sxw","stw","org","swf","oth"];
-        if(!validExtensions.includes(extension.substring(1)))
+        const validExtensions = ["doc", "dot", "xml", "docx", "docm", "dotx", "dotm", "wpd", "wps", "rtf", "txt", "csv", "sdw", "sgl", "vor", "uot", "uof", "jtd", "jtt", "hwp", "602", "pdb", "psw", "ods", "ots", "sxc", "stc", "xls", "xlw", "xlt", "xlsx", "xlsm", "xltx", "xltm", "xlsb", "wk1", "wks", "123", "dif", "sdc", "dbf", "slk", "uos", "htm", "html", "pxl", "wb2", "odp", "odg", "otp", "sxi", "sti", "ppt", "pps", "pot", "pptx", "pptm", "potx", "potm", "sda", "sdd", "sdp", "uop", "cgm", "pdf", "otg", "sxd", "std", "jpeg", "wmf", "jpg", "sgv", "psd", "pcx", "bmp", "pct", "ppm", "sgf", "gif", "dxf", "met", "pgm", "ras", "svm", "xbm", "emf", "pbm", "plt", "tga", "xpm", "eps", "pcd", "png", "tif", "tiff", "odf", "sxm", "smf", "mml", "odt", "ott", "sxw", "stw", "org", "swf", "oth"];
+        if (!validExtensions.includes(extension.substring(1)))
             throw new HTTPError(HttpCodes.BAD_REQUEST, "This kind of file can't be previewed");
 
         // save input file in temp file
