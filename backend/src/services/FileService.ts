@@ -519,10 +519,8 @@ class FileService {
         try {
             // await mkdir(directory, { recursive: true });
             await writeFile(inputFilePath, inputBuffer);
-            await execFile("soffice", [
-                "--convert-to pdf:writer_pdf_Export",
-                "-env:UserInstallation=file:///tmp/soffice-conversion",
-                `--outdir /tmp`,
+            await execFile("unoconv", [
+                `-f pdf`,
                 inputFilePath
             ]);
             outputBuffer = await readFile(outputFilePath);    
