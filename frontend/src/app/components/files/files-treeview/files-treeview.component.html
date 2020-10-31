@@ -1,21 +1,25 @@
 <mat-progress-bar [mode]="loading ? 'indeterminate' : 'determinate'"></mat-progress-bar>
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
-  <!-- This is the tree node template for leaf nodes -->
-  <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding [ngClass]="{'selected': node.selected}">
-    <!-- use a disabled button to provide padding for tree leaf -->
-    <button mat-icon-button disabled></button>
-    <a mat-button [routerLink]="['/shared-with-me']" class="tree-node-div"><mat-icon>folder_shared</mat-icon> Shared with me</a>
-  </mat-tree-node>
+    <!-- This is the tree node template for leaf nodes -->
+    <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding [ngClass]="{'selected': _sharedWithMeMode}">
+        <!-- use a disabled button to provide padding for tree leaf -->
+        <button mat-icon-button disabled></button>
+        <a mat-button [routerLink]="['/shared-with-me']" class="tree-node-div">
+            <mat-icon>folder_shared</mat-icon>
+            {{ 'sharing.folderName' | translate }}</a>
+    </mat-tree-node>
 
-  <!-- This is the tree node template for expandable nodes -->
-  <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding [ngClass]="{'selected': node.selected}">
-    <button mat-icon-button matTreeNodeToggle>
-      <mat-icon class="mat-icon-rtl-mirror">
-        {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-      </mat-icon>
-    </button>
-    <a mat-button [routerLink]="['/files', node.directory._id]" class="tree-node-div"><mat-icon>folder</mat-icon> {{node.directory.name}}</a>
-  </mat-tree-node>
+    <!-- This is the tree node template for expandable nodes -->
+    <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding [ngClass]="{'selected': !_sharedWithMeMode && node.selected}">
+        <button mat-icon-button matTreeNodeToggle>
+            <mat-icon class="mat-icon-rtl-mirror">
+                {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+            </mat-icon>
+        </button>
+        <a mat-button [routerLink]="['/files', node.directory._id]" class="tree-node-div">
+            <mat-icon>folder</mat-icon>
+            {{node.directory.name}}</a>
+    </mat-tree-node>
 </mat-tree>
 
 
