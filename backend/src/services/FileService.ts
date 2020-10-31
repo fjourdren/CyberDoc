@@ -511,16 +511,19 @@ class FileService {
         const content = await FileService.getFileContent(file);
         const inputBuffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
 
-        const inputFilePath = `/tmp/pdf-export-${file._id}`;
-        const outputFilePath = `/tmp/pdf-export-${file._id}.pdf`;         //pdf extension is added by soffice
+        const randomUUID = uuidv4();
+        const inputFilePath = `/tmp/pdf-export-${file._id}-${randomUUID}`;
+        const outputFilePath = `/tmp/pdf-export-${file._id}-${randomUUID}.pdf`;         //pdf extension is added by soffice
 
         let outputBuffer: Buffer;
 
         try {
             // await mkdir(directory, { recursive: true });
             await writeFile(inputFilePath, inputBuffer);
-            await execFile("unoconv", [
-                `-f pdf`,
+            await execFile("soffice", [
+                "--convert-to .pdf",
+                "-env:UserInstallation=file:///tmp/soffice-conversion",
+                `--outdir /tmp`,
                 inputFilePath
             ]);
             outputBuffer = await readFile(outputFilePath);    
