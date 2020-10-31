@@ -1,11 +1,11 @@
-import {Component, Input} from '@angular/core';
-import {CloudDirectory, CloudFile, CloudNode, FileTag} from 'src/app/models/files-api-models';
-import {FileSystemProvider} from 'src/app/services/filesystems/file-system-provider';
-import {FilesUtilsService, FileType} from 'src/app/services/files-utils/files-utils.service';
-import {MatDialog} from '@angular/material/dialog';
-import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
-import {MatSlideToggleChange} from '@angular/material/slide-toggle';
-import {SettingsCreateEditTagDialogComponent} from '../../settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
+import { Component, Input } from '@angular/core';
+import { CloudDirectory, CloudFile, CloudNode, FileTag } from 'src/app/models/files-api-models';
+import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
+import { FilesUtilsService, FileType } from 'src/app/services/files-utils/files-utils.service';
+import { MatDialog } from '@angular/material/dialog';
+import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { SettingsCreateEditTagDialogComponent } from '../../settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
 
 @Component({
     selector: 'app-files-details-panel',
@@ -79,9 +79,18 @@ export class FilesDetailsPanelComponent {
         return this.filesUtils.fileTypeToString(fileType);
     }
 
-    createNewTag() {
-        this.dialog.open(SettingsCreateEditTagDialogComponent, {
-            maxWidth: "400px"
+    createNewTag(tagName: string | undefined) {
+        const dialogRef = this.dialog.open(SettingsCreateEditTagDialogComponent, {
+            maxWidth: "400px",
+            data: tagName
+        })
+
+        dialogRef.afterClosed().toPromise().then(tagName => {
+            for (const tag of this.allTags) {
+                if (tag.name === tagName) {
+                    this.onTagAdded(tag);
+                }
+            }
         })
     }
 
