@@ -8,16 +8,7 @@ import sharp from 'sharp'
 const filepreview = require('pngenerator');
 const libre = require("libreoffice-convert");
 
-import { v4 as uuidv4 } from "uuid";
 import { promisify } from "util";
-import { execFile as _oldExecFile } from "child_process";
-import { writeFile as _oldWriteFile, unlink as _oldUnlink, readFile as _oldReadFile, mkdir as _oldMkdir } from "fs";
-
-const execFile = promisify(_oldExecFile);
-const writeFile = promisify(_oldWriteFile);
-const unlink = promisify(_oldUnlink);
-const readFile = promisify(_oldReadFile);
-const mkdir = promisify(_oldMkdir);
 
 import GridFSTalker from "../helpers/GridFSTalker";
 import { requireNonNull, requireIsNull } from '../helpers/DataValidation';
