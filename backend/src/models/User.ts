@@ -159,7 +159,7 @@ UserSchema.pre<IUser>("save", function (next: mongoose.HookNextFunction): void {
 
 UserSchema.pre<IUser>("update", function (next: mongoose.HookNextFunction): void {
     this.updated_at = new Date().getTime().toString();
-    this.email = this.email.toLowerCase();
+    if (this.email)     this.email = this.email.toLowerCase();
     next();
 });
 
