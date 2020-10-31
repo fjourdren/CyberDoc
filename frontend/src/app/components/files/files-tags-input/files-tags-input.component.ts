@@ -27,6 +27,7 @@ export class FilesTagsInputComponent {
 
   @Output() tagAdded = new EventEmitter<FileTag>();
   @Output() tagRemoved = new EventEmitter<FileTag>();
+  @Output() newTagCreated = new EventEmitter<string>();
 
   get selectedTags() {
     return this._selectedTags;
@@ -55,6 +56,8 @@ export class FilesTagsInputComponent {
   }
 
   add(event: MatChipInputEvent): void {
+    this.newTagCreated.emit(event.value);
+    this.tagInput.nativeElement.value = '';
     this.tagsCtrl.setValue(null);
   }
 
@@ -73,7 +76,7 @@ export class FilesTagsInputComponent {
     this._selectedTags.push(tag);
     this.tagInput.nativeElement.value = '';
     this.tagsCtrl.setValue(null);
-    this._filter("");
+    this._filter("");  
   }
 
   private _filter(value: string | FileTag): FileTag[] {

@@ -38,7 +38,7 @@
     </div>
 
     <app-files-tags-input [allTags]="allTags" [selectedTags]="nodeTags" (tagAdded)="onTagAdded($event)"
-                          (tagRemoved)="onTagRemoved($event)" *ngIf="!sharedWithMeMode">
+                          (tagRemoved)="onTagRemoved($event)" (newTagCreated)="createNewTag($event)" *ngIf="!sharedWithMeMode">
     </app-files-tags-input>
 
 </div>
