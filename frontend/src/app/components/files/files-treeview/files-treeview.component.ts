@@ -22,34 +22,34 @@ export class FilesTreeviewComponent {
         this.treeControl = new FlatTreeControl<FilesTreeviewNode>(this.getLevel, this.isExpandable);
         this.dataSource = new FilesTreeviewDataSource(this.treeControl, fsProvider);
         this._loading = true;
-        let nodes: FilesTreeviewNode[] = [];
+        const nodes: FilesTreeviewNode[] = [];
 
         Promise.all([
-            userServiceProvider.default().getActiveUser().directory_id ? fsProvider.default().get(userServiceProvider.default().getActiveUser().directory_id).toPromise() : null,
+            userServiceProvider.default().getActiveUser().directory_id ?
+                fsProvider.default().get(userServiceProvider.default().getActiveUser().directory_id).toPromise() : null,
             fsProvider.default().getSharedFiles().toPromise()]).then((values) => {
-                if (userServiceProvider.default().getActiveUser().role === "owner") {
+                if (userServiceProvider.default().getActiveUser().role === 'owner') {
                     if (values[0].isDirectory) {
                         nodes.push(new FilesTreeviewNode(values[0], 0, [], true, true));
                     }
                 }
-                nodes.push(new FilesTreeviewNode(values[1], 0, [], false, userServiceProvider.default().getActiveUser().role !== "owner"));
+                nodes.push(new FilesTreeviewNode(values[1], 0, [], false, userServiceProvider.default().getActiveUser().role !== 'owner'));
                 this.dataSource.data = nodes;
             }
-        )
-
+        );
 
         this._loading = false;
     }
 
     private _loading = false;
 
-    get loading() {
+    get loading(): boolean {
         return this._loading || this.dataSource.loading;
     }
 
     private _currentDirectoryID: string;
 
-    get currentDirectoryID() {
+    get currentDirectoryID(): string {
         return this._currentDirectoryID;
     }
 
@@ -61,6 +61,13 @@ export class FilesTreeviewComponent {
                 node.selected = node.directory._id === val;
             }
         }
+    }
+
+    _sharedWithMeMode: boolean;
+
+    @Input()
+    set sharedWithMeMode(val: boolean) {
+        this._sharedWithMeMode = val;
     }
 
     getLevel = (node: FilesTreeviewNode) => node.level;

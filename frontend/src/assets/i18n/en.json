@@ -52,6 +52,7 @@
         "copy_new_name": "Copy of {{filename}}"
     },
     "sharing": {
+        "folderName": "Shared with me",
         "sharewith": "Share with",
         "add_email": "Add an email...",
         "invalid_or_unknown_email": "Invalid or unknown account",
