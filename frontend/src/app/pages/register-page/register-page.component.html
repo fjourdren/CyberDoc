@@ -17,6 +17,10 @@
           {{ 'general.generic_error' | translate }}
         </div>
 
+        <div class="error-txt" *ngIf="emailAlreadyExistsError">
+          {{ 'accounts.email_already_exists' | translate }}
+        </div>
+
         <mat-card-content>
           <div class="one-line-if-big-screen">
             <mat-form-field appearance="outline" class="full-width">
