@@ -1,7 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {CloudDirectory, CloudFile, CloudNode, FileTag} from 'src/app/models/files-api-models';
 import {FileSystemProvider} from 'src/app/services/filesystems/file-system-provider';
-import {FilesUtilsService} from 'src/app/services/files-utils/files-utils.service';
+import {FilesUtilsService, FileType} from 'src/app/services/files-utils/files-utils.service';
 import {MatDialog} from '@angular/material/dialog';
 import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
 import {MatSlideToggleChange} from '@angular/material/slide-toggle';
@@ -83,6 +83,13 @@ export class FilesDetailsPanelComponent {
         this.dialog.open(SettingsCreateEditTagDialogComponent, {
             maxWidth: "400px"
         })
+    }
+
+    isPreviewAvailable(node: CloudNode) {
+        if (node.isDirectory) return false;
+        if (this.sharedWithMeMode) return false;
+        if (this.filesUtils.getFileTypeForMimetype(node.mimetype) == FileType.Unknown) return false;
+        return true;
     }
 
     onPreviewToggleChange(evt: MatSlideToggleChange) {
