@@ -521,7 +521,7 @@ class FileService {
             // await mkdir(directory, { recursive: true });
             await writeFile(inputFilePath, inputBuffer);
             await execFile("soffice", [
-                "--convert-to .pdf",
+                "--convert-to pdf",
                 "-env:UserInstallation=file:///tmp/soffice-conversion",
                 `--outdir /tmp`,
                 inputFilePath
