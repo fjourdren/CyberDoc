@@ -514,63 +514,61 @@ class FileService {
 
     // ask to preview a file
     public static async generatePreview(file: IFile): Promise<Readable> {
-        // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
+        //Keep this list synced with frontend\src\app\services\files-utils\files-utils.service.ts
+        //FileType.{PDF,Text,Document,Spreadsheet,Spreadsheet}
+        const VALID_OFFICE_MIMEYPES = [
+            "text/plain",
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-powerpoint",
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+            "application/vnd.oasis.opendocument.text",
+            "application/vnd.oasis.opendocument.spreadsheet",
+            "application/vnd.oasis.opendocument.presentation"
+        ];
 
-        // go take content in gridfs and build content buffer
-        const content: any = await FileService.getFileContent(file);
-        const buffer: Buffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
-
-        // if file got an easy output type we use it
-        const startMime: string = file.mimetype.split("/")[0];
-        if (startMime == "image") {
-            // resize
-            const imageResizedBuffer: Buffer = await sharp(buffer).resize({ width: 200 }).extract({ left: 0, top: 0, width: 200, height: 130 }).png().toBuffer();
-
-            // create readable
-            const readableOutputImg = new Readable();
-            readableOutputImg.push(imageResizedBuffer);
-            readableOutputImg.push(null);
-
-            return readableOutputImg;
+        if (
+            !file.mimetype.startsWith("image/") &&
+            !file.mimetype.startsWith("video/") &&
+            !file.mimetype.startsWith("audio/") &&
+            !VALID_OFFICE_MIMEYPES.includes(file.mimetype)
+        ) {
+            throw new HTTPError(HttpCodes.BAD_REQUEST, "Preview is not available for this file");
         }
 
-        // generate temp directory tree
-        // fs.mkdirSync(path.join('tmp', 'input'), { recursive: true });
-        // fs.mkdirSync(path.join('tmp', 'output'), { recursive: true });
+        // go take content in gridfs and build content buffer
+        const content = await FileService.getFileContent(file);
+        const buffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
 
         // calculate temp files paths
-        const extension: string = path.extname(file.name); // calculate extension
-        const tmpFilename: string = file._id + extension;
-        const tempInputFile: string = path.join("tmp", "input", tmpFilename);
-        const tempOutputImage: string = path.join("tmp", "output", file._id + ".png");
+        const extension = path.extname(file.name); // calculate extension
+        const tmpFilename = file._id + extension;
+        const tempInputFile = path.join("tmp", "input", tmpFilename);
+        const tempOutputImage = path.join("tmp", "output", file._id + ".png");
+        let contentOutputFile: Buffer;
 
-        // check that extension is available to the preview generation
-        const validExtensions = ["doc", "dot", "xml", "docx", "docm", "dotx", "dotm", "wpd", "wps", "rtf", "txt", "csv", "sdw", "sgl", "vor", "uot", "uof", "jtd", "jtt", "hwp", "602", "pdb", "psw", "ods", "ots", "sxc", "stc", "xls", "xlw", "xlt", "xlsx", "xlsm", "xltx", "xltm", "xlsb", "wk1", "wks", "123", "dif", "sdc", "dbf", "slk", "uos", "htm", "html", "pxl", "wb2", "odp", "odg", "otp", "sxi", "sti", "ppt", "pps", "pot", "pptx", "pptm", "potx", "potm", "sda", "sdd", "sdp", "uop", "cgm", "pdf", "otg", "sxd", "std", "jpeg", "wmf", "jpg", "sgv", "psd", "pcx", "bmp", "pct", "ppm", "sgf", "gif", "dxf", "met", "pgm", "ras", "svm", "xbm", "emf", "pbm", "plt", "tga", "xpm", "eps", "pcd", "png", "tif", "tiff", "odf", "sxm", "smf", "mml", "odt", "ott", "sxw", "stw", "org", "swf", "oth"];
-        if (!validExtensions.includes(extension.substring(1)))
-            throw new HTTPError(HttpCodes.BAD_REQUEST, "This kind of file can't be previewed");
+        if (file.mimetype.startsWith("image/")) {
+            contentOutputFile = await sharp(buffer).resize({ width: 200 }).extract({ left: 0, top: 0, width: 200, height: 130 }).png().toBuffer();
+        } else {
+            // save input file in temp file
+            fs.writeFileSync(tempInputFile, buffer);
 
-        // save input file in temp file
-        fs.writeFileSync(tempInputFile, buffer);
+            // generate image and save it in a temp directory
+            const options = {
+                quality: 100,
+                background: '#ffffff',
+                pagerange: '1'
+            };
 
-        // generate image and save it in a temp directory
-        const options = {
-            quality: 100,
-            background: '#ffffff',
-            pagerange: '1'
-        };
-
-        // generate image
-        console.warn("tempInputFile = ", path.resolve(tempInputFile));
-        console.warn("tempOutputImage = ", path.resolve(tempOutputImage));
-
-        console.warn("before generateSync");
-        filepreview.generateSync(tempInputFile, tempOutputImage, options);
-        console.warn("after generateSync");
-
-        // resize
-        const contentOutputFile: Buffer = await sharp(tempOutputImage).resize({ width: 200 }).extract({ left: 0, top: 0, width: 200, height: 130 }).png().toBuffer();
+            filepreview.generateSync(tempInputFile, tempOutputImage, options);
+            contentOutputFile = await sharp(tempOutputImage).resize({ width: 200 }).extract({ left: 0, top: 0, width: 200, height: 130 }).png().toBuffer();
+        }
 
         // create readable
         const readableOutput = new Readable();
