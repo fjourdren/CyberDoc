@@ -1,0 +1,86 @@
+<h2 mat-dialog-title>Setup 2FA</h2>
+
+<mat-dialog-content>
+
+    <div *ngIf="twofactormode == 'app' && !isSmartphoneOrTablet" id="configure-via-app-header-container">
+        <mat-icon class="header-icon">qr_code_scanner</mat-icon>
+        <div class="header-text">
+            {{'twofactor.twofactor_qr_code_computer' | translate}}
+        </div>
+    </div>
+
+    <div *ngIf="twofactormode == 'app' && isSmartphoneOrTablet" id="configure-via-app-header-container">
+        <mat-icon class="header-icon">app_settings_alt</mat-icon>
+        <div class="header-text">
+            {{'twofactor.twofactor_qr_code_mobile' | translate}}
+        </div>
+    </div>
+
+
+    <div *ngIf="twofactormode == 'sms'" id="configure-via-sms-header-container">
+        <mat-icon class="header-icon">sms</mat-icon>
+        <div class="header-text">
+            {{'twofactor.twofactor_sms' | translate}}
+        </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div *ngIf="twofactormode == 'app'" id="configure-via-app-container"
+        [ngClass]="{'isSmartphoneOrTablet': isSmartphoneOrTablet}">
+        <div *ngIf="!isSmartphoneOrTablet" id="qr-container">
+            <img style="width: 166px; height: 166px;" width="166" height="166" [alt]="qrSecret" [src]="qrURL">
+        </div>
+        <div id="secret-code-container">
+            <div *ngIf="isSmartphoneOrTablet">
+                <button [disabled]="loading" mat-raised-button color="primary">{{'twofactor.twofactor_add_to_app' | translate}}</button>
+            </div>
+
+            <div style="margin-top: 12px; margin-bottom: 12px;">{{'twofactor.twofactor_enter_code' | translate}}</div>
+            <div class="secret-code">{{formattedQrSecretLineOne}}</div>
+            <div class="secret-code">{{formattedQrSecretLineTwo}}</div>
+            <button style="margin-top: 12px; margin-bottom: 12px;" ngxClipboard [cbContent]="qrSecret" mat-raised-button
+                color="accent">{{'fileaction.copy' | translate}}</button>
+        </div>
+    </div>
+
+    <div *ngIf="twofactormode == 'sms'" id="configure-via-sms-container">
+        <div class="error-txt" *ngIf="invalidPhoneNumber">{{'twofactor.invalid_phone_number' | translate}}</div>
+        <div class="bold">{{'twofactor.enter_phone_number' | translate}}</div>
+        <form id="configure-via-sms-field" [formGroup]="phoneNumberForm">
+                <mat-form-field style="width: 50%;" appearance="fill">
+                    <mat-label>{{'twofactor.country' | translate}}</mat-label>
+                    <mat-select required formControlName="countryCode">
+                        <mat-option [value]="item.dialCode" *ngFor="let item of allCountries">{{item.name}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+    
+                <mat-form-field style="width: 50%;" appearance="fill">
+                    <!-- https://gist.github.com/niksumeiko/360164708c3b326bd1c8#gistcomment-2367048 -->
+                    <mat-label>{{'twofactor.phone_number' | translate}}</mat-label>
+                    <input autocomplete="autocomplete_off_hack_xfr4!k" matInput required formControlName="phoneNumber">
+                </mat-form-field>    
+        </form>
+        <button [disabled]="loading" mat-raised-button color="accent" (click)="onSendSMSBtnClick()">{{'twofactor.send_code' | translate}}</button>
+
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="error-txt" *ngIf="invalidTokenError">{{'twofactor.invalid_token' | translate}}</div>
+    <span class="bold">{{'twofactor.enter_code' | translate}}</span>
+    <form [formGroup]="tokenForm" style="display: inline;">
+        <mat-form-field>
+            <!-- https://gist.github.com/niksumeiko/360164708c3b326bd1c8#gistcomment-2367048 -->
+            <input autocomplete="autocomplete_off_hack_xfr4!k" matInput required size="6" pattern="\d{6}"
+                formControlName="token">
+        </mat-form-field>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+    <button [disabled]="loading" mat-button (click)="onCancelBtnClick()">{{'general.cancel' | translate}}</button>
+    <button [disabled]="loading || !this.tokenForm.valid" mat-button (click)="onOKBtnClick()" mat-raised-button
+        color="primary">{{'general.ok' | translate}}</button>
+</mat-dialog-actions>
