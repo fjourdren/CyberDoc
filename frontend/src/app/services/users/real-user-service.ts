@@ -1,4 +1,4 @@
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {EventEmitter} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {map} from 'rxjs/operators';
@@ -111,8 +111,8 @@ export class RealUserService implements UserService {
         }));
     }
 
-    updatePhoneNumber(phoneNumber: string, email: string): Observable<void> {
-        let frenchPhoneNumber = '+33' + phoneNumber;
+    updatePhoneNumber(phoneNumber: string): Observable<void> {
+        let frenchPhoneNumber = phoneNumber;
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
             phoneNumber: frenchPhoneNumber
         }, {withCredentials: true}).pipe(map(response => {
@@ -126,7 +126,7 @@ export class RealUserService implements UserService {
         }));
     }
 
-    updateSecret(secret: string, email: string): Observable<void> {
+    updateSecret(secret: string): Observable<void> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
             secret
         }, {withCredentials: true}).pipe(map(response => {
@@ -140,7 +140,7 @@ export class RealUserService implements UserService {
         }));
     }
 
-    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, twoFactorEmail: boolean, email: string): Observable<void> {
+    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, twoFactorEmail: boolean): Observable<void> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
             twoFactorApp,
             twoFactorSms,

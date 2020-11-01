@@ -1,9 +1,8 @@
-import {Component, Inject, OnInit} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {UserServiceProvider} from "../../../../services/users/user-service-provider";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
-import {DialogData} from "../../../../pages/two-factor-register-page/two-factor-register-page.component";
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {TwoFactorDialogComponent} from "../two-factor-dialog/two-factor-dialog.component";
 
 @Component({

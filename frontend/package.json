@@ -36,6 +36,7 @@
     "google-libphonenumber": "^3.2.14",
     "intl-tel-input": "^17.0.6",
     "ng-resize-observer": "^1.0.1",
+    "ngx-clipboard": "^14.0.1",
     "ngx-cookie-service": "^10.1.1",
     "ngx-filesize": "^2.0.16",
     "rxjs": "~6.6.0",

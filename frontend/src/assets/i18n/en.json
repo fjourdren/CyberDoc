@@ -68,6 +68,20 @@
         "under_ten_seconds": "less than 10 seconds remaining",
         "finishing_upload": "Finishing upload..."
     },
+    "twofactor": {
+        "twofactor_qr_code_computer": "Please use your 2FA app (such as Authy) to scan this QR code and get a code",
+        "twofactor_qr_code_mobile": "Please use your 2FA app (such as Authy) to get a code",
+        "twofactor_sms": "Please type your phone number to receive a code via SMS",
+        "twofactor_add_to_app": "Add to my 2FA app",
+        "twofactor_enter_code": "Or enter this code into your authentication app",
+        "invalid_phone_number": "Invalid phone number",
+        "enter_phone_number": "Enter your phone number :",
+        "country": "Country",
+        "phone_number": "Phone number",
+        "send_code": "Send code",
+        "invalid_token": "Invalid token",
+        "enter_code": "Enter the 6-digit code :"
+    },
     "tags": {
         "create_new_tag": "Create a new tag",
         "edit_tag": "Edit a tag",
