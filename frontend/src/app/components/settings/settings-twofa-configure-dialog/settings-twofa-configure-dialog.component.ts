@@ -19,6 +19,7 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
 
   qrURL: string;
   qrSecret: string;
+  qrProtocolURL: string;
   formattedQrSecretLineOne: string;
   formattedQrSecretLineTwo: string;
   validPhoneNumber: string;
@@ -143,6 +144,8 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
     this.twoFAServiceProvider.default().generateSecretUriAndQr(email).toPromise().then(res => {
       this._setLoading(false);
       this.qrURL = res.qr;
+      const index = res.qr.indexOf("otpauth://");
+      this.qrProtocolURL = res.qr.slice(index);
       this.qrSecret = res.secret;
 
       const qrSecretParts = res.secret.match(/.{1,4}/g);

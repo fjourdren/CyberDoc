@@ -33,7 +33,7 @@
         </div>
         <div id="secret-code-container">
             <div *ngIf="isSmartphoneOrTablet">
-                <button [disabled]="loading" mat-raised-button color="primary">{{'twofactor.twofactor_add_to_app' | translate}}</button>
+                <a [href]="qrProtocolURL" [disabled]="loading" mat-raised-button color="primary">{{'twofactor.twofactor_add_to_app' | translate}}</a>
             </div>
 
             <div style="margin-top: 12px; margin-bottom: 12px;">{{'twofactor.twofactor_enter_code' | translate}}</div>
