@@ -29,17 +29,17 @@
     <div *ngIf="twofactormode == 'app'" id="configure-via-app-container"
         [ngClass]="{'isSmartphoneOrTablet': isSmartphoneOrTablet}">
         <div *ngIf="!isSmartphoneOrTablet" id="qr-container">
-            <img style="width: 166px; height: 166px;" width="166" height="166" [alt]="qrSecret" [src]="qrURL">
+            <img width="166" height="166" [alt]="qrSecret" [src]="qrURL">
         </div>
         <div id="secret-code-container">
             <div *ngIf="isSmartphoneOrTablet">
                 <a [href]="qrProtocolURL" [disabled]="loading" mat-raised-button color="primary">{{'twofactor.twofactor_add_to_app' | translate}}</a>
             </div>
 
-            <div style="margin-top: 12px; margin-bottom: 12px;">{{'twofactor.twofactor_enter_code' | translate}}</div>
+            <div class="margin-top-bottom">{{'twofactor.twofactor_enter_code' | translate}}</div>
             <div class="secret-code">{{formattedQrSecretLineOne}}</div>
             <div class="secret-code">{{formattedQrSecretLineTwo}}</div>
-            <button style="margin-top: 12px; margin-bottom: 12px;" ngxClipboard [cbContent]="qrSecret" mat-raised-button
+            <button class="margin-top-bottom" ngxClipboard [cbContent]="qrSecret" mat-raised-button
                 color="accent">{{'fileaction.copy' | translate}}</button>
         </div>
     </div>
@@ -48,14 +48,14 @@
         <div class="error-txt" *ngIf="invalidPhoneNumber">{{'twofactor.invalid_phone_number' | translate}}</div>
         <div class="bold">{{'twofactor.enter_phone_number' | translate}}</div>
         <form id="configure-via-sms-field" [formGroup]="phoneNumberForm">
-                <mat-form-field style="width: 50%;" appearance="fill">
+                <mat-form-field appearance="fill">
                     <mat-label>{{'twofactor.country' | translate}}</mat-label>
                     <mat-select required formControlName="countryCode">
                         <mat-option [value]="item.dialCode" *ngFor="let item of allCountries">{{item.name}}</mat-option>
                     </mat-select>
                 </mat-form-field>
     
-                <mat-form-field style="width: 50%;" appearance="fill">
+                <mat-form-field appearance="fill">
                     <!-- https://gist.github.com/niksumeiko/360164708c3b326bd1c8#gistcomment-2367048 -->
                     <mat-label>{{'twofactor.phone_number' | translate}}</mat-label>
                     <input autocomplete="autocomplete_off_hack_xfr4!k" matInput required formControlName="phoneNumber">
@@ -69,7 +69,7 @@
 
     <div class="error-txt" *ngIf="invalidTokenError">{{'twofactor.invalid_token' | translate}}</div>
     <span class="bold">{{'twofactor.enter_code' | translate}}</span>
-    <form [formGroup]="tokenForm" style="display: inline;">
+    <form [formGroup]="tokenForm" id="token-form">
         <mat-form-field>
             <!-- https://gist.github.com/niksumeiko/360164708c3b326bd1c8#gistcomment-2367048 -->
             <input autocomplete="autocomplete_off_hack_xfr4!k" matInput required size="6" pattern="\d{6}"

@@ -56,13 +56,24 @@ mat-divider {
     font-weight: bold;
 }
 
+.margin-top-bottom {
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+#token-form {
+    display: inline;
+}
+
 #configure-via-sms-field {
     display: flex;
     align-items: center;
 }
 
 #configure-via-sms-field > mat-form-field {
-    flex: 1 1 auto; padding-right: 16px;
+    flex: 1 1 auto;
+    padding-right: 16px;
+    width: 50%;
 }
 
 @media (max-width: 600px) {
