@@ -1,0 +1,5 @@
+traefik.enable=true
+traefik.http.routers.swaggerrouter.rule=Host(`swagger.fulgen.fr`)
+traefik.http.routers.swaggerrouter.tls=true
+traefik.http.routers.swaggerrouter.tls.certresolver=myresolver
+traefik.http.services.swaggerservice.loadbalancer.server.port=8080

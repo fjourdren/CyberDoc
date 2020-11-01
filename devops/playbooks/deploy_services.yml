@@ -33,6 +33,21 @@
       group: root
       mode: 0611
       backup: yes
+  
+  - name: deploy traefik acme.json void file
+    template:
+      src: /etc/ansible/playbooks/traefik-void-file
+      dest: /etc/traefik/acme.json
+      owner: root
+      group: root
+      mode: 0600
+      backup: yes
+
+  - name: create onlyoffice hot directory
+    file:
+      path: /home/centos/workspace/cyberdoc/onlyoffice/logs
+      state: directory
+      mode: '0755'
 
   - name: create jenkins hot directory
     file:
@@ -45,11 +60,6 @@
       path: /etc/sonarqube
       state: directory
       mode: '0755'
-
-  - name: Pull swagger image
-    community.general.docker_image:
-      name: swaggerapi/swagger-ui
-      source: pull  
 
   - name: run playbook
     docker_compose:

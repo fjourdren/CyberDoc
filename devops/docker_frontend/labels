@@ -1,5 +1,5 @@
 traefik.enable=true
-traefik.http.routers.nginxrouter.rule=Host(`cyberdoc.fulgen.fr`)
-traefik.http.services.nginxservice.loadbalancer.server.port=80
-
-
+traefik.http.routers.frontendrouter.rule=Host(`cyberdoc.fulgen.fr`)
+traefik.http.routers.frontendrouter.tls=true
+traefik.http.routers.frontendrouter.tls.certresolver=myresolver
+traefik.http.services.frontendservice.loadbalancer.server.port=80
