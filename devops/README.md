@@ -177,7 +177,7 @@ Secondly, update the VPS firewall :
 ansible-playbook cyberdoc/devops/playbooks/deploy_firewall.yml
 ```
 
-At last, deploy docker services (Traefik, Jenkins, portainer, mongodb, Sonarqube) :
+At last, deploy docker services (Traefik, Jenkins, Portainer, mongodb, Sonarqube) :
 ```
 ansible-playbook cyberdoc/devops/playbooks/deploy_services.yml
 ```
@@ -219,3 +219,11 @@ Install the TS plug-in
 
 Sonarqube projects will be created after the first scan occurs. Afterward, the project will be updated each time the scanner has been used.
 
+## Maintenance mode
+
+If you need to make change on the infrastructure, you can use these commands to display "maintenance" on the screen of the application and services.
+
+```
+sudo docker stop startup_traefik_1
+sudo docker run -p 80:8081 -p 443:8081 --name maintenance -v /home/centos/workspace/cyberdoc/devops/maintenance_website:/var/www -d philenius/nginx-maintenance-mode
+```

@@ -1,3 +1,5 @@
 traefik.enable=true
 traefik.http.routers.redocrouter.rule=Host(`redoc.fulgen.fr`)
+#traefik.http.routers.redocrouter.tls=true
+#traefik.http.routers.redocrouter.tls.certresolver=myresolver
 traefik.http.services.redocservice.loadbalancer.server.port=80
