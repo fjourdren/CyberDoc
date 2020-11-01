@@ -176,8 +176,7 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
 
     await this.userServiceProvider.default().updateTwoFactor(
       true, /*twoFactorApp*/
-      currentUser.twoFactorSms,
-      currentUser.twoFactorEmail
+      currentUser.twoFactorSms
     ).toPromise();
 
     await this.userServiceProvider.default().updateSecret(this.qrSecret).toPromise();
@@ -191,8 +190,7 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
 
     await this.userServiceProvider.default().updateTwoFactor(
       currentUser.twoFactorApp,
-      true, /*twoFactorSms*/
-      currentUser.twoFactorEmail
+      true /*twoFactorSms*/
     ).toPromise();
 
     await this.userServiceProvider.default().updatePhoneNumber(this.validPhoneNumber).toPromise();

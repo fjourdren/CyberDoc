@@ -19,35 +19,9 @@ export class RealTwoFactorService implements TwoFactorService {
         }));
     }
 
-    sendTokenByEmail(email: string): Observable<any> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/send/email`, {
-            email
-        }, {withCredentials: true}).pipe(map(response => {
-            return response;
-        }));
-    }
-
     verifyTokenBySms(phoneNumber: string, token: string): Observable<boolean> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token`, {
             phoneNumber,
-            token
-        }, {withCredentials: true}).pipe(map(response => {
-            if (response.success) {
-                this.cookieService.set(
-                    environment.authCookieName,
-                    response.token,
-                    this.jwtHelper.getTokenExpirationDate(response.token),
-                    '/',
-                    environment.authCookieDomain);
-                localStorage.setItem('real_user', JSON.stringify(this.jwtHelper.decodeToken(response.token).user));
-            }
-            return response.success;
-        }));
-    }
-
-    verifyTokenByEmail(email: string, token: string): Observable<boolean> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token`, {
-            email,
             token
         }, {withCredentials: true}).pipe(map(response => {
             if (response.success) {

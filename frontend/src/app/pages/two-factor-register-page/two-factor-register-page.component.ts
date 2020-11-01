@@ -13,7 +13,6 @@ import { SettingsTwofaConfigureDialogComponent } from 'src/app/components/settin
 export class TwoFactorRegisterPageComponent implements OnInit {
     twoFactorApp: boolean;
     twoFactorSms: boolean;
-    twoFactorEmail: boolean;
     loading = false;
 
     constructor(private userServiceProvider: UserServiceProvider,
@@ -24,7 +23,6 @@ export class TwoFactorRegisterPageComponent implements OnInit {
     ngOnInit(): void {
         this.twoFactorApp = this.userServiceProvider.default().getActiveUser().twoFactorApp;
         this.twoFactorSms = this.userServiceProvider.default().getActiveUser().twoFactorSms;
-        this.twoFactorEmail = this.userServiceProvider.default().getActiveUser().twoFactorEmail;
     }
 
     openDialogActivateTwoFactor(type: string): void {
@@ -41,7 +39,6 @@ export class TwoFactorRegisterPageComponent implements OnInit {
     refreshTwoFactor(): void {
         this.twoFactorApp = this.userServiceProvider.default().getActiveUser().twoFactorApp;
         this.twoFactorSms = this.userServiceProvider.default().getActiveUser().twoFactorSms;
-        this.twoFactorEmail = this.userServiceProvider.default().getActiveUser().twoFactorEmail;
     }
 
     disableTwoFactor(type: string): void {
@@ -51,8 +48,6 @@ export class TwoFactorRegisterPageComponent implements OnInit {
                 this.userServiceProvider.default().getActiveUser().twoFactorApp,
             type === 'sms' ? !this.userServiceProvider.default().getActiveUser().twoFactorSms :
                 this.userServiceProvider.default().getActiveUser().twoFactorSms,
-            type === 'email' ? !this.userServiceProvider.default().getActiveUser().twoFactorEmail :
-                this.userServiceProvider.default().getActiveUser().twoFactorEmail
         ).toPromise().then(() => {
             this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
                 this.loading = false;

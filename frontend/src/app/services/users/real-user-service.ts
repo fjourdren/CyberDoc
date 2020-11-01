@@ -140,11 +140,10 @@ export class RealUserService implements UserService {
         }));
     }
 
-    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, twoFactorEmail: boolean): Observable<void> {
+    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean): Observable<void> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
             twoFactorApp,
             twoFactorSms,
-            twoFactorEmail
         }, {withCredentials: true}).pipe(map(response => {
             this.cookieService.set(
                 environment.authCookieName,

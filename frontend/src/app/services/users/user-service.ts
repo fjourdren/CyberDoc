@@ -22,7 +22,7 @@ export interface UserService {
     updatePassword(oldPassword: string, newPassword: string, email: string): Observable<void>;
     updatePhoneNumber(phoneNumber: string): Observable<void>;
     updateSecret(secret: string): Observable<void>;
-    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, twoFactorEmail: boolean): Observable<void>;
+    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean): Observable<void>;
     login(email: string, password: string): Observable<any>;
     validatePassword(password: string): Observable<boolean>;
     updatePassword(oldPassword: string, newPassword: string, email: string): Observable<any>;

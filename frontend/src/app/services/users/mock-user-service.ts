@@ -195,7 +195,7 @@ export class MockUserService implements UserService {
         }));
     }
 
-    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, twoFactorEmail: boolean): Observable<void> {
+    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
@@ -203,7 +203,6 @@ export class MockUserService implements UserService {
             const user = this._getUser();
             user.twoFactorApp = twoFactorApp;
             user.twoFactorSms = twoFactorSms;
-            user.twoFactorEmail = twoFactorEmail;
             this._users.set(user.email, user);
             this._save();
             this._setUser(user);
