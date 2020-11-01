@@ -91,8 +91,8 @@ import {
 } from './pages/two-factor-register-page/two-factor-register-page.component';
 import {SettingsDeleteTagDialogComponent} from './components/settings/settings-delete-tag-dialog/settings-delete-tag-dialog.component';
 import {SettingsCreateEditTagDialogComponent} from './components/settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
-import {VerifyPasswordDialogComponent} from "./components/settings/settings-profile/verify-password-dialog/verify-password-dialog.component";
-import {TwoFactorDialogComponent} from "./components/settings/settings-profile/two-factor-dialog/two-factor-dialog.component";
+import {SecurityCheckDialogComponent} from "./components/security-check-dialog/security-check-dialog.component";
+import {TwoFactorDialogComponent} from "./components/two-factor-dialog/two-factor-dialog.component";
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
@@ -177,7 +177,7 @@ if (environment.useSentry) {
         TwoFactorRegisterPageComponent,
         SettingsDeleteTagDialogComponent,
         SettingsCreateEditTagDialogComponent,
-        VerifyPasswordDialogComponent,
+        SecurityCheckDialogComponent,
         TwoFactorDialogComponent
     ],
     imports: [

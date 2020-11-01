@@ -1,4 +1,4 @@
-<h1 mat-dialog-title>Verify your password</h1>
+<h1 mat-dialog-title>{{ 'dialogs.password_verify' | translate }}</h1>
 <div mat-dialog-content>
     <form [formGroup]="passwordForm" (ngSubmit)="onSubmitPassword()" autocomplete="off">
         <mat-form-field appearance="outline" class="full-width">
@@ -13,8 +13,8 @@
             </mat-error>
         </mat-form-field>
         <div id="button-container">
-            <button mat-flat-button color="primary" type="submit" [disabled]="loading || passwordForm.invalid">Confirm</button>
-            <button mat-button color="warn" matDialogClose>Cancel</button>
+            <button mat-flat-button color="primary" type="submit" [disabled]="loading || passwordForm.invalid">{{ 'general.confirm' | translate }}</button>
+            <button mat-button color="warn" matDialogClose>{{ 'general.cancel' | translate }}</button>
         </div>
     </form>
 </div>

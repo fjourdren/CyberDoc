@@ -7,7 +7,7 @@ import { FileTag } from 'src/app/models/files-api-models';
 import { SettingsDeleteTagDialogComponent } from '../settings-delete-tag-dialog/settings-delete-tag-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsCreateEditTagDialogComponent } from '../settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
-import {VerifyPasswordDialogComponent} from "./verify-password-dialog/verify-password-dialog.component";
+import {SecurityCheckDialogComponent} from "../../security-check-dialog/security-check-dialog.component";
 
 @Component({
     selector: 'app-settings-profile',
@@ -66,7 +66,7 @@ export class SettingsProfileComponent {
   }
 
   deleteAccount() {
-    this.dialog.open(VerifyPasswordDialogComponent, {
+    this.dialog.open(SecurityCheckDialogComponent, {
       maxWidth: "500px"
     });
   }

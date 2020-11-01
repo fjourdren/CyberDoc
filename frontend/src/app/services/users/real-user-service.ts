@@ -97,9 +97,9 @@ export class RealUserService implements UserService {
         }));
     }
 
-    updatePassword(oldPassword: string, newPassword: string, email: string): Observable<void> {
+    updatePassword(password: string, email: string): Observable<void> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
-            password: newPassword
+            password
         }, {withCredentials: true}).pipe(map(response => {
             this.cookieService.set(
                 environment.authCookieName,
@@ -182,7 +182,7 @@ export class RealUserService implements UserService {
 
     recoverPassword(email: string): Observable<void> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/auth/forgottenPassword`, {
-            "email": email
+            email
         }).pipe(map(response => {
         }));
     }

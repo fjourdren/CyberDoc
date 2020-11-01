@@ -25,7 +25,8 @@ export interface UserService {
     updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, twoFactorEmail: boolean, email: string): Observable<void>;
     login(email: string, password: string): Observable<any>;
     validatePassword(password: string): Observable<boolean>;
-    updatePassword(oldPassword: string, newPassword: string, email: string): Observable<any>;
+
+    updatePassword(password: string, email: string): Observable<void>;
 
     logout(): Observable<void>;
     deleteAccount(): Observable<void>;
