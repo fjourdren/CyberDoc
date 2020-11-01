@@ -88,6 +88,8 @@ import { SettingsDeleteTagDialogComponent } from './components/settings/settings
 import { SettingsCreateEditTagDialogComponent } from './components/settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
 import { DevicePageComponent } from './pages/device-page/device-page.component';
 
+
+
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
 

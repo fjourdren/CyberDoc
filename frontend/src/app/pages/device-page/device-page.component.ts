@@ -5,6 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Devices } from 'src/app/models/users-api-models';
 import { element } from 'protractor';
+import {UAParser} from 'ua-parser-js';
 
 @Component({
   selector: 'app-device-page',
@@ -23,6 +24,7 @@ export class DevicePageComponent implements OnInit {
   nameAlreadyChoose = false;
   nameExist = false;
   private device: Devices;
+  parser:any;
 
   constructor(private fb: FormBuilder,
     private userServiceProvider: UserServiceProvider,
@@ -36,7 +38,9 @@ export class DevicePageComponent implements OnInit {
       //let device = result.filter(result=>result.OS===navigator.appVersion && result.browser===navigator.appName);
       
       for(this.device of result){
-        if(this.device.OS===navigator.platform && this.device.browser===navigator.appName){
+        const OS=this.parser.getDevice().model+" "+this.parser.getOS().name;
+        console.log(OS);
+        if(this.device.OS===OS && this.device.browser===this.parser.getBrowser().name){
           console.log("Name exist");
           this.nameExist = true;
         }
@@ -44,7 +48,10 @@ export class DevicePageComponent implements OnInit {
     });
   }
 
+  
   ngOnInit() {
+    this.parser = new UAParser();
+    console.log(this.parser.getResult());
     this.checkDevice();
   }
 
@@ -56,8 +63,8 @@ export class DevicePageComponent implements OnInit {
     this.loading = true;
     this.genericError = false;
     this.recoverForm.get("name").disable();
-
-    this.userServiceProvider.default().createUserDevices(this.recoverForm.controls.name.value, navigator.appName, navigator.platform).toPromise().then(value => {
+    const OS=this.parser.getDevice().model+" "+this.parser.getOS().name;
+    this.userServiceProvider.default().createUserDevices(this.recoverForm.controls.name.value, this.parser.getBrowser().name, OS).toPromise().then(value => {
       this.loading = false;
       this.nameExist = true;
     }, error => {
