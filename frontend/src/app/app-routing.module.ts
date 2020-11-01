@@ -18,6 +18,7 @@ import {AuthorizedGuard} from './guards/authorized/authorized-guard.service';
 import {TwoFactorGuard} from './guards/two-factor/two-factor-guard.service';
 import {UnauthorizedGuard} from './guards/unauthorized/unauthorized-guard.service';
 import {RequireTwoFactorGuard} from './guards/require-two-factor/require-two-factor-guard.service';
+import { DevicePageComponent } from './pages/device-page/device-page.component';
 
 
 const routes: Routes = [
@@ -36,6 +37,7 @@ const routes: Routes = [
   { path: 'register', component: RegisterPageComponent, canActivate: [LoggedOutGuard] },
   { path: 'forgottenpassword', component: PasswordRecoveryPageComponent, canActivate: [LoggedOutGuard] },
   { path: 'passwordReset', component: ResetPasswordPageComponent, canActivate: [LoggedOutGuard] },
+  { path: 'device', component: DevicePageComponent, canActivate: [LoggedInGuard] },
   {
     path: 'two-factor-register',
     component: TwoFactorRegisterPageComponent,

@@ -31,5 +31,7 @@ export interface UserService {
 
     userUpdated(): Observable<User>;
     getUserDevices(): Observable<Devices[]>;
-    renameUserDevices(name: String): Observable<void>;
+    renameUserDevices(oldName: string,name: string): Observable<void>;
+    createUserDevices(name: string, browser: string, OS: string): Observable<void>;
+    
 }

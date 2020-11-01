@@ -79,6 +79,7 @@ export class SettingsSecurityComponent implements OnInit {
     ngOnInit(): void {
         this.email = this.userServiceProvider.default().getActiveUser().email;
         this.refreshTwoFactor();
+        this.refreshDevice();
 
         this.passwordForm = this.fb.group({
             oldPassword: ['', Validators.required],
@@ -192,11 +193,17 @@ export class SettingsSecurityComponent implements OnInit {
             }
         });
         refDialog.afterClosed().toPromise().then(() => {
-            this.refreshTwoFactor();
+            this.refreshDevice();
         });
 
 
     }
+
+    refreshDevice() {
+        this.userServiceProvider.default().getUserDevices().toPromise().then((value) => {
+            this.dataSource.data = value;
+        });
+      }
 
 
     refreshTwoFactor(): void {
@@ -404,13 +411,15 @@ export class SettingsSecurityDevicesDialogComponent {
         }
     }
 
+    
+
     onRenameBtnClicked() {
         if (!this.input.value) { return; }
 
         this.loading = true;
         this.input.disable();
         this.dialogRef.disableClose = true;
-        this.UserProvider.default().renameUserDevices(this.input.value).toPromise().then(() => {
+        this.UserProvider.default().renameUserDevices(this.data.name,this.input.value).toPromise().then(() => {
             this.loading = false;
             this.input.enable();
             this.dialogRef.disableClose = false;
