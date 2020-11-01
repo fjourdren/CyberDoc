@@ -153,18 +153,15 @@ export class MockUserService implements UserService {
         }));
     }
 
-    updatePassword(oldPassword: string, newPassword: string, email: string): Observable<void> {
+    updatePassword(password: string, email: string): Observable<any> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
             }
 
             const pass = this._passwords.get(email);
-            if (pass !== oldPassword) {
-                this._throw403('wrong password');
-            }
 
-            this._passwords.set(email, newPassword);
+            this._passwords.set(email, password);
             this._save();
         }));
     }
@@ -243,12 +240,11 @@ export class MockUserService implements UserService {
 
     recoverPassword(email: string): Observable<void>{
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            
         }));
     }
 
     resetPassword(resetPasswordJWTToken: string, email: string, password: any): Observable<void> {
-        return this.updatePassword(this._passwords.get(email), password, email);
+        return this.updatePassword(password, email);
     }
 
     searchExistingUser(email: string): Observable<User> {
