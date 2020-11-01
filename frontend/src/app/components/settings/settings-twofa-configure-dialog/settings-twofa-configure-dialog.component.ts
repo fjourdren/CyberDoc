@@ -13,7 +13,7 @@ import { allCountries as __allCountries } from "./all-countries";
 })
 export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
 
-  isSmartphoneOrTablet = false;
+  isSmartphoneOrTablet = 'ontouchstart' in window;
   loading = false;
   allCountries = __allCountries;
 
