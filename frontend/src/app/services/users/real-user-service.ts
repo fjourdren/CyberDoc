@@ -112,9 +112,8 @@ export class RealUserService implements UserService {
     }
 
     updatePhoneNumber(phoneNumber: string): Observable<void> {
-        let frenchPhoneNumber = phoneNumber;
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
-            phoneNumber: frenchPhoneNumber
+            phoneNumber
         }, {withCredentials: true}).pipe(map(response => {
             this.cookieService.set(
                 environment.authCookieName,

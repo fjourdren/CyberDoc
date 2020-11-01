@@ -80,7 +80,9 @@
         "phone_number": "Phone number",
         "send_code": "Send code",
         "invalid_token": "Invalid token",
-        "enter_code": "Enter the 6-digit code :"
+        "enter_code": "Enter the 6-digit code :",
+        "sms_sent": "SMS sent",
+        "secret_code_copied": "Secret code copied"
     },
     "tags": {
         "create_new_tag": "Create a new tag",

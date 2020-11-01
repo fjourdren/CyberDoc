@@ -4,7 +4,12 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TwoFactorServiceProvider } from 'src/app/services/twofactor/twofactor-service-provider';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
-import { allCountries as __allCountries } from "./all-countries";
+import { allCountries as __allCountries, PhoneNumberCountry } from "./all-countries";
+import { PhoneNumberUtil } from 'google-libphonenumber';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
+
+const phoneNumberUtil = PhoneNumberUtil.getInstance();
 
 @Component({
   selector: 'app-settings-twofa-configure-dialog',
@@ -23,11 +28,12 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
   formattedQrSecretLineOne: string;
   formattedQrSecretLineTwo: string;
   validPhoneNumber: string;
-  invalidTokenError: boolean = false;
-  invalidPhoneNumber: boolean = false;
+  invalidTokenError = false;
+  invalidPhoneNumber = false;
+  smsSent = false;
 
   phoneNumberForm = new FormGroup({
-    countryCode: new FormControl('33', [Validators.required]),
+    countryCode: new FormControl(null, [Validators.required]),
     //https://www.twilio.com/docs/glossary/what-e164
     phoneNumber: new FormControl('', [Validators.required])
   });
@@ -39,6 +45,8 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
   constructor(private dialogRef: MatDialogRef<SettingsTwofaConfigureDialogComponent>,
     private twoFAServiceProvider: TwoFactorServiceProvider,
     private userServiceProvider: UserServiceProvider,
+    private snackBar: MatSnackBar,
+    private translateService: TranslateService,
     @Inject(MAT_DIALOG_DATA) public twofactormode: "sms" | "app") { }
 
   ngAfterViewInit(): void {
@@ -118,15 +126,35 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
     this.dialogRef.close(false);
   }
 
+  onCopyBtnClick(){
+    this.translateService.get("twofactor.secret_code_copied").toPromise().then(str => {
+      this.snackBar.open(str);
+    })
+  }
+
   onSendSMSBtnClick() {
     if (!this.phoneNumberForm.valid) return;
     this.validPhoneNumber = undefined;
+    this.smsSent = false;
     this.invalidPhoneNumber = false;
+    const country: PhoneNumberCountry = this.phoneNumberForm.get('countryCode').value;
+    const phoneNumber = `+${country.dialCode}${this.phoneNumberForm.get("phoneNumber").value}`;
+
+    let validNumber = false;
+    try {
+        const __phoneNumber = phoneNumberUtil.parseAndKeepRawInput(phoneNumber, country.iso2Code);
+        validNumber = phoneNumberUtil.isValidNumber(__phoneNumber);
+    } catch (e) { }
+
+    if (!validNumber) {
+      this.invalidPhoneNumber = true;
+      return;
+    }
+
     this._setLoading(true);
-    console.warn(this.phoneNumberForm.get('countryCode').value, this.phoneNumberForm.get("phoneNumber").value);
-    const phoneNumber = `+${this.phoneNumberForm.get('countryCode').value}${this.phoneNumberForm.get("phoneNumber").value}`;
     this.twoFAServiceProvider.default().sendTokenBySms(phoneNumber).toPromise().then(() => {
       this._setLoading(false);
+      this.smsSent = true;
       this.validPhoneNumber = phoneNumber;
     }).catch(err => {
       this._setLoading(false);
