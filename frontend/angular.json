@@ -31,7 +31,8 @@
               "./node_modules/intl-tel-input/build/css/intlTelInput.css"
             ],
             "scripts": [
-              "./node_modules/intl-tel-input/build/js/intlTelInput.min.js"
+              "./node_modules/intl-tel-input/build/js/intlTelInput.min.js",
+              "./node_modules/ua-parser-js/dist/ua-parser.min.js"
             ]
           },
           "configurations": {
@@ -123,7 +124,9 @@
               "src/styles.scss",
               "./node_modules/@fortawesome/fontawesome-free/css/all.css"
             ],
-            "scripts": []
+            "scripts": [
+              "./node_modules/ua-parser-js/dist/ua-parser.min.js"
+            ]
           }
         },
         "lint": {
