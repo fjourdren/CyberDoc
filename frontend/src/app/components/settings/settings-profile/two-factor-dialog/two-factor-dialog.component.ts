@@ -37,8 +37,6 @@ export class TwoFactorDialogComponent implements OnInit {
             this.twoFactorType = 'app';
         } else if (this.user.twoFactorSms) {
             this.sendTokenBySms();
-        } else if (this.user.twoFactorEmail) {
-            this.sendTokenByEmail();
         }
 
         this.twoFactorForm = this.fb.group({
@@ -71,16 +69,6 @@ export class TwoFactorDialogComponent implements OnInit {
                     });
                 }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 2500}));
                 break;
-            case 'email':
-                this.twoFactorServiceProvider.default().verifyTokenByEmail(this.user.email,
-                    this.twoFactorForm.get('token').value).toPromise().then(() => {
-                    this.userServiceProvider.default().deleteAccount().toPromise().then(() => {
-                        this.twoFactorDialog.close();
-                        this.snackBar.open('Your account has been successfully deleted', null, {duration: 2500});
-                        this.router.navigate(['/logout']);
-                    });
-                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 2500}));
-                break;
         }
     }
 
@@ -88,11 +76,5 @@ export class TwoFactorDialogComponent implements OnInit {
         this.twoFactorType = 'sms';
         this.twoFactorServiceProvider.default().sendTokenBySms(this.user.phoneNumber).toPromise()
             .catch(err => this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {duration: 2500}));
-    }
-
-    sendTokenByEmail(): void {
-        this.twoFactorType = 'email';
-        this.twoFactorServiceProvider.default().sendTokenByEmail(this.user.email).toPromise()
-            .catch(err => this.snackBar.open('Email cannot be sent : ' + err.error.msg, null, {duration: 2500}));
     }
 }

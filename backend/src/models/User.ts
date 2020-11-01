@@ -89,10 +89,6 @@ export const UserSchema = new mongoose.Schema({
             type: Boolean,
             required: true
         },
-        twoFactorEmail: {
-            type: Boolean,
-            required: true
-        },
         role: {
             type: String,
             enum: Object.values(Role),
@@ -127,7 +123,6 @@ export interface IUser extends mongoose.Document {
     secret: string;
     twoFactorApp: boolean;
     twoFactorSms: boolean;
-    twoFactorEmail: boolean;
     role: Role;
     tags: ITag[];
     devices: IDevice[];

@@ -12,7 +12,7 @@ class TwoFactorAuthController {
         try {
             const {phoneNumber} = req.body;
             requireNonNull(phoneNumber);
-            const verificationInstance = await TwoFactorAuthService.sendToken('sms', phoneNumber);
+            const verificationInstance = await TwoFactorAuthService.sendTokenViaSMS(phoneNumber);
             res.status(HttpCodes.OK);
             res.json(verificationInstance);
         } catch (err) {
@@ -21,22 +21,9 @@ class TwoFactorAuthController {
         }
     }
 
-    public static async sendTokenByEmail(req: Request, res: Response, next: NextFunction): Promise<void> {
+    public static async verifyTokenAppSms(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const {email} = req.body;
-            requireNonNull(email);
-            const verificationInstance = await TwoFactorAuthService.sendToken('email', email);
-            res.status(HttpCodes.OK);
-            res.json(verificationInstance);
-        } catch (err) {
-            if(err.code && err.code === 60200) next(new HTTPError(HttpCodes.BAD_REQUEST, "This email is invalid"));
-            else next(err);
-        }
-    }
-
-    public static async verifyTokenAppSmsEmail(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const {phoneNumber, email, secret, token} = req.body;
+            const {phoneNumber, secret, token} = req.body;
             // Check that token exists
             requireNonNull(token);
             let jwtToken: string;
@@ -57,8 +44,8 @@ class TwoFactorAuthController {
                     success: output,
                     token: jwtToken
                 });
-            } else if (phoneNumber || email) {
-                const verificationInstance = await TwoFactorAuthService.verifyTokenByEmailOrSms(phoneNumber || email, token);
+            } else if (phoneNumber) {
+                const verificationInstance = await TwoFactorAuthService.verifySMSToken(phoneNumber, token);
                 jwtToken = jwt.sign({
                     user: res.locals.APP_JWT_TOKEN.user,
                     authorized: true
@@ -73,7 +60,7 @@ class TwoFactorAuthController {
                     });
                 } else throw new HTTPError(HttpCodes.UNAUTHORIZED, "Invalid token");
             } else {
-                throw new HTTPError(HttpCodes.BAD_REQUEST, "Request should have either secret, phoneNumber or email.");
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "Request should have either secret, phoneNumber.");
             }
         } catch (err) {
             next(err);
