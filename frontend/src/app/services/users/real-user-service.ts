@@ -1,7 +1,7 @@
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {EventEmitter} from '@angular/core';
 import {Observable, of} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {delay, map} from 'rxjs/operators';
 import {FileTag} from 'src/app/models/files-api-models';
 import {User, Devices} from 'src/app/models/users-api-models';
 import {UserService} from './user-service';
@@ -232,9 +232,19 @@ export class RealUserService implements UserService {
         }));
     }
 
-    renameUserDevices(name: String): Observable<void>{
-        return this.httpClient.patch<any>(`${this._baseUrl}/users/devices/${name}`, {withCredentials: true}).pipe(map(response => {}));
+    renameUserDevices(oldName: string, name: string): Observable<void>{
+        return this.httpClient.patch<any>(`${this._baseUrl}/users/devices/${oldName}`,{name}, {withCredentials: true}).pipe(map(response => {}));
     }
+
+    createUserDevices(name: string, browser: string, OS: string): Observable<void>{
+        return this.httpClient.post<any>(`${this._baseUrl}/users/devices`, {
+            "name": name,
+            "browser": browser,
+            "OS": OS
+        }, {withCredentials: true}).pipe(map(response => {}));
+    }
+
+    
 
     private _setUser(user: User) {
         localStorage.setItem('real_user', JSON.stringify(user));

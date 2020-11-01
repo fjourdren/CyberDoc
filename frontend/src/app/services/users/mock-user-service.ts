@@ -359,7 +359,11 @@ export class MockUserService implements UserService {
     getUserDevices(): Observable<Devices[]>{
         return null;
     }
-    renameUserDevices(name: String): Observable<void>{
+    renameUserDevices(oldName: string, name: string): Observable<void>{
+        return;
+    }
+
+    createUserDevices(name: string, browser: string, OS: string): Observable<void>{
         return;
     }
 }

@@ -86,6 +86,7 @@ import { TwoFactorPageComponent } from './pages/two-factor-page/two-factor-page.
 import { TwoFactorRegisterDialogComponent, TwoFactorRegisterPageComponent } from './pages/two-factor-register-page/two-factor-register-page.component';
 import { SettingsDeleteTagDialogComponent } from './components/settings/settings-delete-tag-dialog/settings-delete-tag-dialog.component';
 import { SettingsCreateEditTagDialogComponent } from './components/settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
+import { DevicePageComponent } from './pages/device-page/device-page.component';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
@@ -172,6 +173,7 @@ if (environment.useSentry) {
     TwoFactorRegisterPageComponent,
     SettingsDeleteTagDialogComponent,
     SettingsCreateEditTagDialogComponent,
+    DevicePageComponent,
   ],
   imports: [
     BrowserModule,

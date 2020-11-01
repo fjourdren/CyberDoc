@@ -14,7 +14,7 @@
 
 <div mat-dialog-actions align="end">
     <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
-    <button [disabled]="loading" mat-button (click)="onCancelBtnClicked()">{{'general.cancel' | translate}}</button>
+    <button [disabled]="loading" mat-button (click)="onCancelBtnClicked()">Cancel</button>
     <button [disabled]="loading || !input.valid" mat-raised-button color="primary"
         (click)="onRenameBtnClicked()">{{'fileaction.rename' | translate}}</button>
 </div>
