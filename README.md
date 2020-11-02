@@ -75,3 +75,13 @@ Team
 License
 ------------
 * Copyright 2020-2021 © Fulgen Corporation
+
+Use it with an Android Emulator
+------------
+
+To test the application on smartphone, you have to :
+- instal an Android emulator (ex: Genymotion)
+- go to `frontend\src\environments\environment.lan-broadcast.ts` and replace IP by your current local IP
+- launch backend with `nodemon`
+- launch frontend with `ng serve --host 0.0.0.0 --configuration lan-broadcast`
+- in your emulator, navigate to `http://<LOCAL_IP>:4200`

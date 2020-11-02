@@ -31,7 +31,6 @@ class AuthService {
         newUser.role = role;
         newUser.twoFactorApp = false;
         newUser.twoFactorSms = false;
-        newUser.twoFactorEmail = false;
 
         // build user's root directory
         const root_user_dir: IFile = new File();
