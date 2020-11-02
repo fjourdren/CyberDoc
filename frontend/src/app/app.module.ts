@@ -36,6 +36,7 @@ import {LayoutModule} from '@angular/cdk/layout';
 import {NgxFilesizeModule} from 'ngx-filesize';
 import {CookieService} from 'ngx-cookie-service';
 import * as Sentry from "@sentry/angular";
+import { ClipboardModule } from 'ngx-clipboard';
 
 import {FilesDetailsPanelComponent} from './components/files/files-details-panel/files-details-panel.component';
 import {FilesTreeviewComponent} from './components/files/files-treeview/files-treeview.component';
@@ -52,10 +53,7 @@ import {FilesGenericTableBottomsheetComponent} from './components/files/files-ge
 
 import {SettingsMenuComponent} from './components/settings/settings-menu/settings-menu.component';
 import {SettingsProfileComponent} from './components/settings/settings-profile/settings-profile.component';
-import {
-    SettingsSecurityComponent,
-    SettingsSecurityDialogComponent
-} from './components/settings/settings-security/settings-security.component';
+import {SettingsSecurityComponent} from './components/settings/settings-security/settings-security.component';
 
 import {NotFoundPageComponent} from './pages/not-found-page/not-found-page.component';
 import {RegisterPageComponent} from './pages/register-page/register-page.component';
@@ -85,14 +83,12 @@ import {FilesShareMenuDialogComponent} from './components/files/files-share-menu
 import {PasswordRecoveryPageComponent} from './pages/password-recovery-page/password-recovery-page.component';
 import {ResetPasswordPageComponent} from './pages/reset-password-page/reset-password-page.component';
 import {TwoFactorPageComponent} from './pages/two-factor-page/two-factor-page.component';
-import {
-    TwoFactorRegisterDialogComponent,
-    TwoFactorRegisterPageComponent
-} from './pages/two-factor-register-page/two-factor-register-page.component';
+import {TwoFactorRegisterPageComponent} from './pages/two-factor-register-page/two-factor-register-page.component';
 import {SettingsDeleteTagDialogComponent} from './components/settings/settings-delete-tag-dialog/settings-delete-tag-dialog.component';
 import {SettingsCreateEditTagDialogComponent} from './components/settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
 import {VerifyPasswordDialogComponent} from "./components/settings/settings-profile/verify-password-dialog/verify-password-dialog.component";
 import {TwoFactorDialogComponent} from "./components/settings/settings-profile/two-factor-dialog/two-factor-dialog.component";
+import { SettingsTwofaConfigureDialogComponent } from './components/settings/settings-twofa-configure-dialog/settings-twofa-configure-dialog.component';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
@@ -118,7 +114,6 @@ const SETTINGS_COMPONENTS = [
     SettingsMenuComponent,
     SettingsProfileComponent,
     SettingsSecurityComponent,
-    SettingsSecurityDialogComponent,
     SettingsMainToolbarComponent
 ];
 
@@ -173,12 +168,12 @@ if (environment.useSentry) {
         PasswordRecoveryPageComponent,
         ResetPasswordPageComponent,
         TwoFactorPageComponent,
-        TwoFactorRegisterDialogComponent,
         TwoFactorRegisterPageComponent,
         SettingsDeleteTagDialogComponent,
         SettingsCreateEditTagDialogComponent,
         VerifyPasswordDialogComponent,
-        TwoFactorDialogComponent
+        TwoFactorDialogComponent,
+        SettingsTwofaConfigureDialogComponent
     ],
     imports: [
         BrowserModule,
@@ -194,6 +189,7 @@ if (environment.useSentry) {
         ReactiveFormsModule,
         AppRoutingModule,
         BrowserAnimationsModule,
+        ClipboardModule,
         MatSortModule,
         MatTableModule,
         MatIconModule,
