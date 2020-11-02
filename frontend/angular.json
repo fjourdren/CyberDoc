@@ -48,6 +48,14 @@
                 }
               ]
             },
+            "lan-broadcast": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.lan-broadcast.ts"
+                }
+              ]
+            },
             "production": {
               "fileReplacements": [
                 {
@@ -94,6 +102,9 @@
             },
             "mock": {
               "browserTarget": "cyberdoc:build:mock"
+            },
+            "lan-broadcast": {
+              "browserTarget": "cyberdoc:build:lan-broadcast"
             }
           }
         },
