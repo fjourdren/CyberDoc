@@ -8,25 +8,24 @@ class TwoFactorAuthService {
     private static _client: twilio.Twilio;
 
     /**
-     * Send 2FA token to specified user by EMAIL or SMS
-     * @param sendingWay
-     * @param emailOrPhoneNumber
+     * Send 2FA token to specified user by SMS
+     * @param phoneNumber
      */
-    public static async sendToken(sendingWay: string, emailOrPhoneNumber: string): Promise<VerificationInstance> {
+    public static async sendTokenViaSMS(phoneNumber: string): Promise<VerificationInstance> {
         return TwoFactorAuthService.client.verify.services(process.env.TWILIO_SERVICE_ID)
             .verifications
-            .create({to: emailOrPhoneNumber, channel: sendingWay});
+            .create({to: phoneNumber, channel: "sms"});
     }
 
     /**
      * Verify that the provided token is correct
-     * @param emailOrPhoneNumber
+     * @param phoneNumber
      * @param token
      */
-    public static async verifyTokenByEmailOrSms(emailOrPhoneNumber: string, token: string): Promise<VerificationCheckInstance> {
+    public static async verifySMSToken(phoneNumber: string, token: string): Promise<VerificationCheckInstance> {
         return TwoFactorAuthService.client.verify.services(process.env.TWILIO_SERVICE_ID)
             .verificationChecks
-            .create({to: emailOrPhoneNumber, code: token}).then(res => {
+            .create({to: phoneNumber, code: token}).then(res => {
                 return res;
             });
     }

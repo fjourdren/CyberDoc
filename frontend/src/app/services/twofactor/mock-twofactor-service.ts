@@ -8,15 +8,8 @@ import { FileTag } from 'src/app/models/files-api-models';
 import { HttpErrorResponse } from '@angular/common/http';
 
 export class MockTwoFactorService implements TwoFactorService {
-    sendTokenByEmail(email: string): Observable<void> {
-        return undefined;
-    }
 
     sendTokenBySms(phoneNumber: string): Observable<void> {
-        return undefined;
-    }
-
-    verifyTokenByEmail(email: string, token: string): Observable<boolean> {
         return undefined;
     }
 

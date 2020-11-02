@@ -71,11 +71,7 @@ export const UserSchema = new mongoose.Schema({
         },
         phoneNumber: {
             type: String,
-            trim: true,
-            validate: {
-                validator: (value: string) => validator.isMobilePhone(value, undefined, {strictMode: true}),
-                message: '{VALUE} is not a valid phone number'
-            }
+            trim: true
         },
         secret: {
             type: String,
@@ -90,10 +86,6 @@ export const UserSchema = new mongoose.Schema({
             required: true
         },
         twoFactorSms: {
-            type: Boolean,
-            required: true
-        },
-        twoFactorEmail: {
             type: Boolean,
             required: true
         },
@@ -131,7 +123,6 @@ export interface IUser extends mongoose.Document {
     secret: string;
     twoFactorApp: boolean;
     twoFactorSms: boolean;
-    twoFactorEmail: boolean;
     role: Role;
     tags: ITag[];
     devices: IDevice[];

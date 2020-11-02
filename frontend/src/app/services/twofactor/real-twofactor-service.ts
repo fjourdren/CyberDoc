@@ -12,44 +12,16 @@ export class RealTwoFactorService implements TwoFactorService {
     constructor(private httpClient: HttpClient, private cookieService: CookieService) {}
 
     sendTokenBySms(phoneNumber: string): Observable<any> {
-        let frenchPhoneNumber = '+33' + phoneNumber;
         return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/send/sms`, {
-            phoneNumber: frenchPhoneNumber
-        }, {withCredentials: true}).pipe(map(response => {
-            return response;
-        }));
-    }
-
-    sendTokenByEmail(email: string): Observable<any> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/send/email`, {
-            email
+            phoneNumber
         }, {withCredentials: true}).pipe(map(response => {
             return response;
         }));
     }
 
     verifyTokenBySms(phoneNumber: string, token: string): Observable<boolean> {
-        let frenchPhoneNumber = '+33' + phoneNumber;
         return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token`, {
-            phoneNumber: frenchPhoneNumber,
-            token
-        }, {withCredentials: true}).pipe(map(response => {
-            if (response.success) {
-                this.cookieService.set(
-                    environment.authCookieName,
-                    response.token,
-                    this.jwtHelper.getTokenExpirationDate(response.token),
-                    '/',
-                    environment.authCookieDomain);
-                localStorage.setItem('real_user', JSON.stringify(this.jwtHelper.decodeToken(response.token).user));
-            }
-            return response.success;
-        }));
-    }
-
-    verifyTokenByEmail(email: string, token: string): Observable<boolean> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token`, {
-            email,
+            phoneNumber,
             token
         }, {withCredentials: true}).pipe(map(response => {
             if (response.success) {

@@ -26,19 +26,11 @@
               <button mat-flat-button color="warn" class="two-factor-status">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
               <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('sms')">Enable 2FA sent by SMS</button>
             </mat-list-item>
-            <mat-list-item *ngIf="twoFactorEmail">
-              <button mat-flat-button color="success" class="two-factor-status">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
-              <button mat-raised-button color="primary" (click)="disableTwoFactor('email')">Disable 2FA sent by emails</button>
-            </mat-list-item>
-            <mat-list-item *ngIf="!twoFactorEmail">
-              <button mat-flat-button color="warn" class="two-factor-status">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
-              <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('email')">Enable 2FA sent by emails</button>
-            </mat-list-item>
           </mat-list>
         </mat-card-content>
 
         <div id="button-container">
-          <a [routerLink]="['/files']" [disabled]="(!this.twoFactorApp && !this.twoFactorSms && !this.twoFactorEmail)" mat-raised-button color="primary">Go to the app</a>
+          <a [routerLink]="['/files']" [disabled]="(!this.twoFactorApp && !this.twoFactorSms)" mat-raised-button color="primary">Go to the app</a>
         </div>
       </mat-card>
   </div>
