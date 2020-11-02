@@ -158,7 +158,7 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
       this.validPhoneNumber = phoneNumber;
     }).catch(err => {
       this._setLoading(false);
-      if (err instanceof HttpErrorResponse && err.status === 400) {
+      if (err instanceof HttpErrorResponse && err.status === 403) {
         this.invalidPhoneNumber = true;
       } else {
         throw err;
