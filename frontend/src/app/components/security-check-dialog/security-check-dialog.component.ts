@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {UserServiceProvider} from '../../services/users/user-service-provider';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
-import {TwoFactorDialogComponent} from '../two-factor-dialog/two-factor-dialog.component';
+import {TwoFactorCheckDialogComponent} from '../two-factor/two-factor-check-dialog/two-factor-check-dialog.component';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
@@ -33,7 +33,7 @@ export class SecurityCheckDialogComponent implements OnInit {
         }
         this.userServiceProvider.default().validatePassword(this.passwordForm.get('password').value).toPromise().then(isPasswordVerified => {
             if (isPasswordVerified) {
-                this.dialog.open(TwoFactorDialogComponent, {
+                this.dialog.open(TwoFactorCheckDialogComponent, {
                     maxWidth: '500px'
                 }).afterClosed().subscribe(isTwoFactorVerified => {
                     if (isTwoFactorVerified) {

@@ -8,11 +8,11 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
     selector: 'app-two-factor-page',
-    templateUrl: './two-factor-page.component.html',
-    styleUrls: ['./two-factor-page.component.scss']
+    templateUrl: './two-factor-login-page.component.html',
+    styleUrls: ['./two-factor-login-page.component.scss']
 })
 
-export class TwoFactorPageComponent implements OnInit {
+export class TwoFactorLoginPageComponent implements OnInit {
     user;
     twoFactorType;
     tokenForm = this.fb.group({
@@ -39,7 +39,7 @@ export class TwoFactorPageComponent implements OnInit {
         } else if (this.user.twoFactorSms) {
             this.sendTokenBySms();
         }
-        
+
         this.tokenForm = this.fb.group({
             token: [null, [Validators.required, Validators.pattern('[0-9]{6}')]]
         });

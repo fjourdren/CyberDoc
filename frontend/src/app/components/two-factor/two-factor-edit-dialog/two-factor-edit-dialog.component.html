@@ -2,14 +2,14 @@
 
 <mat-dialog-content>
 
-    <div *ngIf="twofactormode == 'app' && !isSmartphoneOrTablet" id="configure-via-app-header-container">
+    <div *ngIf="twoFactorMode == 'app' && !isSmartphoneOrTablet" id="configure-via-app-header-container">
         <mat-icon class="header-icon">qr_code_scanner</mat-icon>
         <div class="header-text">
             {{'twofactor.twofactor_qr_code_computer' | translate}}
         </div>
     </div>
 
-    <div *ngIf="twofactormode == 'app' && isSmartphoneOrTablet" id="configure-via-app-header-container">
+    <div *ngIf="twoFactorMode == 'app' && isSmartphoneOrTablet" id="configure-via-app-header-container">
         <mat-icon class="header-icon">app_settings_alt</mat-icon>
         <div class="header-text">
             {{'twofactor.twofactor_qr_code_mobile' | translate}}
@@ -17,7 +17,7 @@
     </div>
 
 
-    <div *ngIf="twofactormode == 'sms'" id="configure-via-sms-header-container">
+    <div *ngIf="twoFactorMode == 'sms'" id="configure-via-sms-header-container">
         <mat-icon class="header-icon">sms</mat-icon>
         <div class="header-text">
             {{'twofactor.twofactor_sms' | translate}}
@@ -26,8 +26,8 @@
 
     <mat-divider></mat-divider>
 
-    <div *ngIf="twofactormode == 'app'" id="configure-via-app-container"
-        [ngClass]="{'isSmartphoneOrTablet': isSmartphoneOrTablet}">
+    <div *ngIf="twoFactorMode == 'app'" id="configure-via-app-container"
+         [ngClass]="{'isSmartphoneOrTablet': isSmartphoneOrTablet}">
         <div *ngIf="!isSmartphoneOrTablet" id="qr-container">
             <img width="166" height="166" [alt]="qrSecret" [src]="qrURL">
         </div>
@@ -44,7 +44,7 @@
         </div>
     </div>
 
-    <div *ngIf="twofactormode == 'sms'" id="configure-via-sms-container">
+    <div *ngIf="twoFactorMode == 'sms'" id="configure-via-sms-container">
         <div class="error-txt" *ngIf="invalidPhoneNumber">{{'twofactor.invalid_phone_number' | translate}}</div>
         <div class="error-txt" *ngIf="tooManySMSSentError">{{'twofactor.too_many_sms_sent_error' | translate}}</div>
         <div class="bold" *ngIf="smsSent">{{'twofactor.sms_sent' | translate}}</div>
@@ -84,6 +84,6 @@
 <mat-dialog-actions align="end">
     <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
     <button [disabled]="loading" mat-button (click)="onCancelBtnClick()">{{'general.cancel' | translate}}</button>
-    <button [disabled]="loading || !this.tokenForm.valid || (this.twofactormode == 'sms' && !validPhoneNumber) " mat-button (click)="onOKBtnClick()" mat-raised-button
-        color="primary">{{'general.ok' | translate}}</button>
+    <button [disabled]="loading || !this.tokenForm.valid || (this.twoFactorMode == 'sms' && !validPhoneNumber) " mat-button (click)="onOKBtnClick()" mat-raised-button
+            color="primary">{{'general.ok' | translate}}</button>
 </mat-dialog-actions>
