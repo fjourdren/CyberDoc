@@ -2,9 +2,8 @@
 <div mat-dialog-content>
     <form [formGroup]="twoFactorForm" novalidate (ngSubmit)="onSubmit()">
         <mat-card-content>
-            <p *ngIf="twoFactorType === 'app'">Enter token generated on your application</p>
-            <p *ngIf="twoFactorType === 'sms'">Enter token received on your phone</p>
-            <p *ngIf="twoFactorType === 'email'">Enter token received on your email</p>
+            <p *ngIf="twoFactorType === 'app'">{{ 'twofactor.enter_token_app' | translate }}</p>
+            <p *ngIf="twoFactorType === 'sms'">{{ 'twofactor.enter_token_sms' | translate }}</p>
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Token</mat-label>
                 <input matInput formControlName="token" required>
@@ -13,7 +12,7 @@
                 </mat-error>
             </mat-form-field>
             <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'email') && this.user.twoFactorSms"
-                    mat-raised-button color="basic" (click)="sendTokenBySms()">Send me token by SMS
+                    mat-raised-button color="basic" (click)="sendTokenBySms()">{{ 'twofactor.send_code_by_sms' | translate }}
             </button>
         </mat-card-content>
 
