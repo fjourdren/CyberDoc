@@ -46,6 +46,7 @@
 
     <div *ngIf="twofactormode == 'sms'" id="configure-via-sms-container">
         <div class="error-txt" *ngIf="invalidPhoneNumber">{{'twofactor.invalid_phone_number' | translate}}</div>
+        <div class="error-txt" *ngIf="tooManySMSSentError">{{'twofactor.too_many_sms_sent_error' | translate}}</div>
         <div class="bold" *ngIf="smsSent">{{'twofactor.sms_sent' | translate}}</div>
         <div class="bold">{{'twofactor.enter_phone_number' | translate}}</div>
         <form id="configure-via-sms-field" [formGroup]="phoneNumberForm">
@@ -69,6 +70,7 @@
     <mat-divider></mat-divider>
 
     <div class="error-txt" *ngIf="invalidTokenError">{{'twofactor.invalid_token' | translate}}</div>
+    <div class="error-txt" *ngIf="tooManyInvalidCodesError">{{'twofactor.two_many_invalid_codes_error' | translate}}</div>
     <span class="bold">{{'twofactor.enter_code' | translate}}</span>
     <form [formGroup]="tokenForm" id="token-form">
         <mat-form-field id="token-input">

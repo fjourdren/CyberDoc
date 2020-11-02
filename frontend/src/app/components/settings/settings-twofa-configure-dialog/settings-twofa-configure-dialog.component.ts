@@ -30,6 +30,8 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
   formattedQrSecretLineTwo: string;
   validPhoneNumber: string;
   invalidTokenError = false;
+  tooManySMSSentError = false;
+  tooManyInvalidCodesError = false;
   invalidPhoneNumber = false;
   smsSent = false;
 
@@ -97,6 +99,8 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
     let promise: Promise<any>;
 
     this.invalidTokenError = false;
+    this.tooManyInvalidCodesError = false;
+
     switch (this.twofactormode) {
       case "sms": {
         promise = this._update2FAWithSMS();
@@ -118,6 +122,8 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
       this._setLoading(false);
       if (err instanceof HttpErrorResponse && err.status === 403) {
         this.invalidTokenError = true;
+      } else if (err instanceof HttpErrorResponse && err.status === 429) {
+        this.tooManyInvalidCodesError = true;
       } else {
         throw err;
       }
@@ -139,6 +145,7 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
     this.validPhoneNumber = undefined;
     this.smsSent = false;
     this.invalidPhoneNumber = false;
+    this.tooManySMSSentError = false;
     const country: PhoneNumberCountry = this.phoneNumberForm.get('countryCode').value;
     const phoneNumber = `+${country.dialCode}${this.phoneNumberForm.get("phoneNumber").value}`;
 
@@ -162,6 +169,8 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
       this._setLoading(false);
       if (err instanceof HttpErrorResponse && err.status === 403) {
         this.invalidPhoneNumber = true;
+      } else if (err instanceof HttpErrorResponse && err.status === 429) {
+        this.tooManySMSSentError = true;
       } else {
         throw err;
       }

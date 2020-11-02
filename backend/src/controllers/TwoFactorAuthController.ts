@@ -17,6 +17,7 @@ class TwoFactorAuthController {
             res.json(verificationInstance);
         } catch (err) {
             if(err.code && err.code === 60200) next(new HTTPError(HttpCodes.BAD_REQUEST, "This phone number is invalid"));
+            else if(err.code && err.status === 429) next(new HTTPError(HttpCodes.TOO_MANY_REQUESTS, "Max send attempts reached"));
             else next(err);
         }
     }
@@ -63,7 +64,8 @@ class TwoFactorAuthController {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "Request should have either secret, phoneNumber.");
             }
         } catch (err) {
-            next(err);
+            if(err.code && err.status === 429) next(new HTTPError(HttpCodes.TOO_MANY_REQUESTS, "Max check attempts reached"));
+            else next(err);
         }
     }
 
@@ -78,7 +80,7 @@ class TwoFactorAuthController {
             res.status(HttpCodes.OK);
             res.json(secretUriAndQr);
         } catch (err) {
-           next(err);
+            next(err);
         }
     }
 }
