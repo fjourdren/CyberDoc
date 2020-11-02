@@ -10,7 +10,7 @@ import {MatTableModule} from '@angular/material/table';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSortModule} from '@angular/material/sort';
 import {MatToolbarModule} from '@angular/material/toolbar';
-import {MatButtonModule} from '@angular/material/button'
+import {MatButtonModule} from '@angular/material/button';
 import {MatTreeModule} from '@angular/material/tree';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatInputModule} from '@angular/material/input';
@@ -35,7 +35,7 @@ import {NgResizeObserverPonyfillModule} from 'ng-resize-observer';
 import {LayoutModule} from '@angular/cdk/layout';
 import {NgxFilesizeModule} from 'ngx-filesize';
 import {CookieService} from 'ngx-cookie-service';
-import * as Sentry from "@sentry/angular";
+import * as Sentry from '@sentry/angular';
 import { ClipboardModule } from 'ngx-clipboard';
 
 import {FilesDetailsPanelComponent} from './components/files/files-details-panel/files-details-panel.component';
@@ -60,7 +60,7 @@ import {RegisterPageComponent} from './pages/register-page/register-page.compone
 import {LoginPageComponent} from './pages/login-page/login-page.component';
 import {LogoutPageComponent} from './pages/logout-page/logout-page.component';
 import {SettingsProfilePageComponent} from './pages/settings-profile-page/settings-profile-page.component';
-import {SettingsSecurityPageComponent} from './pages/settings-security-page/settings-security-page.component'
+import {SettingsSecurityPageComponent} from './pages/settings-security-page/settings-security-page.component';
 import {FilesPageComponent} from './pages/files-page/files-page.component';
 
 import {UnhandledErrorDialogComponent} from './components/global/unhandled-error-dialog/unhandled-error-dialog.component';
@@ -82,12 +82,14 @@ import {Router} from '@angular/router';
 import {FilesShareMenuDialogComponent} from './components/files/files-share-menu-dialog/files-share-menu-dialog.component';
 import {PasswordRecoveryPageComponent} from './pages/password-recovery-page/password-recovery-page.component';
 import {ResetPasswordPageComponent} from './pages/reset-password-page/reset-password-page.component';
-import {TwoFactorPageComponent} from './pages/two-factor-page/two-factor-page.component';
+import {TwoFactorLoginPageComponent} from './pages/two-factor-login-page/two-factor-login-page.component';
 import {TwoFactorRegisterPageComponent} from './pages/two-factor-register-page/two-factor-register-page.component';
 import {SettingsDeleteTagDialogComponent} from './components/settings/settings-delete-tag-dialog/settings-delete-tag-dialog.component';
 import {SettingsCreateEditTagDialogComponent} from './components/settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
-import {SecurityCheckDialogComponent} from "./components/security-check-dialog/security-check-dialog.component";
-import {TwoFactorDialogComponent} from "./components/two-factor-dialog/two-factor-dialog.component";
+import {SecurityCheckDialogComponent} from './components/security-check-dialog/security-check-dialog.component';
+import {TwoFactorCheckDialogComponent} from './components/two-factor/two-factor-check-dialog/two-factor-check-dialog.component';
+import {TwoFactorEditDialogComponent} from './components/two-factor/two-factor-edit-dialog/two-factor-edit-dialog.component';
+import { TwoFactorEditComponent } from './components/two-factor/two-factor-edit/two-factor-edit.component';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
@@ -166,13 +168,14 @@ if (environment.useSentry) {
         FilesShareMenuDialogComponent,
         PasswordRecoveryPageComponent,
         ResetPasswordPageComponent,
-        TwoFactorPageComponent,
+        TwoFactorLoginPageComponent,
         TwoFactorRegisterPageComponent,
         SettingsDeleteTagDialogComponent,
         SettingsCreateEditTagDialogComponent,
         SecurityCheckDialogComponent,
-        TwoFactorDialogComponent,
-        SettingsTwofaConfigureDialogComponent
+        TwoFactorCheckDialogComponent,
+        TwoFactorEditDialogComponent,
+        TwoFactorEditComponent
     ],
     imports: [
         BrowserModule,

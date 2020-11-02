@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SettingsTwofaConfigureDialogComponent } from './settings-twofa-configure-dialog.component';
+import { TwoFactorEditDialogComponent } from './two-factor-edit-dialog.component';
 
 describe('SettingsTwofaConfigureDialogComponent', () => {
-  let component: SettingsTwofaConfigureDialogComponent;
-  let fixture: ComponentFixture<SettingsTwofaConfigureDialogComponent>;
+  let component: TwoFactorEditDialogComponent;
+  let fixture: ComponentFixture<TwoFactorEditDialogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SettingsTwofaConfigureDialogComponent ]
+      declarations: [ TwoFactorEditDialogComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SettingsTwofaConfigureDialogComponent);
+    fixture = TestBed.createComponent(TwoFactorEditDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

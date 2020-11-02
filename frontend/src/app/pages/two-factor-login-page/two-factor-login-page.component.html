@@ -21,10 +21,10 @@
                             Token is <strong>required. </strong>
                         </mat-error>
                     </mat-form-field>
-                    <button *ngIf="(twoFactorType === 'sms' || twoFactorType === 'email') && this.user.twoFactorApp"
+                    <button *ngIf="twoFactorType === 'sms' && this.user.twoFactorApp"
                             mat-raised-button color="basic" (click)="dialogTokenByApp()">I got a token with my App
                     </button>
-                    <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'email') && this.user.twoFactorSms"
+                    <button *ngIf="twoFactorType === 'app' && this.user.twoFactorSms"
                             mat-raised-button color="basic" (click)="sendTokenBySms()">Send me token by SMS
                     </button>
                 </mat-card-content>

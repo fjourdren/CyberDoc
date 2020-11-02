@@ -45,15 +45,15 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTreeModule } from '@angular/material/tree';
 import { OverlayModule } from '@angular/cdk/overlay';
 
-import { TwoFactorPageComponent } from './two-factor-page.component';
+import { TwoFactorLoginPageComponent } from './two-factor-login-page.component';
 
 describe('TwoFactorPageComponent', () => {
-  let component: TwoFactorPageComponent;
-  let fixture: ComponentFixture<TwoFactorPageComponent>;
+  let component: TwoFactorLoginPageComponent;
+  let fixture: ComponentFixture<TwoFactorLoginPageComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ TwoFactorPageComponent ],
+      declarations: [ TwoFactorLoginPageComponent ],
       imports: [
         NoopAnimationsModule,
         ReactiveFormsModule,
@@ -106,7 +106,7 @@ describe('TwoFactorPageComponent', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TwoFactorPageComponent);
+    fixture = TestBed.createComponent(TwoFactorLoginPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

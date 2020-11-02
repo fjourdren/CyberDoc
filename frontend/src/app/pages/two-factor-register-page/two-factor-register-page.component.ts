@@ -1,8 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-import {UserServiceProvider} from '../../services/users/user-service-provider';
-import {MatDialog} from '@angular/material/dialog';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import { SettingsTwofaConfigureDialogComponent } from 'src/app/components/settings/settings-twofa-configure-dialog/settings-twofa-configure-dialog.component';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {TwoFactorEditComponent} from '../../components/two-factor/two-factor-edit/two-factor-edit.component';
 
 @Component({
     selector: 'app-two-factor-register-page',
@@ -11,49 +8,22 @@ import { SettingsTwofaConfigureDialogComponent } from 'src/app/components/settin
 })
 
 export class TwoFactorRegisterPageComponent implements OnInit {
+    @ViewChild(TwoFactorEditComponent) twoFactorEditComponent;
     twoFactorApp: boolean;
     twoFactorSms: boolean;
-    loading = false;
 
-    constructor(private userServiceProvider: UserServiceProvider,
-                private snackBar: MatSnackBar,
-                private dialog: MatDialog) {
+    constructor() {
     }
 
     ngOnInit(): void {
-        this.twoFactorApp = this.userServiceProvider.default().getActiveUser().twoFactorApp;
-        this.twoFactorSms = this.userServiceProvider.default().getActiveUser().twoFactorSms;
+
     }
 
-    openDialogActivateTwoFactor(type: string): void {
-        const refDialog = this.dialog.open(SettingsTwofaConfigureDialogComponent, {
-            width: "500px",
-            data: type
-        });
-
-        refDialog.afterClosed().toPromise().then(() => {
-            this.refreshTwoFactor();
-        });
+    updateTwoFactorApp($event: boolean): void {
+        this.twoFactorApp = $event.valueOf();
     }
 
-    refreshTwoFactor(): void {
-        this.twoFactorApp = this.userServiceProvider.default().getActiveUser().twoFactorApp;
-        this.twoFactorSms = this.userServiceProvider.default().getActiveUser().twoFactorSms;
-    }
-
-    disableTwoFactor(type: string): void {
-        this.loading = true;
-        this.userServiceProvider.default().updateTwoFactor(
-            type === 'app' ? !this.userServiceProvider.default().getActiveUser().twoFactorApp :
-                this.userServiceProvider.default().getActiveUser().twoFactorApp,
-            type === 'sms' ? !this.userServiceProvider.default().getActiveUser().twoFactorSms :
-                this.userServiceProvider.default().getActiveUser().twoFactorSms,
-        ).toPromise().then(() => {
-            this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                this.loading = false;
-                this.refreshTwoFactor();
-                this.snackBar.open('2FA disabled', null, {duration: 1500});
-            }).catch(err => this.snackBar.open(err.msg, null, {duration: 1500}));
-        });
+    updateTwoFactorSms($event: boolean): void {
+        this.twoFactorSms = $event.valueOf();
     }
 }

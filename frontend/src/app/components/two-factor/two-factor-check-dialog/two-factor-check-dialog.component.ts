@@ -1,18 +1,18 @@
 import {Component} from '@angular/core';
 import {FormBuilder, Validators} from '@angular/forms';
 import {JwtHelperService} from '@auth0/angular-jwt';
-import {TwoFactorServiceProvider} from '../../services/twofactor/twofactor-service-provider';
-import {UserServiceProvider} from '../../services/users/user-service-provider';
+import {TwoFactorServiceProvider} from '../../../services/twofactor/twofactor-service-provider';
+import {UserServiceProvider} from '../../../services/users/user-service-provider';
 import {MatDialogRef} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
     selector: 'app-two-factor-dialog',
-    templateUrl: './two-factor-dialog.component.html',
-    styleUrls: ['./two-factor-dialog.component.scss']
+    templateUrl: './two-factor-check-dialog.component.html',
+    styleUrls: ['./two-factor-check-dialog.component.scss']
 })
 
-export class TwoFactorDialogComponent {
+export class TwoFactorCheckDialogComponent {
     user;
     twoFactorType;
     twoFactorForm = this.fb.group({
@@ -24,7 +24,7 @@ export class TwoFactorDialogComponent {
                 private snackBar: MatSnackBar,
                 private twoFactorServiceProvider: TwoFactorServiceProvider,
                 private userServiceProvider: UserServiceProvider,
-                public twoFactorDialog: MatDialogRef<TwoFactorDialogComponent>) {
+                public twoFactorDialog: MatDialogRef<TwoFactorCheckDialogComponent>) {
         this.twoFactorForm = this.fb.group({
             token: [null, Validators.required]
         });
@@ -34,8 +34,6 @@ export class TwoFactorDialogComponent {
             this.twoFactorType = 'app';
         } else if (this.user.twoFactorSms) {
             this.sendTokenBySms();
-        } else if (this.user.twoFactorEmail) {
-            this.sendTokenByEmail();
         }
     }
 

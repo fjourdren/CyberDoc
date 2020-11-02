@@ -9,24 +9,7 @@
         </mat-card-header>
         <mat-card-content>
           You need to enable at least one 2FA Method to continue.
-          <mat-list>
-            <mat-list-item *ngIf="twoFactorApp">
-              <button mat-flat-button color="success" class="two-factor-status">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
-              <button mat-raised-button color="primary" (click)="disableTwoFactor('app')">Disable 2FA by App</button>
-            </mat-list-item>
-            <mat-list-item *ngIf="!twoFactorApp">
-              <button mat-flat-button color="warn" class="two-factor-status">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
-              <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('app')">Enable 2FA by App</button>
-            </mat-list-item>
-            <mat-list-item *ngIf="twoFactorSms">
-              <button mat-flat-button color="success" class="two-factor-status">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
-              <button mat-raised-button color="primary" (click)="disableTwoFactor('sms')">Disable 2FA sent by SMS</button>
-            </mat-list-item>
-            <mat-list-item *ngIf="!twoFactorSms">
-              <button mat-flat-button color="warn" class="two-factor-status">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
-              <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('sms')">Enable 2FA sent by SMS</button>
-            </mat-list-item>
-          </mat-list>
+          <app-two-factor-edit (twoFactorAppEvent)="updateTwoFactorApp($event)" (twoFactorSmsEvent)="updateTwoFactorSms($event)"></app-two-factor-edit>
         </mat-card-content>
 
         <div id="button-container">
