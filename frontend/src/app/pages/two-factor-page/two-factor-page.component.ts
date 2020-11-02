@@ -38,10 +38,8 @@ export class TwoFactorPageComponent implements OnInit {
             this.twoFactorType = 'app';
         } else if (this.user.twoFactorSms) {
             this.sendTokenBySms();
-        } else if (this.user.twoFactorEmail) {
-            this.sendTokenByEmail();
         }
-
+        
         this.tokenForm = this.fb.group({
             token: [null, [Validators.required, Validators.pattern('[0-9]{6}')]]
         });
@@ -74,16 +72,6 @@ export class TwoFactorPageComponent implements OnInit {
                         this.snackBar.open(err.error.msg, null, {duration: 2500});
                     });
                     break;
-                case 'email':
-                    this.twoFactorServiceProvider.default().verifyTokenByEmail(this.user.email,
-                        this.tokenForm.get('token').value).toPromise().then(() => {
-                        this.loading = false;
-                        this.router.navigate(['/files']);
-                    }).catch(err => {
-                        this.loading = false;
-                        this.snackBar.open(err.error.msg, null, {duration: 2500});
-                    });
-                    break;
             }
         } catch (err) {
             this.loading = false;
@@ -99,11 +87,5 @@ export class TwoFactorPageComponent implements OnInit {
         this.twoFactorType = 'sms';
         this.twoFactorServiceProvider.default().sendTokenBySms(this.user.phoneNumber).toPromise()
             .catch(err => this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {duration: 2500}));
-    }
-
-    sendTokenByEmail(): void {
-        this.twoFactorType = 'email';
-        this.twoFactorServiceProvider.default().sendTokenByEmail(this.user.email).toPromise()
-            .catch(err => this.snackBar.open('Email cannot be sent : ' + err.error.msg, null, {duration: 2500}));
     }
 }

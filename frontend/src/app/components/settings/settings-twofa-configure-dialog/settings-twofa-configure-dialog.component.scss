@@ -1,0 +1,87 @@
+@import "../../../../theme.scss";
+
+.error-txt {
+    color: $warn;
+    font-weight: bold;
+    padding-bottom: 12px;
+  }
+
+#configure-via-app-container {
+    display: flex;
+}
+
+#configure-via-app-header-container, #configure-via-sms-header-container {
+    display: flex;
+    text-align: center;
+}
+
+.header-text {
+    padding-left: 16px;
+}
+
+.header-icon {
+    font-size: 36px;
+    height: 36px;
+    width: 36px;
+}
+
+mat-divider {
+    margin: 12px;
+}
+
+#token-input {
+    margin-left: 16px;
+}
+
+#qr-container {
+    width: 50%;
+}
+
+#configure-via-app-container.isSmartphoneOrTablet {
+    align-items: center;
+    justify-content: center;  
+}
+
+#secret-code-container {
+    width: 50%;
+    text-align: center;
+    padding-top: 16px;
+}
+
+.isSmartphoneOrTablet > #secret-code-container {
+    width: unset;
+}
+
+.secret-code {
+    font-weight: bold;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.margin-top-bottom {
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+#token-form {
+    display: inline;
+}
+
+#configure-via-sms-field {
+    display: flex;
+    align-items: center;
+}
+
+#configure-via-sms-field > mat-form-field {
+    flex: 1 1 auto;
+    padding-right: 16px;
+    width: 50%;
+}
+
+@media (max-width: 600px) {
+    #configure-via-sms-field {
+        flex-direction: column;
+    }   
+}

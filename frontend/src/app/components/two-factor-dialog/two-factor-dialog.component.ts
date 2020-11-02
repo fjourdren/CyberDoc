@@ -56,22 +56,12 @@ export class TwoFactorDialogComponent {
                     this.twoFactorDialog.close(true);
                 }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 2500}));
                 break;
-            case 'email':
-                this.twoFactorServiceProvider.default().verifyTokenByEmail(this.user.email,
-                    this.twoFactorForm.get('token').value).toPromise().then(() => {
-                    this.twoFactorDialog.close(true);
-                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 2500}));
-                break;
         }
     }
 
     sendTokenBySms(): void {
         this.twoFactorType = 'sms';
-        this.twoFactorServiceProvider.default().sendTokenBySms(this.user.phoneNumber).toPromise();
-    }
-
-    sendTokenByEmail(): void {
-        this.twoFactorType = 'email';
-        this.twoFactorServiceProvider.default().sendTokenByEmail(this.user.email).toPromise();
+        this.twoFactorServiceProvider.default().sendTokenBySms(this.user.phoneNumber).toPromise()
+            .catch(err => this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {duration: 2500}));
     }
 }

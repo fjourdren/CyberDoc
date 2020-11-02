@@ -166,45 +166,41 @@ export class MockUserService implements UserService {
         }));
     }
 
-    updatePhoneNumber(phoneNumber: string, email: string): Observable<void> {
+    updatePhoneNumber(phoneNumber: string): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
             }
-            const user = this._users.get(email);
+            const user = this._getUser();
             user.phoneNumber = phoneNumber;
-            this._users.delete(email);
-            this._users.set(email, user);
+            this._users.set(user.email, user);
             this._save();
             this._setUser(user);
         }));
     }
 
-    updateSecret(secret: string, email: string): Observable<void> {
+    updateSecret(secret: string): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
             }
-            const user = this._users.get(email);
+            const user = this._getUser();
             user.secret = secret;
-            this._users.delete(email);
-            this._users.set(email, user);
+            this._users.set(user.email, user);
             this._save();
             this._setUser(user);
         }));
     }
 
-    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, twoFactorEmail: boolean, email: string): Observable<void> {
+    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
             }
-            const user = this._users.get(email);
+            const user = this._getUser();
             user.twoFactorApp = twoFactorApp;
             user.twoFactorSms = twoFactorSms;
-            user.twoFactorEmail = twoFactorEmail;
-            this._users.delete(email);
-            this._users.set(email, user);
+            this._users.set(user.email, user);
             this._save();
             this._setUser(user);
         }));

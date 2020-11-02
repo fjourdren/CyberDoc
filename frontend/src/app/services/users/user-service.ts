@@ -20,9 +20,9 @@ export interface UserService {
     searchExistingUser(email: string): Observable<User>;
 
     updatePassword(oldPassword: string, newPassword: string, email: string): Observable<void>;
-    updatePhoneNumber(phoneNumber: string, email: string): Observable<void>;
-    updateSecret(secret: string, email: string): Observable<void>;
-    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, twoFactorEmail: boolean, email: string): Observable<void>;
+    updatePhoneNumber(phoneNumber: string): Observable<void>;
+    updateSecret(secret: string): Observable<void>;
+    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean): Observable<void>;
     login(email: string, password: string): Observable<any>;
     validatePassword(password: string): Observable<boolean>;
 
