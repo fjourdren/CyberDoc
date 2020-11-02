@@ -8,6 +8,7 @@ import { allCountries as __allCountries, PhoneNumberCountry } from "./all-countr
 import { PhoneNumberUtil } from 'google-libphonenumber';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 const phoneNumberUtil = PhoneNumberUtil.getInstance();
 
@@ -24,7 +25,7 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
 
   qrURL: string;
   qrSecret: string;
-  qrProtocolURL: string;
+  qrProtocolURL: SafeUrl;
   formattedQrSecretLineOne: string;
   formattedQrSecretLineTwo: string;
   validPhoneNumber: string;
@@ -45,6 +46,7 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
   constructor(private dialogRef: MatDialogRef<SettingsTwofaConfigureDialogComponent>,
     private twoFAServiceProvider: TwoFactorServiceProvider,
     private userServiceProvider: UserServiceProvider,
+    private sanitizer: DomSanitizer,
     private snackBar: MatSnackBar,
     private translateService: TranslateService,
     @Inject(MAT_DIALOG_DATA) public twofactormode: "sms" | "app") { }
@@ -172,9 +174,10 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
     this.twoFAServiceProvider.default().generateSecretUriAndQr(email).toPromise().then(res => {
       this._setLoading(false);
       this.qrURL = res.qr;
-      const index = res.qr.indexOf("otpauth://");
-      this.qrProtocolURL = res.qr.slice(index);
       this.qrSecret = res.secret;
+      //https://github.com/google/google-authenticator/wiki/Key-Uri-Format
+      const otpURL = `otpauth://totp/CyberDoc:${email}?secret=${this.qrSecret}&issuer=CyberDoc&digits=6&period=30`
+      this.qrProtocolURL = this.sanitizer.bypassSecurityTrustUrl(otpURL);
 
       const qrSecretParts = res.secret.match(/.{1,4}/g);
       this.formattedQrSecretLineOne = [
