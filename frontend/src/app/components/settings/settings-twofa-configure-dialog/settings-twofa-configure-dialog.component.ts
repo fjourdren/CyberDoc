@@ -116,7 +116,7 @@ export class SettingsTwofaConfigureDialogComponent implements AfterViewInit {
       this.dialogRef.close(true);
     }).catch(err => {
       this._setLoading(false);
-      if (err instanceof HttpErrorResponse && err.status === 400) {
+      if (err instanceof HttpErrorResponse && err.status === 403) {
         this.invalidTokenError = true;
       } else {
         throw err;
