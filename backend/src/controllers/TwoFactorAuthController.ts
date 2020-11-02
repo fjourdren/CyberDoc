@@ -30,7 +30,7 @@ class TwoFactorAuthController {
             let output: boolean;
             if (secret) {
                 const delta = await TwoFactorAuthService.verifyTokenGeneratedByApp(secret, token);
-                if (delta === null || delta === -1 || delta === 1) throw new HTTPError(HttpCodes.BAD_REQUEST, "Invalid token");
+                if (delta === null || delta === -1 || delta === 1) throw new HTTPError(HttpCodes.FORBIDDEN, "Invalid token");
 
                 jwtToken = jwt.sign({
                     user: res.locals.APP_JWT_TOKEN.user,
@@ -58,7 +58,7 @@ class TwoFactorAuthController {
                         success: true,
                         token: jwtToken
                     });
-                } else throw new HTTPError(HttpCodes.UNAUTHORIZED, "Invalid token");
+                } else throw new HTTPError(HttpCodes.FORBIDDEN, "Invalid token");
             } else {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "Request should have either secret, phoneNumber.");
             }
