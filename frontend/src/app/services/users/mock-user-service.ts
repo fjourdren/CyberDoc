@@ -25,7 +25,6 @@ const USER: User = {
     secret: null,
     twoFactorApp: false,
     twoFactorSms: false,
-    twoFactorEmail: false,
     directory_id: 'root',
     tags: [
         {
@@ -246,14 +245,14 @@ export class MockUserService implements UserService {
     searchExistingUser(email: string): Observable<User> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (this.getActiveUser().email === email) {
-                this._throw400("already this user");
+                this._throw400('already this user');
             }
             for (const user of this._users.values()) {
                 if (user.email === email) {
                     return user;
                 }
             }
-            this._throw404("user doesn't exist");
+            this._throw404('user doesn\'t exist');
         }));
     }
 
@@ -345,9 +344,9 @@ export class MockUserService implements UserService {
         });
     }
 
-    private _throw400(error: string){
+    private _throw400(error: string): void{
         throw new HttpErrorResponse({
-            error: error,
+            error,
             statusText: 'FORBIDDEN',
             status: 400,
             url: '/fake-url'

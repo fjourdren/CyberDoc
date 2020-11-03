@@ -19,7 +19,8 @@ export class SettingsSecurityComponent {
     hidePassword1 = true;
     hidePassword2 = true;
     hidePassword3 = true;
-    passwordStrength = '(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&].{8,}';
+
+    passwordStrength = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$._\-!%*?&])[A-Za-z\d$@$!%*?&].{8,}/;
 
     // Passwords
     isTextFieldType: boolean;

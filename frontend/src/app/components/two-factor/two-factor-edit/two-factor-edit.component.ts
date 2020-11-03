@@ -10,8 +10,8 @@ import {MatSnackBar} from '@angular/material/snack-bar';
     styleUrls: ['./two-factor-edit.component.css']
 })
 export class TwoFactorEditComponent {
-    @Output() twoFactorAppEvent: EventEmitter<boolean> = new EventEmitter<boolean>();
-    @Output() twoFactorSmsEvent: EventEmitter<boolean> = new EventEmitter<boolean>();
+    @Output() twoFactorAppEvent = new EventEmitter<boolean>();
+    @Output() twoFactorSmsEvent = new EventEmitter<boolean>();
     twoFactorApp: boolean;
     twoFactorSms: boolean;
 
@@ -36,14 +36,14 @@ export class TwoFactorEditComponent {
                     this.userServiceProvider.default().getActiveUser().twoFactorSms,
                 ).toPromise().then(() => {
                     this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                        this.snackBar.open('2FA by App disabled', null, {duration: 1500});
+                        this.snackBar.open('2FA by App disabled', null, {duration: 2000});
                         this.refresh();
-                    }).catch(err => this.snackBar.open(err.msg, null, {duration: 2500}));
+                    });
                 });
             } else {
                 event.source.checked = true;
                 this.snackBar.open('You have to keep at least one 2FA option to use CyberDoc',
-                    null, {duration: 1500});
+                    null, {duration: 4000});
             }
         } else {
             event.source.checked = false;
@@ -69,14 +69,14 @@ export class TwoFactorEditComponent {
                     !this.userServiceProvider.default().getActiveUser().twoFactorSms,
                 ).toPromise().then(() => {
                     this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                        this.snackBar.open('2FA by SMS disabled', null, {duration: 1500});
+                        this.snackBar.open('2FA by SMS disabled', null, {duration: 2000});
                         this.refresh();
-                    }).catch(err => this.snackBar.open(err.msg, null, {duration: 2500}));
+                    });
                 });
             } else {
                 event.source.checked = true;
                 this.snackBar.open('You have to keep at least one 2FA option to use CyberDoc',
-                    null, {duration: 1500});
+                    null, {duration: 4000});
             }
         } else {
             event.source.checked = false;

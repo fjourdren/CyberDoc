@@ -13,7 +13,6 @@
                 <mat-card-content>
                     <p *ngIf="twoFactorType === 'app'">Enter token generated on your application</p>
                     <p *ngIf="twoFactorType === 'sms'">Enter token received on your phone</p>
-                    <p *ngIf="twoFactorType === 'email'">Enter token received on your email</p>
                     <mat-form-field appearance="outline" class="full-width">
                         <mat-label>Token</mat-label>
                         <input matInput formControlName="token" required maxlength="6">

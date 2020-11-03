@@ -25,10 +25,6 @@ export class TwoFactorCheckDialogComponent {
                 private twoFactorServiceProvider: TwoFactorServiceProvider,
                 private userServiceProvider: UserServiceProvider,
                 public twoFactorDialog: MatDialogRef<TwoFactorCheckDialogComponent>) {
-        this.twoFactorForm = this.fb.group({
-            token: [null, Validators.required]
-        });
-
         this.user = this.jwtHelper.decodeToken(this.userServiceProvider.default().getJwtToken()).user;
         if (this.user.twoFactorApp) {
             this.twoFactorType = 'app';
