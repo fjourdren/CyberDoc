@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {TwoFactorEditComponent} from '../../components/two-factor/two-factor-edit/two-factor-edit.component';
 
 @Component({
@@ -7,16 +7,12 @@ import {TwoFactorEditComponent} from '../../components/two-factor/two-factor-edi
     styleUrls: ['./two-factor-register-page.component.scss']
 })
 
-export class TwoFactorRegisterPageComponent implements OnInit {
+export class TwoFactorRegisterPageComponent {
     @ViewChild(TwoFactorEditComponent) twoFactorEditComponent;
     twoFactorApp: boolean;
     twoFactorSms: boolean;
 
     constructor() {
-    }
-
-    ngOnInit(): void {
-
     }
 
     updateTwoFactorApp($event: boolean): void {

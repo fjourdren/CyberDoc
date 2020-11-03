@@ -1,4 +1,4 @@
-//from swagger file users.yml
+// from swagger file users.yml
 
 import { FileTag } from './files-api-models';
 
@@ -11,7 +11,6 @@ export class User {
     public secret: string;
     public twoFactorApp: boolean;
     public twoFactorSms: boolean;
-    public twoFactorEmail: boolean;
     public updated_at: string;
     public created_at: string;
     public role: string;
