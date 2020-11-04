@@ -1,7 +1,7 @@
 <h1 mat-dialog-title>
     Rename device
 </h1>
-
+<div class="error-txt" *ngIf="nameAlreadyChoose">This name already exist</div>
 <div mat-dialog-content>
     <form>
         <mat-form-field appearance="outline">
