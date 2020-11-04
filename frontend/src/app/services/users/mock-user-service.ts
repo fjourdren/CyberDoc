@@ -1,7 +1,7 @@
 import {UserService} from './user-service';
 
 import {Observable, of} from 'rxjs';
-import {User, Devices} from 'src/app/models/users-api-models';
+import {User, Device} from 'src/app/models/users-api-models';
 import {delay, map} from 'rxjs/operators';
 import {EventEmitter} from '@angular/core';
 import {FileTag} from 'src/app/models/files-api-models';
@@ -356,14 +356,14 @@ export class MockUserService implements UserService {
         });
     }
 
-    getUserDevices(): Observable<Devices[]>{
+    getUserDevices(): Observable<Device[]>{
         return null;
     }
-    renameUserDevices(oldName: string, name: string): Observable<void>{
+    renameUserDevice(oldName: string, name: string): Observable<void>{
         return;
     }
 
-    createUserDevices(name: string, browser: string, OS: string): Observable<void>{
+    createUserDevice(name: string, browser: string, OS: string): Observable<void>{
         return;
     }
 }

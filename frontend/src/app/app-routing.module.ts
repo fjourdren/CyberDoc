@@ -39,7 +39,7 @@ const routes: Routes = [
   { path: 'register', component: RegisterPageComponent, canActivate: [LoggedOutGuard] },
   { path: 'forgottenpassword', component: PasswordRecoveryPageComponent, canActivate: [LoggedOutGuard] },
   { path: 'passwordReset', component: ResetPasswordPageComponent, canActivate: [LoggedOutGuard] },
-  { path: 'device', component: DevicePageComponent, canActivate: [LoggedInGuard, DeviceGuard] },
+  { path: 'device', component: DevicePageComponent, canActivate: [LoggedInGuard, TwoFactorGuard, DeviceGuard] },
   {
     path: 'two-factor-register',
     component: TwoFactorRegisterPageComponent,

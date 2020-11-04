@@ -19,7 +19,7 @@ export class User {
     public tags: FileTag[];
 }
 
-export class Devices {
+export class Device {
     public name: string;
     public browser: string;
     public OS: string;
