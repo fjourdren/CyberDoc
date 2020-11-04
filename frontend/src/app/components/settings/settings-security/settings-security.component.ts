@@ -57,6 +57,8 @@ export class SettingsSecurityComponent {
                     this.snackBar.open('Password updated', null, {duration: 1500});
                     this.passwordForm.reset();
                 });
+            } else {
+                this.loading = false;
             }
         });
     }
