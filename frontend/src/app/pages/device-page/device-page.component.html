@@ -8,7 +8,7 @@
             <img src="/assets/icons/icon-192x192.png" width="100" height="100" />
             <b>{{ 'general.appname' | translate }}</b>
           </h1>
-          <div *ngIf="!nameExist">
+          <div>
           <mat-card-header>
             <mat-card-title>New device ?</mat-card-title>
           </mat-card-header>
@@ -32,12 +32,7 @@
             <a routerLink="/login" mat-stroked-button color="primary">Back</a>
           </div>
         </div>
-        <div *ngIf="nameExist">
-            <div id="button-container">
-                <label>Your device is registered</label>
-                <a routerLink="/login" mat-raised-button color="primary">{{ 'general.back_login' | translate }}</a>
-              </div>
-        </div>
+        
         </mat-card>
       </form>
     </div>

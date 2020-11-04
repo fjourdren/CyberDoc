@@ -21,7 +21,6 @@ export class DevicePageComponent implements OnInit {
 
   genericError = false;
   nameAlreadyChoose = false;
-  nameExist = false;
   private device: Device;
   parser:any;
 
@@ -45,7 +44,7 @@ export class DevicePageComponent implements OnInit {
     this.newDeviceForm.get("name").disable();
     const OS=this.parser.getDevice().model+" "+this.parser.getOS().name;
     this.userServiceProvider.default().createUserDevice(this.newDeviceForm.controls.name.value, this.parser.getBrowser().name, OS).toPromise().then(value => {
-      this.nameExist = true;
+      this.router.navigate(['/files']);
     }, error => {
       this.newDeviceForm.get("name").enable();  
       if (error instanceof HttpErrorResponse && error.status === 400) {
