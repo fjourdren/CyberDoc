@@ -15,23 +15,12 @@ export interface DialogData {
     secret: string;
 }
 
-export interface ConnectedDevices {
-    id: number;
-    name: string;
-    lastConnexion: string;
-    devices: string;
-    OS: string;
-}
 
 export interface DialogDevicesData {
     name: string;
 }
 
-const DEVICES_DATA: ConnectedDevices[] = [
-    { id: 1, name: "test", lastConnexion: '18-04-2020', devices: 'Iphone', OS: 'Ios 1.4.2' },
-    { id: 2, name: "test2", lastConnexion: '21-05-2020', devices: 'Samsung', OS: ' Android 5.5' },
-    { id: 3, name: "test3", lastConnexion: '27-10-2020', devices: 'PC', OS: 'Chrome' },
-];
+
 
 @Component({
     selector: 'app-settings-security',
@@ -61,15 +50,10 @@ export class SettingsSecurityComponent implements OnInit {
     displayedColumns: string[] = ['name', 'browser', 'OS', 'rename'];
     //dataSource: RespondShare[];
     dataSource = new MatTableDataSource([]);
-    test = false;
 
     constructor(private userServiceProvider: UserServiceProvider,
         private twoFactorServiceProvider: TwoFactorServiceProvider,
         private fb: FormBuilder, private snackBar: MatSnackBar, private dialog: MatDialog) {
-        userServiceProvider.default().getUserDevices().toPromise().then((value) => {
-            this.dataSource.data = value;
-        });
-        console.log(this.dataSource);
     }
 
     get f(): { [p: string]: AbstractControl } {
@@ -184,7 +168,7 @@ export class SettingsSecurityComponent implements OnInit {
 
     // Dialogs Devices
 
-    openDialogDevices(name: string): void {
+    renameDevices(name: string): void {
         let refDialog: MatDialogRef<any>;
         refDialog = this.dialog.open(SettingsSecurityDevicesDialogComponent, {
             width: '500px',
@@ -419,7 +403,7 @@ export class SettingsSecurityDevicesDialogComponent {
         this.loading = true;
         this.input.disable();
         this.dialogRef.disableClose = true;
-        this.UserProvider.default().renameUserDevices(this.data.name,this.input.value).toPromise().then(() => {
+        this.UserProvider.default().renameUserDevice(this.data.name,this.input.value).toPromise().then(() => {
             this.loading = false;
             this.input.enable();
             this.dialogRef.disableClose = false;
