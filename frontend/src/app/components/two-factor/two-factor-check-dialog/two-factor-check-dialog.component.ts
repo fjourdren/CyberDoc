@@ -16,8 +16,9 @@ export class TwoFactorCheckDialogComponent {
     user;
     twoFactorType;
     twoFactorForm = this.fb.group({
-        token: [null, Validators.required]
+        token: [null, [Validators.required, Validators.pattern('^[0-9]{6}$')]]
     });
+    loading = false;
     private jwtHelper = new JwtHelperService();
 
     constructor(private fb: FormBuilder,
@@ -37,18 +38,35 @@ export class TwoFactorCheckDialogComponent {
         if (this.twoFactorForm.invalid) {
             return;
         }
+        this.loading = true;
         switch (this.twoFactorType) {
             case 'app':
                 this.twoFactorServiceProvider.default().verifyTokenByApp(this.user.secret,
                     this.twoFactorForm.get('token').value).toPromise().then(() => {
+                    this.loading = false;
                     this.twoFactorDialog.close(true);
-                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 2500}));
+                }).catch(err => {
+                    this.loading = false;
+                    if (err.status === 403) {
+                        this.snackBar.open(err.error.msg, null, {duration: 2500});
+                    } else {
+                        throw(err);
+                    }
+                });
                 break;
             case 'sms':
                 this.twoFactorServiceProvider.default().verifyTokenBySms(this.user.phoneNumber,
                     this.twoFactorForm.get('token').value).toPromise().then(() => {
+                    this.loading = false;
                     this.twoFactorDialog.close(true);
-                }).catch(err => this.snackBar.open(err.error.msg, null, {duration: 2500}));
+                }).catch(err => {
+                    this.loading = false;
+                    if (err.status === 403) {
+                        this.snackBar.open(err.error.msg, null, {duration: 2500});
+                    } else {
+                        throw(err);
+                    }
+                });
                 break;
         }
     }
