@@ -37,3 +37,8 @@ table {
     width: 100%;
   }
   
+.error-txt {
+    color: red;
+    font-weight: bold;
+    padding-bottom: 12px;
+}

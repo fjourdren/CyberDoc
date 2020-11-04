@@ -168,7 +168,7 @@ export class SettingsSecurityComponent implements OnInit {
 
     // Dialogs Devices
 
-    renameDevices(name: string): void {
+    renameDevice(name: string): void {
         let refDialog: MatDialogRef<any>;
         refDialog = this.dialog.open(SettingsSecurityDevicesDialogComponent, {
             width: '500px',
@@ -375,11 +375,12 @@ export class SettingsSecurityDialogComponent implements OnInit {
 @Component({
     selector: 'app-settings-security-devices-dialog',
     templateUrl: 'settings-security-devices-dialog.component.html',
+    styleUrls: ['./settings-security.component.css']
 })
 export class SettingsSecurityDevicesDialogComponent {
-
+    nameAlreadyChoose = false;
     loading = false;
-    input = new FormControl('', [Validators.required]);
+    input = new FormControl('', [Validators.required, this.noWhitespaceValidator]);
     @ViewChild('inputElement') inputElement: ElementRef<HTMLInputElement>;
 
     constructor(public dialogRef: MatDialogRef<SettingsSecurityDevicesDialogComponent>,
@@ -395,7 +396,11 @@ export class SettingsSecurityDevicesDialogComponent {
         }
     }
 
-    
+    noWhitespaceValidator(control: FormControl) {
+        const isWhitespace = (control.value || '').trim().length === 0;
+        const isValid = !isWhitespace;
+        return isValid ? null : { 'whitespace': true };
+    }
 
     onRenameBtnClicked() {
         if (!this.input.value) { return; }
@@ -408,6 +413,10 @@ export class SettingsSecurityDevicesDialogComponent {
             this.input.enable();
             this.dialogRef.disableClose = false;
             this.dialogRef.close(true);
+        }, error => {
+            this.loading = false;
+            this.nameAlreadyChoose = true;
+            this.input.enable();
         })
     }
 
