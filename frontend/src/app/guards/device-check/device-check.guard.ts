@@ -31,7 +31,8 @@ export class DeviceCheckGuard implements CanActivate {
             return true;
           }
         }
-        return this.router.parseUrl('/device');
+        this.router.parseUrl('/device');
+        return false;
       });
   }
 

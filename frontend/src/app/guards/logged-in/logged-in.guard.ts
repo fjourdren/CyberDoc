@@ -19,7 +19,8 @@ export class LoggedInGuard implements CanActivate {
         if (this.userServiceProvider.default().getActiveUser()) {
             return true;
         } else {
-            return this.router.parseUrl('/login');
+            this.router.parseUrl('/login');
+            return false;
         }
     }
 }
