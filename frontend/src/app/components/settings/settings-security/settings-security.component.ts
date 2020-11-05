@@ -1,15 +1,12 @@
-import { Component, ElementRef, HostListener, Inject, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { MustMatch } from './_helpers/must-match.validator';
 import { SecurityCheckDialogComponent } from '../../security-check-dialog/security-check-dialog.component';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
-
-export interface DialogDevicesData {
-    name: string;
-}
+import { SettingsRenameDeviceDialogComponent } from '../settings-rename-device-dialog/settings-rename-device-dialog.component';
 
 @Component({
     selector: 'app-settings-security',
@@ -33,7 +30,6 @@ export class SettingsSecurityComponent {
 
     // Table
     displayedColumns: string[] = ['name', 'browser', 'OS', 'rename'];
-    //dataSource: RespondShare[];
     dataSource = new MatTableDataSource([]);
 
     constructor(private userServiceProvider: UserServiceProvider,
@@ -85,8 +81,8 @@ export class SettingsSecurityComponent {
     }
 
     renameDevice(name: string): void {
-        const refDialog = this.dialog.open(SettingsSecurityDevicesDialogComponent, {
-            width: '500px',
+        const refDialog = this.dialog.open(SettingsRenameDeviceDialogComponent, {
+            width: '400px',
             data: {
                 'name': name
             }
@@ -100,58 +96,5 @@ export class SettingsSecurityComponent {
         this.userServiceProvider.default().getUserDevices().toPromise().then((value) => {
             this.dataSource.data = value;
         });
-      }
-}
-
-@Component({
-    selector: 'app-settings-security-devices-dialog',
-    templateUrl: 'settings-security-devices-dialog.component.html',
-    styleUrls: []
-})
-export class SettingsSecurityDevicesDialogComponent {
-    nameAlreadyChoose = false;
-    loading = false;
-    input = new FormControl('', [Validators.required, this.noWhitespaceValidator]);
-    @ViewChild('inputElement') inputElement: ElementRef<HTMLInputElement>;
-
-    constructor(public dialogRef: MatDialogRef<SettingsSecurityDevicesDialogComponent>,
-        private UserProvider: UserServiceProvider,
-        @Inject(MAT_DIALOG_DATA) public data: DialogDevicesData) {
-        this.input.setValue(this.data.name);
-    }
-
-    @HostListener("keydown", ['$event'])
-    onKeyDown(evt: KeyboardEvent) {
-        if (evt.key === "Enter") {
-            this.onRenameBtnClicked();
-        }
-    }
-
-    noWhitespaceValidator(control: FormControl) {
-        const isWhitespace = (control.value || '').trim().length === 0;
-        const isValid = !isWhitespace;
-        return isValid ? null : { 'whitespace': true };
-    }
-
-    onRenameBtnClicked() {
-        if (!this.input.value) { return; }
-
-        this.loading = true;
-        this.input.disable();
-        this.dialogRef.disableClose = true;
-        this.UserProvider.default().renameUserDevice(this.data.name, this.input.value).toPromise().then(() => {
-            this.loading = false;
-            this.input.enable();
-            this.dialogRef.disableClose = false;
-            this.dialogRef.close(true);
-        }, error => {
-            this.loading = false;
-            this.nameAlreadyChoose = true;
-            this.input.enable();
-        })
-    }
-
-    onCancelBtnClicked() {
-        this.dialogRef.close(false);
     }
 }
