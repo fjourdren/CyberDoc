@@ -19,9 +19,7 @@ const phoneNumberUtil = PhoneNumberUtil.getInstance();
 })
 export class TwoFactorEditDialogComponent implements AfterViewInit {
 
-    isSmartphoneOrTablet = 'ontouchstart';
-    in;
-    window;
+    isSmartphoneOrTablet = 'ontouchstart' in window;
     loading = false;
     allCountries = __allCountries;
 
