@@ -6,10 +6,12 @@ import AuthMiddleware from '../../middlewares/AuthMiddleware';
 
 const UserRouter = Router();
 
+// profile
 UserRouter.get('/profile', AuthMiddleware.isAuthenticate, UserController.profile);
 UserRouter.post('/profile', AuthMiddleware.isAuthenticateOrEditToken, UserController.settings);
 UserRouter.delete('/profile', AuthMiddleware.isAuthenticate, UserController.delete);
 
+// tag management
 UserRouter.post('/tags', AuthMiddleware.isAuthenticate, UserTagController.create);
 UserRouter.patch('/tags/:tagId', AuthMiddleware.isAuthenticate, UserTagController.edit);
 UserRouter.delete('/tags/:tagId', AuthMiddleware.isAuthenticate, UserTagController.delete);
