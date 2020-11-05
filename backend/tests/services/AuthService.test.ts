@@ -24,21 +24,34 @@ afterEach(async () => await dbHandler.clearDatabase());
  */
 afterAll(async () => await dbHandler.closeDatabase());
 
-describe('Testing AuthService tag', () => {
+describe('Testing AuthService', () => {
+
+    let spyJwtSign = jest.spyOn(jwt, 'sign').mockImplementation((user = mockClass.User) => {
+        return { token: true };
+    });
+
+    let spyRequireNonNull = jest.spyOn(D, 'requireNonNull').mockImplementationOnce( () => {
+        return true;
+    });
 
     describe('generateJWTToken', () => {
 
-        const spyJwtSign = jest.spyOn(jwt, 'sign').mockImplementationOnce((user = mockClass.User, token = "test") => {
-            return { token: true };
+        it('pass with authorized true', () => {
+            
+            const result: any = AuthService.generateJWTToken(mockClass.User, true);
+            expect(spyJwtSign).toHaveBeenCalledTimes(1);
+            expect(result.token).toBe(true);
+            spyJwtSign.mockClear();
+
         });
 
-        it('pass', () => {
-            
-            const result: any = AuthService.generateJWTToken(mockClass.User);
+        it('pass with authorized false', () => {
 
+            const result: any = AuthService.generateJWTToken(mockClass.User, true);
             expect(spyJwtSign).toHaveBeenCalledTimes(1);
-            expect(result.token).toBe(true)
-       });
+            expect(result.token).toBe(true);
+            spyJwtSign.mockClear();
+        });
         
     });
 
@@ -52,19 +65,12 @@ describe('Testing AuthService tag', () => {
 
         it('should pass', async () => {
 
-            const spyRequireNonNull = jest.spyOn(D, 'requireNonNull').mockImplementationOnce( () => {
-                return true;
-            });
-
             const l = await AuthService.signup(firstname, lastname, email, password, role);
             expect(spyRequireNonNull).toHaveBeenCalledTimes(2);
+            spyRequireNonNull.mockClear();
         });
 
         it('should not pass because firstname is undefined', async () => {
-
-            const spyRequireNonNull = jest.spyOn(D, 'requireNonNull').mockImplementationOnce( () => {
-                return true;
-            });
 
             let firstname = '';
             try{
@@ -72,7 +78,8 @@ describe('Testing AuthService tag', () => {
             } catch(e) {
                 expect(e.errors.firstname.properties.message).toBe("Path `firstname` is required.");
             }
-            expect(spyRequireNonNull).toHaveBeenCalledTimes(2);
+            expect(spyRequireNonNull).toHaveBeenCalledTimes(0);
+            spyRequireNonNull.mockClear();
         });
 
         it('should not pass because email is not unique in the database', async () => {
@@ -113,7 +120,8 @@ describe('Testing AuthService tag', () => {
             expect(spygenerateJWTToken).toHaveBeenCalled();
         });
 
-        it('should not login : invalid email', async () => {
+        it('should not login : invalid credentials', async () => {
+
             let E: any;
             const token = await AuthService.signup(firstname, lastname, email, password, role);
 
@@ -127,12 +135,13 @@ describe('Testing AuthService tag', () => {
                 E = e;
             }
          
-            expect(E.message).toBe("Internal Error");
-            expect(E.statusCode).toBe(500);
+            expect(E.message).toBe("Invalid credentials");
+            expect(E.statusCode).toBe(401);
             expect(spygenerateJWTToken).toHaveBeenCalled();
         });
 
         it('should not login : invalid password', async () => {
+
             let E: any;
             
             // Add of the user in the mongodb to make login test afterward
@@ -156,6 +165,7 @@ describe('Testing AuthService tag', () => {
     });
 
     describe('forgottenPassword', () => {
+
         let email = mockClass.User.email;
         
         it('should pass', async () => {
@@ -177,18 +187,23 @@ describe('Testing AuthService tag', () => {
             expect(spyMailer).toHaveBeenCalled();
         });
 
-        it('should not pass : invalid mail', async () => {
+        it('unvalid email : should not trigger password recovery process', async () => {
             let E: any;
-
+            const spyJwtVerify = jest.spyOn(jwt, 'sign').mockImplementation(()=>{
+                return "token";
+            });
             try{
-                await AuthService.forgottenPassword("testail");
+              await AuthService.forgottenPassword("unexisting_email@undefined.com");
             } catch(e) {
-                E=e;
+                E = e;
             }
-
+            
             expect(E.statusCode).toEqual(500);
             expect(E.message).toEqual('Internal Error');
         });
+
+
+
 
     });
     

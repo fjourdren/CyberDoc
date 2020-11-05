@@ -15,9 +15,9 @@ describe('ErrorCatcherMiddleware', () => {
             try{
                 await ErrorCatcherMiddleware.logErrorHandler(err, req, res, next);
             } catch(e) {
-                console.log(e);
-                console.log(e.error);
-                console.log(e.message);
+                // console.log(e);
+                // console.log(e.error);
+                // console.log(e.message);
                 E = e;
             }
             // expect(E).toBe("error test");

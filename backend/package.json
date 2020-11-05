@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "main": "server.js",
   "scripts": {
-    "test": "jest --forceExit --coverage --runInBand --verbose",
+    "test": "jest --forceExit --coverage=true --runInBand --verbose=false",
     "tsc": "tsc",
     "build": "tsc && npm run sonarqube",
     "clean": "rm -rf dist",

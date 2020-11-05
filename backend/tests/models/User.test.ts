@@ -5,6 +5,7 @@ const dbHandler = require('../db_handler.js');
 import * as u from '../../src/models/User';
 
 import { FileType, IFile, File } from '../../src/models/File';
+import mockClass from '../../src/__mocks__/mockHelpers/class'
 
 /**
  * Connect to a new in-memory database before running any tests.
@@ -20,30 +21,14 @@ afterEach(async () => await dbHandler.clearDatabase());
  * Remove and close the db and server.
  */
 afterAll(async () => await dbHandler.closeDatabase());
-
+// TODO test phone number
 describe('Testing User.ts file', () => {
-    let user: u.IUser = new u.User();
-    user._id       = Guid.raw()
-    user.firstname = "test";
-    user.lastname  = "fromFulgen";
-    user.email     = "test.fromFulgen@gmail.com";
-    user.password  = "password123PASSWORD@!?";
-    user.role      = u.Role.COLLABORATER;
 
-    let root_user_dir: IFile = new File();
-    root_user_dir._id = Guid.raw();
-    root_user_dir.type = FileType.DIRECTORY;
-    root_user_dir.mimetype = "application/x-dir"
-    root_user_dir.name = "My safebox";
-    root_user_dir.owner_id = user._id;
-    root_user_dir.tags = [];
-
-    user.directory_id = root_user_dir._id;
 
     it('enum role', () => {
         let role = u.Role;
         expect(role.OWNER).toStrictEqual("owner");
-        expect(role.COLLABORATER).toStrictEqual("collaborater");
+        expect(role.COLLABORATOR).toStrictEqual("collaborator");
         let key_cpt = Object.keys(role).length;
         expect(key_cpt).toStrictEqual(2)
     });
@@ -51,8 +36,8 @@ describe('Testing User.ts file', () => {
     
     it('should create a User', async () => {
         
-        const insertion = await u.User.create(user);
-        expect(insertion.role).toBe('collaborater');
+        const insertion = await u.User.create(mockClass.User);
+        expect(insertion.role).toBe('collaborator');
         expect(insertion.updated_at).toBeInstanceOf(Date);
         expect(insertion.created_at).toBeInstanceOf(Date);
         expect(insertion._id).toHaveLength(36);
@@ -63,6 +48,11 @@ describe('Testing User.ts file', () => {
         expect(insertion.password).not.toBe('password123PASSWORD@!?');
         expect(insertion.directory_id);
         expect(insertion.__v);
+        expect(insertion.phoneNumber).toBe("+33660571778");
+        expect(insertion.secret).toBe("JL5QH7CTHVIFXWU6S4TREV7BTMXCMTYK");
+        expect(insertion.twoFactorApp).toBe(false);
+        expect(insertion.twoFactorSms).toBe(false);
+        expect(insertion.twoFactorEmail).toBe(false);
 
         const getter = await u.User.find();
 
@@ -83,51 +73,48 @@ describe('Testing User.ts file', () => {
 
     it('should return that password is illegal', async () => {
         
-        user.password  = "abc";
+        mockClass.User.password  = "abc";
         let E:any;
         try{
-            await u.User.create(user);
+            await u.User.create(mockClass.User);
         } catch(e){
             E = e;            
-            // console.log(e.errors)
-            // console.log(e.errors.password)
-            // console.log(e.errors.password.properties)
         }
 
-        expect(E.errors.password.properties.message).toStrictEqual("Password doesn't respect the required format");
+        expect(E.errors.password.properties.message).toStrictEqual("Validator failed for path `password` with value `abc`");
         expect(E.errors.password.properties.type).toStrictEqual("user defined");
         expect(E.errors.password.properties.path).toStrictEqual("password");
 
-        user.password  = "abcdefghijklm";
+        mockClass.User.password  = "abcdefghijklm";
         try{
-            await u.User.create(user);
+            await u.User.create(mockClass.User);
         } catch(e){
             E = e;            
         }
 
-        expect(E.errors.password.properties.message).toStrictEqual("Password doesn't respect the required format");
+        expect(E.errors.password.properties.message).toStrictEqual("Validator failed for path `password` with value `abcdefghijklm`");
         expect(E.errors.password.properties.type).toStrictEqual("user defined");
         expect(E.errors.password.properties.path).toStrictEqual("password");
 
-        user.password  = "abcdefghijklm@!?";
+        mockClass.User.password  = "abcdefghijklm@!?";
         try{
-            await u.User.create(user);
+            await u.User.create(mockClass.User);
         } catch(e){
             E = e;            
         }
 
-        expect(E.errors.password.properties.message).toStrictEqual("Password doesn't respect the required format");
+        expect(E.errors.password.properties.message).toStrictEqual("Validator failed for path `password` with value `abcdefghijklm@!?`");
         expect(E.errors.password.properties.type).toStrictEqual("user defined");
         expect(E.errors.password.properties.path).toStrictEqual("password");
 
-        user.password  = "abcdefghijklm@!?AA";
+        mockClass.User.password  = "abcdefghijklm@!?AA";
         try{
-            await u.User.create(user);
+            await u.User.create(mockClass.User);
         } catch(e){
             E = e;            
         }
 
-        expect(E.errors.password.properties.message).toStrictEqual("Password doesn't respect the required format");
+        expect(E.errors.password.properties.message).toStrictEqual("Validator failed for path `password` with value `abcdefghijklm@!?AA`");
         expect(E.errors.password.properties.type).toStrictEqual("user defined");
         expect(E.errors.password.properties.path).toStrictEqual("password");
 

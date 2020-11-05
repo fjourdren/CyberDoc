@@ -40,7 +40,6 @@ class UserService {
         if (twoFactorEmail != undefined)
             user.twoFactorEmail = twoFactorEmail;
 
-        console.log(requireNonNull)
         user = requireNonNull(await user.save());
 
         const newToken = AuthService.generateJWTToken(user, true);
