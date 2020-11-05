@@ -1,5 +1,5 @@
 <mat-toolbar color="primary">
-    <button mat-icon-button (click)="menuButtonClicked.emit()">
+    <button *ngIf="!hideMenuButton" mat-icon-button (click)="menuButtonClicked.emit()">
         <mat-icon>menu</mat-icon>
     </button>
     <a id="app-name-icon-container"  *ngIf="!hideAppName" [routerLink]="['/files']">
