@@ -14,6 +14,8 @@ import { Readable } from 'stream';
 /**
  * === TODO ===
  * XT register: generate user public & private key
+ * Export
+ * Import
  * XT send user token to
  *      XT File download
  *      XT file upload
@@ -23,6 +25,7 @@ import { Readable } from 'stream';
  *      XT export pdf
  *      XT download
  *      X sharing
+ *      X change profile
  * 
  * 
  * X change email & password

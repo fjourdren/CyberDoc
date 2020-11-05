@@ -517,7 +517,7 @@ class FileController {
         return requireNonNull(res.locals.APP_JWT_TOKEN.user, HttpCodes.UNAUTHORIZED, "Auth is missing or invalid");
     }
 
-    private static _requireFile(req: Request, fieldName: string): Express.Multer.File {
+    public static _requireFile(req: Request, fieldName: string): Express.Multer.File {
         let file: Express.Multer.File | null = null;
         if (req.files) {
             for (file of (req.files as Express.Multer.File[])) {

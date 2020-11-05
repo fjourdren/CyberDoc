@@ -30,7 +30,7 @@ paths:
                 - name
                 - mimetype
                 - folderID
-                - user_enpryption_key
+                - user_hash
               properties:
                 upfile:
                   description: File to upload, `null` to create a directory
@@ -48,7 +48,7 @@ paths:
                   description: ID of the folder which will contains the new file
                   type: string
                   example: <folder UUID>
-                user_enpryption_key:
+                user_hash:
                   example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
                   type: string
       responses:
@@ -179,7 +179,7 @@ paths:
             schema:
               type: object
               properties:
-                user_enpryption_key:
+                user_hash:
                   example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
                   type: string
       parameters:
@@ -256,13 +256,13 @@ paths:
               type: object
               required:
                 - upfile
-                - user_enpryption_key
+                - user_hash
               properties:
                 upfile:
                   description: File to upload
                   type: string
                   format: binary
-                user_enpryption_key:
+                user_hash:
                   example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
                   type: string
       responses:
@@ -503,9 +503,9 @@ paths:
             schema:
               type: object
               required:
-                - user_enpryption_key
+                - user_hash
               properties:
-                user_enpryption_key:
+                user_hash:
                   example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
                   type: string
       parameters:
@@ -679,9 +679,9 @@ paths:
             schema:
               type: object
               required:
-                - user_enpryption_key
+                - user_hash
               properties:
-                user_enpryption_key:
+                user_hash:
                   example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
                   type: string
       parameters:
@@ -742,9 +742,9 @@ paths:
             schema:
               type: object
               required:
-                - user_enpryption_key
+                - user_hash
               properties:
-                user_enpryption_key:
+                user_hash:
                   example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
                   type: string
       parameters:
@@ -926,13 +926,13 @@ paths:
             schema:
               required:
                 - email
-                - user_enpryption_key
+                - user_hash
               type: object
               properties:
                 email:
                   type: string
                   format: email
-                user_enpryption_key:
+                user_hash:
                   example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
                   type: string
       responses:
@@ -984,9 +984,9 @@ paths:
             schema:
               type: object
               required:
-                - user_enpryption_key
+                - user_hash
               properties:
-                user_enpryption_key:
+                user_hash:
                   example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
                   type: string
       parameters:
@@ -1097,7 +1097,7 @@ components:
       type: object
       required:
         - destID
-        - user_enpryption_key
+        - user_hash
       properties:
         copyFileName:
           type: string
@@ -1108,7 +1108,7 @@ components:
           format: uuid
           example: 9b81d950-b605-471f-a654-4fffba6bcfc5
           description: ID of the destination directory
-        user_enpryption_key:
+        user_hash:
           example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
           type: string
 
