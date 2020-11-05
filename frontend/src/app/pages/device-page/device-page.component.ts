@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { UserServiceProvider } from '../../services/users/user-service-provider'
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Device } from 'src/app/models/users-api-models';
-import { element } from 'protractor';
-import {UAParser} from 'ua-parser-js';
+import { UAParser } from 'ua-parser-js';
 
 @Component({
   selector: 'app-device-page',
@@ -13,46 +12,50 @@ import {UAParser} from 'ua-parser-js';
   styleUrls: ['./device-page.component.scss']
 })
 
-export class DevicePageComponent implements OnInit {
+export class DevicePageComponent {
   newDeviceForm = this.fb.group({
-    name: [null, Validators.required],
+    name: [null, [Validators.required, this.noWhitespaceValidator]],
   });
 
-
-  genericError = false;
   nameAlreadyChoose = false;
-  private device: Device;
-  parser:any;
+  loading = false;
+  parser = new UAParser();
 
   constructor(private fb: FormBuilder,
     private userServiceProvider: UserServiceProvider,
-    private router: Router) {
-      
-    }
-
-  ngOnInit() {
-    this.parser = new UAParser();
-  }
+    private router: Router) { }
 
   onSubmit() {
     if (this.newDeviceForm.invalid) {
       return;
     }
 
- 
-    this.genericError = false;
     this.newDeviceForm.get("name").disable();
-    const OS=this.parser.getDevice().model+" "+this.parser.getOS().name;
-    this.userServiceProvider.default().createUserDevice(this.newDeviceForm.controls.name.value, this.parser.getBrowser().name, OS).toPromise().then(value => {
+    this.nameAlreadyChoose = false;
+    this.loading = true;
+
+    let os = this.parser.getOS().name;
+    if (this.parser.getDevice().model) {
+      os = `${this.parser.getDevice().model} ${os}`;
+    }
+
+    this.userServiceProvider.default().createUserDevice(this.newDeviceForm.controls.name.value, this.parser.getBrowser().name, os).toPromise().then(value => {
       this.router.navigate(['/files']);
     }, error => {
-      this.newDeviceForm.get("name").enable();  
+      this.newDeviceForm.get("name").enable();
+      this.loading = false;
       if (error instanceof HttpErrorResponse && error.status === 400) {
         this.nameAlreadyChoose = true;
-    } else {
-        this.genericError = true;
-    }
+      } else {
+        throw error;
+      }
     });
+  }
+
+  noWhitespaceValidator(control: FormControl) {
+    const isWhitespace = (control.value || '').trim().length === 0;
+    const isValid = !isWhitespace;
+    return isValid ? null : { 'whitespace': true };
   }
 }
 
