@@ -14,6 +14,7 @@ export class TwoFactorGuard implements CanActivate {
     canActivate(
         route: ActivatedRouteSnapshot,
         state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+        if (!this.userServiceProvider.default().getActiveUser()) return false;
 
         if (this.userServiceProvider.default().getActiveUser().twoFactorApp ||
             this.userServiceProvider.default().getActiveUser().twoFactorSms ||

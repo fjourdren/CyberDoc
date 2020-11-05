@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { Device } from 'src/app/models/users-api-models';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
-import {UAParser} from 'ua-parser-js';
+import { UAParser } from 'ua-parser-js';
 
 @Injectable({
   providedIn: 'root'
@@ -11,29 +10,27 @@ import {UAParser} from 'ua-parser-js';
 export class DeviceGuard implements CanActivate {
   constructor(private userServiceProvider: UserServiceProvider,
     private router: Router) {
-    }
+  }
 
-    private device: Device;
-    private resultat: Device[];
-    
-    
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-      return this.userServiceProvider.default().getUserDevices().toPromise().then(result => {  
-        const parser = new UAParser();
-        this.resultat= result;
-        
-        for(this.device of result){
-          const OS=parser.getDevice().model+" "+parser.getOS().name;
-          if(this.device.OS===OS && this.device.browser===parser.getBrowser().name){
-            return this.router.parseUrl('/files');
-          }
-        }
-        return true;
-      });
+    if (!this.userServiceProvider.default().getActiveUser()) return false;
 
-    
-  }
+    return this.userServiceProvider.default().getUserDevices().toPromise().then(devices => {
+      const parser = new UAParser();
+      let os = parser.getOS().name;
+      if (parser.getDevice().model) {
+        os = `${parser.getDevice().model} ${os}`;
+      }
   
+      for (const device of devices) {
+        if (device.OS === os && device.browser === parser.getBrowser().name) {
+          return this.router.parseUrl('/files');
+        }
+      }
+      return true;
+    });
+  }
+
 }
