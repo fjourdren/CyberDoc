@@ -97,6 +97,10 @@ export const UserSchema = new mongoose.Schema({
         tags: {
             type: [Tag.schema]
         },
+        devices: {
+            type: [Device.schema],
+            default: []
+        },
         updated_at: {
             type: Date,
             default: new Date().getTime()
