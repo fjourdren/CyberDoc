@@ -52,7 +52,7 @@
                                  [currentDirectoryID]="currentDirectory && currentDirectory._id"
                                  [currentDirectory]="!searchMode && !sharedWithMeMode && currentDirectory"
                                  [items]="currentDirectory && currentDirectory.directoryContent"
-                                 [selectedNode]="selectedNode"
+                                 [(selectedNode)]="selectedNode"
                                  (openButtonClicked)="openButtonClicked($event)"
                                  (detailsButtonClicked)="fileDetailDrawer.open()">
         </app-files-generic-table>
