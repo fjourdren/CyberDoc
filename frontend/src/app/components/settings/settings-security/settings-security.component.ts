@@ -1,22 +1,22 @@
-import { Component } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
-import { MustMatch } from './_helpers/must-match.validator';
-import { SecurityCheckDialogComponent } from '../../security-check-dialog/security-check-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { MatTableDataSource } from '@angular/material/table';
-import { SettingsRenameDeviceDialogComponent } from '../settings-rename-device-dialog/settings-rename-device-dialog.component';
+import {Component} from '@angular/core';
+import {AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators} from '@angular/forms';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
+import {MustMatch} from './_helpers/must-match.validator';
+import {SecurityCheckDialogComponent} from '../../security-check-dialog/security-check-dialog.component';
+import {MatDialog} from '@angular/material/dialog';
+import {MatTableDataSource} from '@angular/material/table';
+import {SettingsRenameDeviceDialogComponent} from '../settings-rename-device-dialog/settings-rename-device-dialog.component';
 
 function passwordValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
         const password = control.value;
 
-        if (!password) return {passwordValidator: {invalid: true}};
-        if (!password.match(/[A-Z]/g)) return {passwordValidator: {invalid: true}};
-        if (!password.match(/[a-z]/g)) return {passwordValidator: {invalid: true}};
-        if (!password.match(/[0-9]/g)) return {passwordValidator: {invalid: true}};
-        if (!password.replace(/[0-9a-zA-Z ]/g, "").length) return {passwordValidator: {invalid: true}};
+        if (!password) { return {passwordValidator: {invalid: true}}; }
+        if (!password.match(/[A-Z]/g)) { return {passwordValidator: {invalid: true}}; }
+        if (!password.match(/[a-z]/g)) { return {passwordValidator: {invalid: true}}; }
+        if (!password.match(/[0-9]/g)) { return {passwordValidator: {invalid: true}}; }
+        if (!password.replace(/[0-9a-zA-Z ]/g, '').length) { return {passwordValidator: {invalid: true}}; }
 
         return null;
     };
@@ -45,13 +45,9 @@ export class SettingsSecurityComponent {
     dataSource = new MatTableDataSource([]);
 
     constructor(private userServiceProvider: UserServiceProvider,
-        private fb: FormBuilder,
-        private snackBar: MatSnackBar,
-        private dialog: MatDialog) {
-    }
-
-
-    ngOnInit(): void {
+                private fb: FormBuilder,
+                private snackBar: MatSnackBar,
+                private dialog: MatDialog) {
         this.refreshDevice();
 
         this.passwordForm = this.fb.group({
@@ -71,11 +67,12 @@ export class SettingsSecurityComponent {
         this.loading = true;
         this.dialog.open(SecurityCheckDialogComponent, {
             maxWidth: '500px'
-        }).afterClosed().subscribe(isPasswordAndTwoFactorVerified => {
-            if (isPasswordAndTwoFactorVerified) {
+        }).afterClosed().subscribe(xAuthTokenArray => {
+            if (xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
                 this.userServiceProvider.default().updatePassword(
-                    this.passwordForm.get('newPassword').value,
-                    this.userServiceProvider.default().getActiveUser().email
+                    xAuthTokenArray[0],
+                    xAuthTokenArray[1],
+                    xAuthTokenArray[2]
                 ).toPromise().then(() => {
                     this.loading = false;
                     this.snackBar.dismiss();
@@ -96,7 +93,7 @@ export class SettingsSecurityComponent {
         const refDialog = this.dialog.open(SettingsRenameDeviceDialogComponent, {
             width: '400px',
             data: {
-                'name': name
+                name: name
             }
         });
         refDialog.afterClosed().toPromise().then(() => {

@@ -31,7 +31,7 @@ class UserController {
                 const user_email = res.locals.APP_JWT_TOKEN.email;
                 const user: IUser = requireNonNull(await User.findOne({ email: user_email.toLowerCase() }).exec());
 
-                requireNonNull(await UserService.updateProfile(user._id, undefined, undefined, undefined, password, undefined, undefined,undefined, undefined));
+                requireNonNull(await UserService.updateProfile(user._id, undefined, undefined, undefined, undefined, password, undefined, undefined, undefined, undefined));
 
                 res.status(HttpCodes.OK);
                 res.json({
@@ -40,7 +40,7 @@ class UserController {
                 });
             } else {
                 const user_id = res.locals.APP_JWT_TOKEN.user._id;
-                const output: Record<string, IUser | string> = requireNonNull(await UserService.updateProfile(user_id, firstname, lastname, email, password, phoneNumber, secret, twoFactorApp, twoFactorSms));
+                const output: Record<string, IUser | string> = requireNonNull(await UserService.updateProfile(user_id, req.header('x-auth-token'), firstname, lastname, email, password, phoneNumber, secret, twoFactorApp, twoFactorSms));
                 res.status(HttpCodes.OK);
                 res.json({
                     success: true,

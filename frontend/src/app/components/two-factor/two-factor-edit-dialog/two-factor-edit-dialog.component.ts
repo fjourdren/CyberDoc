@@ -19,7 +19,7 @@ const phoneNumberUtil = PhoneNumberUtil.getInstance();
 })
 export class TwoFactorEditDialogComponent implements AfterViewInit {
 
-    isSmartphoneOrTablet = 'ontouchstart' in window;
+    isSmartphoneOrTablet = ('ontouchstart' in window);
     loading = false;
     allCountries = __allCountries;
 
@@ -219,24 +219,12 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
     private async _update2FAWithApp(): Promise<void> {
         const currentUser = this.userServiceProvider.default().getActiveUser();
         await this.twoFAServiceProvider.default().verifyTokenByApp(this.tokenForm.get('token').value).toPromise();
-
-        await this.userServiceProvider.default().updateTwoFactor(
-            true, /*twoFactorApp*/
-            currentUser.twoFactorSms
-        ).toPromise();
-
-        await this.userServiceProvider.default().updateSecret(this.qrSecret).toPromise();
+        await this.userServiceProvider.default().updateTwoFactor(true, currentUser.twoFactorSms, this.qrSecret).toPromise();
     }
 
     private async _update2FAWithSMS(): Promise<void> {
         const currentUser = this.userServiceProvider.default().getActiveUser();
         await this.twoFAServiceProvider.default().verifyTokenBySms(this.tokenForm.get('token').value).toPromise();
-
-        await this.userServiceProvider.default().updateTwoFactor(
-            currentUser.twoFactorApp,
-            true /*twoFactorSms*/
-        ).toPromise();
-
-        await this.userServiceProvider.default().updatePhoneNumber(this.validPhoneNumber).toPromise();
+        await this.userServiceProvider.default().updateTwoFactor(currentUser.twoFactorApp, true, this.validPhoneNumber).toPromise();
     }
 }

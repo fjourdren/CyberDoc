@@ -31,14 +31,22 @@ export class SecurityCheckDialogComponent implements OnInit {
         if (this.passwordForm.invalid) {
             return;
         }
-        this.userServiceProvider.default().validatePassword(this.passwordForm.get('password').value).toPromise().then(isPasswordVerified => {
+        const password: string = this.passwordForm.get('password').value;
+        this.userServiceProvider.default().validatePassword(password).toPromise().then(isPasswordVerified => {
             if (isPasswordVerified) {
                 this.dialog.open(TwoFactorCheckDialogComponent, {
                     maxWidth: '500px'
-                }).afterClosed().subscribe(isTwoFactorVerified => {
-                    if (isTwoFactorVerified) {
-                        this.verifyPasswordDialog.close(true);
+                }).afterClosed().subscribe(twoFactorTypeAndToken => {
+                    const twoFactorTypeAndTokenArray = twoFactorTypeAndToken.split(':');
+                    const xAuthTokenArray = [password];
+                    if (twoFactorTypeAndTokenArray[0]
+                        && (twoFactorTypeAndTokenArray[0] === 'app' || twoFactorTypeAndTokenArray[0] === 'sms')) {
+                        xAuthTokenArray.push(twoFactorTypeAndTokenArray[0]);
                     }
+                    if (twoFactorTypeAndTokenArray[1] && twoFactorTypeAndTokenArray[1].length === 6) {
+                        xAuthTokenArray.push(twoFactorTypeAndTokenArray[1]);
+                    }
+                    this.verifyPasswordDialog.close(xAuthTokenArray);
                 });
             }
         }).catch(err => {

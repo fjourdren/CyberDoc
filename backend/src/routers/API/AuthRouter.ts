@@ -8,7 +8,6 @@ const AuthRouter = Router();
 AuthRouter.post('/signup', AuthMiddleware.isntAuthenticate, AuthController.signup);
 AuthRouter.post('/signin', AuthMiddleware.isntAuthenticate, AuthController.signIn);
 AuthRouter.post('/validatepassword', AuthMiddleware.isAuthenticate, AuthController.validatePassword);
-AuthRouter.get('/securitycheck', AuthMiddleware.isAuthenticate, AuthController.isPasswordAndTwoFactorValid);
 AuthRouter.post('/forgottenpassword', AuthMiddleware.isntAuthenticate, AuthController.forgottenPassword);
 
 export default AuthRouter;
