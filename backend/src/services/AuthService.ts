@@ -9,6 +9,7 @@ import {requireNonNull} from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
 import Mailer from '../helpers/Mailer';
+import TwoFactorAuthService from './TwoFactorAuthService';
 
 class AuthService {
 

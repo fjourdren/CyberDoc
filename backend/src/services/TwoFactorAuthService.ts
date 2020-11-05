@@ -27,11 +27,16 @@ class TwoFactorAuthService {
      * @param token
      */
     public static async verifySMSToken(phoneNumber: string, token: string): Promise<VerificationCheckInstance> {
-        return TwoFactorAuthService.client.verify.services(process.env.TWILIO_SERVICE_ID)
+        const verificationInstance = await TwoFactorAuthService.client.verify.services(process.env.TWILIO_SERVICE_ID)
             .verificationChecks
             .create({to: phoneNumber, code: token}).then(res => {
                 return res;
             });
+        if(verificationInstance.status !== 'approved') {
+            throw new HTTPError(HttpCodes.FORBIDDEN, 'Invalid token');
+        }
+
+        return verificationInstance;
     }
 
     public static async generateSecretByEmail(email: string): Promise<any> {
