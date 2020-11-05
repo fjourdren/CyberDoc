@@ -58,24 +58,20 @@ class TwoFactorAuthController {
             const {token} = req.body;
             requireNonNull(token);
 
-            const verificationInstance = await TwoFactorAuthService.verifySMSToken(res.locals.APP_JWT_TOKEN.user.phoneNumber, token);
+            await TwoFactorAuthService.verifySMSToken(res.locals.APP_JWT_TOKEN.user.phoneNumber, token);
 
-            if (verificationInstance.status === 'approved') {
-                const jwtToken = jwt.sign({
-                    user: res.locals.APP_JWT_TOKEN.user,
-                    authorized: true
-                }, process.env.JWT_SECRET, {
-                    expiresIn: 36000
-                });
+            const jwtToken = jwt.sign({
+                user: res.locals.APP_JWT_TOKEN.user,
+                authorized: true
+            }, process.env.JWT_SECRET, {
+                expiresIn: 36000
+            });
 
-                res.status(HttpCodes.OK);
-                res.json({
-                    success: true,
-                    token: jwtToken
-                });
-            } else {
-                throw new HTTPError(HttpCodes.FORBIDDEN, 'Invalid token');
-            }
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                token: jwtToken
+            });
         } catch (err) {
             if (err.code && err.status === 429) {
                 next(new HTTPError(HttpCodes.TOO_MANY_REQUESTS, 'Max check attempts reached'));

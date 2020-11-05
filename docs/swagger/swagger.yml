@@ -400,6 +400,47 @@ paths:
       summary: Check if user enters valid password
       tags:
       - Check password
+
+  /auth/securitycheck:
+    get:
+      description: Check if user enters valid password and valid 2FA token (TODO .yml)
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  msg:
+                    example: Correct password & 2FA token
+                    type: string
+                  success:
+                    example: true
+                    type: boolean
+                required:
+                  - success
+                  - msg
+                type: object
+          description: Success
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Body is invalid (all values are required)
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Bad login/password
+        '500':
+          description: Internal Error
+      security:
+        - x-auth-token: []
+      summary: Check if user enters valid password
+      tags:
+        - Check password
+
   /auth/signin:
     post:
       description: Login a user
