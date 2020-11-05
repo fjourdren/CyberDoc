@@ -53,7 +53,7 @@ import {FilesGenericTableBottomsheetComponent} from './components/files/files-ge
 
 import {SettingsMenuComponent} from './components/settings/settings-menu/settings-menu.component';
 import {SettingsProfileComponent} from './components/settings/settings-profile/settings-profile.component';
-import {SettingsSecurityComponent} from './components/settings/settings-security/settings-security.component';
+import {SettingsSecurityComponent, SettingsSecurityDevicesDialogComponent} from './components/settings/settings-security/settings-security.component';
 
 import {NotFoundPageComponent} from './pages/not-found-page/not-found-page.component';
 import {RegisterPageComponent} from './pages/register-page/register-page.component';
@@ -90,6 +90,7 @@ import {SecurityCheckDialogComponent} from './components/security-check-dialog/s
 import {TwoFactorCheckDialogComponent} from './components/two-factor/two-factor-check-dialog/two-factor-check-dialog.component';
 import {TwoFactorEditDialogComponent} from './components/two-factor/two-factor-edit-dialog/two-factor-edit-dialog.component';
 import { TwoFactorEditComponent } from './components/two-factor/two-factor-edit/two-factor-edit.component';
+import { DevicePageComponent } from './pages/device-page/device-page.component';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
@@ -115,6 +116,7 @@ const SETTINGS_COMPONENTS = [
     SettingsMenuComponent,
     SettingsProfileComponent,
     SettingsSecurityComponent,
+    SettingsSecurityDevicesDialogComponent,
     SettingsMainToolbarComponent
 ];
 
@@ -175,7 +177,8 @@ if (environment.useSentry) {
         SecurityCheckDialogComponent,
         TwoFactorCheckDialogComponent,
         TwoFactorEditDialogComponent,
-        TwoFactorEditComponent
+        TwoFactorEditComponent,
+        DevicePageComponent,
     ],
     imports: [
         BrowserModule,

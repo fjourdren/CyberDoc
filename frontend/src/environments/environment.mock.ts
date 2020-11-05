@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  useSentry: true,
+  useSentry: false,
   defaultFSProviderName: "mock",
   defaultUserServiceName: "mock",
   apiBaseURL: "<unused>",

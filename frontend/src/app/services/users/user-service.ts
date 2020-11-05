@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 import { FileTag } from 'src/app/models/files-api-models';
-import { User } from 'src/app/models/users-api-models';
+import { User, Device } from 'src/app/models/users-api-models';
 
 export interface UserService {
     getActiveUser(): User;
@@ -32,4 +32,8 @@ export interface UserService {
     deleteAccount(): Observable<void>;
 
     userUpdated(): Observable<User>;
+    getUserDevices(): Observable<Device[]>;
+    renameUserDevice(oldName: string,name: string): Observable<void>;
+    createUserDevice(name: string, browser: string, OS: string): Observable<void>;
+    
 }
