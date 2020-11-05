@@ -140,7 +140,7 @@ export interface IUser extends mongoose.Document {
     role: Role;
     tags: ITag[];
     devices: IDevice[];
-    userKeys: IUserEncryptionKeys[],
+    userKeys: IUserEncryptionKeys,
     filesKeys: IFileEncryptionKeys[],
     updated_at: string;
     created_at: string;
@@ -175,6 +175,11 @@ UserSchema.methods.toJSON = function () {
     const obj = this.toObject();
     delete obj.__v;
     delete obj.password;
+
+    // delete too long informations (for performances and for security with encryption keys)
+    delete obj.tags;
+    delete obj.userKeys;
+    delete obj.filesKeys;
     return obj;
 }
 

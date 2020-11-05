@@ -5,11 +5,6 @@ import mongoose from 'mongoose';
  */
 // Model which contains users' asymetrical encryption keys (private key is encrypted by user's hash => email + password)
 export const UserEncryptionKeysSchema = new mongoose.Schema({
-    user_id: {
-        type: String,
-        required: true,
-        uniqueCaseInsensitive: true
-    },
     public_key: {
         type: String,
         required: true,
@@ -29,6 +24,7 @@ export interface IUserEncryptionKeys extends mongoose.Document {
     public_key: string;
     encrypted_private_key: string;
 }
+
 
 
 /**

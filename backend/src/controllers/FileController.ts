@@ -10,15 +10,20 @@ import { File, FileType, IFile, ShareMode } from "../models/File";
 import { IUser, User } from "../models/User";
 import Mailer from "../helpers/Mailer";
 import jwt from "jsonwebtoken";
+import EncryptionFileService from '../services/EncryptionFileService';
+import CryptoHelper from '../helpers/CryptoHelper';
+import { anyToReadable } from '../helpers/Conversions';
+import { Readable } from 'stream';
 
 class FileController {
 
     public static async upload(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const currentUser = FileController._requireAuthenticatedUser(res);
-            const name = requireNonNull(req.body.name, 400, "missing name");
-            const mimetype = requireNonNull(req.body.mimetype, 400, "missing mimetype");
-            const destinationDir = requireNonNull(await File.findById(req.body.folderID), 404, "destination dir not found");
+            const name = requireNonNull(req.body.name, HttpCodes.BAD_REQUEST, "Missing name");
+            const mimetype = requireNonNull(req.body.mimetype, HttpCodes.BAD_REQUEST, "Missing mimetype");
+            const destinationDir = requireNonNull(await File.findById(req.body.folderID), HttpCodes.NOT_FOUND, "Destination dir not found");
+            const user_hash = CryptoHelper.prepareUser_hash(requireNonNull(req.body.user_hash, HttpCodes.BAD_REQUEST, "User's encryption hash needed"));
             FileService.requireFileIsDirectory(destinationDir);
 
             let fileToSave = new File();
@@ -36,7 +41,7 @@ class FileController {
                 fileToSave = await FileService.createDirectory(fileToSave);
             } else {
                 const fileContents = FileController._requireFile(req, "upfile");
-                fileToSave = await FileService.createDocument(fileToSave, fileToSave.name, mimetype, fileContents.buffer);
+                fileToSave = await FileService.createDocument(user_hash, fileToSave, fileToSave.name, mimetype, fileContents.buffer);
             }
 
             res.status(HttpCodes.OK);
@@ -222,11 +227,12 @@ class FileController {
             const currentUser = FileController._requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
             const fileContents = FileController._requireFile(req, "upfile");
+            const user_hash = CryptoHelper.prepareUser_hash(requireNonNull(req.body.user_hash, HttpCodes.BAD_REQUEST, "User's encryption hash needed"));
 
             await FileService.requireFileCanBeModified(currentUser, file);
             FileService.requireFileIsDocument(file);
 
-            await FileService.updateContentDocument(file, fileContents.buffer);
+            await FileService.updateContentDocument(user_hash, currentUser, file, fileContents.buffer);
 
             res.status(HttpCodes.OK);
             res.json({
@@ -319,11 +325,13 @@ class FileController {
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
             const copyFileName = req.body.copyFileName; //undefined value is OK
             const destination = requireNonNull(await File.findById(req.body.destID).exec(), 404, "Destination directory not found");
+            const user_hash = CryptoHelper.prepareUser_hash(requireNonNull(req.body.user_hash, HttpCodes.BAD_REQUEST, "User's encryption hash needed"));
+
 
             FileService.requireFileIsDocument(file);
             FileService.requireFileIsDirectory(destination);
             await FileService.requireFileCanBeCopied(currentUser, file);
-            const out = await FileService.copyDocument(currentUser, file, req.body.destID, copyFileName);
+            const out = await FileService.copyDocument(user_hash, currentUser, file, req.body.destID, copyFileName);
 
             // reply to user
             res.status(HttpCodes.OK);
@@ -341,15 +349,16 @@ class FileController {
     // ask to generate a preview of a file controller
     public static async preview(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
+            const user = FileController._requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
-            await FileService.requireFileCanBeViewed(currentUser, file);
+            await FileService.requireFileCanBeViewed(user, file);
+            const user_hash = CryptoHelper.prepareUser_hash(requireNonNull(req.body.user_hash, HttpCodes.BAD_REQUEST, "User's encryption hash needed"));
 
             if (!file.preview) {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "Preview not allowed for this file");
             }
 
-            const previewImg = await FileService.generatePreview(file);
+            const previewImg = await FileService.generatePreview(user_hash, user, file);
 
             res.set('Content-Type', 'image/png');
             res.status(HttpCodes.OK);
@@ -362,11 +371,12 @@ class FileController {
     // generate file pdf
     public static async exportPDF(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
+            const user = FileController._requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
-            await FileService.requireFileCanBeViewed(currentUser, file);
+            await FileService.requireFileCanBeViewed(user, file);
+            const user_hash = CryptoHelper.prepareUser_hash(requireNonNull(req.body.user_hash, HttpCodes.BAD_REQUEST, "User's encryption hash needed"));
 
-            const pdfStream = await FileService.generatePDF(file);
+            const pdfStream = await FileService.generatePDF(user_hash, user, file);
 
             res.set('Content-Type', 'application/pdf');
             res.set('Content-Disposition', 'attachment; filename="' + file.name + '.pdf"');
@@ -380,17 +390,19 @@ class FileController {
     // start downloading a file controller
     public static async download(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
+            const user = FileController._requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
-            await FileService.requireFileCanBeViewed(currentUser, file);
+            await FileService.requireFileCanBeViewed(user, file);
+            const user_hash = CryptoHelper.prepareUser_hash(requireNonNull(req.body.user_hash, HttpCodes.BAD_REQUEST, "User's encryption hash needed"));
 
-            const documentGridFs = await FileService.getFileContent(file);
+            const documentGridFs = await FileService.getFileContent(user_hash, user, file);
+            const documentGridFsReadable: Readable = anyToReadable(documentGridFs.content);
 
             // start the download
             res.set('Content-Type', (documentGridFs.infos as any).contentType);
             res.set('Content-Disposition', 'attachment; filename="' + file.name + '"');
             res.status(HttpCodes.OK);
-            documentGridFs.stream.pipe(res);
+            documentGridFsReadable.pipe(res);
         } catch (err) {
             next(err);
         }
@@ -535,6 +547,7 @@ class FileController {
                         url: url
                     }
                 );
+            const user_hash = CryptoHelper.prepareUser_hash(requireNonNull(req.body.user_hash, HttpCodes.BAD_REQUEST, "User's encryption hash needed"));
 
                 console.log('[Debug] An email has been sent to ' + otherUserEmail);
                 status = "Waiting";
@@ -544,6 +557,17 @@ class FileController {
                     msg: status
                 });
             }
+
+            // add key to the user
+            const file_aes_key: string = await EncryptionFileService.getFileKey(currentUser, file, user_hash);
+            await EncryptionFileService.addFileKeyToUser(user, file, file_aes_key);
+
+            // reply
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "Success"
+            });
         } catch (err) {
             next(err);
         }
@@ -566,6 +590,10 @@ class FileController {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "Specified email doesn't have sharing access to the file");
             }
 
+            // remove key from user
+            await EncryptionFileService.removeFileKeyFromUser(user, file);
+
+            // reply
             res.status(HttpCodes.OK);
             res.json({
                 success: true,
