@@ -19,8 +19,7 @@ export class LoggedOutGuard implements CanActivate {
         if (!this.userServiceProvider.default().getActiveUser()) {
             return true;
         } else {
-            this.router.parseUrl('/files');
-            return false;
+            return this.router.parseUrl('/files');
         }
     }
 }
