@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import UserController from '../../controllers/UserController'
+import UserEncryptionController from '../../controllers/UserEncryptionController';
 import UserTagController from '../../controllers/UserTagController';
 import AuthMiddleware from '../../middlewares/AuthMiddleware';
 
@@ -15,5 +16,9 @@ UserRouter.delete('/profile', AuthMiddleware.isAuthenticate, UserController.dele
 UserRouter.post('/tags', AuthMiddleware.isAuthenticate, UserTagController.create);
 UserRouter.patch('/tags/:tagId', AuthMiddleware.isAuthenticate, UserTagController.edit);
 UserRouter.delete('/tags/:tagId', AuthMiddleware.isAuthenticate, UserTagController.delete);
+
+// import and export user's encryption keys
+UserRouter.get('/keys', AuthMiddleware.isAuthenticate, UserEncryptionController.export);
+UserRouter.post('/keys', AuthMiddleware.isAuthenticate, UserEncryptionController.import);
 
 export default UserRouter;
