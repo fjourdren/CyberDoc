@@ -21,8 +21,7 @@ export class UnauthorizedGuard implements CanActivate {
             this.jwtHelper.decodeToken(this.userServiceProvider.default().getJwtToken()).authorized === false) {
             return true;
         } else {
-            this.router.parseUrl('/files');
-            return false;
+            return this.router.parseUrl('/files');
         }
     }
 }

@@ -19,8 +19,7 @@ export class RequireTwoFactorGuard implements CanActivate {
             !this.userServiceProvider.default().getActiveUser().twoFactorEmail) {
                 return true;
         } else {
-            this.router.parseUrl('/files');
-            return false;
+            return this.router.parseUrl('/files');
         }
     }
 }
