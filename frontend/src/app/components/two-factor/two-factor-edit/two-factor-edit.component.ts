@@ -34,7 +34,7 @@ export class TwoFactorEditComponent {
                 this.userServiceProvider.default().updateTwoFactor(
                     !this.userServiceProvider.default().getActiveUser().twoFactorApp,
                     this.userServiceProvider.default().getActiveUser().twoFactorSms,
-                ).toPromise().then(() => {
+                    null).toPromise().then(() => {
                     this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
                         this.snackBar.open('2FA by App disabled', null, {duration: 2000});
                         this.refresh();
@@ -67,7 +67,7 @@ export class TwoFactorEditComponent {
                 this.userServiceProvider.default().updateTwoFactor(
                     this.userServiceProvider.default().getActiveUser().twoFactorApp,
                     !this.userServiceProvider.default().getActiveUser().twoFactorSms,
-                ).toPromise().then(() => {
+                    null).toPromise().then(() => {
                     this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
                         this.snackBar.open('2FA by SMS disabled', null, {duration: 2000});
                         this.refresh();

@@ -132,19 +132,19 @@ export class MockUserService implements UserService {
         }));
     }
 
-    updateProfile(firstName: string, lastName: string, newEmail: string, oldEmail: string): Observable<void> {
+    updateProfile(firstName: string, lastName: string, newEmail: string, xAuthToken: string): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
             }
 
-            const user = this._users.get(oldEmail);
-            const pass = this._passwords.get(oldEmail);
+            const user = this._users.get(this.getActiveUser().email);
+            const pass = this._passwords.get(user.email);
             user.firstname = firstName;
             user.lastname = lastName;
             user.email = newEmail;
-            this._users.delete(oldEmail);
-            this._passwords.delete(oldEmail);
+            this._users.delete(user.email);
+            this._passwords.delete(user.email);
             this._users.set(newEmail, user);
             this._passwords.set(newEmail, pass);
             this._save();
@@ -152,46 +152,20 @@ export class MockUserService implements UserService {
         }));
     }
 
-    updatePassword(password: string, email: string): Observable<any> {
+    updatePassword(password: string, appOrSms: string, token: string): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
             }
 
-            const pass = this._passwords.get(email);
+            const pass = this._passwords.get(appOrSms);
 
-            this._passwords.set(email, password);
+            this._passwords.set(appOrSms, password);
             this._save();
         }));
     }
 
-    updatePhoneNumber(phoneNumber: string): Observable<void> {
-        return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            if (!this.getActiveUser()) {
-                this._throw403('already logged in');
-            }
-            const user = this._getUser();
-            user.phoneNumber = phoneNumber;
-            this._users.set(user.email, user);
-            this._save();
-            this._setUser(user);
-        }));
-    }
-
-    updateSecret(secret: string): Observable<void> {
-        return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            if (!this.getActiveUser()) {
-                this._throw403('already logged in');
-            }
-            const user = this._getUser();
-            user.secret = secret;
-            this._users.set(user.email, user);
-            this._save();
-            this._setUser(user);
-        }));
-    }
-
-    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean): Observable<void> {
+    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, secretOrPhoneNumber: string): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
@@ -238,8 +212,8 @@ export class MockUserService implements UserService {
         }));
     }
 
-    resetPassword(resetPasswordJWTToken: string, email: string, password: any): Observable<void> {
-        return this.updatePassword(password, email);
+    resetPassword(resetPasswordJWTToken: string, password: string): Observable<void> {
+        return this.updatePassword(password, null, null);
     }
 
     searchExistingUser(email: string): Observable<User> {

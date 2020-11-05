@@ -43,7 +43,7 @@ export class TwoFactorCheckDialogComponent {
             case 'app':
                 this.twoFactorServiceProvider.default().verifyTokenByApp(this.twoFactorForm.get('token').value).toPromise().then(() => {
                     this.loading = false;
-                    this.twoFactorDialog.close(true);
+                    this.twoFactorDialog.close('app:' + this.twoFactorForm.get('token').value);
                 }).catch(err => {
                     this.loading = false;
                     if (err.status === 403) {
@@ -56,7 +56,7 @@ export class TwoFactorCheckDialogComponent {
             case 'sms':
                 this.twoFactorServiceProvider.default().verifyTokenBySms(this.twoFactorForm.get('token').value).toPromise().then(() => {
                     this.loading = false;
-                    this.twoFactorDialog.close(true);
+                    this.twoFactorDialog.close('sms:' + this.twoFactorForm.get('token').value);
                 }).catch(err => {
                     this.loading = false;
                     if (err.status === 403) {

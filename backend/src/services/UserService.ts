@@ -5,6 +5,10 @@ import {requireNonNull} from "../helpers/DataValidation";
 
 import AuthService from "./AuthService";
 import FileService from "./FileService";
+import AuthController from '../controllers/AuthController';
+import HTTPError from '../helpers/HTTPError';
+import HttpCodes from '../helpers/HttpCodes';
+import TwoFactorAuthService from './TwoFactorAuthService';
 
 class UserService {
 
@@ -19,7 +23,7 @@ class UserService {
     }
 
     // profile update
-    public static async updateProfile(user_id: string | undefined, firstname: string | undefined, lastname: string | undefined, email: string | undefined, password: string | undefined, phoneNumber: string | undefined, secret: string | undefined, twoFactorApp: boolean | undefined, twoFactorSms: boolean | undefined): Promise<Record<string, IUser | string>> {
+    public static async updateProfile(user_id: string | undefined, tokenBase64: string | undefined, firstname: string | undefined, lastname: string | undefined, email: string | undefined, password: string | undefined, phoneNumber: string | undefined, secret: string | undefined, twoFactorApp: boolean | undefined, twoFactorSms: boolean | undefined): Promise<Record<string, IUser | string>> {
         let user = requireNonNull(await User.findById(user_id).exec());
 
         if (firstname != undefined)
@@ -38,6 +42,37 @@ class UserService {
             user.twoFactorApp = twoFactorApp;
         if (twoFactorSms != undefined)
             user.twoFactorSms = twoFactorSms;
+
+        if((email != undefined && email != user.email)
+            || password != undefined
+            || phoneNumber != undefined
+            || secret != undefined
+            || twoFactorApp != undefined
+            || twoFactorSms != undefined) {
+            if (!tokenBase64) {
+                throw new HTTPError(HttpCodes.UNAUTHORIZED, 'No X-Auth-Token : authorization denied');
+            }
+            const decryptedToken = new Buffer(tokenBase64, 'base64').toString('ascii').split(':');
+            if(decryptedToken.length != 3) {
+                throw new HTTPError(HttpCodes.BAD_REQUEST, 'Bad x-auth-token');
+            }
+            if(decryptedToken[2].length != 6) {
+                throw new HTTPError(HttpCodes.BAD_REQUEST, 'Token size should be equal to 6');
+            }
+            await AuthService.isPasswordValid(user.email, decryptedToken[0]);
+
+            switch(decryptedToken[1]) {
+                case 'app':
+                    await TwoFactorAuthService.verifyTokenGeneratedByApp(user.email, decryptedToken[2]);
+                    break;
+                case 'sms':
+                    await TwoFactorAuthService.verifySMSToken(user.email, decryptedToken[2]);
+                    break;
+                default:
+                    throw new HTTPError(HttpCodes.BAD_REQUEST, "appOrSms should be equal to app or sms")
+                    break;
+            }
+        }
 
         user = requireNonNull(await user.save());
 

@@ -1,20 +1,21 @@
 import {HttpClient} from '@angular/common/http';
 import {EventEmitter} from '@angular/core';
 import {Observable, of} from 'rxjs';
-import { map} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 import {FileTag} from 'src/app/models/files-api-models';
-import {User, Device} from 'src/app/models/users-api-models';
+import {Device, User} from 'src/app/models/users-api-models';
 import {UserService} from './user-service';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {CookieService} from 'ngx-cookie-service';
-import { environment } from "src/environments/environment";
+import {environment} from 'src/environments/environment';
 
 export class RealUserService implements UserService {
 
     private _userUpdated$ = new EventEmitter<User>();
     private _jwtHelper = new JwtHelperService();
 
-    constructor(private httpClient: HttpClient, private cookieService: CookieService) {}
+    constructor(private httpClient: HttpClient, private cookieService: CookieService) {
+    }
 
     getActiveUser(): User {
         if (!this.getJwtToken()) {
@@ -81,12 +82,26 @@ export class RealUserService implements UserService {
         }));
     }
 
-    updateProfile(firstName: string, lastName: string, newEmail: string, oldEmail: string): Observable<void> {
+    updateProfile(firstName: string, lastName: string, newEmail: string, xAuthToken: string): Observable<void> {
+        let options: object;
+        if (xAuthToken !== null) {
+            options = {
+                headers: {
+                    'x-auth-token': btoa(xAuthToken[0] + ':' + xAuthToken[1] + ':' + xAuthToken[2])
+                },
+                withCredentials: true
+            };
+        } else {
+            options = {
+                withCredentials: true
+            };
+        }
+
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
             email: newEmail,
             firstname: firstName,
             lastname: lastName
-        }, {withCredentials: true}).pipe(map(response => {
+        }, options).pipe(map(response => {
             this.cookieService.set(
                 environment.authCookieName,
                 response.token,
@@ -95,12 +110,19 @@ export class RealUserService implements UserService {
                 environment.authCookieDomain);
             this._setUser(this._jwtHelper.decodeToken(response.token).user);
         }));
+
+
     }
 
-    updatePassword(password: string, email: string): Observable<void> {
+    updatePassword(password: string, appOrSms: string, token: string): Observable<void> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
             password
-        }, {withCredentials: true}).pipe(map(response => {
+        }, {
+            headers: {
+                'x-auth-token': btoa(password + ':' + appOrSms + ':' + token)
+            },
+            withCredentials: true
+        }).pipe(map(response => {
             this.cookieService.set(
                 environment.authCookieName,
                 response.token,
@@ -111,38 +133,11 @@ export class RealUserService implements UserService {
         }));
     }
 
-    updatePhoneNumber(phoneNumber: string): Observable<void> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
-            phoneNumber
-        }, {withCredentials: true}).pipe(map(response => {
-            this.cookieService.set(
-                environment.authCookieName,
-                response.token,
-                this._jwtHelper.getTokenExpirationDate(response.token),
-                '/',
-                environment.authCookieDomain);
-            this._setUser(this._jwtHelper.decodeToken(response.token).user);
-        }));
-    }
-
-    updateSecret(secret: string): Observable<void> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
-            secret
-        }, {withCredentials: true}).pipe(map(response => {
-            this.cookieService.set(
-                environment.authCookieName,
-                response.token,
-                this._jwtHelper.getTokenExpirationDate(response.token),
-                '/',
-                environment.authCookieDomain);
-            this._setUser(this._jwtHelper.decodeToken(response.token).user);
-        }));
-    }
-
-    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean): Observable<void> {
+    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, secretOrPhoneNumber: string): Observable<void> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
             twoFactorApp,
             twoFactorSms,
+            secretOrPhoneNumber
         }, {withCredentials: true}).pipe(map(response => {
             this.cookieService.set(
                 environment.authCookieName,
@@ -185,14 +180,13 @@ export class RealUserService implements UserService {
         }));
     }
 
-    resetPassword(resetPasswordJWTToken: string, email: string, password: any): Observable<void> {
-        console.warn("Authorization", `Bearer ${resetPasswordJWTToken}`);
+    resetPassword(resetPasswordJWTToken: string, password: string): Observable<void> {
+        console.warn('Authorization', `Bearer ${resetPasswordJWTToken}`);
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
-            "email": email,
-            "password": password
+            password
         }, {
             headers: {
-                "Authorization": `Bearer ${resetPasswordJWTToken}`,
+                Authorization: `Bearer ${resetPasswordJWTToken}`
             },
             withCredentials: true
         }).pipe(map(response => {
@@ -227,15 +221,21 @@ export class RealUserService implements UserService {
         }));
     }
 
-    renameUserDevice(oldName: string, name: string): Observable<void>{
-        return this.httpClient.patch<any>(`${environment.apiBaseURL}/users/devices/${oldName}`,{name}, {withCredentials: true}).pipe(map(response => {}));
+    renameUserDevice(oldName: string, name: string): Observable<void> {
+        return this.httpClient.patch<any>(`${environment.apiBaseURL}/users/devices/${oldName}`, {name},
+            {withCredentials: true}).pipe(map(response => {
+        }));
     }
 
-    createUserDevice(name: string, browser: string, OS: string): Observable<void>{
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/users/devices`, {name, browser, OS}, {withCredentials: true}).pipe(map(response => {}));
+    createUserDevice(name: string, browser: string, OS: string): Observable<void> {
+        return this.httpClient.post<any>(`${environment.apiBaseURL}/users/devices`, {
+            name,
+            browser,
+            OS
+        }, {withCredentials: true}).pipe(map(response => {
+        }));
     }
 
-    
 
     private _setUser(user: User) {
         localStorage.setItem('real_user', JSON.stringify(user));
