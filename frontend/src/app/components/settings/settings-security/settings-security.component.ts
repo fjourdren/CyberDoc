@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { MustMatch } from './_helpers/must-match.validator';
@@ -7,6 +7,20 @@ import { SecurityCheckDialogComponent } from '../../security-check-dialog/securi
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { SettingsRenameDeviceDialogComponent } from '../settings-rename-device-dialog/settings-rename-device-dialog.component';
+
+function passwordValidator(): ValidatorFn {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+        const password = control.value;
+
+        if (!password) return {passwordValidator: {invalid: true}};
+        if (!password.match(/[A-Z]/g)) return {passwordValidator: {invalid: true}};
+        if (!password.match(/[a-z]/g)) return {passwordValidator: {invalid: true}};
+        if (!password.match(/[0-9]/g)) return {passwordValidator: {invalid: true}};
+        if (!password.replace(/[0-9a-zA-Z ]/g, "").length) return {passwordValidator: {invalid: true}};
+
+        return null;
+    };
+}
 
 @Component({
     selector: 'app-settings-security',
@@ -21,8 +35,6 @@ export class SettingsSecurityComponent {
     hidePassword1 = true;
     hidePassword2 = true;
     hidePassword3 = true;
-
-    passwordStrength = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@$._\-!%*?&])[A-Za-z\d$@$!%*?&].{8,}/;
 
     // Passwords
     isTextFieldType: boolean;
@@ -43,8 +55,8 @@ export class SettingsSecurityComponent {
         this.refreshDevice();
 
         this.passwordForm = this.fb.group({
-            newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern(this.passwordStrength)]],
-            newPasswordConfirmation: ['', [Validators.required, Validators.minLength(8), Validators.pattern(this.passwordStrength)]],
+            newPassword: ['', [Validators.required, passwordValidator()]],
+            newPasswordConfirmation: ['', [Validators.required, passwordValidator()]],
             email: [this.userServiceProvider.default().getActiveUser().email, Validators.required]
         }, {
             validator: MustMatch('newPassword', 'newPasswordConfirmation')
