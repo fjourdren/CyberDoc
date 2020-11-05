@@ -1,14 +1,14 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {AfterViewInit, Component, HostListener, Inject} from '@angular/core';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {TwoFactorServiceProvider} from 'src/app/services/twofactor/twofactor-service-provider';
-import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
-import {allCountries as __allCountries, PhoneNumberCountry} from './all-countries';
-import {PhoneNumberUtil} from 'google-libphonenumber';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {TranslateService} from '@ngx-translate/core';
-import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AfterViewInit, Component, HostListener, Inject } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { TwoFactorServiceProvider } from 'src/app/services/twofactor/twofactor-service-provider';
+import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { allCountries as __allCountries, PhoneNumberCountry } from './all-countries';
+import { PhoneNumberUtil } from 'google-libphonenumber';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { TranslateService } from '@ngx-translate/core';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 const phoneNumberUtil = PhoneNumberUtil.getInstance();
 
@@ -46,12 +46,12 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
     });
 
     constructor(private dialogRef: MatDialogRef<TwoFactorEditDialogComponent>,
-                private twoFAServiceProvider: TwoFactorServiceProvider,
-                private userServiceProvider: UserServiceProvider,
-                private sanitizer: DomSanitizer,
-                private snackBar: MatSnackBar,
-                private translateService: TranslateService,
-                @Inject(MAT_DIALOG_DATA) public twoFactorMode: 'sms' | 'app') {
+        private twoFAServiceProvider: TwoFactorServiceProvider,
+        private userServiceProvider: UserServiceProvider,
+        private sanitizer: DomSanitizer,
+        private snackBar: MatSnackBar,
+        private translateService: TranslateService,
+        @Inject(MAT_DIALOG_DATA) public twoFactorMode: 'sms' | 'app') {
     }
 
     ngAfterViewInit(): void {
@@ -139,7 +139,9 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
 
     onCopyBtnClick(): void {
         this.translateService.get('twofactor.secret_code_copied').toPromise().then(str => {
-            this.snackBar.open(str);
+            this.snackBar.open(str, null, {
+                duration: 2500,
+            });
         });
     }
 
