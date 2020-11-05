@@ -309,6 +309,13 @@ components:
       in: cookie
       name: access_token
       type: apiKey
+    resetPasswordToken:
+      in: query
+      name: access_token
+      type: apiKey
+    x-auth-token:
+      type: http
+      scheme: basic
 info:
   description: "- The application defines three rights for each node :\n  - `read`\n\
     \  - `write`\n  - `owner`\n"
