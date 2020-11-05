@@ -134,6 +134,12 @@
         "password_verify": "Verify your password",
         "two_factor_auth_required": "Two-factor authentication required"
     },
+    "devices": {
+        "new_device_title": "New device ?",
+        "already_exists": "This name already exists",
+        "please_give_name": "Please give it a name",
+        "rename": "Rename device"
+    },
     "general": {
         "generic_error": "Error. Please wait some time then retry",
         "new_name": "New name",

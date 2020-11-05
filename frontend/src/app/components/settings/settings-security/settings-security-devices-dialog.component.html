@@ -1,0 +1,20 @@
+<h1 mat-dialog-title>
+    {{ 'devices.rename' | translate }}
+</h1>
+<div class="error-txt" *ngIf="nameAlreadyChoose">{{ 'devices.already_exists' | translate }}</div>
+<div mat-dialog-content>
+    <form>
+        <mat-form-field appearance="outline">
+            <mat-label>{{ 'devices.rename' | translate }}</mat-label>
+            <input matInput [formControl]="input" required #inputElement>
+            <mat-error *ngIf="input.invalid">{{'general.no_empty' | translate}}</mat-error>
+        </mat-form-field>
+    </form>
+</div>
+
+<div mat-dialog-actions align="end">
+    <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+    <button [disabled]="loading" mat-button (click)="onCancelBtnClicked()">Cancel</button>
+    <button [disabled]="loading || !input.valid" mat-raised-button color="primary"
+        (click)="onRenameBtnClicked()">{{'fileaction.rename' | translate}}</button>
+</div>
