@@ -222,17 +222,17 @@ export class RealUserService implements UserService {
     }
 
     getUserDevices(): Observable<Device[]> {
-        return this.httpClient.get<any>(`${this._baseUrl}/users/devices`, {withCredentials: true}).pipe(map(response => {
+        return this.httpClient.get<any>(`${environment.apiBaseURL}/users/devices`, {withCredentials: true}).pipe(map(response => {
             return response.devices;
         }));
     }
 
     renameUserDevice(oldName: string, name: string): Observable<void>{
-        return this.httpClient.patch<any>(`${this._baseUrl}/users/devices/${oldName}`,{name}, {withCredentials: true}).pipe(map(response => {}));
+        return this.httpClient.patch<any>(`${environment.apiBaseURL}/users/devices/${oldName}`,{name}, {withCredentials: true}).pipe(map(response => {}));
     }
 
     createUserDevice(name: string, browser: string, OS: string): Observable<void>{
-        return this.httpClient.post<any>(`${this._baseUrl}/users/devices`, {name, browser, OS}, {withCredentials: true}).pipe(map(response => {}));
+        return this.httpClient.post<any>(`${environment.apiBaseURL}/users/devices`, {name, browser, OS}, {withCredentials: true}).pipe(map(response => {}));
     }
 
     

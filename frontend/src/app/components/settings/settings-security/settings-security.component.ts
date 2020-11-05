@@ -106,7 +106,7 @@ export class SettingsSecurityComponent {
 @Component({
     selector: 'app-settings-security-devices-dialog',
     templateUrl: 'settings-security-devices-dialog.component.html',
-    styleUrls: ['./settings-security.component.css']
+    styleUrls: []
 })
 export class SettingsSecurityDevicesDialogComponent {
     nameAlreadyChoose = false;
