@@ -116,6 +116,9 @@ What is :
 - jenkins_build
   - it is the script which will be playing in a build, you need to copy past this script with good credentials in the Jenkins build area
 
+**maintenance_website**
+- this folder is used to host the frontpage while you are making a maintenance
+
 **playbook**
 - deploy_docker
   - it is the first playbook you will have to play, he will install docker
