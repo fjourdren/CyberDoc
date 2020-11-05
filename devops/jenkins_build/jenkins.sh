@@ -18,10 +18,6 @@ then
   false
 fi
 
-## if you need to build onlyoffice
-#sudo docker build --file /home/centos/workspace/cyberdoc/devops/docker_onlyoffice/dockerfile --tag onlyoffice .
-#sudo docker run -d --name onlyoffice -v /home/centos/workspace/cyberdoc/onlyoffice/logs/:/var/log/onlyoffice --label-file ./labels onlyoffice
-
 ## frontend
 sudo docker stop frontend || true && sudo docker rm frontend || true
 sudo docker run --rm  -v /home/centos/workspace/cyberdoc:/opt  -w /opt/frontend  teracy/angular-cli /opt/devops/docker_frontend/exec.sh
@@ -35,6 +31,7 @@ sudo docker stop backend || true && sudo docker rm backend || true
 sudo docker build --file $backendDir/dockerfile --tag backend .
 
 sudo cat /dev/null > $backend/.env.prod
+### env.prod with credentials here
 
 sudo cat $backend/.env.prod
 sudo docker run -d --restart always --name backend -v $backend:/app -v $backendDir:/devops --label-file $backendDir/labels backend /devops/exec.sh
