@@ -20,7 +20,8 @@ export class TwoFactorGuard implements CanActivate {
             this.userServiceProvider.default().getActiveUser().twoFactorEmail) {
                 return true;
         } else {
-            return this.router.parseUrl('/two-factor-register');
+            this.router.parseUrl('/two-factor-register');
+            return false;
         }
     }
 }

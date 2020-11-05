@@ -27,7 +27,8 @@ export class DeviceGuard implements CanActivate {
         for(this.device of result){
           const OS=parser.getDevice().model+" "+parser.getOS().name;
           if(this.device.OS===OS && this.device.browser===parser.getBrowser().name){
-            return this.router.parseUrl('/files');
+            this.router.parseUrl('/files');
+            return false;
           }
         }
         return true;

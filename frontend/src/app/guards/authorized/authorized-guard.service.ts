@@ -21,7 +21,8 @@ export class AuthorizedGuard implements CanActivate {
             this.jwtHelper.decodeToken(this.userServiceProvider.default().getJwtToken()).authorized === true) {
             return true;
         } else {
-            return this.router.parseUrl('/two-factor');
+            this.router.parseUrl('/two-factor');
+            return false;
         }
     }
 }
