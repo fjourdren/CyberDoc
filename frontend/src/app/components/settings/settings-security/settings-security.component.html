@@ -8,8 +8,8 @@
         <form [formGroup]="passwordForm" (ngSubmit)="onSubmitPassword()" id="password-form">
             <mat-form-field>
                 <input required id="password-form-field" matInput autocomplete="new-password"
-                       [type]="hidePassword2 ? 'password' : 'text'"
-                       formControlName="newPassword" placeholder="{{'settings.new_password' | translate}}">
+                    [type]="hidePassword2 ? 'password' : 'text'" formControlName="newPassword"
+                    placeholder="{{'settings.new_password' | translate}}">
                 <button type="button" mat-icon-button matSuffix (click)="hidePassword2 = !hidePassword2">
                     <mat-icon>{{hidePassword2 ? 'visibility_off' : 'visibility'}}</mat-icon>
                 </button>
@@ -22,9 +22,8 @@
             </mat-form-field>
             <mat-form-field>
                 <input required id="password-confirm-form-field" matInput autocomplete="new-password"
-                       [type]="hidePassword3 ? 'password' : 'text'"
-                       formControlName="newPasswordConfirmation"
-                       placeholder="{{'settings.confirm_new_password' | translate}}">
+                    [type]="hidePassword3 ? 'password' : 'text'" formControlName="newPasswordConfirmation"
+                    placeholder="{{'settings.confirm_new_password' | translate}}">
                 <button type="button" mat-icon-button matSuffix (click)="hidePassword3 = !hidePassword3">
                     <mat-icon>{{hidePassword3 ? 'visibility_off' : 'visibility'}}</mat-icon>
                 </button>
@@ -32,13 +31,13 @@
                     {{ 'general.no_empty' | translate }}
                 </mat-error>
                 <mat-error
-                        *ngIf="passwordForm.get('newPassword').value !== passwordForm.get('newPasswordConfirmation').value">
+                    *ngIf="passwordForm.get('newPassword').value !== passwordForm.get('newPasswordConfirmation').value">
                     {{ 'accounts.passwords_must_match' | translate }}
                 </mat-error>
             </mat-form-field>
         </form>
         <button mat-flat-button color="primary" type="submit" (click)="onSubmitPassword()"
-                [disabled]="passwordForm.invalid || loading">{{'general.update' | translate}}</button>
+            [disabled]="passwordForm.invalid || loading">{{'general.update' | translate}}</button>
     </mat-card-content>
 </mat-card>
 <mat-card>
@@ -54,30 +53,33 @@
 <mat-card>
     <mat-card-header>
         <mat-icon mat-card-avatar>devices</mat-icon>
-        <mat-card-title>Registered devices</mat-card-title>
-        <mat-card-subtitle>View and rename all devices used by your account.</mat-card-subtitle>
+        <mat-card-title>{{'settings.user_devices_card_title' | translate}}</mat-card-title>
+        <mat-card-subtitle>{{'settings.user_devices_card_subtitle' | translate}}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-		<table mat-table [dataSource]="dataSource">
-			<ng-container matColumnDef="name">
-				<th mat-header-cell *matHeaderCellDef> Name </th>
-				<td mat-cell *matCellDef="let element"> {{element.name}} </td>
-			</ng-container>
-			<ng-container matColumnDef="browser">
-				<th mat-header-cell *matHeaderCellDef> Browser </th>
-				<td mat-cell *matCellDef="let element"> {{element.browser}} </td>
-			</ng-container>
-			<ng-container matColumnDef="OS">
-				<th mat-header-cell *matHeaderCellDef> OS </th>
-				<td mat-cell *matCellDef="let element"> {{element.OS}} </td>
-			</ng-container>
-			<ng-container matColumnDef="rename">
-				<th mat-header-cell *matHeaderCellDef> Rename </th>
-				<td mat-cell *matCellDef="let element"> <button color="warn" [disabled]="loading" mat-button
-						(click)="renameDevice(element.name)">Rename</button> </td>
-			</ng-container>
-			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-			<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-		</table>	
+        <table mat-table [dataSource]="dataSource">
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef> {{'file.name' | translate}} </th>
+                <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+            </ng-container>
+            <ng-container matColumnDef="browser">
+                <th mat-header-cell *matHeaderCellDef> {{'settings.browser' | translate}} </th>
+                <td mat-cell *matCellDef="let element"> {{element.browser}} </td>
+            </ng-container>
+            <ng-container matColumnDef="OS">
+                <th mat-header-cell *matHeaderCellDef> {{'settings.device' | translate}}  </th>
+                <td mat-cell *matCellDef="let element"> {{element.OS}} </td>
+            </ng-container>
+            <ng-container matColumnDef="rename">
+                <th mat-header-cell *matHeaderCellDef> </th>
+                <td class="editbutton-column" mat-cell *matCellDef="let element">
+                    <button [disabled]="loading" mat-icon-button (click)="renameDevice(element.name)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
     </mat-card-content>
 </mat-card>

@@ -121,6 +121,11 @@
         "user_delete_card_title": "Delete your account",
         "user_delete_card_subtitle": "WARNING : You will lose all your files stored on CyberDoc !",
 
+        "user_devices_card_title": "Registered devices",
+        "user_devices_card_subtitle": "View and rename all devices used by your account",
+        "browser": "Browser",
+        "device": "Device",
+
         "password_card_title": "Password",
         "password_card_subtitle": "Set a unique password to protect your personal CyberDoc account.",
         "current_password": "Current password",
