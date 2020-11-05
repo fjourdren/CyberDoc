@@ -12,10 +12,12 @@ import GridFSTalker from "../helpers/GridFSTalker";
 import { requireNonNull, requireIsNull } from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
-import { streamToBuffer } from '../helpers/Conversions';
+import { anyToReadable, streamToBuffer } from '../helpers/Conversions';
 
 import {IUser, User} from "../models/User";
 import { IFile, File, FileType, ShareMode } from "../models/File";
+import CryptoHelper from '../helpers/CryptoHelper';
+import EncryptionFileService from './EncryptionFileService';
 
 enum PreciseFileType {
     Folder = "Folder",
@@ -120,7 +122,7 @@ class FileService {
      * ACTIONS
      */
     // create file service
-    public static async createDocument(file: IFile, filename: string, content_type: string, fileContentBuffer: Buffer): Promise<IFile> {
+    public static async createDocument(user_hash: string, file: IFile, filename: string, content_type: string, fileContentBuffer: Buffer): Promise<IFile> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
@@ -131,9 +133,16 @@ class FileService {
         const parentFile: IFile = requireNonNull(await File.findById(file.parent_file_id).exec());
         FileService.requireFileIsDirectory(parentFile);
 
+        // encrypt content
+        const encryptProcessReply: Record<any, any> = EncryptionFileService.encryptFileContent(fileContentBuffer.toString()); // return { "aes_key", "content" }
+
+        // add file aes_key to user
+        const user: IUser = requireNonNull(await User.findById(file.owner_id).exec(), HttpCodes.BAD_REQUEST, "User not found");
+        await EncryptionFileService.addFileKeyToUser(user, file, encryptProcessReply["aes_key"]);
+
         // create readable
         const readablefileContent = new Readable()
-        readablefileContent.push(fileContentBuffer)
+        readablefileContent.push(encryptProcessReply["content"])
         readablefileContent.push(null)
 
         // push document to gridfs
@@ -254,32 +263,33 @@ class FileService {
     }
 
     // get file content from gridfs (to start a download for example)
-    public static async getFileContent(file: IFile): Promise<Record<string, MongoClient.GridFSBucketReadStream>> {
+    public static async getFileContent(user_hash: string, user: IUser, file: IFile): Promise<Record<any, any>> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
         // get file infos & content
-        const infos: any                              = await GridFSTalker.getFileInfos(Types.ObjectId(file.document_id));
-        const out: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
+        const infos: any = await FileService.getFileInformations(file);
+        const content: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
+        const out: string = await EncryptionFileService.decryptFileContent(user_hash, user, file, content);
 
-        return { infos: infos, stream: out };
+        return { infos: infos, content: out };
     }
 
     // update a document content
-    public static async updateContentDocument(file: IFile, fileContentBuffer: Buffer): Promise<any> {
+    public static async updateContentDocument(user_hash: string, user: IUser, file: IFile, fileContentBuffer: Buffer): Promise<any> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
         // get file name
-        const fileGridFSInfos: any = await GridFSTalker.getFileInfos(Types.ObjectId(file.document_id));
+        const fileGridFSInfos: any = await FileService.getFileInformations(file);
 
-        // prepare readable
-        const readablefileContent = new Readable();
-        readablefileContent.push(fileContentBuffer);
-        readablefileContent.push(null);
+        // encrypt new file content
+        const file_aes_key: string = await EncryptionFileService.getFileKey(user, file, user_hash); // get current file's key to encrypt new content
+        const encryptProcessReply: Record<any, any> = EncryptionFileService.encryptFileContent(fileContentBuffer.toString(), file_aes_key); // return { "aes_key", "content" }
+        const readableEncryptedContent: Readable = anyToReadable(encryptProcessReply.content);
 
         // get gridfs for document_id and put data in it
-        const newDocumentId: string = await GridFSTalker.update(Types.ObjectId(file.document_id), fileGridFSInfos.filename, fileGridFSInfos.contentType, readablefileContent);
+        const newDocumentId: string = await GridFSTalker.update(Types.ObjectId(file.document_id), fileGridFSInfos.filename, fileGridFSInfos.contentType, readableEncryptedContent);
         file.document_id = newDocumentId;
 
         // get file size and save it in File model
@@ -333,7 +343,10 @@ class FileService {
         FileService.requireFileIsDocument(file);
 
         // delete file from gridfs
-        await GridFSTalker.delete(Types.ObjectId(file.document_id));
+        GridFSTalker.delete(Types.ObjectId(file.document_id));
+
+        // delete all user's key for that file
+        await EncryptionFileService.deleteFileKeys(file);
 
         // delete the from file data
         return await File.findByIdAndDelete(file._id).exec();
@@ -364,14 +377,16 @@ class FileService {
     }
 
     // copy a document
-    public static async copyDocument(user: IUser, file: IFile, destination_id: string, copyFileName: string | undefined = undefined): Promise<IFile> {
+    public static async copyDocument(user_hash: string, user: IUser, file: IFile, destination_id: string, copyFileName: string | undefined = undefined): Promise<IFile> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
-        // get document informations from gridfs
-        const fileGridFsInformations: any                    = await GridFSTalker.getFileInfos(Types.ObjectId(file.document_id));
-        const fileReader: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
+        // get document informations
+        const fileInfomations: Record<any, any> = await FileService.getFileContent(user_hash, user, file);
 
+        // encrypt with new key
+        const encrypted_copy: Record<any, any> = EncryptionFileService.encryptFileContent(fileInfomations.content);
+        const encrypted_copyReadable: Readable = anyToReadable(encrypted_copy.content);
 
         // ***** generate new filename *****
         if(copyFileName == undefined) {
@@ -395,10 +410,8 @@ class FileService {
         }
         // ***********************
 
-
-
         // start copying
-        const objectId: string = await GridFSTalker.create(copyFileName, fileGridFsInformations.contentType, fileReader); // generate the copy of the document in grid fs
+        const objectId: string = await GridFSTalker.create(copyFileName, fileInfomations.infos.contentType, encrypted_copyReadable); // generate the copy of the document in grid fs
 
         // generate new file informations
         const newFile: IFile = new File();
@@ -406,18 +419,27 @@ class FileService {
         newFile.type           = file.type;
         newFile.mimetype       = file.mimetype;
         newFile.name           = copyFileName;
-        newFile.size         = file.size;
+        newFile.size           = file.size;
         newFile.document_id    = objectId;   
         newFile.parent_file_id = destination_id;
         newFile.owner_id       = user._id;
-        newFile.shareMode = ShareMode.READONLY;
-        newFile.sharedWith = [];
+        newFile.shareMode      = ShareMode.READONLY;
+        newFile.sharedWith     = [];
 
-        return await newFile.save(); // save the new file
+        const out: IFile = await newFile.save(); // save the new file
+
+
+        // create a key to the new file for all users
+        const users: IUser[] = await EncryptionFileService.getUsersWithAccess(file);
+        for await (let user_to_add of users) {
+            await EncryptionFileService.addFileKeyToUser(user_to_add, newFile, encrypted_copy.aes_key);
+        }
+
+        return out;
     }
 
     // copy a directory
-    public static async copyDirectory(user: IUser, file: IFile, destination_id: string, copyFileName: string | undefined = undefined): Promise<IFile> {
+    public static async copyDirectory(user_hash: string, user: IUser, file: IFile, destination_id: string, copyFileName: string | undefined = undefined): Promise<IFile> {
         // be sure that file is a directory
         FileService.requireFileIsDirectory(file);
 
@@ -448,9 +470,9 @@ class FileService {
             const fileToCopy: IFile = files[i];
             // copy directory and document recursively
             if(fileToCopy.type == FileType.DIRECTORY)
-                await FileService.copyDirectory(user, fileToCopy, out._id, fileToCopy.name);
+                await FileService.copyDirectory(user_hash, user, fileToCopy, out._id, fileToCopy.name);
             else
-                await FileService.copyDocument(user, fileToCopy, out._id, fileToCopy.name);
+                await FileService.copyDocument(user_hash, user, fileToCopy, out._id, fileToCopy.name);
         }
 
         return out;
@@ -458,14 +480,13 @@ class FileService {
 
 
     // generate pdf file
-    public static generatePDF(file: IFile): Promise<Readable> {
+    public static async generatePDF(user_hash: string, user: IUser, file: IFile): Promise<Readable> {
         return new Promise(async (resolve, reject) => {
             // be sure that file is a document
             FileService.requireFileIsDocument(file);
 
-            // go take content in gridfs and build content buffer
-            const content: Record<string, MongoClient.GridFSBucketReadStream> = await FileService.getFileContent(file);
-            const buffer: Buffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
+            // decrypt file and build new buffer
+            const content: string = (await FileService.getFileContent(user_hash, user, file)).content;
 
             // check that extension is available to the preview generation
             const validExtensions = ["ez","aw","atom","atomcat","atomsvc","bdoc","ccxml","cdmia","cdmic","cdmid","cdmio","cdmiq","cu","mdp","davmount","dbk","dssc","xdssc","ecma","emma","epub","exi","pfr","woff","woff2","gml","gpx","gxf","stk","ink","inkml","ipfix","jar","war","ear","ser","class","js","json","map","json5","jsonml","jsonld","lostxml","hqx","cpt","mads","webmanifest","mrc","mrcx","ma","nb","mb","mathml","mbox","mscml","metalink","meta4","mets","mods","m21","mp21","mp4s","m4p","doc","dot","mxf","bin","dms","lrf","mar","so","dist","distz","pkg","bpk","dump","elc","deploy","exe","dll","deb","dmg","iso","img","msi","msp","msm","buffer","oda","opf","ogx","omdoc","onetoc","onetoc2","onetmp","onepkg","oxps","xer","pdf","pgp","asc","sig","prf","p10","p7m","p7c","p7s","p8","ac","cer","crl","pkipath","pki","pls","ai","eps","ps","cww","pskcxml","rdf","rif","rnc","rl","rld","rs","gbr","mft","roa","rsd","rss","rtf","sbml","scq","scs","spq","spp","sdp","setpay","setreg","shf","smi","smil","rq","srx","gram","grxml","sru","ssdl","ssml","tei","teicorpus","tfi","tsd","plb","psb","pvb","tcap","pwn","aso","imp","acu","atc","acutc","air","fcdt","fxp","fxpl","xdp","xfdf","ahead","azf","azs","azw","acc","ami","apk","cii","fti","atx","mpkg","m3u8","pkpass","swi","iota","aep","mpm","bmi","rep","cdxml","mmd","cdy","cla","rp9","c4g","c4d","c4f","c4p","c4u","c11amc","c11amz","csp","cdbcmsg","cmc","clkx","clkk","clkp","clkt","clkw","wbs","pml","ppd","car","pcurl","dart","rdz","uvf","uvvf","uvd","uvvd","uvt","uvvt","uvx","uvvx","uvz","uvvz","fe_launch","dna","mlp","dpg","dfac","kpxx","ait","svc","geo","mag","nml","esf","msf","qam","slt","ssf","es3","et3","ez2","ez3","fdf","mseed","seed","dataless","gph","ftc","fm","frame","maker","book","fnc","ltf","fsc","oas","oa2","oa3","fg5","bh2","ddd","xdw","xbd","fzs","txd","ggb","ggt","gex","gre","gxt","g2w","g3w","gmx","gdoc","gslides","gsheet","kml","kmz","gqf","gqs","gac","ghf","gim","grv","gtm","tpl","vcg","hal","zmm","hbci","les","hpgl","hpid","hps","jlt","pcl","pclxl","sfd-hdstx","mpy","afp","listafp","list3820","irm","sc","icc","icm","igl","ivp","ivu","igm","xpw","xpx","i2g","qbo","qfx","rcprofile","irp","xpr","fcs","jam","rms","jisp","joda","ktz","ktr","karbon","chrt","kfo","flw","kon","kpr","kpt","ksp","kwd","kwt","htke","kia","kne","knp","skp","skd","skt","skm","sse","lasxml","lbd","lbe","123","apr","pre","nsf","org","scm","lwp","portpkg","mcd","mc1","cdkey","mwf","mfm","flo","igx","mif","daf","dis","mbk","mqy","msl","plc","txf","mpn","mpc","xul","cil","cab","xls","xlm","xla","xlc","xlt","xlw","xlam","xlsb","xlsm","xltm","eot","chm","ims","lrm","thmx","cat","stl","ppt","pps","pot","ppam","pptm","sldm","ppsm","potm","mpp","mpt","docm","dotm","wps","wks","wcm","wdb","wpl","xps","mseq","mus","msty","taglet","nlu","ntf","nitf","nnd","nns","nnw","ngdat","n-gage","rpst","rpss","edm","edx","ext","odc","otc","odb","odf","odft","odg","otg","odi","oti","odp","otp","ods","ots","odt","odm","ott","oth","xo","dd2","oxt","pptx","sldx","ppsx","potx","xlsx","xltx","docx","dotx","mgp","dp","esa","pdb","pqa","oprc","paw","str","ei6","efif","wg","plf","pbd","box","mgz","qps","ptid","qxd","qxt","qwd","qwt","qxl","qxb","bed","mxl","musicxml","cryptonote","cod","rm","rmvb","link66","st","see","sema","semd","semf","ifm","itp","iif","ipk","twd","twds","mmf","teacher","sdkm","sdkd","dxp","sfs","sdc","sda","sdd","smf","sdw","vor","sgl","smzip","sm","sxc","stc","sxd","std","sxi","sti","sxm","sxw","sxg","stw","sus","susp","svd","sis","sisx","xsm","bdm","xdm","tao","pcap","cap","dmp","tmo","tpt","mxs","tra","ufd","ufdl","utz","umj","unityweb","uoml","vcx","vsd","vst","vss","vsw","vis","vsf","wbxml","wmlc","wmlsc","wtb","nbp","wpd","wqd","stf","xar","xfdl","hvd","hvs","hvp","osf","osfpvg","saf","spf","cmp","zir","zirz","zaz","vxml","wgt","hlp","wsdl","wspolicy","7z","abw","ace","aab","x32","u32","vox","aam","aas","bcpio","torrent","blb","blorb","bz","bz2","boz","cbr","cba","cbt","cbz","cb7","vcd","cfs","chat","pgn","crx","cco","nsc","cpio","csh","udeb","dgc","dir","dcr","dxr","cst","cct","cxt","w3d","fgd","swa","wad","ncx","dtb","res","dvi","evy","eva","bdf","gsf","psf","otf","pcf","snf","ttf","ttc","pfa","pfb","pfm","afm","arc","spl","gca","ulx","gnumeric","gramps","gtar","hdf","php","install","jardiff","jnlp","latex","luac","lzh","lha","run","mie","prc","mobi","application","lnk","wmd","wmz","xbap","mdb","obd","crd","clp","com","bat","mvb","m13","m14","wmf","emf","emz","mny","pub","scd","trm","wri","nc","cdf","pac","nzb","pl","pm","p12","pfx","p7b","spc","p7r","rar","rpm","ris","sea","sh","shar","swf","xap","sql","sit","sitx","srt","sv4cpio","sv4crc","t3","gam","tar","tcl","tk","tex","tfm","texinfo","texi","obj","ustar","src","webapp","der","crt","pem","fig","xlf","xpi","xz","z1","z2","z3","z4","z5","z6","z7","z8","xaml","xdf","xenc","xhtml","xht","xml","xsl","xsd","dtd","xop","xpl","xslt","xspf","mxml","xhvml","xvml","xvm","yang","yin","zip","adp","au","snd","mid","midi","kar","rmi","mp4a","m4a","mpga","mp2","mp2a","mp3","m2a","m3a","oga","ogg","spx","s3m","sil","uva","uvva","eol","dra","dts","dtshd","lvp","pya","ecelp4800","ecelp7470","ecelp9600","rip","wav","weba","aac","aif","aiff","aifc","caf","flac","mka","m3u","wax","wma","ram","ra","rmp","xm","cdx","cif","cmdf","cml","csml","xyz","bmp","cgm","g3","gif","ief","jpeg","jpg","jpe","ktx","png","btif","sgi","svg","svgz","tiff","tif","psd","uvi","uvvi","uvg","uvvg","djvu","djv","sub","dwg","dxf","fbs","fpx","fst","mmr","rlc","mdi","wdp","npx","wbmp","xif","webp","3ds","ras","cmx","fh","fhc","fh4","fh5","fh7","ico","jng","sid","pcx","pic","pct","pnm","pbm","pgm","ppm","rgb","tga","xbm","xpm","xwd","eml","mime","igs","iges","msh","mesh","silo","dae","dwf","gdl","gtw","mts","vtu","wrl","vrml","x3db","x3dbz","x3dv","x3dvz","x3d","x3dz","appcache","manifest","ics","ifb","coffee","litcoffee","css","csv","hjson","html","htm","shtml","jade","jsx","less","mml","n3","txt","text","conf","def","list","log","in","ini","dsc","rtx","sgml","sgm","stylus","styl","tsv","t","tr","roff","man","me","ms","ttl","uri","uris","urls","vcard","curl","dcurl","mcurl","scurl","fly","flx","gv","3dml","spot","jad","wml","wmls","vtt","s","asm","c","cc","cxx","cpp","h","hh","dic","htc","f","for","f77","f90","hbs","java","lua","markdown","md","mkd","nfo","opml","p","pas","pde","sass","scss","etx","sfv","ymp","uu","vcs","vcf","yaml","yml","3gp","3gpp","3g2","h261","h263","h264","jpgv","jpm","jpgm","mj2","mjp2","ts","mp4","mp4v","mpg4","mpeg","mpg","mpe","m1v","m2v","ogv","qt","mov","uvh","uvvh","uvm","uvvm","uvp","uvvp","uvs","uvvs","uvv","uvvv","dvb","fvt","mxu","m4u","pyv","uvu","uvvu","viv","webm","f4v","fli","flv","m4v","mkv","mk3d","mks","mng","asf","asx","vob","wm","wmv","wmx","wvx","avi","movie","smv","ice"];
@@ -474,7 +495,7 @@ class FileService {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "This kind of file can't be previewed");
 
             // convert content
-            libre.convert(buffer, "pdf", undefined, (err: Error, data: any) => {
+            libre.convert(content, "pdf", undefined, (err: Error, data: any) => {
                 if(err)
                     reject(err);
 
@@ -489,20 +510,19 @@ class FileService {
     }
 
     // ask to preview a file
-    public static async generatePreview(file: IFile): Promise<Readable> {
+    public static async generatePreview(user_hash: string, user: IUser, file: IFile): Promise<Readable> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
 
-        // go take content in gridfs and build content buffer
-        const content: any = await FileService.getFileContent(file);
-        const buffer: Buffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
-
+        // read content, decrypt and send data
+        const content: string = (await FileService.getFileContent(user_hash, user, file)).content;
+        
         // if file got an easy output type we use it
         const startMime: string = file.mimetype.split("/")[0];
         if(startMime == "image") {
             // resize
-            const imageResizedBuffer: Buffer = await sharp(buffer).resize({ width: 200 }).extract({ left: 0, top: 0, width: 200, height: 130 }).png().toBuffer();
+            const imageResizedBuffer: Buffer = await sharp(content).resize({ width: 200 }).extract({ left: 0, top: 0, width: 200, height: 130 }).png().toBuffer();
 
             // create readable
             const readableOutputImg = new Readable();
@@ -528,7 +548,7 @@ class FileService {
             throw new HTTPError(HttpCodes.BAD_REQUEST, "This kind of file can't be previewed");
 
         // save input file in temp file
-        fs.writeFileSync(tempInputFile, buffer);
+        fs.writeFileSync(tempInputFile, content);
 
         // generate image and save it in a temp directory
         const options = {
