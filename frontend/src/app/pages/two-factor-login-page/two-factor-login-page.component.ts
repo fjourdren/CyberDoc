@@ -53,8 +53,7 @@ export class TwoFactorLoginPageComponent implements OnInit {
         try {
             switch (this.twoFactorType) {
                 case 'app':
-                    this.twoFactorServiceProvider.default().verifyTokenByApp(this.user.secret,
-                        this.tokenForm.get('token').value).toPromise().then(() => {
+                    this.twoFactorServiceProvider.default().verifyTokenByApp(this.tokenForm.get('token').value).toPromise().then(() => {
                         this.loading = false;
                         this.router.navigate(['/files']);
                     }).catch(err => {
@@ -63,8 +62,7 @@ export class TwoFactorLoginPageComponent implements OnInit {
                     });
                     break;
                 case 'sms':
-                    this.twoFactorServiceProvider.default().verifyTokenBySms(this.user.phoneNumber,
-                        this.tokenForm.get('token').value).toPromise().then(() => {
+                    this.twoFactorServiceProvider.default().verifyTokenBySms(this.tokenForm.get('token').value).toPromise().then(() => {
                         this.loading = false;
                         this.router.navigate(['/files']);
                     }).catch(err => {

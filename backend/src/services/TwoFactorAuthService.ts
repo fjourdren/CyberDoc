@@ -1,6 +1,10 @@
 import * as twilio from 'twilio';
 import {VerificationInstance} from "twilio/lib/rest/verify/v2/service/verification";
 import {VerificationCheckInstance} from "twilio/lib/rest/verify/v2/service/verificationCheck";
+import {IUser, User} from '../models/User';
+import {requireNonNull} from '../helpers/DataValidation';
+import HttpCodes from '../helpers/HttpCodes';
+import HTTPError from '../helpers/HTTPError';
 const twoFactor = require('node-2fa');
 
 class TwoFactorAuthService {
@@ -34,8 +38,16 @@ class TwoFactorAuthService {
         return twoFactor.generateSecret({name: 'CyberDoc', account: email});
     }
 
-    public static async verifyTokenGeneratedByApp(secret: string, token: string): Promise<number> {
-        return twoFactor.verifyToken(secret, token);
+    public static async verifyTokenGeneratedByApp(email: string, token: string): Promise<boolean> {
+        const user: IUser = requireNonNull(await User.findOne({email: email}).exec(), HttpCodes.UNAUTHORIZED, "Invalid user");
+
+        const delta = twoFactor.verifyToken(user.secret, token);
+
+        if (delta === null || delta === -1 || delta === 1) {
+            throw new HTTPError(HttpCodes.FORBIDDEN, 'Invalid token');
+        }
+
+        return true;
     }
 
     private static get client(){

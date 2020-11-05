@@ -218,7 +218,7 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
 
     private async _update2FAWithApp(): Promise<void> {
         const currentUser = this.userServiceProvider.default().getActiveUser();
-        await this.twoFAServiceProvider.default().verifyTokenByApp(this.qrSecret, this.tokenForm.get('token').value).toPromise();
+        await this.twoFAServiceProvider.default().verifyTokenByApp(this.tokenForm.get('token').value).toPromise();
 
         await this.userServiceProvider.default().updateTwoFactor(
             true, /*twoFactorApp*/
@@ -230,9 +230,7 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
 
     private async _update2FAWithSMS(): Promise<void> {
         const currentUser = this.userServiceProvider.default().getActiveUser();
-        await this.twoFAServiceProvider.default().verifyTokenBySms(
-            this.validPhoneNumber,
-            this.tokenForm.get('token').value).toPromise();
+        await this.twoFAServiceProvider.default().verifyTokenBySms(this.tokenForm.get('token').value).toPromise();
 
         await this.userServiceProvider.default().updateTwoFactor(
             currentUser.twoFactorApp,
