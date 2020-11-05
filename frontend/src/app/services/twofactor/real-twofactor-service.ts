@@ -4,7 +4,7 @@ import {map} from 'rxjs/operators';
 import {TwoFactorService} from './twofactor-service';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {CookieService} from 'ngx-cookie-service';
-import { environment } from "src/environments/environment";
+import { environment } from 'src/environments/environment';
 
 export class RealTwoFactorService implements TwoFactorService {
     private jwtHelper = new JwtHelperService();
@@ -19,9 +19,8 @@ export class RealTwoFactorService implements TwoFactorService {
         }));
     }
 
-    verifyTokenBySms(phoneNumber: string, token: string): Observable<boolean> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token`, {
-            phoneNumber,
+    verifyTokenBySms(token: string): Observable<boolean> {
+        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token/sms`, {
             token
         }, {withCredentials: true}).pipe(map(response => {
             if (response.success) {
@@ -37,9 +36,8 @@ export class RealTwoFactorService implements TwoFactorService {
         }));
     }
 
-    verifyTokenByApp(secret: string, token: string): Observable<boolean> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token`, {
-            secret,
+    verifyTokenByApp(token: string): Observable<boolean> {
+        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token/app`, {
             token
         }, {withCredentials: true}).pipe(map(response => {
             if (response.success) {

@@ -41,8 +41,7 @@ export class TwoFactorCheckDialogComponent {
         this.loading = true;
         switch (this.twoFactorType) {
             case 'app':
-                this.twoFactorServiceProvider.default().verifyTokenByApp(this.user.secret,
-                    this.twoFactorForm.get('token').value).toPromise().then(() => {
+                this.twoFactorServiceProvider.default().verifyTokenByApp(this.twoFactorForm.get('token').value).toPromise().then(() => {
                     this.loading = false;
                     this.twoFactorDialog.close(true);
                 }).catch(err => {
@@ -55,8 +54,7 @@ export class TwoFactorCheckDialogComponent {
                 });
                 break;
             case 'sms':
-                this.twoFactorServiceProvider.default().verifyTokenBySms(this.user.phoneNumber,
-                    this.twoFactorForm.get('token').value).toPromise().then(() => {
+                this.twoFactorServiceProvider.default().verifyTokenBySms(this.twoFactorForm.get('token').value).toPromise().then(() => {
                     this.loading = false;
                     this.twoFactorDialog.close(true);
                 }).catch(err => {
