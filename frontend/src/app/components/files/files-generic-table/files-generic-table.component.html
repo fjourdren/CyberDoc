@@ -1,4 +1,4 @@
-<div style="height: 100%;" (contextmenu)="onContextMenu($event, undefined)">
+<div style="height: 100%;" (contextmenu)="onContextMenu($event, undefined)" *ngIf="dataSource && dataSource.data.length !== 0">
     <table mat-table [dataSource]="dataSource" matSort>
 
         <ng-container matColumnDef="icon">
