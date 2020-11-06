@@ -380,18 +380,13 @@ class FileService {
     public static async copyDocument(user_hash: string, user: IUser, file: IFile, destination_id: string, copyFileName: string | undefined = undefined): Promise<IFile> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
-
-        // get document informations
-        const fileInfomations: Record<any, any> = await FileService.getFileContent(user_hash, user, file);
-
-        // encrypt with new key
-        const encrypted_copy: Record<any, any> = EncryptionFileService.encryptFileContent(fileInfomations.content);
-        const encrypted_copyReadable: Readable = anyToReadable(encrypted_copy.content);
-
+        
+        // new filename
         // ***** generate new filename *****
-        if(copyFileName == undefined) {
+        let filename: string | undefined;
+        if(filename == undefined) {
             // change to something != undefined
-            copyFileName = "";
+            filename = "";
 
             // split to find extension later
             const filenameSplit = file.name.split(".");
@@ -399,41 +394,55 @@ class FileService {
             if(filenameSplit.length > 1) {
                 // we concanate all if there is multi points
                 for(let i = 0; i < filenameSplit.length - 1; i++)
-                    copyFileName += filenameSplit[i];
+                filename += filenameSplit[i];
 
                 // generate final filename
-                copyFileName = copyFileName + " - Copy" + filenameSplit[filenameSplit.length - 1];
+                filename = filename + " - Copy" + filenameSplit[filenameSplit.length - 1];
             } else {
                 // if there is no point, we just add the postfix
-                copyFileName = file.name + " - Copy"
+                filename = file.name + " - Copy"
             }
         }
         // ***********************
 
-        // start copying
-        const objectId: string = await GridFSTalker.create(copyFileName, fileInfomations.infos.contentType, encrypted_copyReadable); // generate the copy of the document in grid fs
-
-        // generate new file informations
+        // create new file object
         const newFile: IFile = new File();
         newFile._id            = Guid.raw();
         newFile.type           = file.type;
         newFile.mimetype       = file.mimetype;
-        newFile.name           = copyFileName;
+        newFile.name           = filename;
         newFile.size           = file.size;
-        newFile.document_id    = objectId;   
         newFile.parent_file_id = destination_id;
         newFile.owner_id       = user._id;
         newFile.shareMode      = ShareMode.READONLY;
         newFile.sharedWith     = [];
 
+        // read file content and convert
+        const content: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
+        const content_buffer: Buffer = await streamToBuffer(content); // used to rebuild document from a stream of chunk
+
+        // decrypt content
+        const aes_file_key: string = await EncryptionFileService.getFileKey(user, file, user_hash);
+        const decrypt_content: string = CryptoHelper.decryptAES(aes_file_key, content_buffer.toString());
+
+        // encrypt with a new eas key
+        //const encrypted_new_file: Record<any, any> = EncryptionFileService.encryptFileContent(decrypt_content);
+        //const encrypted_new_file_readable: Readable = anyToReadable(encrypted_new_file["content"]);
+
+        // save new file with gridfs
+        const objectId: string = await GridFSTalker.create(newFile.name, newFile.mimetype, anyToReadable(decrypt_content));
+        
+        // save object
+        newFile.document_id = objectId;
         const out: IFile = await newFile.save(); // save the new file
 
-
-        // create a key to the new file for all users
-        const users: IUser[] = await EncryptionFileService.getUsersWithAccess(file);
+        // save key to every user that have access to source document
+        /*const users: IUser[] = await EncryptionFileService.getUsersWithAccess(file);
         for await (let user_to_add of users) {
-            await EncryptionFileService.addFileKeyToUser(user_to_add, newFile, encrypted_copy.aes_key);
-        }
+            await EncryptionFileService.addFileKeyToUser(user_to_add, newFile, encrypted_new_file["aes_key"]);
+        }*/
+
+        //await EncryptionFileService.addFileKeyToUser(user, newFile, encrypted_new_file["aes_key"]);
 
         return out;
     }
