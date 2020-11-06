@@ -18,20 +18,6 @@ class AuthController {
 
             const user_hash = CryptoHelper.prepareUser_hash(CryptoHelper.sha3(email+password));
 
-            /*const genaes: string = CryptoHelper.generateAES();
-            console.log(CryptoHelper.decryptAES(genaes, CryptoHelper.encryptAES(genaes, "AZERTY")))
-            
-            console.log(CryptoHelper.decryptAES(user_hash, CryptoHelper.encryptAES(user_hash, "AZERTY")))
-            const rsa: NodeRSA = CryptoHelper.generateRSAKeys();
-
-            const enc_pri: string = CryptoHelper.encryptAES(user_hash, rsa.exportKey("private"));
-            const de_pri: string = CryptoHelper.decryptAES(user_hash, enc_pri);
-
-            const pub: NodeRSA = new NodeRSA().importKey(rsa.exportKey("public"), "public");
-            const pri: NodeRSA = new NodeRSA().importKey(de_pri, "private");
-            console.log(CryptoHelper.decryptRSA(pri, CryptoHelper.encryptRSA(pub, "AZERTY")))
-            return;*/
-
             const jwtToken = requireNonNull(await AuthService.signup(user_hash, firstname, lastname, email, password, role));
             res.status(HttpCodes.CREATED);
             res.json({

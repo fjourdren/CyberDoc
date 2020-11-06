@@ -14,23 +14,18 @@ import { Readable } from 'stream';
 /**
  * === TODO ===
  * XT register: generate user public & private key
- * Export
- * Import
+ * XT Export
+ * XT Import
  * XT send user token to
  *      XT File download
  *      XT file upload
  *      XT file content update
  *      X copy
- *      X preview
+ *      XT preview
  *      XT export pdf
  *      XT download
  *      X sharing
- *      X change profile
- * 
- * 
- * X change email & password
- * X File encrypt
- * X File decrypt
+ *      X change profile (email & password)
  */
 
 class EncryptionFileService {
@@ -45,25 +40,11 @@ class EncryptionFileService {
     /** 
      * RSA to manage user permission to acess to a file 
     */
-    // generate and save user's RSA keys
-    public static generateAndSaveRSAKeys(user: IUser, user_hash: string) {
-        const key: nodeRSA = CryptoHelper.generateRSAKeys();
-
-        // get public and private key as a string
-        const public_key: string = key.exportKey("public");
-        const private_key: string = key.exportKey("private");
-
-        // save keys
-        user.userKeys.public_key = public_key;
-        EncryptionFileService.encryptAndSaveUserPrivateKey(user, user_hash, private_key);
-    }
-
     // Encrypt & save User's private key (hashKey become the encryption key)
-    public static encryptAndSaveUserPrivateKey(user: IUser, user_key: string, private_key: string) {
+    public static async encryptAndSaveUserPrivateKey(user: IUser, user_key: string, private_key: string) {
         const encrypted_private_key: string = CryptoHelper.encryptAES(user_key, private_key);
         user.userKeys.encrypted_private_key = encrypted_private_key;
-        //user.userKeys.encrypted_private_key = private_key; // TO DELETE
-        user.save();
+        return await user.save();
     }
 
     // Get user's public encryption key
@@ -77,24 +58,10 @@ class EncryptionFileService {
     public static async getPrivateKey(user: IUser, user_hash: string): Promise<NodeRSA> {
         const updated_user: any = requireNonNull(await User.findById(user._id).exec(), HttpCodes.NOT_FOUND, "This user doesn't exist");
         const user_privateKey: string = CryptoHelper.decryptAES(user_hash, updated_user.userKeys[0].encrypted_private_key);
-        //const user_privateKey = updated_user.userKeys[0].encrypted_private_key; // TO DELETE
 
         const user_key_obj: NodeRSA = new NodeRSA();
         return user_key_obj.importKey(user_privateKey, "private");
     }
-
-    // rencrypt the user's private key when he changed his email or password
-    public static async changeProfile(user: IUser, current_user_hash: string, new_email: string, new_password: string) {
-        // generate new user_hash
-        const new_hash: string = CryptoHelper.sha3(new_email + new_password);
-
-        // decrypt private key
-        const user_privateKey: string = (await EncryptionFileService.getPrivateKey(user, current_user_hash)).exportKey("private");
-
-        // reencrypt private key and save
-        EncryptionFileService.encryptAndSaveUserPrivateKey(user, new_hash, user_privateKey);
-    }
-
 
 
     /** 
