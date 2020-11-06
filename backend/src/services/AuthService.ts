@@ -45,7 +45,6 @@ class AuthService {
         const user_keys: IUserEncryptionKeys = new UserEncryptionKeys();
         user_keys.public_key = public_key;
         user_keys.encrypted_private_key = CryptoHelper.encryptAES(user_hash, private_key);
-        //user_keys.encrypted_private_key = private_key; // TO DELETE
 
         newUser.userKeys = user_keys;
 

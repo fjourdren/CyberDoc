@@ -1,10 +1,17 @@
 import mongoose from 'mongoose';
+import Guid from 'guid';
 
 /**
  * Building typescript & Mongoose data archs
  */
 // Model which contains users' asymetrical encryption keys (private key is encrypted by user's hash => email + password)
 export const UserEncryptionKeysSchema = new mongoose.Schema({
+    _id: {
+        type: String,
+        unique: true,
+        uniqueCaseInsensitive: true,
+        default: () => Guid.raw()
+    },
     public_key: {
         type: String,
         required: true,
@@ -20,7 +27,7 @@ export const UserEncryptionKeysSchema = new mongoose.Schema({
 
 // DO NOT export this, Type script validation (= Mongoose raw model)
 export interface IUserEncryptionKeys extends mongoose.Document {
-    file_id: string;
+    _id: string;
     public_key: string;
     encrypted_private_key: string;
 }
