@@ -48,7 +48,7 @@
         <div class="error-txt" *ngIf="invalidPhoneNumber">{{'twofactor.invalid_phone_number' | translate}}</div>
         <div class="error-txt" *ngIf="tooManySMSSentError">{{'twofactor.too_many_sms_sent_error' | translate}}</div>
         <div class="bold" *ngIf="smsSent">{{'twofactor.sms_sent' | translate}}</div>
-        <div class="bold">{{'twofactor.enter_phone_number' | translate}}</div>
+        <br>
         <form id="configure-via-sms-field" [formGroup]="phoneNumberForm">
                 <mat-form-field appearance="fill">
                     <mat-label>{{'twofactor.country' | translate}}</mat-label>
