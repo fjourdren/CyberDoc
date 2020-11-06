@@ -97,12 +97,13 @@
             <mat-icon fontSet="fa" fontIcon="fa-file-pdf"></mat-icon>
             <span>{{ 'fileaction.export' | translate }}</span>
         </button>
-        <button *ngIf="!isReadOnly(selectedNode) && !selectedNode.isDirectory" mat-menu-item
+        <!-- We can't share a directory, a file shared with us neither -->
+        <button *ngIf="!selectedNode.isDirectory && !sharedWithMeMode" mat-menu-item
             (click)="onContextMenuOrBottomSheetSelection('share')">
             <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>
             <span>{{ 'fileaction.share' | translate }}</span>
         </button>
-        <!-- We can't share a directory, a read-only file shared with us neither -->
+        <!-- We can't share a directory, a file shared with us neither -->
         <button *ngIf="showDetailsButton" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('details')">
             <mat-icon fontSet="fa" fontIcon="fa-info-circle"></mat-icon>
             <span>{{ 'fileaction.details' | translate }}</span>
