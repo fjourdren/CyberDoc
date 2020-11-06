@@ -103,6 +103,7 @@ export class FilesUtilsService {
 
   isPDFExportAvailable(fileType: FileType): boolean {
     return [
+      FileType.Text,
       FileType.Document,
       FileType.Spreadsheet,
       FileType.Presentation
