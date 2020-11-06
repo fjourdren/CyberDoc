@@ -26,10 +26,11 @@
             {{ 'fileaction.export' | translate }}
         </span>
     </a>
-    <a href="#" *ngIf="!data.node.isDirectory && !data.sharedWithMeMode  && !data.readonlyMode" mat-list-item
+    <a href="#" *ngIf="!data.node.isDirectory && !data.sharedWithMeMode" mat-list-item
        (click)="onBottomSheetSelection($event,'share')">
         <span>
-            <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>{{ 'fileaction.share' | translate }}
+            <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>
+            {{ 'fileaction.share' | translate }}
         </span>
     </a>
     <a href="#" *ngIf="data.showDetailsEntry" mat-list-item (click)="onBottomSheetSelection($event,'details')">
