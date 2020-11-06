@@ -23,15 +23,27 @@ class TwoFactorAuthService {
 
     /**
      * Verify that the provided token is correct
+     * @param email
      * @param phoneNumber
      * @param token
      */
-    public static async verifySMSToken(phoneNumber: string, token: string): Promise<VerificationCheckInstance> {
-        const verificationInstance = await TwoFactorAuthService.client.verify.services(process.env.TWILIO_SERVICE_ID)
-            .verificationChecks
-            .create({to: phoneNumber, code: token}).then(res => {
-                return res;
-            });
+    public static async verifySMSToken(email: string, phoneNumber: string | undefined,  token: string): Promise<VerificationCheckInstance> {
+        const user: IUser = requireNonNull(await User.findOne({email: email}).exec(), HttpCodes.UNAUTHORIZED, "Invalid user");
+        let verificationInstance;
+        if(phoneNumber) { // Registering => Currently no phoneNumber registered in DB
+            verificationInstance = await TwoFactorAuthService.client.verify.services(process.env.TWILIO_SERVICE_ID)
+                .verificationChecks
+                .create({to: phoneNumber, code: token}).then(res => {
+                    return res;
+                });
+        } else { // Checking
+            verificationInstance = await TwoFactorAuthService.client.verify.services(process.env.TWILIO_SERVICE_ID)
+                .verificationChecks
+                .create({to: user.phoneNumber, code: token}).then(res => {
+                    return res;
+                });
+        }
+
         if(verificationInstance.status !== 'approved') {
             throw new HTTPError(HttpCodes.FORBIDDEN, 'Invalid token');
         }
@@ -43,10 +55,15 @@ class TwoFactorAuthService {
         return twoFactor.generateSecret({name: 'CyberDoc', account: email});
     }
 
-    public static async verifyTokenGeneratedByApp(email: string, token: string): Promise<boolean> {
+    public static async verifyTokenGeneratedByApp(email: string, secret: string | undefined, token: string): Promise<boolean> {
         const user: IUser = requireNonNull(await User.findOne({email: email}).exec(), HttpCodes.UNAUTHORIZED, "Invalid user");
-
-        const delta = twoFactor.verifyToken(user.secret, token);
+        let delta;
+        if(secret) { // Register => Currently no secret registered in DB
+            delta = twoFactor.verifyToken(secret, token);
+        } else { // Verify
+            requireNonNull(user.secret);
+            delta = twoFactor.verifyToken(user.secret, token);
+        }
 
         if (delta === null || delta === -1 || delta === 1) {
             throw new HTTPError(HttpCodes.FORBIDDEN, 'Invalid token');

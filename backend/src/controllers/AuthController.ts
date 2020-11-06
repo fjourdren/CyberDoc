@@ -4,8 +4,6 @@ import {requireNonNull} from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes'
 
 import AuthService from '../services/AuthService';
-import HTTPError from '../helpers/HTTPError';
-import TwoFactorAuthService from '../services/TwoFactorAuthService';
 
 class AuthController {
 

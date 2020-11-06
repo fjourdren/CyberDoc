@@ -11,7 +11,7 @@ export class RealTwoFactorService implements TwoFactorService {
 
     constructor(private httpClient: HttpClient, private cookieService: CookieService) {}
 
-    sendTokenBySms(phoneNumber: string): Observable<any> {
+    sendTokenBySms(phoneNumber: string | undefined): Observable<any> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/send/sms`, {
             phoneNumber
         }, {withCredentials: true}).pipe(map(response => {
@@ -19,8 +19,9 @@ export class RealTwoFactorService implements TwoFactorService {
         }));
     }
 
-    verifyTokenBySms(token: string): Observable<boolean> {
+    verifyTokenBySms(phoneNumber: string | undefined, token: string): Observable<boolean> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token/sms`, {
+            phoneNumber,
             token
         }, {withCredentials: true}).pipe(map(response => {
             if (response.success) {
@@ -36,8 +37,9 @@ export class RealTwoFactorService implements TwoFactorService {
         }));
     }
 
-    verifyTokenByApp(token: string): Observable<boolean> {
+    verifyTokenByApp(secret: string | undefined, token: string): Observable<boolean> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token/app`, {
+            secret,
             token
         }, {withCredentials: true}).pipe(map(response => {
             if (response.success) {

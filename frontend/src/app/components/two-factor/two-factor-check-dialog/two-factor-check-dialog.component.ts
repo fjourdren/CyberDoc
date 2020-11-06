@@ -41,7 +41,8 @@ export class TwoFactorCheckDialogComponent {
         this.loading = true;
         switch (this.twoFactorType) {
             case 'app':
-                this.twoFactorServiceProvider.default().verifyTokenByApp(this.twoFactorForm.get('token').value).toPromise().then(() => {
+                this.twoFactorServiceProvider.default().verifyTokenByApp(
+                    undefined, this.twoFactorForm.get('token').value).toPromise().then(() => {
                     this.loading = false;
                     this.twoFactorDialog.close('app:' + this.twoFactorForm.get('token').value);
                 }).catch(err => {
@@ -54,7 +55,8 @@ export class TwoFactorCheckDialogComponent {
                 });
                 break;
             case 'sms':
-                this.twoFactorServiceProvider.default().verifyTokenBySms(this.twoFactorForm.get('token').value).toPromise().then(() => {
+                this.twoFactorServiceProvider.default().verifyTokenBySms(
+                    undefined, this.twoFactorForm.get('token').value).toPromise().then(() => {
                     this.loading = false;
                     this.twoFactorDialog.close('sms:' + this.twoFactorForm.get('token').value);
                 }).catch(err => {
@@ -71,7 +73,7 @@ export class TwoFactorCheckDialogComponent {
 
     sendTokenBySms(): void {
         this.twoFactorType = 'sms';
-        this.twoFactorServiceProvider.default().sendTokenBySms(this.user.phoneNumber).toPromise()
+        this.twoFactorServiceProvider.default().sendTokenBySms(undefined).toPromise()
             .catch(err => this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {duration: 2500}));
     }
 }

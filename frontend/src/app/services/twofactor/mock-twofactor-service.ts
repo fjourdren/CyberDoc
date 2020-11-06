@@ -17,7 +17,7 @@ export class MockTwoFactorService implements TwoFactorService {
         return undefined;
     }
 
-    verifyTokenByApp(token: string): Observable<boolean> {
+    verifyTokenByApp(secret: string, token: string): Observable<boolean> {
         return undefined;
     }
 

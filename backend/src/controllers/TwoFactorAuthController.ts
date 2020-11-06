@@ -11,8 +11,14 @@ class TwoFactorAuthController {
     public static async sendTokenBySms(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const {phoneNumber} = req.body;
-            requireNonNull(phoneNumber);
-            const verificationInstance = await TwoFactorAuthService.sendTokenViaSMS(phoneNumber);
+
+            let verificationInstance;
+            if(res.locals.APP_JWT_TOKEN.user.phoneNumber) { // 2FA by SMS already registered
+                verificationInstance = await TwoFactorAuthService.sendTokenViaSMS(res.locals.APP_JWT_TOKEN.user.phoneNumber);
+            } else if(requireNonNull(phoneNumber)) { //
+                verificationInstance = await TwoFactorAuthService.sendTokenViaSMS(phoneNumber);
+            }
+
             res.status(HttpCodes.OK);
             res.json(verificationInstance);
         } catch (err) {
@@ -28,10 +34,10 @@ class TwoFactorAuthController {
 
     public static async verifyTokenApp(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const {token} = req.body;
+            const {secret, token} = req.body;
             requireNonNull(token);
 
-            await TwoFactorAuthService.verifyTokenGeneratedByApp(res.locals.APP_JWT_TOKEN.user.email, token);
+            await TwoFactorAuthService.verifyTokenGeneratedByApp(res.locals.APP_JWT_TOKEN.user.email, secret, token);
 
             const jwtToken = jwt.sign({
                 user: res.locals.APP_JWT_TOKEN.user,
@@ -55,10 +61,10 @@ class TwoFactorAuthController {
 
     public static async verifyTokenSms(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const {token} = req.body;
+            const {phoneNumber, token} = req.body;
             requireNonNull(token);
 
-            await TwoFactorAuthService.verifySMSToken(res.locals.APP_JWT_TOKEN.user.phoneNumber, token);
+            await TwoFactorAuthService.verifySMSToken(res.locals.APP_JWT_TOKEN.user.email, phoneNumber, token);
 
             const jwtToken = jwt.sign({
                 user: res.locals.APP_JWT_TOKEN.user,
