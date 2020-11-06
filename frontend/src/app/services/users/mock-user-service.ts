@@ -241,7 +241,7 @@ export class MockUserService implements UserService {
         }));
     }
 
-    deleteAccount(): Observable<void> {
+    deleteAccount(xAuthToken: string): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');

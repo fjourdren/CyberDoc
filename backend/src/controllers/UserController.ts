@@ -6,6 +6,9 @@ import { requireNonNull } from '../helpers/DataValidation';
 import UserService from '../services/UserService';
 
 import IUser, { User } from '../models/User';
+import HTTPError from '../helpers/HTTPError';
+import AuthService from '../services/AuthService';
+import TwoFactorAuthService from '../services/TwoFactorAuthService';
 
 class UserController {
 
@@ -57,7 +60,32 @@ class UserController {
 
     public static async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            await UserService.delete(res.locals.APP_JWT_TOKEN.user._id);
+            const user: IUser = requireNonNull(await User.findOne({ email: res.locals.APP_JWT_TOKEN.user.email.toLowerCase() }).exec());
+
+            const tokenBase64 = req.header('x-auth-token');
+            if (!tokenBase64) {
+                throw new HTTPError(HttpCodes.UNAUTHORIZED, 'No X-Auth-Token : authorization denied');
+            }
+            const decryptedToken = new Buffer(tokenBase64, 'base64').toString('ascii').split(':');
+            if(decryptedToken.length != 3) {
+                throw new HTTPError(HttpCodes.BAD_REQUEST, 'Bad x-auth-token');
+            }
+            if(decryptedToken[2].length != 6) {
+                throw new HTTPError(HttpCodes.BAD_REQUEST, 'Token size should be equal to 6');
+            }
+            await AuthService.isPasswordValid(user.email, decryptedToken[0]);
+
+            switch(decryptedToken[1]) {
+                case 'app':
+                    await TwoFactorAuthService.verifyTokenGeneratedByApp(user.email, undefined, decryptedToken[2]);
+                    break;
+                case 'sms':
+                    await TwoFactorAuthService.verifySMSToken(user.email, undefined, decryptedToken[2]);
+                    break;
+                default:
+                    throw new HTTPError(HttpCodes.BAD_REQUEST, "appOrSms should be equal to app or sms");
+            }
+            await UserService.delete(user._id);
 
             res.status(HttpCodes.OK);
             res.json({

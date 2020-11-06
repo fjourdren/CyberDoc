@@ -88,6 +88,10 @@ export class SettingsProfileComponent {
     deleteAccount(): void {
         this.dialog.open(SecurityCheckDialogComponent, {
             maxWidth: '500px'
+        }).afterClosed().subscribe(xAuthTokenArray => {
+            if (xAuthTokenArray && xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
+                this.userServiceProvider.default().deleteAccount(xAuthTokenArray).toPromise();
+            }
         });
     }
 
