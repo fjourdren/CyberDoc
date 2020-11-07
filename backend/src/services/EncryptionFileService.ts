@@ -10,23 +10,6 @@ import IUser, { User } from "../models/User";
 import { streamToBuffer } from '../helpers/Conversions';
 import { Readable } from 'stream';
 
-/**
- * === TODO ===
- * XT register: generate user public & private key
- * XT Export
- * XT Import
- * XT send user token to
- *      XT File download
- *      XT file upload
- *      XT file content update
- *      XT copy
- *      XT preview
- *      XT export pdf
- *      XT download
- *      X sharing
- *      XT change profile (email & password)
- */
-
 class EncryptionFileService {
     /**
      * generate user key
