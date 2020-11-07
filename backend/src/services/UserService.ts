@@ -57,9 +57,12 @@ class UserService {
                 // reencrypt new private key
                 const encrypted_private_key: string = CryptoHelper.encryptAES(new_user_hash, user_privateKey);
 
+                // get public key
+                const user_publicKey: string = (await EncryptionFileService.getPublicKey(user.email)).exportKey("public");
+
                 // recreate new object
                 let keys: IUserEncryptionKeys = new UserEncryptionKeys();
-                keys.public_key = user.userKeys.public_key;
+                keys.public_key = user_publicKey;
                 keys.encrypted_private_key = encrypted_private_key;
 
                 await User.updateOne({_id: user._id}, {$set: { 'userKeys': keys }});
