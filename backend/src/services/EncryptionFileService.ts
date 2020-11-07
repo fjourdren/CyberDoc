@@ -25,7 +25,7 @@ import { Readable } from 'stream';
  *      XT export pdf
  *      XT download
  *      X sharing
- *      X change profile (email & password)
+ *      XT change profile (email & password)
  */
 
 class EncryptionFileService {

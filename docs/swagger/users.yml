@@ -246,13 +246,19 @@ paths:
         content:
           application/json:
             schema:
-              example: 
+              example:
+                user_hash: "qjeoeufjse16ef541sefssejesle"
+                new_user_hash: "1qzqz2qzd34qzd856effese"
                 firstname: "John"
                 lastname: "DOE"
                 email: "email@gmail.com"
                 password: "MyPassword"
               type: object
               properties:
+                user_hash:
+                  type: string
+                new_user_hash:
+                  type: string
                 firstname:
                   type: string
                 lastname:

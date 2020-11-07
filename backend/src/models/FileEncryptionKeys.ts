@@ -15,7 +15,7 @@ export const FileEncryptionKeysSchema = new mongoose.Schema({
         required: true,
         trim: true
     }
-});
+}, { _id : false });
 
 
 // DO NOT export this, Type script validation (= Mongoose raw model)

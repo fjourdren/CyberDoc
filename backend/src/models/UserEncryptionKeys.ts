@@ -6,12 +6,6 @@ import Guid from 'guid';
  */
 // Model which contains users' asymetrical encryption keys (private key is encrypted by user's hash => email + password)
 export const UserEncryptionKeysSchema = new mongoose.Schema({
-    _id: {
-        type: String,
-        unique: true,
-        uniqueCaseInsensitive: true,
-        default: () => Guid.raw()
-    },
     public_key: {
         type: String,
         required: true,
@@ -22,7 +16,7 @@ export const UserEncryptionKeysSchema = new mongoose.Schema({
         required: true,
         trim: true
     }
-});
+}, { _id : false });
 
 
 // DO NOT export this, Type script validation (= Mongoose raw model)
