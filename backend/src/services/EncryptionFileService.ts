@@ -1,5 +1,4 @@
 import NodeRSA from 'node-rsa';
-import nodeRSA from 'node-rsa';
 
 import CryptoHelper from "../helpers/CryptoHelper";
 import { requireNonNull } from '../helpers/DataValidation';
@@ -20,7 +19,7 @@ import { Readable } from 'stream';
  *      XT File download
  *      XT file upload
  *      XT file content update
- *      X copy
+ *      XT copy
  *      XT preview
  *      XT export pdf
  *      XT download
@@ -69,12 +68,25 @@ class EncryptionFileService {
      * */
     // get file's aes_key
     public static async getFileKey(user: IUser, file: IFile, user_hash: string): Promise<string> {
-        const fromDb: IUser = requireNonNull(await User.findOne({'_id': user._id, 'filesKeys.file_id': file._id }).exec());
+        const fromDb: IUser = requireNonNull(await User.findOne({'_id': user._id}).exec());
+
+        // search the good key in the user's keys array
+        let user_file_key_object: IFileEncryptionKeys | undefined;
+        for await (let inTest of fromDb.filesKeys) {
+            if(file._id == inTest.file_id) {
+                user_file_key_object = inTest;
+                break;
+            }
+        }
+
+        // check if a key has been found
+        if(user_file_key_object == undefined)
+            throw new HTTPError(HttpCodes.NOT_FOUND, "File not found")
         
         // get user private key
         const user_privateKey: NodeRSA = await EncryptionFileService.getPrivateKey(user, user_hash);
 
-        return CryptoHelper.decryptRSA(user_privateKey, fromDb.filesKeys[0].encryption_file_key);
+        return CryptoHelper.decryptRSA(user_privateKey, user_file_key_object.encryption_file_key);
     }
  
     // Encrypt file's content
@@ -130,12 +142,13 @@ class EncryptionFileService {
         for(let i = 0; i < user_filesKeys.length; i++)
             if(user_filesKeys[i].file_id == file._id)
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "The user already has an encryption key for that file")
-
+    
         // add to user's key list
-        user.filesKeys.push(key_object);
+        let temp = user.filesKeys;
+        temp.push(key_object);
 
         // update tag list
-        return requireNonNull(await User.updateOne({ _id: user._id }, {$set: {filesKeys: user.filesKeys}}).exec());
+        return requireNonNull(await User.updateOne({ _id: user._id }, {$set: {filesKeys: temp }}).exec());
     }
 
     // Unshare a file with a user
