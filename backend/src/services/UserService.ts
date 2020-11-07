@@ -9,6 +9,7 @@ import HttpCodes from "../helpers/HttpCodes";
 import EncryptionFileService from "./EncryptionFileService";
 import CryptoHelper from "../helpers/CryptoHelper";
 import { Mongoose } from "mongoose";
+import IUserEncryptionKeys, { UserEncryptionKeys } from "../models/UserEncryptionKeys";
 
 class UserService {
 
@@ -54,29 +55,18 @@ class UserService {
             if(new_user_hash) {
                 // decrypt private key
                 const user_privateKey: string = (await EncryptionFileService.getPrivateKey(user, user_hash)).exportKey("private");
-                
+    
+                // reencrypt new private key
                 const encrypted_private_key: string = CryptoHelper.encryptAES(new_user_hash, user_privateKey);
-                /*user.userKeys.public_key = user.userKeys.public_key;
-                user.userKeys.encrypted_private_key = encrypted_private_key;*/
 
-                console.log(encrypted_private_key)
+                // recreate new object
+                let keys: IUserEncryptionKeys = new UserEncryptionKeys();
+                keys.public_key = user.userKeys.public_key;
+                keys.encrypted_private_key = encrypted_private_key;
 
-                await User.collection.updateOne({_id: user._id}, {$set: {'userKeys.public_key': "123", 'userKeys.encrypted_private_key': encrypted_private_key}});
-
-                //user.set("userKeys.encrypted_private_key", encrypted_private_key);
-
-                /*user.markModified('userKeys');
-                user.markModified('userKeys.encrypted_private_key');
-
-                console.log(encrypted_private_key)*/
-
-                //await User.findByIdAndUpdate(user._id, {$set: {'userKeys.encrypted_private_key': encrypted_private_key}}).exec();
+                await User.updateOne({_id: user._id}, {$set: { 'userKeys': keys }});
             }
         }
-
-        
-
-        console.log(await User.findById(user._id).exec());
 
         const newToken = AuthService.generateJWTToken(user, true);
 
