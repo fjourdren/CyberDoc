@@ -58,7 +58,6 @@ class UserEncryptionController {
             
             // get user's keys
             const cutContent: string[] = fileContents.split("-----BEGIN RSA PRIVATE KEY-----");
-            console.log(cutContent)
             const public_key: string = cutContent[0];
             const private_key: string = "-----BEGIN RSA PRIVATE KEY-----" + cutContent[1];
 

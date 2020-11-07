@@ -426,23 +426,21 @@ class FileService {
         const decrypt_content: string = CryptoHelper.decryptAES(aes_file_key, content_buffer.toString());
 
         // encrypt with a new eas key
-        //const encrypted_new_file: Record<any, any> = EncryptionFileService.encryptFileContent(decrypt_content);
-        //const encrypted_new_file_readable: Readable = anyToReadable(encrypted_new_file["content"]);
+        const encrypted_new_file: Record<any, any> = EncryptionFileService.encryptFileContent(decrypt_content);
+        const encrypted_new_file_readable: Readable = anyToReadable(encrypted_new_file["content"]);
 
         // save new file with gridfs
-        const objectId: string = await GridFSTalker.create(newFile.name, newFile.mimetype, anyToReadable(decrypt_content));
-        
+        const objectId: string = await GridFSTalker.create(newFile.name, newFile.mimetype, encrypted_new_file_readable);
+
         // save object
         newFile.document_id = objectId;
         const out: IFile = await newFile.save(); // save the new file
 
         // save key to every user that have access to source document
-        /*const users: IUser[] = await EncryptionFileService.getUsersWithAccess(file);
+        const users: IUser[] = await EncryptionFileService.getUsersWithAccess(file);
         for await (let user_to_add of users) {
-            await EncryptionFileService.addFileKeyToUser(user_to_add, newFile, encrypted_new_file["aes_key"]);
-        }*/
-
-        //await EncryptionFileService.addFileKeyToUser(user, newFile, encrypted_new_file["aes_key"]);
+            await EncryptionFileService.addFileKeyToUser(user_to_add, out, encrypted_new_file["aes_key"]);
+        }
 
         return out;
     }
