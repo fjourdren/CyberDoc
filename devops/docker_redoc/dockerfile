@@ -6,10 +6,11 @@ WORKDIR /data
 ADD swagger.yml ./swagger.yml
 #RUN redoc-cli --help
 RUN redoc-cli bundle ./swagger.yml
+RUN mv redoc-static.html index.html
 
 # change of route
 
 FROM nginx
 
-COPY --from=0 /data/redoc-static.html /usr/share/nginx/html/redoc-static.html
+COPY --from=0 /data/redoc-static.html /usr/share/nginx/html/index.html
 RUN ls /usr/share/nginx/html
