@@ -4,9 +4,8 @@ RUN npm install -g redoc-cli@0.9.11
 
 WORKDIR /data
 ADD swagger.yml ./swagger.yml
-#RUN redoc-cli --help
 RUN redoc-cli bundle ./swagger.yml
-RUN mv redoc-static.html index.html
+RUN ls -al
 
 # change of route
 
