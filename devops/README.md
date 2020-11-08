@@ -231,4 +231,93 @@ sudo docker stop startup_traefik_1
 sudo docker run -p 80:8081 -p 443:8081 --name maintenance -v /home/centos/workspace/cyberdoc/devops/maintenance_website:/var/www -d philenius/nginx-maintenance-mode
 ```
 
+## Anti DDOS
 
+Traefik has a ratelimit configuration to prevent DDOS. 
+The global configuration is : 
+```
+traefik.http.middlewares.backendratelimit.ratelimit.average=30
+traefik.http.middlewares.backendratelimit.ratelimit.burst=15
+traefik.http.middlewares.backendratelimit.ratelimit.period=1m
+traefik.http.middlewares.backendratelimit.ratelimit.sourcecriterion.requesthost=true
+```
+
+The number of call in 1 minute is at his maximum 30. The number of chain request is 15.
+The request sort is made by ip adress of the machine which made the call.
+
+**How to test it ?**
+
+You have several way to test these restrictions :
+- with postman, using the runner method
+- with ApacheBench
+
+```
+$ ab -c1 -n100 https://api.cyberdoc.fulgen.fr/
+This is ApacheBench, Version 2.3 <$Revision: 1807734 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking api.cyberdoc.fulgen.fr (be patient).....done
+
+
+Server Software:        
+Server Hostname:        api.cyberdoc.fulgen.fr
+Server Port:            443
+SSL/TLS Protocol:       TLSv1.2,ECDHE-RSA-AES256-GCM-SHA384,4096,256
+TLS Server Name:        api.cyberdoc.fulgen.fr
+
+Document Path:          /
+Document Length:        40 bytes
+
+Concurrency Level:      1
+Time taken for tests:   17.857 seconds
+Complete requests:      100
+Failed requests:        85
+   (Connect: 0, Receive: 0, Length: 85, Exceptions: 0)
+Non-2xx responses:      100
+Total transferred:      20615 bytes
+HTML transferred:       1815 bytes
+Requests per second:    5.60 [#/sec] (mean)
+Time per request:       178.568 [ms] (mean)
+Time per request:       178.568 [ms] (mean, across all concurrent requests)
+Transfer rate:          1.13 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:      130  142  17.8    139     287
+Processing:    32   36   7.9     34      88
+Waiting:       31   35   7.9     33      88
+Total:        164  178  19.9    173     320
+
+Percentage of the requests served within a certain time (ms)
+  50%    173
+  66%    176
+  75%    178
+  80%    181
+  90%    196
+  95%    222
+  98%    239
+  99%    320
+ 100%    320 (longest request)
+```
+- with curl
+- 
+```
+maeg@maeg-HP-ProBook-650-G1:~$ curl https://api.cyberdoc.fulgen.fr/[0-20]
+
+[13/20]: https://api.cyberdoc.fulgen.fr/0 --> <stdout>
+--_curl_--https://api.cyberdoc.fulgen.fr/0
+{"success":false,"msg":"Unknown action"}
+[14/20]: https://api.cyberdoc.fulgen.fr/1 --> <stdout>
+--_curl_--https://api.cyberdoc.fulgen.fr/1
+{"success":false,"msg":"Unknown action"}
+[15/20]: https://api.cyberdoc.fulgen.fr/2 --> <stdout>
+--_curl_--https://api.cyberdoc.fulgen.fr/2
+{"success":false,"msg":"Unknown action"}
+[16/20]: https://api.cyberdoc.fulgen.fr/5 --> <stdout>
+--_curl_--https://api.cyberdoc.fulgen.fr/5
+Too Many Requests
+[17/20]: https://api.cyberdoc.fulgen.fr/6 --> <stdout>
+```
+Here, we only want to hit the service, we don't try hit espacially a fonctionnality.
+You should see, that after 15 requests, you get tge lessage "Too many requests" with the code 429.

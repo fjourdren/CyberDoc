@@ -43,8 +43,10 @@ services:
       - "traefik.http.routers.portainerrouter.tls=true"
       - "traefik.http.routers.portainerrouter.tls.certresolver=myresolver"
       - "traefik.http.services.portainerservice.loadbalancer.server.port=9000"
-      - "traefik.http.middlewares.portainerratelimit.ratelimit.average=50"
-      - "traefik.http.middlewares.portainerratelimit.ratelimit.burst=50"
+      - "traefik.http.middlewares.portainerratelimit.ratelimit.average=30"
+      - "traefik.http.middlewares.portainerratelimit.ratelimit.burst=15"
+      - "traefik.http.middlewares.portainerratelimit.ratelimit.period=1m"
+      - "traefik.http.middlewares.portainerratelimit.ratelimit.sourcecriterion.requesthost=true"
       - "traefik.http.routers.portainerrouter.middlewares=portainerratelimit@docker"
 
   jenkins:
@@ -59,8 +61,10 @@ services:
       - "traefik.http.routers.jenkinsrouter.tls=true"
       - "traefik.http.routers.jenkinsrouter.tls.certresolver=myresolver"
       - "traefik.http.services.jenkinsservice.loadbalancer.server.port=8080"
-      - "traefik.http.middlewares.jenkinsratelimit.ratelimit.average=50"
-      - "traefik.http.middlewares.jenkinsratelimit.ratelimit.burst=50"
+      - "traefik.http.middlewares.jenkinsratelimit.ratelimit.average=30"
+      - "traefik.http.middlewares.jenkinsratelimit.ratelimit.burst=15"
+      - "traefik.http.middlewares.jenkinsratelimit.ratelimit.period=1m"
+      - "traefik.http.middlewares.jenkinsratelimit.ratelimit.sourcecriterion.requesthost=true"
       - "traefik.http.routers.jenkinsrouter.middlewares=jenkinsratelimit@docker"
 
   sonarqube:
@@ -81,8 +85,10 @@ services:
       - "traefik.http.routers.sonarquberouter.tls=true"
       - "traefik.http.routers.sonarquberouter.tls.certresolver=myresolver"
       - "traefik.http.services.sonarqubeservice.loadbalancer.server.port=9000" 
-      - "traefik.http.middlewares.sonarquberatelimit.ratelimit.average=50"
-      - "traefik.http.middlewares.sonarquberatelimit.ratelimit.burst=50"
+      - "traefik.http.middlewares.sonarquberatelimit.ratelimit.average=30"
+      - "traefik.http.middlewares.sonarquberatelimit.ratelimit.burst=15"
+      - "traefik.http.middlewares.sonarquberatelimit.ratelimit.period=1m"
+      - "traefik.http.middlewares.sonarquberatelimit.ratelimit.sourcecriterion.requesthost=true"
       - "traefik.http.routers.sonarquberouter.middlewares=sonarquberatelimit@docker"
   
   mongodb:
