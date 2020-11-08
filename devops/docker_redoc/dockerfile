@@ -11,5 +11,5 @@ RUN redoc-cli bundle ./swagger.yml
 
 FROM nginx
 
-COPY --from=0 /data/redoc-static.html /usr/share/nginx/html/index.html
+COPY --from=0 /data/redoc-static.html /usr/share/nginx/html/redoc-static.html
 RUN ls /usr/share/nginx/html
