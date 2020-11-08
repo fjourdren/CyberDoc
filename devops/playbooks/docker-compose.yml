@@ -43,6 +43,9 @@ services:
       - "traefik.http.routers.portainerrouter.tls=true"
       - "traefik.http.routers.portainerrouter.tls.certresolver=myresolver"
       - "traefik.http.services.portainerservice.loadbalancer.server.port=9000"
+      - "traefik.http.middlewares.portainerratelimit.ratelimit.average=50"
+      - "traefik.http.middlewares.portainerratelimit.ratelimit.burst=50"
+      - "traefik.http.routers.portainerrouter.middlewares=portainerratelimit@docker"
 
   jenkins:
     image: jenkins/jenkins
@@ -56,6 +59,9 @@ services:
       - "traefik.http.routers.jenkinsrouter.tls=true"
       - "traefik.http.routers.jenkinsrouter.tls.certresolver=myresolver"
       - "traefik.http.services.jenkinsservice.loadbalancer.server.port=8080"
+      - "traefik.http.middlewares.jenkinsratelimit.ratelimit.average=50"
+      - "traefik.http.middlewares.jenkinsratelimit.ratelimit.burst=50"
+      - "traefik.http.routers.jenkinsrouter.middlewares=jenkinsratelimit@docker"
 
   sonarqube:
     image: sonarqube
@@ -75,23 +81,9 @@ services:
       - "traefik.http.routers.sonarquberouter.tls=true"
       - "traefik.http.routers.sonarquberouter.tls.certresolver=myresolver"
       - "traefik.http.services.sonarqubeservice.loadbalancer.server.port=9000" 
-  
-  onlyoffice:
-    image: onlyoffice/documentserver
-    restart: always
-    volumes:
-      - /home/centos/workspace/cyberdoc/onlyoffice/logs/:/var/log/onlyoffice
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.onlyofficerouter.rule=Host(`onlyoffice.fulgen.fr`)
-      - traefik.http.routers.onlyofficerouter.tls=true
-      - traefik.http.routers.onlyofficerouter.tls.certresolver=myresolver
-      - traefik.http.routers.onlyofficerouter.middlewares=onlyoffice-sslheaders,onlyoffice-cors
-      - traefik.http.services.onlyofficeservice.loadbalancer.server.port=80
-      # https if on secure state - replace http if insecure state
-      - traefik.http.middlewares.onlyoffice-sslheaders.headers.customrequestheaders.X-Forwarded-Proto=https
-      - traefik.http.middlewares.onlyoffice-cors.headers.accessControlAllowOrigin=*
-      - traefik.http.middlewares.onlyoffice-cors.headers.accessControlAllowHeaders=*
+      - "traefik.http.middlewares.sonarquberatelimit.ratelimit.average=50"
+      - "traefik.http.middlewares.sonarquberatelimit.ratelimit.burst=50"
+      - "traefik.http.routers.sonarquberouter.middlewares=sonarquberatelimit@docker"
   
   mongodb:
     image: mongo

@@ -38,8 +38,6 @@ They are tools to layout an openAPI documentation, our developing team really wa
 
 It is a frontend for docker. This service lets you manipulate your docker with a web user interface. You have the access to the console and the log, you can also deploy a docker-compose stack. Even a non docker aware user can manipulate docker with this user interface.
 
-### OnlyOffice
-
 ## Demo VPS details 
 
 We are using a VPS rented by OVH with the **Centos8** system. If you use another distribution, be aware that it can happen issues in the deployment of packages and services.
@@ -231,28 +229,6 @@ If you need to make change on the infrastructure, you can use these commands to 
 ```
 sudo docker stop startup_traefik_1
 sudo docker run -p 80:8081 -p 443:8081 --name maintenance -v /home/centos/workspace/cyberdoc/devops/maintenance_website:/var/www -d philenius/nginx-maintenance-mode
-```
-
-## How to reload OnlyOffice ? 
-
-OnlyOffice take lots of RAM, so you way wanted to reload it one time.
-Firstly, you can try to stop and start the docker : 
-
-```
-sudo docker stop onlyoffice
-sudo docker start onlyoffice
-```
-
-If it not working, you can delete and create a new one with this command :
-
-```
-sudo docker stop onlyoffice
-sudo docker run -d --name onlyoffice -v /home/centos/workspace/cyberdoc/onlyoffice/logs/:/var/log/onlyoffice --label-file ./labels onlyoffice
-```
-
-Only in the case you want to change some stuffs in the OnlyOffice configuration, you can build the docker with : 
-```
-sudo docker build --file /home/centos/workspace/cyberdoc/devops/docker_onlyoffice/dockerfile --tag onlyoffice .
 ```
 
 
