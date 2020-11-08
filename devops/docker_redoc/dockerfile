@@ -1,6 +1,6 @@
 FROM node:alpine
 
-RUN npm install -g redoc-cli@0.9.13
+RUN npm install -g redoc-cli@0.9.12
 
 WORKDIR /data
 ADD swagger.yml ./swagger.yml
