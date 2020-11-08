@@ -1,7 +1,7 @@
 FROM node:alpine
 
 #RUN npm install -g redoc-cli@0.9.13
-RUN npm install -g npm
+RUN npm install -g npm@7.0.9
 RUN npm i redoc-cli
 
 WORKDIR /data
