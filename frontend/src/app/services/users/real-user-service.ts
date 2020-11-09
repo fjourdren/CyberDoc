@@ -114,7 +114,7 @@ export class RealUserService implements UserService {
 
     }
 
-    updatePassword(password: string, appOrSms: string, token: string): Observable<void> {
+    updatePassword(password: string, appOrSms: 'app' | 'sms', token: string): Observable<void> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
             password
         }, {
