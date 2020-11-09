@@ -491,6 +491,31 @@ class FileController {
         }
     }
 
+    // add a sign to the file
+    public static async addSign(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
+    
+            FileService.requireFileIsDocument(file);
+            await FileService.requireFileCanBeViewed(currentUser, file);
+
+            // sign the document
+            await FileService.addSign(currentUser, file);
+
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "Success"
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+
+
+    // set up functions
     private static _requireAuthenticatedUser(res: Response): IUser {
         return requireNonNull(res.locals.APP_JWT_TOKEN.user, HttpCodes.UNAUTHORIZED, "Auth is missing or invalid");
     }

@@ -31,7 +31,6 @@ export const TagSchema = new mongoose.Schema({
 });
 
 
-// DO NOT export this, Type script validation (= Mongoose raw model)
 export interface ITag extends mongoose.Document {
     _id: string;
     name: string;

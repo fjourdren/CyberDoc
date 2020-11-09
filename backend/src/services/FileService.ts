@@ -16,6 +16,7 @@ import { streamToBuffer } from '../helpers/Conversions';
 
 import {IUser, User} from "../models/User";
 import { IFile, File, FileType, ShareMode } from "../models/File";
+import IUserSign, { UserSign } from '../models/UserSign';
 
 enum PreciseFileType {
     Folder = "Folder",
@@ -65,6 +66,11 @@ class FileService {
     public static async fileCanBeModified(user: IUser | string, file: IFile | string): Promise<boolean> {
         user = await this.resolveUserIfNeeded(user);
         file = await this.resolveFileIfNeeded(file);
+
+        // if someone sign the document, then it became unmodifiable
+        if(file.signs.length != 0)
+            return false;
+
         return file.owner_id === user._id || (file.shareMode === ShareMode.READWRITE && file.sharedWith.indexOf(user._id) !== -1);
     }
 
@@ -558,6 +564,24 @@ class FileService {
         fs.unlinkSync(tempOutputImage);
 
         return readableOutput;
+    }
+
+    public static async addSign(user: IUser, file: IFile) {
+        // check if user hasn't already sign the file
+        if(file.signs.map(function(e) { return e.user_id; }).indexOf(user._id) != -1) {
+            throw new HTTPError(HttpCodes.BAD_REQUEST, "You already signed that document");
+        }
+
+        // create sign object
+        let u_sign: IUserSign = new UserSign();
+        u_sign.user_id = user._id;
+        u_sign.user_name = user.firstname + " " + user.lastname.toLocaleUpperCase();
+
+        // add UserSign to the list
+        file.signs.push(u_sign);
+
+        // update signs
+        return requireNonNull(await File.updateOne({ _id: file._id }, {$set: {signs: file.signs}}).exec());
     }
 
     private static async resolveUserIfNeeded(user: IUser | string) {

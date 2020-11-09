@@ -119,7 +119,7 @@ export const UserSchema = new mongoose.Schema({
     });
 
 
-// DO NOT export this, Type script validation (= Mongoose raw model)
+
 export interface IUser extends mongoose.Document {
     _id: string;
     directory_id: string;
