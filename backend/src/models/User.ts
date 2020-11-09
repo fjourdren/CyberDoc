@@ -104,6 +104,13 @@ export const UserSchema = new mongoose.Schema({
         type: [Device.schema],
         default: []
     },
+    // file encryption data
+    userKeys: {
+        type: UserEncryptionKeys.schema
+    },
+    filesKeys: {
+        type: [FileEncryptionKeys.schema]
+    },
     updated_at: {
         type: Date,
         default: new Date().getTime()
@@ -111,13 +118,6 @@ export const UserSchema = new mongoose.Schema({
     created_at: {
         type: Date,
         default: new Date().getTime()
-    },
-    // file encryption data
-    userKeys: {
-        type: [UserEncryptionKeys.schema]
-    },
-    filesKeys: {
-        type: [FileEncryptionKeys.schema]
     },
 },
     {
@@ -173,13 +173,15 @@ UserSchema.pre<IUser>("update", function (next: mongoose.HookNextFunction): void
 // Hide sensible information before exporting the object
 UserSchema.methods.toJSON = function () {
     const obj = this.toObject();
-    delete obj.__v;
-    delete obj.password;
 
-    // delete too long informations (for performances and for security with encryption keys)
-    delete obj.tags;
+    // delete unneeded value
+    delete obj.__v;
+
+    // delete user's private information
+    delete obj.password;
     delete obj.userKeys;
     delete obj.filesKeys;
+
     return obj;
 }
 
