@@ -33,13 +33,13 @@ class EncryptionFileService {
     public static async getPublicKey(email: string): Promise<NodeRSA> {
         const user: any = requireNonNull(await User.findOne({ "email": email }).exec(), HttpCodes.NOT_FOUND, "This user doesn't exist");
         const user_key_obj: NodeRSA = new NodeRSA();
-        return user_key_obj.importKey(user.userKeys[0].public_key, "public");
+        return user_key_obj.importKey(user.userKeys.public_key, "public");
     }
 
     // Encrypt User's private key (hashKey become the encryption key)
     public static async getPrivateKey(user: IUser, user_hash: string): Promise<NodeRSA> {
         const updated_user: any = requireNonNull(await User.findById(user._id).exec(), HttpCodes.NOT_FOUND, "This user doesn't exist");
-        const user_privateKey: string = CryptoHelper.decryptAES(user_hash, updated_user.userKeys[0].encrypted_private_key);
+        const user_privateKey: string = CryptoHelper.decryptAES(user_hash, updated_user.userKeys.encrypted_private_key);
 
         const user_key_obj: NodeRSA = new NodeRSA();
         return user_key_obj.importKey(user_privateKey, "private");
