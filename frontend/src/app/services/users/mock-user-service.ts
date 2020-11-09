@@ -152,7 +152,7 @@ export class MockUserService implements UserService {
         }));
     }
 
-    updatePassword(password: string, appOrSms: string, token: string): Observable<void> {
+    updatePassword(password: string, appOrSms: 'app' | 'sms', token: string): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');

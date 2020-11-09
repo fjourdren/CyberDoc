@@ -25,7 +25,7 @@ export interface UserService {
 
     searchExistingUser(email: string): Observable<User>;
 
-    updatePassword(password: string, appOrSms: string, token: string): Observable<void>;
+    updatePassword(password: string, appOrSms: 'app' | 'sms', token: string): Observable<void>;
 
     updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, secret: string | undefined, phoneNumber: string | undefined,
                     xAuthTokenArray: string | undefined): Observable<void>;
