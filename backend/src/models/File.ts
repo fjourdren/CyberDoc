@@ -4,6 +4,7 @@ import uniqueValidator from 'mongoose-unique-validator';
 import Guid from 'guid';
 
 import ITag, { Tag } from './Tag';
+import IUserSign, { UserSign } from './UserSign';
 
 
 /**
@@ -63,14 +64,6 @@ export const FileSchema = new mongoose.Schema({
         required: true,
         default: true
     },
-    updated_at: {
-        type   : Date,
-        default: new Date().getTime()
-    },
-    created_at: {
-        type   : Date,
-        default: new Date().getTime()
-    },
     shareMode: {
         type: ShareMode,
         default: ShareMode.READONLY
@@ -78,6 +71,18 @@ export const FileSchema = new mongoose.Schema({
     sharedWith: {
         type: [String],
         default: []
+    },
+    signs: {
+        type: [UserSign],
+        default: []
+    },
+    updated_at: {
+        type   : Date,
+        default: new Date().getTime()
+    },
+    created_at: {
+        type   : Date,
+        default: new Date().getTime()
     }
 },
 {
@@ -85,22 +90,22 @@ export const FileSchema = new mongoose.Schema({
 });
 
 
-// DO NOT export this, Type script validation (= Mongoose raw model)
 export interface IFile extends mongoose.Document {
     _id           : string;
     type          : FileType;
     mimetype      : string;
     name          : string;
-    size        : number;
+    size          : number;
     document_id   : string;
     parent_file_id: string;
     owner_id      : string;
     tags          : ITag[];
     preview       : boolean;
-    updated_at    : string;
-    created_at    : string;
     shareMode     : ShareMode;
     sharedWith    : string[];
+    signs         : IUserSign[];
+    updated_at    : string;
+    created_at    : string;
 }
 
 
