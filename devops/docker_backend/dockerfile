@@ -25,3 +25,5 @@ RUN npm i -g npm@latest
 
 # Copy application in the container
 ADD . .
+
+RUN ls -al
