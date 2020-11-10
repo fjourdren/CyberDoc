@@ -17,7 +17,7 @@
 			</mat-form-field>
 		</form>
 		<button mat-flat-button color="primary" type="submit" (click)="updateProfile()"
-			[disabled]="profileForm.invalid || loading">{{'general.update' | translate}}</button>
+			[disabled]="profileForm.invalid || !(profileForm.controls['firstName'].dirty  || profileForm.controls['lastName'].dirty || profileForm.controls['newEmail'].dirty ) || loading">{{'general.update' | translate}}</button>
 	</mat-card-content>
 </mat-card>
 
