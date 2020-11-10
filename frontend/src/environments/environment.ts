@@ -9,7 +9,9 @@ export const environment = {
   defaultUserServiceName: "real",
   apiBaseURL: "http://localhost:3000/v1",
   authCookieDomain: "localhost",
-  authCookieName: "access_token"
+  authCookieName: "access_token",
+  userHashCookieName: "user_hash",
+  userLocalStorageKey: "real_user",
 };
 
 /*

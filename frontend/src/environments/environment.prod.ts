@@ -5,5 +5,7 @@ export const environment = {
   defaultUserServiceName: "real",
   apiBaseURL: "https://api.cyberdoc.fulgen.fr/v1",
   authCookieDomain: "cyberdoc.fulgen.fr",
-  authCookieName: "access_token"
+  authCookieName: "access_token",
+  userHashCookieName: "user_hash",
+  userLocalStorageKey: "real_user",
 };
