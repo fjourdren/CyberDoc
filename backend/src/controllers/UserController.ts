@@ -37,7 +37,7 @@ class UserController {
                 const user_email = res.locals.APP_JWT_TOKEN.email;
                 const user: IUser = requireNonNull(await User.findOne({ email: user_email.toLowerCase() }).exec());
 
-                requireNonNull(await UserService.updateProfile(undefined, undefined, user._id, undefined, undefined, undefined, password, undefined, undefined,undefined, undefined, undefined));
+                requireNonNull(await UserService.updateProfile(undefined, undefined, user._id, undefined, undefined, undefined, password, undefined, undefined,undefined, undefined));
 
                 res.status(HttpCodes.OK);
                 res.json({

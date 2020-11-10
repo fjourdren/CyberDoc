@@ -517,6 +517,11 @@ class FileController {
                         }
                     );
 
+                    // add key to the user
+                    const user_hash = CryptoHelper.prepareUser_hash(requireNonNull(req.body.user_hash, HttpCodes.BAD_REQUEST, "User's encryption hash needed"));
+                    const file_aes_key: string = await EncryptionFileService.getFileKey(currentUser, file, user_hash);
+                    await EncryptionFileService.addFileKeyToUser(user, file, file_aes_key);
+
                     console.log('[Debug] An email has been sent to ' + otherUserEmail);
                     status = "Success";
                     res.status(HttpCodes.OK);
@@ -547,7 +552,6 @@ class FileController {
                         url: url
                     }
                 );
-            const user_hash = CryptoHelper.prepareUser_hash(requireNonNull(req.body.user_hash, HttpCodes.BAD_REQUEST, "User's encryption hash needed"));
 
                 console.log('[Debug] An email has been sent to ' + otherUserEmail);
                 status = "Waiting";
@@ -557,10 +561,6 @@ class FileController {
                     msg: status
                 });
             }
-
-            // add key to the user
-            const file_aes_key: string = await EncryptionFileService.getFileKey(currentUser, file, user_hash);
-            await EncryptionFileService.addFileKeyToUser(user, file, file_aes_key);
 
             // reply
             res.status(HttpCodes.OK);
