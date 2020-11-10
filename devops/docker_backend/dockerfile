@@ -22,3 +22,6 @@ RUN mkdir /devops
 WORKDIR /app
 
 RUN npm i -g npm@latest
+
+# Copy application in the container
+ADD . .
