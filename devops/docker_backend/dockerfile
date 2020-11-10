@@ -21,7 +21,11 @@ RUN npm i -g npm@latest
 # Create app directory
 RUN mkdir /app
 RUN mkdir /devops
+
 WORKDIR /app
+
+RUN pwd
+RUN ls -al
 
 # Install app dependencies
 RUN npm install
