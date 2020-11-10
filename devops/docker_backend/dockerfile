@@ -16,19 +16,30 @@ RUN apt-get update && apt-get install -y unoconv ffmpeg imagemagick curl
 RUN sed -i 's/<\/policymap>/  <policy domain="coder" rights="read | write" pattern="PDF" \/>\
 <\/policymap>/g' /etc/ImageMagick-6/policy.xml
 
+RUN npm i -g npm@latest
+
 # Create app directory
 RUN mkdir /app
 RUN mkdir /devops
 WORKDIR /app
 
-RUN npm i -g npm@latest
+# Install app dependencies
+RUN npm install
 
-# Copy application in the container
-ADD . .
-RUN pwd
+# Build application
+RUN npm run build
 
-RUN ls -al /
+# Delete useless files
+RUN rm -rf .git
+RUN rm -rf src/
+RUN rm .env.example
+RUN rm .eslintignore
+RUN rm .eslintrc
+RUN rm .gitignore
+RUN rm dockerfile
+RUN rm jest.config.js
+RUN rm nodemon.json
+RUN rm tsconfig.json
 
-RUN ls -al /devops
-
-RUN ls -al
+# Run application
+CMD [ "npm", "run", "start" ]
