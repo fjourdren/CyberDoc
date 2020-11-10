@@ -1,3 +1,4 @@
+#!/bin/sh
 # chmod 777 exec.sh
 echo "INSTALLING"
 npm install
