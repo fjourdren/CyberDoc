@@ -24,26 +24,23 @@ RUN mkdir /devops
 
 WORKDIR /app
 
-RUN pwd
-RUN ls -al
-
 # Install app dependencies
-RUN npm install
+#RUN npm install
 
 # Build application
-RUN npm run build
+#RUN npm run build
 
 # Delete useless files
-RUN rm -rf .git
-RUN rm -rf src/
-RUN rm .env.example
-RUN rm .eslintignore
-RUN rm .eslintrc
-RUN rm .gitignore
-RUN rm dockerfile
-RUN rm jest.config.js
-RUN rm nodemon.json
-RUN rm tsconfig.json
+#RUN rm -rf .git
+#RUN rm -rf src/
+#RUN rm .env.example
+#RUN rm .eslintignore
+#RUN rm .eslintrc
+#RUN rm .gitignore
+#RUN rm dockerfile
+#RUN rm jest.config.js
+#RUN rm nodemon.json
+#RUN rm tsconfig.json
 
 # Run application
-CMD [ "npm", "run", "start" ]
+#CMD [ "npm", "run", "start" ]
