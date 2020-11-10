@@ -652,14 +652,13 @@ class FileService {
 
     public static async addSign(user: IUser, file: IFile) {
         // check if user hasn't already sign the file
-        if(file.signs.map(function(e) { return e.user_id; }).indexOf(user._id) != -1) {
+        if(file.signs.map(function(e) { return e.user_email; }).indexOf(user.email) != -1) {
             throw new HTTPError(HttpCodes.BAD_REQUEST, "You already signed that document");
         }
 
         // create sign object
         let u_sign: IUserSign = new UserSign();
-        u_sign.user_id = user._id;
-        u_sign.user_name = user.firstname + " " + user.lastname.toLocaleUpperCase();
+        u_sign.user_email = user.email;
 
         // add UserSign to the list
         file.signs.push(u_sign);

@@ -1,18 +1,21 @@
 import mongoose from 'mongoose';
+import validator from 'validator';
 
 /**
  * Building typescript & Mongoose data archs
  */
 export const UserSignSchema = new mongoose.Schema({
-    user_id: {
-        type    : String,
+    user_email: {
+        type: String,
         required: true,
-        trim    : true
-    },
-    user_name: {             // user first name + user last name
-        type    : String,
-        required: true,
-        trim    : true
+        unique: true,
+        uniqueCaseInsensitive: true,
+        trim: true,
+        minlength: 5,
+        validate: {
+            validator: (value: string) => validator.isEmail(value),
+            message: '{VALUE} is not a valid email'
+        }
     },
     created_at: {
         type   : Date,
@@ -23,8 +26,7 @@ export const UserSignSchema = new mongoose.Schema({
 
 
 export interface IUserSign extends mongoose.Document {
-    user_id   : string;
-    user_name : string
+    user_email: string;
     created_at: string;
 }
 
