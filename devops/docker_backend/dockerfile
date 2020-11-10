@@ -25,5 +25,10 @@ RUN npm i -g npm@latest
 
 # Copy application in the container
 ADD . .
+RUN pwd
+
+RUN ls -al /
+
+RUN ls -al /devops
 
 RUN ls -al
