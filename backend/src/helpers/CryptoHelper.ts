@@ -10,7 +10,7 @@ class CryptoHelper {
     // cut the AES_DEFAULT_KEY_LENGTH first chars of an user_hash
     // AES algorithm needs to have a 32 chars key so we cut the 32 first chars of the user_hash param to be able to use it as an AES key to encrypt/decrypt
     public static prepareUser_hash(user_hash: string): string {
-        return user_hash.substring(0, AES_DEFAULT_KEY_LENGTH);
+        return user_hash?.substring(0, AES_DEFAULT_KEY_LENGTH);
     }
 
     // sha3 hashing

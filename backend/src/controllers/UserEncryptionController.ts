@@ -10,9 +10,8 @@ import CryptoHelper from '../helpers/CryptoHelper';
 import EncryptionFileService from '../services/EncryptionFileService';
 import { anyToReadable } from '../helpers/Conversions';
 import { Readable } from 'stream';
-import FileController from './FileController';
 import IUserEncryptionKeys, { UserEncryptionKeys } from '../models/UserEncryptionKeys';
-import { POINT_CONVERSION_COMPRESSED } from 'constants';
+import { requireFile, requireUserHash } from '../helpers/Utils';
 
 
 class UserEncryptionController {
@@ -20,7 +19,7 @@ class UserEncryptionController {
     public static async export(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             // get objects
-            const user_hash = CryptoHelper.prepareUser_hash(requireNonNull(req.body.user_hash, HttpCodes.BAD_REQUEST, "User's encryption hash needed"));
+            const user_hash = requireUserHash(req);
 
             // get user updated
             const user: IUser = requireNonNull(await User.findById(res.locals.APP_JWT_TOKEN.user._id).exec(), HttpCodes.BAD_REQUEST, "User not found");
@@ -48,13 +47,13 @@ class UserEncryptionController {
     public static async import(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             // get objects
-            const user_hash = CryptoHelper.prepareUser_hash(requireNonNull(req.body.user_hash, HttpCodes.BAD_REQUEST, "User's encryption hash needed"));
+            const user_hash = requireUserHash(req);
 
             // get user updated
             const user: IUser = requireNonNull(await User.findById(res.locals.APP_JWT_TOKEN.user._id).exec(), HttpCodes.BAD_REQUEST, "User not found");
 
             // get file content
-            const fileContents: any = FileController._requireFile(req, "upfile").buffer.toString();
+            const fileContents: any = requireFile(req, "upfile").buffer.toString();
             
             // get user's keys
             const cutContent: string[] = fileContents.split("-----BEGIN RSA PRIVATE KEY-----");
