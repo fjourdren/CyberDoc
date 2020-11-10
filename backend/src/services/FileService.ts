@@ -463,15 +463,16 @@ class FileService {
 
         // create new file object
         const newFile: IFile = new File();
-        newFile._id            = Guid.raw();
-        newFile.type           = file.type;
-        newFile.mimetype       = file.mimetype;
-        newFile.name           = filename;
-        newFile.size           = file.size;
-        newFile.parent_file_id = destination_id;
-        newFile.owner_id       = user._id;
-        newFile.shareMode      = ShareMode.READONLY;
-        newFile.sharedWith     = [];
+        newFile._id               = Guid.raw();
+        newFile.type              = file.type;
+        newFile.mimetype          = file.mimetype;
+        newFile.name              = copyFileName!;
+        newFile.size              = file.size;
+        newFile.parent_file_id    = destination_id;
+        newFile.owner_id          = user._id;
+        newFile.shareMode         = ShareMode.READONLY;
+        newFile.sharedWith        = [];
+        newFile.sharedWithPending = [];
 
         // read file content and convert
         const content: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
