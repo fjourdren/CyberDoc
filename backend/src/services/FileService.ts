@@ -412,12 +412,11 @@ class FileService {
         newFile.type           = file.type;
         newFile.mimetype       = file.mimetype;
         newFile.name           = copyFileName;
-        newFile.size         = file.size;
+        newFile.size           = file.size;
         newFile.document_id    = objectId;   
         newFile.parent_file_id = destination_id;
         newFile.owner_id       = user._id;
-        newFile.shareMode = ShareMode.READONLY;
-        newFile.sharedWith = [];
+        newFile.shareMode      = ShareMode.READONLY;
 
         return await newFile.save(); // save the new file
     }
