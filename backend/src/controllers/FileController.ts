@@ -367,9 +367,13 @@ class FileController {
             await FileService.requireFileCanBeViewed(currentUser, file);
 
             const pdfStream = await FileService.generatePDF(file);
+            let pdfFileName = file.name;
+            if (pdfFileName.indexOf(".") !== -1) {
+                pdfFileName.substring(0, pdfFileName.lastIndexOf("."));
+            }
 
             res.set('Content-Type', 'application/pdf');
-            res.set('Content-Disposition', 'attachment; filename="' + file.name + '.pdf"');
+            res.set('Content-Disposition', `attachment; filename="${pdfFileName}"`);
             res.status(HttpCodes.OK);
             pdfStream.pipe(res);
         } catch (err) {
