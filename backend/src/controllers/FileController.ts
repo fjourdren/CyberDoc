@@ -496,7 +496,10 @@ class FileController {
                     await file.save();
                     const url: string = process.env.APP_FRONTEND_URL + "/shared-with-me";
                     await Mailer.sendTemplateEmail(otherUserEmail,
-                        process.env.SENDGRID_MAIL_FROM,
+                        {
+                            email: process.env.SENDGRID_MAIL_FROM,
+                            name: process.env.SENDGRID_MAIL_FROM_NAME
+                        },
                         process.env.SENDGRID_TEMPLATE_SHARED_WITH_YOU as string,
                         {
                             file_owner_email: currentUser.email,
@@ -527,7 +530,10 @@ class FileController {
                 await file.save();
                 const url: string = process.env.APP_FRONTEND_URL + "/register?token=" + token;
                 await Mailer.sendTemplateEmail(otherUserEmail,
-                    process.env.SENDGRID_MAIL_FROM,
+                    {
+                        email: process.env.SENDGRID_MAIL_FROM,
+                        name: process.env.SENDGRID_MAIL_FROM_NAME
+                    },
                     process.env.SENDGRID_TEMPLATE_REQUEST_CREATE_ACCOUNT,
                     {
                         file_owner_email: currentUser.email,

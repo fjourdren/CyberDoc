@@ -102,7 +102,10 @@ class AuthService {
         const url: string = process.env.APP_FRONTEND_URL + "/passwordReset?token=" + token;
 
         //await Mailer.sendTextEmail(email, process.env.SENDGRID_MAIL_FROM, "hello", "hello", "hello");
-        await Mailer.sendTemplateEmail(email, process.env.SENDGRID_MAIL_FROM, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, {url: url});
+        await Mailer.sendTemplateEmail(email, {
+            email: process.env.SENDGRID_MAIL_FROM,
+            name: process.env.SENDGRID_MAIL_FROM_NAME
+        }, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, {url: url});
     }
 
     // validate that the token is correct
