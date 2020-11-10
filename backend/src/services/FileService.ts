@@ -657,7 +657,7 @@ class FileService {
         }
 
         // create sign object
-        let u_sign: IUserSign = new UserSign();
+        const u_sign: IUserSign = new UserSign();
         u_sign.user_email = user.email;
 
         // add UserSign to the list
