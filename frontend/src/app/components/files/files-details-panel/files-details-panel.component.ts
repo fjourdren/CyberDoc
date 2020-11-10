@@ -81,7 +81,8 @@ export class FilesDetailsPanelComponent {
 
     createNewTag(tagName: string | undefined) {
         const dialogRef = this.dialog.open(SettingsCreateEditTagDialogComponent, {
-            maxWidth: "400px",
+            minWidth: "300px",
+            maxWidth: "500px",
             data: tagName
         })
 

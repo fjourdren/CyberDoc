@@ -73,7 +73,8 @@ export class SettingsProfileComponent {
 
   addOrEditTag(tag: FileTag | undefined) {
     this.dialog.open(SettingsCreateEditTagDialogComponent, {
-      maxWidth: "400px",
+      minWidth: "300px",
+      maxWidth: "500px",
       data: tag
     });
   }
