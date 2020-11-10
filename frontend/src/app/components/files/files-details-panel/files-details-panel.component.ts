@@ -17,6 +17,7 @@ export class FilesDetailsPanelComponent {
     @Input() allTags: FileTag[];
     @Input() nodeTags: FileTag[];
     @Input() sharedWithMeMode: boolean;
+    previewLoaded = false;
 
     constructor(
         private filesUtils: FilesUtilsService,
@@ -35,6 +36,7 @@ export class FilesDetailsPanelComponent {
 
     @Input()
     set node(node: CloudNode) {
+        this.previewLoaded = false;
         this._node = node;
         if (!node) {
             return;
