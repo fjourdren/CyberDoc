@@ -1,7 +1,7 @@
 import {UserService} from './user-service';
 
 import {Observable, of} from 'rxjs';
-import {User, Device} from 'src/app/models/users-api-models';
+import {Device, User} from 'src/app/models/users-api-models';
 import {delay, map} from 'rxjs/operators';
 import {EventEmitter} from '@angular/core';
 import {FileTag} from 'src/app/models/files-api-models';
@@ -165,7 +165,8 @@ export class MockUserService implements UserService {
         }));
     }
 
-    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, secretOrPhoneNumber: string): Observable<void> {
+    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, secret: string, phoneNumber: string,
+                    xAuthTokenArray: string[]): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
@@ -207,7 +208,7 @@ export class MockUserService implements UserService {
         }));
     }
 
-    recoverPassword(email: string): Observable<void>{
+    recoverPassword(email: string): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
         }));
     }
@@ -241,7 +242,7 @@ export class MockUserService implements UserService {
         }));
     }
 
-    deleteAccount(xAuthToken: string): Observable<void> {
+    deleteAccount(xAuthTokenArray: string[]): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
@@ -253,6 +254,18 @@ export class MockUserService implements UserService {
             this._setUser(null);
             this._save();
         }));
+    }
+
+    getUserDevices(): Observable<Device[]> {
+        return null;
+    }
+
+    renameUserDevice(oldName: string, name: string): Observable<void> {
+        return;
+    }
+
+    createUserDevice(name: string, browser: string, OS: string): Observable<void> {
+        return;
     }
 
     private _getUser(): User {
@@ -318,23 +331,12 @@ export class MockUserService implements UserService {
         });
     }
 
-    private _throw400(error: string): void{
+    private _throw400(error: string): void {
         throw new HttpErrorResponse({
             error,
             statusText: 'FORBIDDEN',
             status: 400,
             url: '/fake-url'
         });
-    }
-
-    getUserDevices(): Observable<Device[]>{
-        return null;
-    }
-    renameUserDevice(oldName: string, name: string): Observable<void>{
-        return;
-    }
-
-    createUserDevice(name: string, browser: string, OS: string): Observable<void>{
-        return;
     }
 }

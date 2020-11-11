@@ -68,7 +68,7 @@ export class TwoFactorEditComponent {
                             width: '500px',
                             data: {
                                 twoFactorMode: 'app',
-                                xAuthTokenArray
+                                password: xAuthTokenArray[0]
                             }
                         });
 
@@ -138,8 +138,7 @@ export class TwoFactorEditComponent {
                         const refDialog = this.dialog.open(TwoFactorEditDialogComponent, {
                             width: '500px',
                             data: {
-                                twoFactorMode: 'sms',
-                                xAuthTokenArray
+                                twoFactorMode: 'sms'
                             }
                         });
 
