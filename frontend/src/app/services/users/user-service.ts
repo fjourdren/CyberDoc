@@ -28,7 +28,7 @@ export interface UserService {
     updatePassword(password: string, appOrSms: 'app' | 'sms', token: string): Observable<void>;
 
     updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, secret: string | undefined, phoneNumber: string | undefined,
-                    xAuthTokenArray: string | undefined): Observable<void>;
+                    xAuthTokenArray: string[] | undefined): Observable<void>;
 
     login(email: string, password: string): Observable<any>;
 
@@ -36,7 +36,7 @@ export interface UserService {
 
     logout(): Observable<void>;
 
-    deleteAccount(xAuthTokenArray: string): Observable<void>;
+    deleteAccount(xAuthTokenArray: string[]): Observable<void>;
 
     userUpdated(): Observable<User>;
 

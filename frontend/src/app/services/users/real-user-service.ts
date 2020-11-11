@@ -134,7 +134,7 @@ export class RealUserService implements UserService {
     }
 
     updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, secret: string, phoneNumber: string,
-                    xAuthTokenArray: string): Observable<void> {
+                    xAuthTokenArray: string[]): Observable<void> {
         if (xAuthTokenArray === null) { // First time registering 2FA
             return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
                 twoFactorApp,
@@ -228,7 +228,7 @@ export class RealUserService implements UserService {
         }));
     }
 
-    deleteAccount(xAuthTokenArray: string): Observable<void> {
+    deleteAccount(xAuthTokenArray: string[]): Observable<void> {
         return this.httpClient.delete<any>(`${environment.apiBaseURL}/users/profile`, {
             headers: {
                 'x-auth-token': btoa(xAuthTokenArray[0] + ':' + xAuthTokenArray[1] + ':' + xAuthTokenArray[2])

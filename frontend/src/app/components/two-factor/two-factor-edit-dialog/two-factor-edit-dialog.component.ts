@@ -106,11 +106,11 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
 
         switch (this.data.twoFactorMode) {
             case 'sms': {
-                promise = this._update2FAWithSMS();
+                promise = this._update2FAWithSMS(this.data.password);
                 break;
             }
             case 'app': {
-                promise = this._update2FAWithApp();
+                promise = this._update2FAWithApp(this.data.password);
                 break;
             }
             default: {
@@ -216,17 +216,23 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
         }
     }
 
-    private async _update2FAWithApp(): Promise<void> {
+    private async _update2FAWithApp(password: string): Promise<void> {
         const currentUser = this.userServiceProvider.default().getActiveUser();
-        await this.twoFAServiceProvider.default().verifyTokenByApp(this.qrSecret, this.tokenForm.get('token').value).toPromise();
+        const token = this.tokenForm.get('token').value;
+        await this.twoFAServiceProvider.default().verifyTokenByApp(this.qrSecret, token).toPromise();
+
+        const xAuthTokenArray = [password, 'app', token];
         await this.userServiceProvider.default().updateTwoFactor(
-            true, currentUser.twoFactorSms, this.qrSecret, undefined, this.data.xAuthTokenArray).toPromise();
+            true, currentUser.twoFactorSms, this.qrSecret, undefined, xAuthTokenArray).toPromise();
     }
 
-    private async _update2FAWithSMS(): Promise<void> {
+    private async _update2FAWithSMS(password: string): Promise<void> {
         const currentUser = this.userServiceProvider.default().getActiveUser();
-        await this.twoFAServiceProvider.default().verifyTokenBySms(this.validPhoneNumber, this.tokenForm.get('token').value).toPromise();
+        const token = this.tokenForm.get('token').value;
+        await this.twoFAServiceProvider.default().verifyTokenBySms(this.validPhoneNumber, token).toPromise();
+
+        const xAuthTokenArray = [password, 'sms', token];
         await this.userServiceProvider.default().updateTwoFactor(
-            currentUser.twoFactorApp, true, undefined, this.validPhoneNumber, this.data.xAuthTokenArray).toPromise();
+            currentUser.twoFactorApp, true, undefined, this.validPhoneNumber, xAuthTokenArray).toPromise();
     }
 }

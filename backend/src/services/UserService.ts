@@ -28,48 +28,31 @@ class UserService {
         if (!twoFactorApp && !twoFactorSms) {
             throw new HTTPError(HttpCodes.UNAUTHORIZED, 'You must keep at least one Two-Factor option');
         }
-        if ((email != undefined && email != user.email)  // Change email
-            || password != undefined                    // Change password
-            || (phoneNumber != undefined && (user.twoFactorApp || user.twoFactorSms)) // 2FA by SMS added (only if 1 already exists)
-            || (secret != undefined && (user.twoFactorApp || user.twoFactorSms))    // 2FA by APP added (only if 1 already exists)
-            || (phoneNumber == undefined && !user.twoFactorSms) // Disable 2FA by SMS
-            || (secret == undefined && !user.twoFactorApp)) { // Disable 2FA by APP
-            if (!tokenBase64) {
-                throw new HTTPError(HttpCodes.UNAUTHORIZED, 'No X-Auth-Token : authorization denied');
-            }
-            const decryptedToken = new Buffer(tokenBase64, 'base64').toString('ascii').split(':');
-            if (decryptedToken.length != 3) {
-                throw new HTTPError(HttpCodes.BAD_REQUEST, 'Bad x-auth-token');
-            }
-            if (decryptedToken[2].length != 6) {
-                throw new HTTPError(HttpCodes.BAD_REQUEST, 'Token size should be equal to 6');
-            }
-            await AuthService.isPasswordValid(user.email, decryptedToken[0]);
 
-            switch (decryptedToken[1]) {
-                case 'app':
-                    await TwoFactorAuthService.verifyTokenGeneratedByApp(user.email, secret, decryptedToken[2]);
-                    break;
-                case 'sms':
-                    await TwoFactorAuthService.verifySMSToken(user.email, phoneNumber, decryptedToken[2]);
-                    break;
-                default:
-                    throw new HTTPError(HttpCodes.BAD_REQUEST, 'appOrSms should be equal to app or sms');
+        const firstTimeTwoFactorRegistering = !user.twoFactorSms && !user.twoFactorApp;
+
+        // Check password & 2FA if you are trying to modify these attributes
+        if (email != undefined
+            || password != undefined
+            || !firstTimeTwoFactorRegistering) {
+            await UserService.securityCheck(tokenBase64, secret, phoneNumber, user);
+        }
+
+        if(!firstTimeTwoFactorRegistering) { // Can't modify those attributes while no 2FA activated
+            if (firstname != undefined) {
+                user.firstname = firstname;
+            }
+            if (lastname != undefined) {
+                user.lastname = lastname;
+            }
+            if (email != undefined) {
+                user.email = email;
+            }
+            if (password != undefined) {
+                user.password = password;
             }
         }
 
-        if (firstname != undefined) {
-            user.firstname = firstname;
-        }
-        if (lastname != undefined) {
-            user.lastname = lastname;
-        }
-        if (email != undefined) {
-            user.email = email;
-        }
-        if (password != undefined) {
-            user.password = password;
-        }
         if (phoneNumber != undefined) {
             user.phoneNumber = phoneNumber;
         }
@@ -91,11 +74,36 @@ class UserService {
     }
 
     // delete user account service
-    public static async delete(_id: string): Promise<IUser> {
-        const user: IUser = requireNonNull(await User.findById(_id));
+    public static async delete(user: IUser, tokenBase64: string | undefined): Promise<IUser> {
+        await this.securityCheck(tokenBase64, undefined, undefined, user);
         const user_root: IFile = requireNonNull(await File.findById(user.directory_id));
         requireNonNull(await FileService.deleteDirectory(user_root, true)); // true => force root directory to be deleted
-        return requireNonNull(await User.findByIdAndDelete(_id).exec());
+        return requireNonNull(await User.findByIdAndDelete(user).exec());
+    }
+
+    private static async securityCheck(tokenBase64: string | undefined, secret: string | undefined, phoneNumber: string | undefined, user: IUser) {
+        if (!tokenBase64) {
+            throw new HTTPError(HttpCodes.UNAUTHORIZED, 'No X-Auth-Token : authorization denied');
+        }
+        const decryptedToken = new Buffer(tokenBase64, 'base64').toString('ascii').split(':');
+        if (decryptedToken.length != 3) {
+            throw new HTTPError(HttpCodes.BAD_REQUEST, 'Bad x-auth-token');
+        }
+        if (decryptedToken[2].length != 6) {
+            throw new HTTPError(HttpCodes.BAD_REQUEST, 'Token size should be equal to 6');
+        }
+        await AuthService.isPasswordValid(user.email, decryptedToken[0]);
+
+        switch (decryptedToken[1]) {
+            case 'app':
+                await TwoFactorAuthService.verifyTokenGeneratedByApp(user.email, secret || user.secret, decryptedToken[2]);
+                break;
+            case 'sms':
+                await TwoFactorAuthService.verifySMSToken(user.email, phoneNumber || user.phoneNumber, decryptedToken[2]);
+                break;
+            default:
+                throw new HTTPError(HttpCodes.BAD_REQUEST, 'appOrSms should be equal to app or sms');
+        }
     }
 }
 
