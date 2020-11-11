@@ -18,6 +18,7 @@ export class FilesDetailsPanelComponent {
     @Input() nodeTags: FileTag[];
     @Input() sharedWithMeMode: boolean;
     previewLoaded = false;
+    previewError = false;
 
     constructor(
         private filesUtils: FilesUtilsService,
@@ -37,6 +38,7 @@ export class FilesDetailsPanelComponent {
     @Input()
     set node(node: CloudNode) {
         this.previewLoaded = false;
+        this.previewError = true;
         this._node = node;
         if (!node) {
             return;
@@ -101,6 +103,7 @@ export class FilesDetailsPanelComponent {
         if (node.isDirectory) return false;
         if (this.sharedWithMeMode) return false;
         if (this.filesUtils.getFileTypeForMimetype(node.mimetype) == FileType.Unknown) return false;
+        if (this.filesUtils.getFileTypeForMimetype(node.mimetype) == FileType.Audio) return false;
         return true;
     }
 
