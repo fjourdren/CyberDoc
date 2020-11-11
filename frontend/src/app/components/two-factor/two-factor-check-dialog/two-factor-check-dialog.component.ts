@@ -3,8 +3,9 @@ import {FormBuilder, Validators} from '@angular/forms';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {TwoFactorServiceProvider} from '../../../services/twofactor/twofactor-service-provider';
 import {UserServiceProvider} from '../../../services/users/user-service-provider';
-import {MatDialogRef} from '@angular/material/dialog';
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {RecoverTwoFactorDialogComponent} from '../recover-two-factor-dialog/recover-two-factor-dialog.component';
 
 @Component({
     selector: 'app-two-factor-dialog',
@@ -25,7 +26,8 @@ export class TwoFactorCheckDialogComponent {
                 private snackBar: MatSnackBar,
                 private twoFactorServiceProvider: TwoFactorServiceProvider,
                 private userServiceProvider: UserServiceProvider,
-                public twoFactorDialog: MatDialogRef<TwoFactorCheckDialogComponent>) {
+                public twoFactorDialog: MatDialogRef<TwoFactorCheckDialogComponent>,
+                private dialog: MatDialog) {
         this.user = this.jwtHelper.decodeToken(this.userServiceProvider.default().getJwtToken()).user;
         if (this.user.twoFactorApp) {
             this.twoFactorType = 'app';
@@ -75,5 +77,20 @@ export class TwoFactorCheckDialogComponent {
         this.twoFactorType = 'sms';
         this.twoFactorServiceProvider.default().sendTokenBySms(this.user.phoneNumber).toPromise()
             .catch(err => this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {duration: 2500}));
+    }
+
+    openDialogRecovery(): void {
+        const refDialog = this.dialog.open(RecoverTwoFactorDialogComponent, {
+            maxWidth: '400px'
+        });
+        refDialog.afterClosed().toPromise().then(res => {
+            if (res) {
+                this.twoFactorDialog.close(true);
+            }
+        });
+    }
+
+    dialogTokenByApp(): void {
+        this.twoFactorType = 'app';
     }
 }

@@ -1,14 +1,15 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, HostListener, Inject } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { TwoFactorServiceProvider } from 'src/app/services/twofactor/twofactor-service-provider';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
-import { allCountries as __allCountries, PhoneNumberCountry } from './all-countries';
-import { PhoneNumberUtil } from 'google-libphonenumber';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { TranslateService } from '@ngx-translate/core';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import {HttpErrorResponse} from '@angular/common/http';
+import {AfterViewInit, Component, HostListener, Inject} from '@angular/core';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {TwoFactorServiceProvider} from 'src/app/services/twofactor/twofactor-service-provider';
+import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
+import {allCountries as __allCountries, PhoneNumberCountry} from './all-countries';
+import {PhoneNumberUtil} from 'google-libphonenumber';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {TranslateService} from '@ngx-translate/core';
+import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
+import {TwoFactorRecoveryCodesDialogComponent} from '../two-factor-recovery-codes-dialog/two-factor-recovery-codes-dialog.component';
 
 const phoneNumberUtil = PhoneNumberUtil.getInstance();
 
@@ -19,7 +20,7 @@ const phoneNumberUtil = PhoneNumberUtil.getInstance();
 })
 export class TwoFactorEditDialogComponent implements AfterViewInit {
 
-    isSmartphoneOrTablet = 'ontouchstart' in window;
+    isSmartphoneOrTablet = ('ontouchstart' in window);
     loading = false;
     allCountries = __allCountries;
 
@@ -46,12 +47,13 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
     });
 
     constructor(private dialogRef: MatDialogRef<TwoFactorEditDialogComponent>,
-        private twoFAServiceProvider: TwoFactorServiceProvider,
-        private userServiceProvider: UserServiceProvider,
-        private sanitizer: DomSanitizer,
-        private snackBar: MatSnackBar,
-        private translateService: TranslateService,
-        @Inject(MAT_DIALOG_DATA) public twoFactorMode: 'sms' | 'app') {
+                private dialog: MatDialog,
+                private twoFAServiceProvider: TwoFactorServiceProvider,
+                private userServiceProvider: UserServiceProvider,
+                private sanitizer: DomSanitizer,
+                private snackBar: MatSnackBar,
+                private translateService: TranslateService,
+                @Inject(MAT_DIALOG_DATA) public twoFactorMode: 'sms' | 'app') {
     }
 
     ngAfterViewInit(): void {
@@ -227,7 +229,11 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
             currentUser.twoFactorSms
         ).toPromise();
 
-        await this.userServiceProvider.default().updateSecret(this.qrSecret).toPromise();
+        await this.userServiceProvider.default().updateSecret(this.qrSecret).toPromise().then(() => {
+            this.dialog.open(TwoFactorRecoveryCodesDialogComponent, {
+                maxWidth: '400px'
+            });
+        });
     }
 
     private async _update2FAWithSMS(): Promise<void> {
@@ -241,6 +247,10 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
             true /*twoFactorSms*/
         ).toPromise();
 
-        await this.userServiceProvider.default().updatePhoneNumber(this.validPhoneNumber).toPromise();
+        await this.userServiceProvider.default().updatePhoneNumber(this.validPhoneNumber).toPromise().then(() => {
+            this.dialog.open(TwoFactorRecoveryCodesDialogComponent, {
+                maxWidth: '400px'
+            });
+        });
     }
 }

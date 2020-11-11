@@ -1,4 +1,4 @@
-@import "../../../theme.scss";
+@import "src/theme";
 
 .full-width {
   width: 100%;
@@ -18,11 +18,6 @@
 
 form {
   min-width: 400px;
-}
-
-#root-div {
-  background-color: mat-color($primary);
-  height: 100vh;
 }
 
 #form-container {
@@ -56,7 +51,7 @@ form {
   flex-direction: column;
 }
 
-.mat-button {
+.mat-card-actions button{
   margin-top: 10px;
 }
 

@@ -1,8 +1,10 @@
-import {Component, EventEmitter, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {TwoFactorEditDialogComponent} from '../two-factor-edit-dialog/two-factor-edit-dialog.component';
 import {UserServiceProvider} from '../../../services/users/user-service-provider';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {TwoFactorServiceProvider} from '../../../services/twofactor/twofactor-service-provider';
+import {TwoFactorRecoveryCodesDialogComponent} from '../two-factor-recovery-codes-dialog/two-factor-recovery-codes-dialog.component';
 
 @Component({
     selector: 'app-two-factor-edit',
@@ -12,6 +14,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 export class TwoFactorEditComponent {
     @Output() twoFactorAppEvent = new EventEmitter<boolean>();
     @Output() twoFactorSmsEvent = new EventEmitter<boolean>();
+    @Input() displayGenerationEmergencyCodes: boolean;
     twoFactorApp: boolean;
     twoFactorSms: boolean;
 
@@ -45,7 +48,7 @@ export class TwoFactorEditComponent {
                 this.snackBar.open('You have to keep at least one 2FA option to use CyberDoc',
                     null, {duration: 4000});
             }
-        } else {
+        } else { // User wants to activate 2FA by App
             event.source.checked = false;
             const refDialog = this.dialog.open(TwoFactorEditDialogComponent, {
                 width: '500px',
@@ -78,7 +81,7 @@ export class TwoFactorEditComponent {
                 this.snackBar.open('You have to keep at least one 2FA option to use CyberDoc',
                     null, {duration: 4000});
             }
-        } else {
+        } else { // User wants to activate 2FA by SMS
             event.source.checked = false;
             const refDialog = this.dialog.open(TwoFactorEditDialogComponent, {
                 width: '500px',
@@ -92,5 +95,11 @@ export class TwoFactorEditComponent {
                 this.refresh();
             });
         }
+    }
+
+    generateNewEmergencyCodes(): void {
+        this.dialog.open(TwoFactorRecoveryCodesDialogComponent, {
+            width: '500px'
+        });
     }
 }

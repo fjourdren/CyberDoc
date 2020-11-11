@@ -4,12 +4,13 @@ import {map} from 'rxjs/operators';
 import {TwoFactorService} from './twofactor-service';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {CookieService} from 'ngx-cookie-service';
-import { environment } from "src/environments/environment";
+import {environment} from 'src/environments/environment';
 
 export class RealTwoFactorService implements TwoFactorService {
     private jwtHelper = new JwtHelperService();
 
-    constructor(private httpClient: HttpClient, private cookieService: CookieService) {}
+    constructor(private httpClient: HttpClient, private cookieService: CookieService) {
+    }
 
     sendTokenBySms(phoneNumber: string): Observable<any> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/send/sms`, {
@@ -60,6 +61,29 @@ export class RealTwoFactorService implements TwoFactorService {
             email
         }, {withCredentials: true}).pipe(map(response => {
             return response;
+        }));
+    }
+
+    verifyRecoveryCode(code: string): Observable<void> {
+        // TODO : Add x-auth-token in headers when "securityCheck" branch will be merged
+        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/recoveryCode`, {code},
+            {withCredentials: true}).pipe(map(response => {
+            if (response) {
+                this.cookieService.set(
+                    environment.authCookieName,
+                    response.token,
+                    this.jwtHelper.getTokenExpirationDate(response.token),
+                    '/',
+                    environment.authCookieDomain);
+                localStorage.setItem('real_user', JSON.stringify(this.jwtHelper.decodeToken(response.token).user));
+            }
+        }));
+    }
+
+    generateRecoveryCodes(): Observable<string[]> {
+        // TODO : Add x-auth-token in headers when "securityCheck" branch will be merged
+        return this.httpClient.get<any>(`${environment.apiBaseURL}/2fa/recoveryCodes`, {withCredentials: true}).pipe(map(response => {
+            return response.recoveryCodes;
         }));
     }
 }
