@@ -5,7 +5,6 @@ import { Readable } from 'stream';
 import fs from "fs";
 import path from 'path';
 import sharp from 'sharp'
-const filepreview = require('pngenerator');
 const libre = require("libreoffice-convert");
 
 import { promisify } from "util";
@@ -18,6 +17,7 @@ import { streamToBuffer } from '../helpers/Conversions';
 
 import { IUser, User } from "../models/User";
 import { IFile, File, FileType, ShareMode } from "../models/File";
+import generatePreviewSync, { GeneratePreviewOptions } from '../helpers/filepreview';
 
 enum PreciseFileType {
     Folder = "Folder",
@@ -480,7 +480,7 @@ class FileService {
         FileService.requireFileIsDocument(file);
 
         //Keep this list synced with frontend\src\app\services\files-utils\files-utils.service.ts
-        //FileType.{Text,Document,Spreadsheet,Spreadsheet}
+        //FileType.{Text,Document,Spreadsheet,Presentation}
         const VALID_MIMEYPES_FOR_PDF_GENERATION = [
             "text/plain",
             "application/msword",
@@ -517,7 +517,7 @@ class FileService {
         FileService.requireFileIsDocument(file);
 
         //Keep this list synced with frontend\src\app\services\files-utils\files-utils.service.ts
-        //FileType.{PDF,Text,Document,Spreadsheet,Spreadsheet}
+        //FileType.{PDF,Text,Document,Spreadsheet,Presentation}
         const VALID_OFFICE_MIMEYPES = [
             "text/plain",
             "application/pdf",
@@ -536,7 +536,6 @@ class FileService {
         if (
             !file.mimetype.startsWith("image/") &&
             !file.mimetype.startsWith("video/") &&
-            !file.mimetype.startsWith("audio/") &&
             !VALID_OFFICE_MIMEYPES.includes(file.mimetype)
         ) {
             throw new HTTPError(HttpCodes.BAD_REQUEST, "Preview is not available for this file");
@@ -553,32 +552,40 @@ class FileService {
         const tempOutputImage = path.join("tmp", "output", file._id + ".png");
         let contentOutputFile: Buffer;
 
-        if (file.mimetype.startsWith("image/")) {
-            contentOutputFile = await sharp(buffer).resize({ width: 200 }).extract({ left: 0, top: 0, width: 200, height: 130 }).png().toBuffer();
-        } else {
-            // save input file in temp file
-            fs.writeFileSync(tempInputFile, buffer);
+        // save input file in temp file
+        fs.writeFileSync(tempInputFile, buffer);
 
-            // generate image and save it in a temp directory
-            const options = {
-                quality: 100,
-                background: '#ffffff',
-                pagerange: '1'
-            };
+        // generate image and save it in a temp directory
+        const options: GeneratePreviewOptions = {
+            quality: 100,
+            width: 300,
+            height: 200,
+            background: '#ffffff',
+            pagerange: '1'
+        };
 
-            filepreview.generateSync(tempInputFile, tempOutputImage, options);
-            contentOutputFile = await sharp(tempOutputImage).resize({ width: 300, height: 200 }).png().toBuffer();
+        let fileType: "other" | "video" | "image" | "pdf" = "other";
+        if (file.mimetype.startsWith("image/")) fileType = "image";
+        else if (file.mimetype.startsWith("video/")) fileType = "video";
+        else if (file.mimetype === "application/pdf") fileType = "pdf";
+
+        try {
+            generatePreviewSync(tempInputFile, fileType, tempOutputImage, options);
+        } catch (e) {
+            throw new HTTPError(HttpCodes.INTERNAL_ERROR, `Cannot create this preview! ${e}`);
         }
 
-        // create readable
-        const readableOutput = new Readable();
-        readableOutput.push(contentOutputFile);
-        readableOutput.push(null);
+        contentOutputFile = fs.readFileSync(tempOutputImage);
 
         // delete two temp files
         fs.unlinkSync(tempInputFile);
         fs.unlinkSync(tempOutputImage);
 
+        // create readable
+        contentOutputFile = await sharp(contentOutputFile).resize({ width: 300, height: 200 }).png().toBuffer();
+        const readableOutput = new Readable();
+        readableOutput.push(contentOutputFile);
+        readableOutput.push(null);
         return readableOutput;
     }
 
