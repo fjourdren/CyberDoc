@@ -567,7 +567,7 @@ class FileService {
             };
 
             filepreview.generateSync(tempInputFile, tempOutputImage, options);
-            contentOutputFile = await sharp(tempOutputImage).resize({ width: 300 }).extract({ left: 0, top: 0, width: 300, height: 200 }).png().toBuffer();
+            contentOutputFile = await sharp(tempOutputImage).resize({ width: 300, height: 200 }).png().toBuffer();
         }
 
         // create readable
