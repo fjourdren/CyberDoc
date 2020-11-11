@@ -50,7 +50,8 @@
         "type": "Type",
         "owner": "Owner",
         "copy_new_name": "Copy of {{filename}}",
-        "loading_preview": "Loading preview..."
+        "loading_preview": "Loading preview...",
+        "error_loading_preview": "Sorry, we can't preview this file"
     },
     "sharing": {
         "folderName": "Shared with me",

@@ -5,11 +5,17 @@
     </div>
 
     <div *ngIf="node && isPreviewAvailable(node) && node.preview" id="filepreview">
-        <img [ngStyle]="{'display': previewLoaded ? 'initial': 'none'}" (load)="previewLoaded = true" [src]="getFilePreviewImageURL()">
-        <div id="filepreview-loading" *ngIf="!previewLoaded" style="">
+        <img [ngStyle]="{'display': previewLoaded ? 'initial': 'none'}" (error)="previewError = true" (load)="previewLoaded = true" [src]="getFilePreviewImageURL()">
+
+        <div id="filepreview-loading" *ngIf="!previewLoaded && !previewError">
             <mat-progress-bar mode="indeterminate"></mat-progress-bar>
             <div>{{ 'file.loading_preview' | translate }}</div>    
         </div>    
+
+        <div id="filepreview-loading" *ngIf="!previewLoaded && previewError">
+            <div>{{ 'file.error_loading_preview' | translate }}</div>    
+        </div>    
+
     </div>
 
     <mat-slide-toggle *ngIf="node && isPreviewAvailable(node)" (change)="onPreviewToggleChange($event)"
