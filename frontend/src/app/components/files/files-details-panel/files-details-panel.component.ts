@@ -38,7 +38,7 @@ export class FilesDetailsPanelComponent {
     @Input()
     set node(node: CloudNode) {
         this.previewLoaded = false;
-        this.previewError = true;
+        this.previewError = false;
         this._node = node;
         if (!node) {
             return;
