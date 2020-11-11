@@ -25,8 +25,7 @@ class UserService {
     public static async updateProfile(user_id: string | undefined, tokenBase64: string | undefined, firstname: string | undefined, lastname: string | undefined, email: string | undefined, password: string | undefined, phoneNumber: string | undefined, secret: string | undefined, twoFactorApp: boolean | undefined, twoFactorSms: boolean | undefined): Promise<Record<string, IUser | string>> {
         let user = requireNonNull(await User.findById(user_id).exec());
 
-        if (phoneNumber == undefined && !twoFactorSms && !user.twoFactorApp
-            || secret == undefined && !twoFactorApp && !user.twoFactorSms) {
+        if (!twoFactorApp && !twoFactorSms) {
             throw new HTTPError(HttpCodes.UNAUTHORIZED, 'You must keep at least one Two-Factor option');
         }
         if ((email != undefined && email != user.email)  // Change email
