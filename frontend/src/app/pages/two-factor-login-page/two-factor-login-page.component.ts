@@ -5,9 +5,11 @@ import {TwoFactorServiceProvider} from '../../services/twofactor/twofactor-servi
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {Router} from '@angular/router';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {RecoverTwoFactorDialogComponent} from '../../components/two-factor/recover-two-factor-dialog/recover-two-factor-dialog.component';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
-    selector: 'app-two-factor-page',
+    selector: 'app-two-factor-login-page',
     templateUrl: './two-factor-login-page.component.html',
     styleUrls: ['./two-factor-login-page.component.scss']
 })
@@ -25,7 +27,8 @@ export class TwoFactorLoginPageComponent implements OnInit {
                 private twoFactorServiceProvider: TwoFactorServiceProvider,
                 private userServiceProvider: UserServiceProvider,
                 private router: Router,
-                private snackBar: MatSnackBar) {
+                private snackBar: MatSnackBar,
+                private dialog: MatDialog) {
     }
 
     get f(): { [p: string]: AbstractControl } {
@@ -87,5 +90,16 @@ export class TwoFactorLoginPageComponent implements OnInit {
         this.twoFactorType = 'sms';
         this.twoFactorServiceProvider.default().sendTokenBySms(this.user.phoneNumber).toPromise()
             .catch(err => this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {duration: 2500}));
+    }
+
+    openDialogRecovery(): void {
+        const refDialog = this.dialog.open(RecoverTwoFactorDialogComponent, {
+            maxWidth: '500px'
+        });
+        refDialog.afterClosed().toPromise().then(res => {
+            if (res) {
+                this.router.navigate(['/files']);
+            }
+        });
     }
 }

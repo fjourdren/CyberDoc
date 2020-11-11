@@ -7,6 +7,7 @@ import Guid from 'guid';
 
 import ITag, { Tag } from './Tag';
 import IDevice, { Device } from './Device';
+import ITwoFactorRecoveryCode, {TwoFactorRecoveryCode} from './TwoFactorRecoveryCode';
 
 /**
  * Users role enum
@@ -89,6 +90,10 @@ export const UserSchema = new mongoose.Schema({
             type: Boolean,
             required: true
         },
+        twoFactorRecoveryCodes: {
+            type: [TwoFactorRecoveryCode.schema],
+            default: []
+        },
         role: {
             type: String,
             enum: Object.values(Role),
@@ -130,6 +135,7 @@ export interface IUser extends mongoose.Document {
     role: Role;
     tags: ITag[];
     devices: IDevice[];
+    twoFactorRecoveryCodes: ITwoFactorRecoveryCode[];
     updated_at: string;
     created_at: string;
 }

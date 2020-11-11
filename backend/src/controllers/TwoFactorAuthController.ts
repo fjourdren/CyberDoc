@@ -6,6 +6,8 @@ import HttpCodes from '../helpers/HttpCodes'
 import TwoFactorAuthService from '../services/TwoFactorAuthService';
 import jwt from "jsonwebtoken";
 import HTTPError from '../helpers/HTTPError';
+import {IUser} from '../models/User';
+import ITwoFactorRecoveryCode from '../models/TwoFactorRecoveryCode';
 
 class TwoFactorAuthController {
     public static async sendTokenBySms(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -82,6 +84,50 @@ class TwoFactorAuthController {
         } catch (err) {
             next(err);
         }
+    }
+
+    public static async verifyRecoveryCode(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const {code} = req.body;
+            requireNonNull(code);
+
+            const currentUser = TwoFactorAuthController._requireAuthenticatedUser(res);
+            await TwoFactorAuthService.verifyRecoveryCode(currentUser, code);
+            const jwtToken = jwt.sign({
+                user: res.locals.APP_JWT_TOKEN.user,
+                authorized: true
+            }, process.env.JWT_SECRET, {
+                expiresIn: 36000
+            });
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: 'Recovery code used',
+                token: jwtToken
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+
+    public static async generateRecoveryCodes(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const currentUser = TwoFactorAuthController._requireAuthenticatedUser(res);
+            const recoveryCodes: ITwoFactorRecoveryCode[] = requireNonNull(await TwoFactorAuthService.generateRecoveryCodes(currentUser));
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: '5 Two-Factor recovery codes have been generated.',
+                recoveryCodes: recoveryCodes.map(rc => rc.code)
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    private static _requireAuthenticatedUser(res: Response): IUser {
+        return requireNonNull(res.locals.APP_JWT_TOKEN.user, HttpCodes.UNAUTHORIZED, "Auth is missing or invalid");
     }
 }
 

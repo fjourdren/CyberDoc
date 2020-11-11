@@ -26,7 +26,7 @@ export class TwoFactorServiceProvider {
         return this._instances.get(providerName);
     }
 
-    private _createInstance(providerName: string){
+    private _createInstance(providerName: string): MockTwoFactorService | RealTwoFactorService {
         switch (providerName){
             case 'mock':
                 return new MockTwoFactorService();
