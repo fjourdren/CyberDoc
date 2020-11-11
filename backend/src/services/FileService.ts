@@ -552,34 +552,36 @@ class FileService {
         const tempOutputImage = path.join("tmp", "output", file._id + ".png");
         let contentOutputFile: Buffer;
 
-        // save input file in temp file
-        fs.writeFileSync(tempInputFile, buffer);
+        if (file.mimetype.startsWith("image/")) {
+            contentOutputFile = buffer;
+        } else {
+            // save input file in temp file
+            fs.writeFileSync(tempInputFile, buffer);
 
-        // generate image and save it in a temp directory
-        const options: GeneratePreviewOptions = {
-            quality: 100,
-            width: 300,
-            height: 200,
-            background: '#ffffff',
-            pagerange: '1'
-        };
+            // generate image and save it in a temp directory
+            const options: GeneratePreviewOptions = {
+                quality: 100,
+                background: '#ffffff',
+                pagerange: '1'
+            };
 
-        let fileType: "other" | "video" | "image" | "pdf" = "other";
-        if (file.mimetype.startsWith("image/")) fileType = "image";
-        else if (file.mimetype.startsWith("video/")) fileType = "video";
-        else if (file.mimetype === "application/pdf") fileType = "pdf";
+            let fileType: "other" | "video" | "image" | "pdf" = "other";
+            if (file.mimetype.startsWith("video/")) fileType = "video";
+            else if (file.mimetype === "application/pdf") fileType = "pdf";
 
-        try {
-            generatePreviewSync(tempInputFile, fileType, tempOutputImage, options);
-        } catch (e) {
-            throw new HTTPError(HttpCodes.INTERNAL_ERROR, `Cannot create this preview! ${e}`);
+            try {
+                generatePreviewSync(tempInputFile, fileType, tempOutputImage, options);
+            } catch (e) {
+                throw new HTTPError(HttpCodes.INTERNAL_ERROR, `Cannot create this preview! ${e}`);
+            }
+
+            contentOutputFile = fs.readFileSync(tempOutputImage);
+            contentOutputFile = await sharp(contentOutputFile).resize({ width: 300, height: 200 }).png().toBuffer();
+
+            // delete two temp files
+            fs.unlinkSync(tempInputFile);
+            fs.unlinkSync(tempOutputImage);
         }
-
-        contentOutputFile = fs.readFileSync(tempOutputImage);
-
-        // delete two temp files
-        fs.unlinkSync(tempInputFile);
-        fs.unlinkSync(tempOutputImage);
 
         // create readable
         contentOutputFile = await sharp(contentOutputFile).resize({ width: 300, height: 200 }).png().toBuffer();
