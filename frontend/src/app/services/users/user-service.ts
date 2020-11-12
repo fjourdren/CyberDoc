@@ -14,12 +14,11 @@ export interface UserService {
 
     register(user: User, password: string, fileId: string): Observable<any>;
     updateProfile(firstName: string, lastName: string, newEmail: string, oldEmail: string): Observable<void>;
-  
+
     recoverPassword(email: string): Observable<void>;
     resetPassword(resetPasswordJWTToken: string, email: string, password): Observable<void>;
     searchExistingUser(email: string): Observable<User>;
 
-    updatePassword(oldPassword: string, newPassword: string, email: string): Observable<void>;
     updatePhoneNumber(phoneNumber: string): Observable<void>;
     updateSecret(secret: string): Observable<void>;
     updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean): Observable<void>;
@@ -33,7 +32,6 @@ export interface UserService {
 
     userUpdated(): Observable<User>;
     getUserDevices(): Observable<Device[]>;
-    renameUserDevice(oldName: string,name: string): Observable<void>;
+    renameUserDevice(oldName: string, name: string): Observable<void>;
     createUserDevice(name: string, browser: string, OS: string): Observable<void>;
-    
 }

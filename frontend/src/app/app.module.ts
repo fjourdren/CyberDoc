@@ -92,8 +92,8 @@ import {TwoFactorEditDialogComponent} from './components/two-factor/two-factor-e
 import { TwoFactorEditComponent } from './components/two-factor/two-factor-edit/two-factor-edit.component';
 import { DevicePageComponent } from './pages/device-page/device-page.component';
 import { SettingsRenameDeviceDialogComponent } from './components/settings/settings-rename-device-dialog/settings-rename-device-dialog.component';
-import {TwoFactorRecoveryCodesDialogComponent} from './components/two-factor/two-factor-recovery-codes-dialog/two-factor-recovery-codes-dialog.component';
-import {RecoverTwoFactorDialogComponent} from './components/two-factor/recover-two-factor-dialog/recover-two-factor-dialog.component';
+import {TwoFactorGenerateRecoveryCodesDialogComponent} from './components/two-factor/two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
+import {TwoFactorUseRecoveryCodeDialogComponent} from './components/two-factor/two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
@@ -180,8 +180,8 @@ if (environment.useSentry) {
         TwoFactorCheckDialogComponent,
         TwoFactorEditDialogComponent,
         TwoFactorEditComponent,
-        TwoFactorRecoveryCodesDialogComponent,
-        RecoverTwoFactorDialogComponent,
+        TwoFactorGenerateRecoveryCodesDialogComponent,
+        TwoFactorUseRecoveryCodeDialogComponent,
         DevicePageComponent,
         SettingsRenameDeviceDialogComponent,
     ],

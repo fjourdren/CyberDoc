@@ -6,6 +6,7 @@ import {v4 as uuidv4} from 'uuid';
 import ITwoFactorRecoveryCode, {TwoFactorRecoveryCode} from '../models/TwoFactorRecoveryCode';
 import HTTPError from '../helpers/HTTPError';
 import HttpCodes from '../helpers/HttpCodes';
+import {requireNonNull} from '../helpers/DataValidation';
 
 const twoFactor = require('node-2fa');
 
@@ -63,15 +64,16 @@ class TwoFactorAuthService {
         // update mongo data
         await User.updateOne({ _id: user._id }, { '$set': {twoFactorRecoveryCodes: user.twoFactorRecoveryCodes }});
 
-        return user.twoFactorRecoveryCodes
+        return user.twoFactorRecoveryCodes;
     }
 
-    public static async verifyRecoveryCode(user: IUser, code: string): Promise<void> {
+    public static async useRecoveryCode(user: IUser, code: string): Promise<boolean> {
         const recoveryCode: ITwoFactorRecoveryCode | undefined = user.twoFactorRecoveryCodes.find(filteredCode => filteredCode.code === code);
         if (recoveryCode === undefined) throw new HTTPError(HttpCodes.FORBIDDEN, 'Invalid recovery code');
         if (!recoveryCode.isValid) throw new HTTPError(HttpCodes.FORBIDDEN, 'Already used recovery code');
         const updateString = Object.assign({}, { 'twoFactorRecoveryCodes.$.isValid': false });
         await User.updateOne({ _id: user._id, 'twoFactorRecoveryCodes.code': code}, { '$set': updateString });
+        return user.twoFactorRecoveryCodes.filter(c => c.isValid).length > 1;
     }
 }
 

@@ -26,7 +26,7 @@ export class MockTwoFactorService implements TwoFactorService {
         return undefined;
     }
 
-    verifyRecoveryCode(code: string): Observable<void> {
+    useRecoveryCode(code: string): Observable<boolean> {
         return undefined;
     }
 

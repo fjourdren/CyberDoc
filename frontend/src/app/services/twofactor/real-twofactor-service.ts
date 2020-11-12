@@ -64,9 +64,9 @@ export class RealTwoFactorService implements TwoFactorService {
         }));
     }
 
-    verifyRecoveryCode(code: string): Observable<void> {
+    useRecoveryCode(code: string): Observable<boolean> {
         // TODO : Add x-auth-token in headers when "securityCheck" branch will be merged
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/recoveryCode`, {code},
+        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/useRecoveryCode`, {code},
             {withCredentials: true}).pipe(map(response => {
             if (response) {
                 this.cookieService.set(
@@ -76,13 +76,15 @@ export class RealTwoFactorService implements TwoFactorService {
                     '/',
                     environment.authCookieDomain);
                 localStorage.setItem('real_user', JSON.stringify(this.jwtHelper.decodeToken(response.token).user));
+                return response.recoveryCodesLeft;
             }
         }));
     }
 
     generateRecoveryCodes(): Observable<string[]> {
         // TODO : Add x-auth-token in headers when "securityCheck" branch will be merged
-        return this.httpClient.get<any>(`${environment.apiBaseURL}/2fa/recoveryCodes`, {withCredentials: true}).pipe(map(response => {
+        return this.httpClient.get<any>(`${environment.apiBaseURL}/2fa/generateRecoveryCodes`,
+            {withCredentials: true}).pipe(map(response => {
             return response.recoveryCodes;
         }));
     }

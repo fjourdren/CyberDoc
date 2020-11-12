@@ -4,6 +4,7 @@ import {UserServiceProvider} from '../../services/users/user-service-provider';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {TwoFactorCheckDialogComponent} from '../two-factor/two-factor-check-dialog/two-factor-check-dialog.component';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {TwoFactorGenerateRecoveryCodesDialogComponent} from '../two-factor/two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
 
 @Component({
     selector: 'app-delete-account-password-dialog',
@@ -35,9 +36,15 @@ export class SecurityCheckDialogComponent implements OnInit {
             if (isPasswordVerified) {
                 this.dialog.open(TwoFactorCheckDialogComponent, {
                     maxWidth: '500px'
-                }).afterClosed().subscribe(isTwoFactorVerified => {
-                    if (isTwoFactorVerified) {
-                        this.verifyPasswordDialog.close(true);
+                }).afterClosed().subscribe(res => {
+                    if (res.result) {
+                        this.verifyPasswordDialog.close(res);
+                        if (!res.recoveryCodesLeft) {
+                            this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+                                maxWidth: '500px',
+                                disableClose: true
+                            });
+                        }
                     }
                 });
             }
