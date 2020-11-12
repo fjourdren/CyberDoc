@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 import uniqueValidator from 'mongoose-unique-validator';
 import Guid from 'guid';
 
-import ITag, {Tag} from './Tag';
+import ITag, { Tag } from './Tag';
+import IUserSign, { UserSign } from './UserSign';
 
 
 /**
@@ -84,28 +85,28 @@ export const FileSchema = new mongoose.Schema({
             default: []
         }
     },
-    {
-        collection: 'File',
-    });
+
+{
+    collection: 'File',
+});
 
 
-// DO NOT export this, Type script validation (= Mongoose raw model)
 export interface IFile extends mongoose.Document {
-    _id: string;
-    type: FileType;
-    mimetype: string;
-    name: string;
-    size: number;
-    document_id: string;
+    _id           : string;
+    type          : FileType;
+    mimetype      : string;
+    name          : string;
+    size          : number;
+    document_id   : string;
     parent_file_id: string;
-    owner_id: string;
-    tags: ITag[];
-    preview: boolean;
-    updated_at: string;
-    created_at: string;
-    shareMode: ShareMode;
-    sharedWith: string[];
-    sharedWithPending: string[];
+    owner_id      : string;
+    tags          : ITag[];
+    preview       : boolean;
+    shareMode     : ShareMode;
+    sharedWith    : string[];
+    signs         : IUserSign[];
+    updated_at    : string;
+    created_at    : string;
 }
 
 

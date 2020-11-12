@@ -18,6 +18,7 @@ import { streamToBuffer } from '../helpers/Conversions';
 
 import { IUser, User } from "../models/User";
 import { IFile, File, FileType, ShareMode } from "../models/File";
+import IUserSign, { UserSign } from '../models/UserSign';
 
 enum PreciseFileType {
     Folder = "Folder",
@@ -67,6 +68,11 @@ class FileService {
     public static async fileCanBeModified(user: IUser | string, file: IFile | string): Promise<boolean> {
         user = await this.resolveUserIfNeeded(user);
         file = await this.resolveFileIfNeeded(file);
+
+        // if someone sign the document, then it became unmodifiable
+        if(file.signs.length != 0)
+            return false;
+
         return file.owner_id === user._id || (file.shareMode === ShareMode.READWRITE && file.sharedWith.indexOf(user._id) !== -1);
     }
 
@@ -420,16 +426,15 @@ class FileService {
 
         // generate new file informations
         const newFile: IFile = new File();
-        newFile._id = Guid.raw();
-        newFile.type = file.type;
-        newFile.mimetype = file.mimetype;
-        newFile.name = copyFileName;
-        newFile.size = file.size;
-        newFile.document_id = objectId;
+        newFile._id            = Guid.raw();
+        newFile.type           = file.type;
+        newFile.mimetype       = file.mimetype;
+        newFile.name           = copyFileName;
+        newFile.size           = file.size;
+        newFile.document_id    = objectId;   
         newFile.parent_file_id = destination_id;
-        newFile.owner_id = user._id;
-        newFile.shareMode = ShareMode.READONLY;
-        newFile.sharedWith = [];
+        newFile.owner_id       = user._id;
+        newFile.shareMode      = ShareMode.READONLY;
 
         return await newFile.save(); // save the new file
     }
@@ -580,6 +585,23 @@ class FileService {
         fs.unlinkSync(tempOutputImage);
 
         return readableOutput;
+    }
+
+    public static async addSign(user: IUser, file: IFile) {
+        // check if user hasn't already sign the file
+        if(file.signs.map(function(e) { return e.user_email; }).indexOf(user.email) != -1) {
+            throw new HTTPError(HttpCodes.BAD_REQUEST, "You already signed that document");
+        }
+
+        // create sign object
+        const u_sign: IUserSign = new UserSign();
+        u_sign.user_email = user.email;
+
+        // add UserSign to the list
+        file.signs.push(u_sign);
+
+        // update signs
+        return requireNonNull(await File.updateOne({ _id: file._id }, {$set: {signs: file.signs}}).exec());
     }
 
     private static async resolveUserIfNeeded(user: IUser | string) {
