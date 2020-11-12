@@ -109,4 +109,16 @@ export class SettingsSecurityComponent {
             this.dataSource.data = value;
         });
     }
+
+    downloadRecoveryKey() {
+        this.loading = true;
+        this.userServiceProvider.default().exportRecoveryKey().toPromise().then(recoveryKey => {
+          this.loading = false;
+          const anchor = document.createElement('a');
+          anchor.download = "recovery-key.txt";
+          anchor.href = `data:text/plain,${recoveryKey}`;
+          anchor.click();
+          anchor.remove();
+        });
+      }    
 }
