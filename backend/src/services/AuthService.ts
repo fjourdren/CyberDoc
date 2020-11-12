@@ -44,7 +44,7 @@ class AuthService {
 
         const user_keys: IUserEncryptionKeys = new UserEncryptionKeys();
         user_keys.public_key = public_key;
-        user_keys.encrypted_private_key = CryptoHelper.encryptAES(user_hash, private_key);
+        user_keys.encrypted_private_key = JSON.stringify(CryptoHelper.encryptAES(user_hash, private_key));
 
         newUser.userKeys = user_keys;
 

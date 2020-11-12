@@ -9,7 +9,7 @@ export function requireAuthenticatedUser(res: Response): IUser {
 }
 
 export function requireUserHash(req: Request): string {
-    return CryptoHelper.prepareUser_hash(requireNonNull(req.cookies["user_hash"], HttpCodes.UNAUTHORIZED, "user_hash is missing or invalid"));
+    return CryptoHelper.prepareUser_hash(requireNonNull(req.cookies["user_hash"] || req.body.user_hash, HttpCodes.UNAUTHORIZED, "user_hash is missing or invalid"));
 }
 
 export function requireFile(req: Request, fieldName: string): Express.Multer.File {

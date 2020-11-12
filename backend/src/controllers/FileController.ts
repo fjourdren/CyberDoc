@@ -11,8 +11,7 @@ import { IUser, User } from "../models/User";
 import Mailer from "../helpers/Mailer";
 import jwt from "jsonwebtoken";
 import EncryptionFileService from '../services/EncryptionFileService';
-import CryptoHelper from '../helpers/CryptoHelper';
-import { anyToReadable } from '../helpers/Conversions';
+import { anyToReadable, streamToBuffer } from '../helpers/Conversions';
 import { Readable } from 'stream';
 import { requireAuthenticatedUser, requireFile, requireUserHash } from '../helpers/Utils';
 
@@ -403,7 +402,9 @@ class FileController {
             res.set('Content-Type', (documentGridFs.infos as any).contentType);
             res.set('Content-Disposition', 'attachment; filename="' + file.name + '"');
             res.status(HttpCodes.OK);
-            documentGridFsReadable.pipe(res);
+
+            //documentGridFsReadable.pipe(res);
+            res/*.attachment('foo.png').type('png')*/.send(Buffer.from(documentGridFs.content, "binary"));
         } catch (err) {
             next(err);
         }

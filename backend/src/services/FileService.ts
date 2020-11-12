@@ -21,6 +21,9 @@ import { IFile, File, FileType, ShareMode } from "../models/File";
 import CryptoHelper from '../helpers/CryptoHelper';
 import EncryptionFileService from './EncryptionFileService';
 
+import NodeRSA from 'node-rsa';
+import { FileEncryptionKeysSchema } from '../models/FileEncryptionKeys';
+
 enum PreciseFileType {
     Folder = "Folder",
     Audio = "Audio",
@@ -136,16 +139,17 @@ class FileService {
         FileService.requireFileIsDirectory(parentFile);
 
         // encrypt content
-        const encryptProcessReply: Record<any, any> = EncryptionFileService.encryptFileContent(fileContentBuffer.toString()); // return { "aes_key", "content" }
+        const encryptProcessReply: Record<any, any> = EncryptionFileService.encryptFileContent(fileContentBuffer); // return { "aes_key", "content" }
+
 
         // add file aes_key to user
         const user: IUser = requireNonNull(await User.findById(file.owner_id).exec(), HttpCodes.BAD_REQUEST, "User not found");
         await EncryptionFileService.addFileKeyToUser(user, file, encryptProcessReply["aes_key"]);
 
         // create readable
-        const readablefileContent = new Readable()
-        readablefileContent.push(encryptProcessReply["content"])
-        readablefileContent.push(null)
+        const readablefileContent = new Readable();
+        readablefileContent.push(encryptProcessReply["content"]);
+        readablefileContent.push(null);
 
         // push document to gridfs
         const docId: string = await GridFSTalker.create(filename, content_type, readablefileContent);
@@ -153,6 +157,36 @@ class FileService {
 
         // get file size and save it in File model
         file.size = fileContentBuffer.length;
+
+
+
+        //============= TODO: tests
+        /*let rsa: NodeRSA = CryptoHelper.generateRSAKeys();
+        let encrypted_rsa: string = CryptoHelper.encryptRSA(rsa, fileContentBuffer);
+        let decrypted_rsa: string = CryptoHelper.decryptRSA(rsa, encrypted_rsa);
+        fs.writeFileSync("filenameRSA.png", decrypted_rsa, 'binary');
+        
+
+
+        // aes        
+        const key: string = CryptoHelper.generateAES();
+        const hash = CryptoHelper.encryptAES(key, fileContentBuffer);
+        const text = CryptoHelper.decryptAES(key, hash);
+
+        fs.writeFileSync("filenameAES.png", text, 'binary');
+
+
+
+        // normal
+        fs.writeFileSync("filename.png", fileContentBuffer.toString('binary'), 'binary');
+        
+        // e2e
+        const t: string = (await FileService.getFileContent(user_hash, user, file)).content;
+        fs.writeFileSync("filenameE2E_TOTAL.png", t, 'binary');
+        */
+        // ====================
+
+
 
         return await file.save();
     }
@@ -441,7 +475,7 @@ class FileService {
 
         // decrypt content
         const aes_file_key: string = await EncryptionFileService.getFileKey(user, file, user_hash);
-        const decrypt_content: string = CryptoHelper.decryptAES(aes_file_key, content_buffer.toString());
+        const decrypt_content: string = CryptoHelper.decryptAES(aes_file_key, content_buffer);
 
         // encrypt with a new eas key
         const encrypted_new_file: Record<any, any> = EncryptionFileService.encryptFileContent(decrypt_content);
