@@ -160,6 +160,7 @@ class FileController {
                             "updated_at": fileInDir.updated_at,
                             "created_at": fileInDir.created_at,
                             "tags": fileInDir.tags,
+                            "signs": fileInDir.signs,
                             "shareMode": fileInDir.shareMode,
                             "preview": fileInDir.preview
                         });
@@ -211,6 +212,7 @@ class FileController {
                         "size": file.size,
                         "updated_at": file.updated_at,
                         "created_at": file.updated_at,
+                        "signs": file.signs,
                         "tags": file.tags,
                         "shareMode": file.shareMode
                     }
@@ -611,12 +613,14 @@ class FileController {
         try {
             const currentUser = FileController._requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
-    
+            const user_hash = requireUserHash(req);
+
+
             FileService.requireFileIsDocument(file);
             await FileService.requireFileCanBeViewed(currentUser, file);
 
             // sign the document
-            await FileService.addSign(currentUser, file);
+            await FileService.addSign(user_hash, currentUser, file);
 
             res.status(HttpCodes.OK);
             res.json({

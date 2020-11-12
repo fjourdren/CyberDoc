@@ -19,7 +19,11 @@ export const UserSignSchema = new mongoose.Schema({
     },
     created_at: {
         type   : Date,
-        default: new Date().getTime()
+        require: true
+    },
+    diggest: {
+        type: String,
+        require: true
     }
 }, { _id: false });
 
@@ -27,7 +31,8 @@ export const UserSignSchema = new mongoose.Schema({
 
 export interface IUserSign extends mongoose.Document {
     user_email: string;
-    created_at: string;
+    created_at: Date;
+    diggest   : string;
 }
 
 
