@@ -21,9 +21,6 @@ import { IFile, File, FileType, ShareMode } from "../models/File";
 import CryptoHelper from '../helpers/CryptoHelper';
 import EncryptionFileService from './EncryptionFileService';
 
-import NodeRSA from 'node-rsa';
-import { FileEncryptionKeysSchema } from '../models/FileEncryptionKeys';
-
 enum PreciseFileType {
     Folder = "Folder",
     Audio = "Audio",
@@ -337,7 +334,7 @@ class FileService {
 
         // encrypt new file content
         const file_aes_key: string = await EncryptionFileService.getFileKey(user, file, user_hash); // get current file's key to encrypt new content
-        const encryptProcessReply: Record<any, any> = EncryptionFileService.encryptFileContent(fileContentBuffer.toString(), file_aes_key); // return { "aes_key", "content" }
+        const encryptProcessReply: Record<any, any> = EncryptionFileService.encryptFileContent(fileContentBuffer, file_aes_key); // return { "aes_key", "content" }
         const readableEncryptedContent: Readable = anyToReadable(encryptProcessReply.content);
 
         // get gridfs for document_id and put data in it
@@ -564,7 +561,7 @@ class FileService {
 
         // go take content in gridfs and build content buffer
         const content = await FileService.getFileContent(user_hash, user, file);
-        const inputBuffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
+        const inputBuffer: Buffer = Buffer.from(content.content, 'binary');
 
         const convertPdfFn = promisify(libre.convert);
         const outputBuffer: Buffer = await convertPdfFn(inputBuffer, "pdf", undefined);
@@ -607,7 +604,7 @@ class FileService {
 
         // go take content in gridfs and build content buffer
         const content = await FileService.getFileContent(user_hash, user, file);
-        const buffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
+        const buffer: Buffer = Buffer.from(content.content, 'binary');
 
         // calculate temp files paths
         const extension = path.extname(file.name); // calculate extension
