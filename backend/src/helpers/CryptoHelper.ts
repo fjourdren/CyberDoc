@@ -1,16 +1,16 @@
 import { SHA3 } from 'sha3';
 import nodeRSA from 'node-rsa';
-import aesjs from 'aes-js';
 import crypto from 'crypto';
 
 const DEFAULT_KEY_LENGTH: 512 | 224 | 256 | 384 = 512;
-const AES_DEFAULT_KEY_LENGTH: 16 | 24 | 32 = 32;
+const AES_DEFAULT_KEY_LENGTH: 16 | 24 | 32 = 16;
+const iv = "fba684d2a09989b2";
 
 class CryptoHelper {
     // cut the AES_DEFAULT_KEY_LENGTH first chars of an user_hash
     // AES algorithm needs to have a 32 chars key so we cut the 32 first chars of the user_hash param to be able to use it as an AES key to encrypt/decrypt
     public static prepareUser_hash(user_hash: string): string {
-        return user_hash?.substring(0, AES_DEFAULT_KEY_LENGTH);
+        return user_hash?.substring(0, AES_DEFAULT_KEY_LENGTH * 2); // *2 to get 32 caracters and not 16 bytes
     }
 
     // sha3 hashing
@@ -28,13 +28,13 @@ class CryptoHelper {
         return new nodeRSA({b: key_size});
     }
 
-    public static encryptRSA(key: nodeRSA, content: string): string {
+    public static encryptRSA(key: nodeRSA, content: string | Buffer): string {
         return key.encrypt(content, 'base64');
 
     }
 
     public static decryptRSA(key: nodeRSA, encrypted_content: string): string {
-        return key.decrypt(encrypted_content, 'utf8');
+        return key.decrypt(encrypted_content, 'binary');
     }
 
 
@@ -44,30 +44,35 @@ class CryptoHelper {
         return crypto.randomBytes(key_size).toString('hex');
     }
 
-    public static encryptAES(encryption_key: string, content: string): string {
-        // byte conversion
-        const key: Uint8Array = aesjs.utils.hex.toBytes(encryption_key);
-        const textBytes = aesjs.utils.utf8.toBytes(content);
+    public static encryptAES(encryption_key: string, content: string | Buffer): string {
+        // select encryption algo
+        const algorithm = 'aes-256-ctr';
 
-        // encryption
-        const aesCtr = new aesjs.ModeOfOperation.ctr(key, new aesjs.Counter(5));
-        const encryptedBytes = aesCtr.encrypt(textBytes);
+        // create cipher
+        const cipher = crypto.createCipheriv(algorithm, encryption_key, iv);
 
-        // convert to string
-        return aesjs.utils.hex.fromBytes(encryptedBytes);
+        // encrypt
+        const encrypted = Buffer.concat([cipher.update(content), cipher.final()]);
+
+        // convert and return
+        return encrypted.toString('base64');
     }
 
-    public static decryptAES(encryption_key: string, content: string): string {
-        // byte conversion
-        const key: Uint8Array = aesjs.utils.hex.toBytes(encryption_key);
-        const encryptedBytes = aesjs.utils.hex.toBytes(content);
-        
-        // encryption
-        var aesCtr = new aesjs.ModeOfOperation.ctr(key, new aesjs.Counter(5));
-        var decryptedBytes = aesCtr.decrypt(encryptedBytes);
-        
-        // convert to string
-        return aesjs.utils.utf8.fromBytes(decryptedBytes);
+    public static decryptAES(encryption_key: string, content: string | Buffer): string {
+        // select encryption algo
+        const algorithm = 'aes-256-ctr';
+
+        // cut the encryption to get back iv value
+        const toDecrypt = content.toString();
+
+        // create cypher
+        const decipher = crypto.createDecipheriv(algorithm, encryption_key, iv);
+
+        // decrypt
+        const decrpyted = Buffer.concat([decipher.update(Buffer.from(toDecrypt, 'base64')), decipher.final()]);
+
+        // convert and return
+        return decrpyted.toString('binary');
     }
 }
 

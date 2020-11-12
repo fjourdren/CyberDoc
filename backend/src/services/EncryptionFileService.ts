@@ -73,7 +73,7 @@ class EncryptionFileService {
     }
  
     // Encrypt file's content
-    public static encryptFileContent(file_content: string, file_aes_key: string | undefined = undefined): Record<any, any> {
+    public static encryptFileContent(file_content: string | Buffer, file_aes_key: string | undefined = undefined): Record<any, any> {
         // if file have no aes key, we generate one
         if(file_aes_key == undefined) {
             file_aes_key = CryptoHelper.generateAES();
@@ -91,7 +91,7 @@ class EncryptionFileService {
 
         // decrypt content
         const aes_file_key: string = await EncryptionFileService.getFileKey(user, file, user_hash);
-        const decrypt_content: string = CryptoHelper.decryptAES(aes_file_key, buffer.toString());
+        const decrypt_content: string = CryptoHelper.decryptAES(aes_file_key, buffer);
 
         return decrypt_content;
     }

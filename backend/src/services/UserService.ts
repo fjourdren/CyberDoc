@@ -8,7 +8,6 @@ import FileService from "./FileService";
 import HttpCodes from "../helpers/HttpCodes";
 import EncryptionFileService from "./EncryptionFileService";
 import CryptoHelper from "../helpers/CryptoHelper";
-import { Mongoose } from "mongoose";
 import IUserEncryptionKeys, { UserEncryptionKeys } from "../models/UserEncryptionKeys";
 
 class UserService {
@@ -63,7 +62,7 @@ class UserService {
                 // recreate new object
                 let keys: IUserEncryptionKeys = new UserEncryptionKeys();
                 keys.public_key = user_publicKey;
-                keys.encrypted_private_key = encrypted_private_key;
+                keys.encrypted_private_key = encrypted_private_key.toString();
 
                 await User.updateOne({_id: user._id}, {$set: { 'userKeys': keys }});
             }
