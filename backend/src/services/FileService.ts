@@ -22,6 +22,8 @@ import CryptoHelper from '../helpers/CryptoHelper';
 import { IUser, User } from "../models/User";
 import { IFile, File, FileType, ShareMode } from "../models/File";
 import IUserSign, { UserSign } from '../models/UserSign';
+import { FileEncryptionKeysSchema } from '../models/FileEncryptionKeys';
+import NodeRSA from 'node-rsa';
 
 enum PreciseFileType {
     Folder = "Folder",
@@ -650,18 +652,36 @@ class FileService {
         return readableOutput;
     }
 
-    public static async addSign(user: IUser, file: IFile) {
+    public static async addSign(user_hash: string, user: IUser, file: IFile) {
         // check if user hasn't already sign the file
         if(file.signs.map(function(e) { return e.user_email; }).indexOf(user.email) != -1) {
             throw new HTTPError(HttpCodes.BAD_REQUEST, "You already signed that document");
         }
 
-        // create sign object
+        // get user's private key
+        const private_key: NodeRSA = await EncryptionFileService.getPrivateKey(user, user_hash);
+
+        // get file content
+        const file_content: String = (await FileService.getFileContent(user_hash, user, file)).content;
+
+         // create sign object
         const u_sign: IUserSign = new UserSign();
-        u_sign.user_email = user.email;
+        u_sign.user_email       = user.email;
+        u_sign.created_at       = new Date(Date.now());
+
+        // generate diggest buffer
+        const content_buffer: Buffer = Buffer.from(u_sign.user_email + u_sign.created_at + file_content);
+
+        // calculate sign encryption print
+        u_sign.diggest = CryptoHelper.signBuffer(private_key, content_buffer, "base64", "binary");
 
         // add UserSign to the list
         file.signs.push(u_sign);
+
+        // verify sign
+        // TODO: move signature verification on client side
+        //const public_key: NodeRSA = await EncryptionFileService.getPublicKey(user.email);
+        //console.log(CryptoHelper.verifySignBuffer(public_key, content_buffer, u_sign.diggest, "binary", "base64"));
 
         // update signs
         return requireNonNull(await File.updateOne({ _id: file._id }, {$set: {signs: file.signs}}).exec());
