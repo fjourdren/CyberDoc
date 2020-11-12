@@ -155,36 +155,7 @@ class FileService {
         // get file size and save it in File model
         file.size = fileContentBuffer.length;
 
-
-
-        //============= TODO: tests
-        /*let rsa: NodeRSA = CryptoHelper.generateRSAKeys();
-        let encrypted_rsa: string = CryptoHelper.encryptRSA(rsa, fileContentBuffer);
-        let decrypted_rsa: string = CryptoHelper.decryptRSA(rsa, encrypted_rsa);
-        fs.writeFileSync("filenameRSA.png", decrypted_rsa, 'binary');
-        
-
-
-        // aes        
-        const key: string = CryptoHelper.generateAES();
-        const hash = CryptoHelper.encryptAES(key, fileContentBuffer);
-        const text = CryptoHelper.decryptAES(key, hash);
-
-        fs.writeFileSync("filenameAES.png", text, 'binary');
-
-
-
-        // normal
-        fs.writeFileSync("filename.png", fileContentBuffer.toString('binary'), 'binary');
-        
-        // e2e
-        const t: string = (await FileService.getFileContent(user_hash, user, file)).content;
-        fs.writeFileSync("filenameE2E_TOTAL.png", t, 'binary');
-        */
-        // ====================
-
-
-
+        // save file
         return await file.save();
     }
 
@@ -466,17 +437,16 @@ class FileService {
         newFile.shareMode      = ShareMode.READONLY;
         newFile.sharedWith     = [];
 
-        // read file content and convert
+        // read file content
         const content: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
-        const content_buffer: Buffer = await streamToBuffer(content); // used to rebuild document from a stream of chunk
-
+        
         // decrypt content
-        const aes_file_key: string = await EncryptionFileService.getFileKey(user, file, user_hash);
-        const decrypt_content: string = CryptoHelper.decryptAES(aes_file_key, content_buffer);
+        const decrypted = await EncryptionFileService.decryptFileContent(user_hash, user, file, content);
+        const decrypt_content = Buffer.from(decrypted, "binary");
 
         // encrypt with a new eas key
         const encrypted_new_file: Record<any, any> = EncryptionFileService.encryptFileContent(decrypt_content);
-        const encrypted_new_file_readable: Readable = anyToReadable(encrypted_new_file["content"]);
+        const encrypted_new_file_readable: Readable = anyToReadable(encrypted_new_file.content);
 
         // save new file with gridfs
         const objectId: string = await GridFSTalker.create(newFile.name, newFile.mimetype, encrypted_new_file_readable);
