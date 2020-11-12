@@ -6,6 +6,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {CloudDirectory, CloudNode, isValidSearchParams, SearchParams} from 'src/app/models/files-api-models';
 import {FileSystemProvider} from 'src/app/services/filesystems/file-system-provider';
 import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
+import {TwoFactorGenerateRecoveryCodesDialogComponent} from '../../components/two-factor/two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
     selector: 'app-files-page',
@@ -31,7 +33,8 @@ export class FilesPageComponent implements AfterViewInit {
                 private router: Router,
                 private ngZone: NgZone,
                 private fsProvider: FileSystemProvider,
-                private userServiceProvider: UserServiceProvider) {
+                private userServiceProvider: UserServiceProvider,
+                private dialog: MatDialog) {
         this.fsProvider.default().refreshNeeded().subscribe(() => this.refresh());
         this.breakpointObserver.observe('(max-width: 600px)').subscribe(result => {
             this.smallScreen = result.matches;
@@ -82,11 +85,23 @@ export class FilesPageComponent implements AfterViewInit {
                             break;
                         }
 
-                        //files
+                        // Shared-with-me
                         case this.route.toString().indexOf("shared-with-me") !== -1: {
                             this.sharedWithMeMode = true;
                             this.searchMode = false;
                             this.routeSearchParams = null;
+                            this.refresh();
+                            break;
+                        }
+
+                        // generateRecoveryCodes
+                        case this.route.toString().indexOf('generateRecoveryCodes') !== -1: {
+                            this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+                                maxWidth: '500px',
+                                maxHeight: '700px',
+                                disableClose: true
+                            });
+                            this.redirectToDefaultPage();
                             this.refresh();
                             break;
                         }

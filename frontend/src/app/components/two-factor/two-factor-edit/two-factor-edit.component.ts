@@ -3,8 +3,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {TwoFactorEditDialogComponent} from '../two-factor-edit-dialog/two-factor-edit-dialog.component';
 import {UserServiceProvider} from '../../../services/users/user-service-provider';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {TwoFactorServiceProvider} from '../../../services/twofactor/twofactor-service-provider';
-import {TwoFactorRecoveryCodesDialogComponent} from '../two-factor-recovery-codes-dialog/two-factor-recovery-codes-dialog.component';
+import {TwoFactorGenerateRecoveryCodesDialogComponent} from '../two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
 
 @Component({
     selector: 'app-two-factor-edit',
@@ -98,8 +97,9 @@ export class TwoFactorEditComponent {
     }
 
     generateNewEmergencyCodes(): void {
-        this.dialog.open(TwoFactorRecoveryCodesDialogComponent, {
-            width: '500px'
+        this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+            width: '500px',
+            disableClose: true
         });
     }
 }

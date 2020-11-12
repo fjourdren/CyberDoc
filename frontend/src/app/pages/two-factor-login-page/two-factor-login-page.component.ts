@@ -5,7 +5,7 @@ import {TwoFactorServiceProvider} from '../../services/twofactor/twofactor-servi
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {Router} from '@angular/router';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {RecoverTwoFactorDialogComponent} from '../../components/two-factor/recover-two-factor-dialog/recover-two-factor-dialog.component';
+import {TwoFactorUseRecoveryCodeDialogComponent} from '../../components/two-factor/two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
 import {MatDialog} from '@angular/material/dialog';
 
 @Component({
@@ -93,12 +93,16 @@ export class TwoFactorLoginPageComponent implements OnInit {
     }
 
     openDialogRecovery(): void {
-        const refDialog = this.dialog.open(RecoverTwoFactorDialogComponent, {
+        const refDialog = this.dialog.open(TwoFactorUseRecoveryCodeDialogComponent, {
             maxWidth: '500px'
         });
         refDialog.afterClosed().toPromise().then(res => {
-            if (res) {
-                this.router.navigate(['/files']);
+            if (res.result) {
+                if (!res.recoveryCodesLeft) {
+                    this.router.navigate(['/generateRecoveryCodes']);
+                } else {
+                    this.router.navigate(['/files']);
+                }
             }
         });
     }

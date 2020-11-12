@@ -9,7 +9,7 @@ import {PhoneNumberUtil} from 'google-libphonenumber';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {TranslateService} from '@ngx-translate/core';
 import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
-import {TwoFactorRecoveryCodesDialogComponent} from '../two-factor-recovery-codes-dialog/two-factor-recovery-codes-dialog.component';
+import {TwoFactorGenerateRecoveryCodesDialogComponent} from '../two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
 
 const phoneNumberUtil = PhoneNumberUtil.getInstance();
 
@@ -230,8 +230,9 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
         ).toPromise();
 
         await this.userServiceProvider.default().updateSecret(this.qrSecret).toPromise().then(() => {
-            this.dialog.open(TwoFactorRecoveryCodesDialogComponent, {
-                maxWidth: '400px'
+            this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+                maxWidth: '400px',
+                disableClose: true
             });
         });
     }
@@ -248,8 +249,9 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
         ).toPromise();
 
         await this.userServiceProvider.default().updatePhoneNumber(this.validPhoneNumber).toPromise().then(() => {
-            this.dialog.open(TwoFactorRecoveryCodesDialogComponent, {
-                maxWidth: '400px'
+            this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+                maxWidth: '400px',
+                disableClose: true
             });
         });
     }

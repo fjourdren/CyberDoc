@@ -32,6 +32,7 @@ const routes: Routes = [
     canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/]
   },
   {path: 'files/:dirID', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/]},
+  {path: 'generateRecoveryCodes', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/]},
   {path: 'files', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/]},
   {path: 'shared-with-me', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/]},
 

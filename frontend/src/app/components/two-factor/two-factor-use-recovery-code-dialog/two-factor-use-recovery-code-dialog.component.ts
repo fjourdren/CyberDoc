@@ -6,11 +6,11 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
     selector: 'app-two-factor-dialog',
-    templateUrl: './recover-two-factor-dialog.component.html',
-    styleUrls: ['./recover-two-factor-dialog.component.scss']
+    templateUrl: './two-factor-use-recovery-code-dialog.component.html',
+    styleUrls: ['./two-factor-use-recovery-code-dialog.component.scss']
 })
 
-export class RecoverTwoFactorDialogComponent {
+export class TwoFactorUseRecoveryCodeDialogComponent {
     recoverTwoFactorForm = new FormGroup({
         // UUID v4.0
         code: new FormControl('', [Validators.required, Validators.pattern(/^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i)])
@@ -19,16 +19,20 @@ export class RecoverTwoFactorDialogComponent {
 
     constructor(private twoFactorServiceProvider: TwoFactorServiceProvider,
                 private snackBar: MatSnackBar,
-                public recoverTwoFactorDialog: MatDialogRef<RecoverTwoFactorDialogComponent>) {
+                public recoverTwoFactorDialog: MatDialogRef<TwoFactorUseRecoveryCodeDialogComponent>) {
     }
 
     onSubmit(): void {
         if (this.recoverTwoFactorForm.invalid) {
             return;
         }
-        this.twoFactorServiceProvider.default().verifyRecoveryCode(this.recoverTwoFactorForm.get('code').value).toPromise().then(() => {
+        this.twoFactorServiceProvider.default().useRecoveryCode(this.recoverTwoFactorForm.get('code').value)
+            .toPromise().then(recoveryCodesLeft => {
             this.loading = true;
-            this.recoverTwoFactorDialog.close(true);
+            this.recoverTwoFactorDialog.close({
+                result: true,
+                recoveryCodesLeft
+            });
         }).catch(err => {
             this.loading = false;
             this.snackBar.open(err.error.msg, null, {duration: 2500});

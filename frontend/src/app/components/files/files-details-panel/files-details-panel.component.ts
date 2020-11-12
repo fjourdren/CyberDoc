@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { CloudDirectory, CloudFile, CloudNode, FileTag } from 'src/app/models/files-api-models';
+import { CloudFile, CloudNode, FileTag } from 'src/app/models/files-api-models';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { FilesUtilsService, FileType } from 'src/app/services/files-utils/files-utils.service';
 import { MatDialog } from '@angular/material/dialog';

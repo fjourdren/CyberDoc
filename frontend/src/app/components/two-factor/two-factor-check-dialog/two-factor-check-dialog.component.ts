@@ -5,7 +5,7 @@ import {TwoFactorServiceProvider} from '../../../services/twofactor/twofactor-se
 import {UserServiceProvider} from '../../../services/users/user-service-provider';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {RecoverTwoFactorDialogComponent} from '../recover-two-factor-dialog/recover-two-factor-dialog.component';
+import {TwoFactorUseRecoveryCodeDialogComponent} from '../two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
 
 @Component({
     selector: 'app-two-factor-dialog',
@@ -46,7 +46,9 @@ export class TwoFactorCheckDialogComponent {
                 this.twoFactorServiceProvider.default().verifyTokenByApp(this.user.secret,
                     this.twoFactorForm.get('token').value).toPromise().then(() => {
                     this.loading = false;
-                    this.twoFactorDialog.close(true);
+                    this.twoFactorDialog.close({
+                        result: true
+                    });
                 }).catch(err => {
                     this.loading = false;
                     if (err.status === 403) {
@@ -60,7 +62,9 @@ export class TwoFactorCheckDialogComponent {
                 this.twoFactorServiceProvider.default().verifyTokenBySms(this.user.phoneNumber,
                     this.twoFactorForm.get('token').value).toPromise().then(() => {
                     this.loading = false;
-                    this.twoFactorDialog.close(true);
+                    this.twoFactorDialog.close({
+                        result: true
+                    });
                 }).catch(err => {
                     this.loading = false;
                     if (err.status === 403) {
@@ -80,13 +84,11 @@ export class TwoFactorCheckDialogComponent {
     }
 
     openDialogRecovery(): void {
-        const refDialog = this.dialog.open(RecoverTwoFactorDialogComponent, {
+        const refDialog = this.dialog.open(TwoFactorUseRecoveryCodeDialogComponent, {
             maxWidth: '400px'
         });
         refDialog.afterClosed().toPromise().then(res => {
-            if (res) {
-                this.twoFactorDialog.close(true);
-            }
+            this.twoFactorDialog.close(res);
         });
     }
 
