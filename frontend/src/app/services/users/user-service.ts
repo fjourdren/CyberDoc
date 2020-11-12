@@ -36,4 +36,5 @@ export interface UserService {
     renameUserDevice(oldName: string,name: string): Observable<void>;
     createUserDevice(name: string, browser: string, OS: string): Observable<void>;
     
+    exportRecoveryKey(): Observable<string>;
 }

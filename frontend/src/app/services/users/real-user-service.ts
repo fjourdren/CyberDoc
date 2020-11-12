@@ -263,6 +263,9 @@ export class RealUserService implements UserService {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/devices`, { name, browser, OS }, { withCredentials: true }).pipe(map(response => { }));
     }
 
+    exportRecoveryKey(): Observable<string> {
+        return this.httpClient.get(`${environment.apiBaseURL}/users/keys`, { responseType: "text", withCredentials: true });
+    }
 
     private _setUser(user: User) {
         localStorage.setItem(environment.userLocalStorageKey, JSON.stringify(user));
