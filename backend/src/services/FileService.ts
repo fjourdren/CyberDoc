@@ -2,6 +2,7 @@ import Guid from 'guid';
 import { Types } from 'mongoose';
 import MongoClient from 'mongodb'
 import { Readable } from 'stream';
+import NodeRSA from 'node-rsa';
 import fs from "fs";
 import path from 'path';
 import sharp from 'sharp'
@@ -9,15 +10,20 @@ const libre = require("libreoffice-convert");
 
 import { promisify } from "util";
 
+import EncryptionFileService from './EncryptionFileService';
+
 import GridFSTalker from "../helpers/GridFSTalker";
 import { requireNonNull, requireIsNull } from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
-import { streamToBuffer } from '../helpers/Conversions';
+import { anyToReadable, streamToBuffer } from '../helpers/Conversions';
+import CryptoHelper from '../helpers/CryptoHelper';
+import generatePreviewSync, { GeneratePreviewOptions } from '../helpers/filepreview';
 
 import { IUser, User } from "../models/User";
 import { IFile, File, FileType, ShareMode } from "../models/File";
-import generatePreviewSync, { GeneratePreviewOptions } from '../helpers/filepreview';
+import IUserSign, { UserSign } from '../models/UserSign';
+import { FileEncryptionKeysSchema } from '../models/FileEncryptionKeys';
 
 enum PreciseFileType {
     Folder = "Folder",
@@ -67,6 +73,11 @@ class FileService {
     public static async fileCanBeModified(user: IUser | string, file: IFile | string): Promise<boolean> {
         user = await this.resolveUserIfNeeded(user);
         file = await this.resolveFileIfNeeded(file);
+
+        // if someone sign the document, then it became unmodifiable
+        if(file.signs.length != 0)
+            return false;
+
         return file.owner_id === user._id || (file.shareMode === ShareMode.READWRITE && file.sharedWith.indexOf(user._id) !== -1);
     }
 
@@ -122,7 +133,7 @@ class FileService {
      * ACTIONS
      */
     // create file service
-    public static async createDocument(file: IFile, filename: string, content_type: string, fileContentBuffer: Buffer): Promise<IFile> {
+    public static async createDocument(user_hash: string, file: IFile, filename: string, content_type: string, fileContentBuffer: Buffer): Promise<IFile> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
@@ -133,10 +144,18 @@ class FileService {
         const parentFile: IFile = requireNonNull(await File.findById(file.parent_file_id).exec());
         FileService.requireFileIsDirectory(parentFile);
 
+        // encrypt content
+        const encryptProcessReply: Record<any, any> = EncryptionFileService.encryptFileContent(fileContentBuffer); // return { "aes_key", "content" }
+
+
+        // add file aes_key to user
+        const user: IUser = requireNonNull(await User.findById(file.owner_id).exec(), HttpCodes.BAD_REQUEST, "User not found");
+        await EncryptionFileService.addFileKeyToUser(user, file, encryptProcessReply["aes_key"]);
+
         // create readable
-        const readablefileContent = new Readable()
-        readablefileContent.push(fileContentBuffer)
-        readablefileContent.push(null)
+        const readablefileContent = new Readable();
+        readablefileContent.push(encryptProcessReply["content"]);
+        readablefileContent.push(null);
 
         // push document to gridfs
         const docId: string = await GridFSTalker.create(filename, content_type, readablefileContent);
@@ -145,6 +164,7 @@ class FileService {
         // get file size and save it in File model
         file.size = fileContentBuffer.length;
 
+        // save file
         return await file.save();
     }
 
@@ -272,32 +292,33 @@ class FileService {
     }
 
     // get file content from gridfs (to start a download for example)
-    public static async getFileContent(file: IFile): Promise<Record<string, MongoClient.GridFSBucketReadStream>> {
+    public static async getFileContent(user_hash: string, user: IUser, file: IFile): Promise<Record<any, any>> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
         // get file infos & content
-        const infos: any = await GridFSTalker.getFileInfos(Types.ObjectId(file.document_id));
-        const out: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
+        const infos: any = await FileService.getFileInformations(file);
+        const content: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
+        const out: string = await EncryptionFileService.decryptFileContent(user_hash, user, file, content);
 
-        return { infos: infos, stream: out };
+        return { infos: infos, content: out };
     }
 
     // update a document content
-    public static async updateContentDocument(file: IFile, fileContentBuffer: Buffer): Promise<any> {
+    public static async updateContentDocument(user_hash: string, user: IUser, file: IFile, fileContentBuffer: Buffer): Promise<any> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
         // get file name
-        const fileGridFSInfos: any = await GridFSTalker.getFileInfos(Types.ObjectId(file.document_id));
+        const fileGridFSInfos: any = await FileService.getFileInformations(file);
 
-        // prepare readable
-        const readablefileContent = new Readable();
-        readablefileContent.push(fileContentBuffer);
-        readablefileContent.push(null);
+        // encrypt new file content
+        const file_aes_key: string = await EncryptionFileService.getFileKey(user, file, user_hash); // get current file's key to encrypt new content
+        const encryptProcessReply: Record<any, any> = EncryptionFileService.encryptFileContent(fileContentBuffer, file_aes_key); // return { "aes_key", "content" }
+        const readableEncryptedContent: Readable = anyToReadable(encryptProcessReply.content);
 
         // get gridfs for document_id and put data in it
-        const newDocumentId: string = await GridFSTalker.update(Types.ObjectId(file.document_id), fileGridFSInfos.filename, fileGridFSInfos.contentType, readablefileContent);
+        const newDocumentId: string = await GridFSTalker.update(Types.ObjectId(file.document_id), fileGridFSInfos.filename, fileGridFSInfos.contentType, readableEncryptedContent);
         file.document_id = newDocumentId;
 
         // get file size and save it in File model
@@ -351,7 +372,10 @@ class FileService {
         FileService.requireFileIsDocument(file);
 
         // delete file from gridfs
-        await GridFSTalker.delete(Types.ObjectId(file.document_id));
+        GridFSTalker.delete(Types.ObjectId(file.document_id));
+
+        // delete all user's key for that file
+        await EncryptionFileService.deleteFileKeys(file);
 
         // delete the from file data
         return await File.findByIdAndDelete(file._id).exec();
@@ -382,60 +406,76 @@ class FileService {
     }
 
     // copy a document
-    public static async copyDocument(user: IUser, file: IFile, destination_id: string, copyFileName: string | undefined = undefined): Promise<IFile> {
+    public static async copyDocument(user_hash: string, user: IUser, file: IFile, destination_id: string, copyFileName: string | undefined = undefined): Promise<IFile> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
-
-        // get document informations from gridfs
-        const fileGridFsInformations: any = await GridFSTalker.getFileInfos(Types.ObjectId(file.document_id));
-        const fileReader: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
-
-
+        
+        // new filename
         // ***** generate new filename *****
-        if (copyFileName == undefined) {
+        let filename: string | undefined;
+        if(filename == undefined) {
             // change to something != undefined
-            copyFileName = "";
+            filename = "";
 
             // split to find extension later
             const filenameSplit = file.name.split(".");
             // if there is an extension
             if (filenameSplit.length > 1) {
                 // we concanate all if there is multi points
-                for (let i = 0; i < filenameSplit.length - 1; i++)
-                    copyFileName += filenameSplit[i];
+                for(let i = 0; i < filenameSplit.length - 1; i++)
+                filename += filenameSplit[i];
 
                 // generate final filename
-                copyFileName = copyFileName + " - Copy" + filenameSplit[filenameSplit.length - 1];
+                filename = filename + " - Copy" + filenameSplit[filenameSplit.length - 1];
             } else {
                 // if there is no point, we just add the postfix
-                copyFileName = file.name + " - Copy"
+                filename = file.name + " - Copy"
             }
         }
         // ***********************
 
-
-
-        // start copying
-        const objectId: string = await GridFSTalker.create(copyFileName, fileGridFsInformations.contentType, fileReader); // generate the copy of the document in grid fs
-
-        // generate new file informations
+        // create new file object
         const newFile: IFile = new File();
-        newFile._id = Guid.raw();
-        newFile.type = file.type;
-        newFile.mimetype = file.mimetype;
-        newFile.name = copyFileName;
-        newFile.size = file.size;
-        newFile.document_id = objectId;
-        newFile.parent_file_id = destination_id;
-        newFile.owner_id = user._id;
-        newFile.shareMode = ShareMode.READONLY;
-        newFile.sharedWith = [];
+        newFile._id               = Guid.raw();
+        newFile.type              = file.type;
+        newFile.mimetype          = file.mimetype;
+        newFile.name              = copyFileName!;
+        newFile.size              = file.size;
+        newFile.parent_file_id    = destination_id;
+        newFile.owner_id          = user._id;
+        newFile.shareMode         = ShareMode.READONLY;
+        newFile.sharedWith        = [];
+        newFile.sharedWithPending = [];
 
-        return await newFile.save(); // save the new file
+        // read file content
+        const content: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
+        
+        // decrypt content
+        const decrypted = await EncryptionFileService.decryptFileContent(user_hash, user, file, content);
+        const decrypt_content = Buffer.from(decrypted, "binary");
+
+        // encrypt with a new eas key
+        const encrypted_new_file: Record<any, any> = EncryptionFileService.encryptFileContent(decrypt_content);
+        const encrypted_new_file_readable: Readable = anyToReadable(encrypted_new_file.content);
+
+        // save new file with gridfs
+        const objectId: string = await GridFSTalker.create(newFile.name, newFile.mimetype, encrypted_new_file_readable);
+
+        // save object
+        newFile.document_id = objectId;
+        const out: IFile = await newFile.save(); // save the new file
+
+        // save key to every user that have access to source document
+        const users: IUser[] = await EncryptionFileService.getUsersWithAccess(file);
+        for await (let user_to_add of users) {
+            await EncryptionFileService.addFileKeyToUser(user_to_add, out, encrypted_new_file["aes_key"]);
+        }
+
+        return out;
     }
 
     // copy a directory
-    public static async copyDirectory(user: IUser, file: IFile, destination_id: string, copyFileName: string | undefined = undefined): Promise<IFile> {
+    public static async copyDirectory(user_hash: string, user: IUser, file: IFile, destination_id: string, copyFileName: string | undefined = undefined): Promise<IFile> {
         // be sure that file is a directory
         FileService.requireFileIsDirectory(file);
 
@@ -465,10 +505,10 @@ class FileService {
         for (let i = 0; i < files.length; i++) {
             const fileToCopy: IFile = files[i];
             // copy directory and document recursively
-            if (fileToCopy.type == FileType.DIRECTORY)
-                await FileService.copyDirectory(user, fileToCopy, out._id, fileToCopy.name);
+            if(fileToCopy.type == FileType.DIRECTORY)
+                await FileService.copyDirectory(user_hash, user, fileToCopy, out._id, fileToCopy.name);
             else
-                await FileService.copyDocument(user, fileToCopy, out._id, fileToCopy.name);
+                await FileService.copyDocument(user_hash, user, fileToCopy, out._id, fileToCopy.name);
         }
 
         return out;
@@ -476,7 +516,7 @@ class FileService {
 
 
     // generate pdf file
-    public static async generatePDF(file: IFile): Promise<Readable> {
+    public static async generatePDF(user_hash: string, user: IUser, file: IFile): Promise<Readable> {
         FileService.requireFileIsDocument(file);
 
         //Keep this list synced with frontend\src\app\services\files-utils\files-utils.service.ts
@@ -500,8 +540,8 @@ class FileService {
         }
 
         // go take content in gridfs and build content buffer
-        const content = await FileService.getFileContent(file);
-        const inputBuffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
+        const content = await FileService.getFileContent(user_hash, user, file);
+        const inputBuffer: Buffer = Buffer.from(content.content, 'binary');
 
         const convertPdfFn = promisify(libre.convert);
         const outputBuffer: Buffer = await convertPdfFn(inputBuffer, "pdf", undefined);
@@ -513,7 +553,7 @@ class FileService {
     }
 
     // ask to preview a file
-    public static async generatePreview(file: IFile): Promise<Readable> {
+    public static async generatePreview(user_hash: string, user: IUser, file: IFile): Promise<Readable> {
         FileService.requireFileIsDocument(file);
 
         //Keep this list synced with frontend\src\app\services\files-utils\files-utils.service.ts
@@ -542,8 +582,8 @@ class FileService {
         }
 
         // go take content in gridfs and build content buffer
-        const content = await FileService.getFileContent(file);
-        const buffer = await streamToBuffer(content.stream); // used to rebuild document from a stream of chunk
+        const content = await FileService.getFileContent(user_hash, user, file);
+        const buffer: Buffer = Buffer.from(content.content, 'binary');
 
         // calculate temp files paths
         const extension = path.extname(file.name); // calculate extension
@@ -589,6 +629,41 @@ class FileService {
         readableOutput.push(contentOutputFile);
         readableOutput.push(null);
         return readableOutput;
+    }
+
+    public static async addSign(user_hash: string, user: IUser, file: IFile) {
+        // check if user hasn't already sign the file
+        if(file.signs.map(function(e) { return e.user_email; }).indexOf(user.email) != -1) {
+            throw new HTTPError(HttpCodes.BAD_REQUEST, "You already signed that document");
+        }
+
+        // get user's private key
+        const private_key: NodeRSA = await EncryptionFileService.getPrivateKey(user, user_hash);
+
+        // get file content
+        const file_content: String = (await FileService.getFileContent(user_hash, user, file)).content;
+
+         // create sign object
+        const u_sign: IUserSign = new UserSign();
+        u_sign.user_email       = user.email;
+        u_sign.created_at       = new Date(Date.now());
+
+        // generate diggest buffer
+        const content_buffer: Buffer = Buffer.from(u_sign.user_email + u_sign.created_at + file_content);
+
+        // calculate sign encryption print
+        u_sign.diggest = CryptoHelper.signBuffer(private_key, content_buffer, "base64", "binary");
+
+        // add UserSign to the list
+        file.signs.push(u_sign);
+
+        // verify sign
+        // TODO: move signature verification on client side
+        //const public_key: NodeRSA = await EncryptionFileService.getPublicKey(user.email);
+        //console.log(CryptoHelper.verifySignBuffer(public_key, content_buffer, u_sign.diggest, "binary", "base64"));
+
+        // update signs
+        return requireNonNull(await File.updateOne({ _id: file._id }, {$set: {signs: file.signs}}).exec());
     }
 
     private static async resolveUserIfNeeded(user: IUser | string) {

@@ -30,6 +30,7 @@ paths:
                 - name
                 - mimetype
                 - folderID
+                - user_hash
               properties:
                 upfile:
                   description: File to upload, `null` to create a directory
@@ -47,6 +48,9 @@ paths:
                   description: ID of the folder which will contains the new file
                   type: string
                   example: <folder UUID>
+                user_hash:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       responses:
         "201":
           description: Created
@@ -169,6 +173,15 @@ paths:
         - jwtToken: [ ]
       summary: Get file/directory by ID
       description: Get file/directory by ID
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                user_hash:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       parameters:
         - name: fileId
           in: path
@@ -243,11 +256,15 @@ paths:
               type: object
               required:
                 - upfile
+                - user_hash
               properties:
                 upfile:
                   description: File to upload
                   type: string
                   format: binary
+                user_hash:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       responses:
         "200":
           description: Success
@@ -480,6 +497,17 @@ paths:
         - jwtToken: [ ]
       summary: Get file preview
       description: Get file preview
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - user_hash
+              properties:
+                user_hash:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       parameters:
         - name: fileId
           in: path
@@ -645,6 +673,17 @@ paths:
         - jwtToken: [ ]
       summary: Download file
       description: Download file
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - user_hash
+              properties:
+                user_hash:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       parameters:
         - name: fileId
           in: path
@@ -697,6 +736,17 @@ paths:
         - jwtToken: [ ]
       summary: Export file in PDF format
       description: Export file in PDF format
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - user_hash
+              properties:
+                user_hash:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       parameters:
         - name: fileId
           in: path
@@ -876,11 +926,15 @@ paths:
             schema:
               required:
                 - email
+                - user_hash
               type: object
               properties:
                 email:
                   type: string
                   format: email
+                user_hash:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       responses:
         "200":
           description: Success
@@ -924,6 +978,17 @@ paths:
         - jwtToken: [ ]
       summary: Remove share access of a file with a user
       description: Remove share access of a file with a user
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - user_hash
+              properties:
+                user_hash:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
       parameters:
         - name: fileId
           in: path
@@ -974,6 +1039,66 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericErrorResponse"
   
+  "/files/{fileId}/sign":
+    post:
+      tags:
+        - File signature
+      security:
+        - jwtToken: [ ]
+      summary: Allow a user sign a document
+      description: Allow a user sign a document
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - user_hash
+              type: object
+              properties:
+                user_hash:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericSuccessResponse"
+        "400":
+          description: Bad request - fileId is a directory or current user is the owner of the fileId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "404":
+          description: |
+            - `fileId` is not a valid file
+            - The current user don't have `owner` access on this file 
+            - The application don't have a user with the specified `email`
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
 
 components:
   securitySchemes:
@@ -1032,6 +1157,7 @@ components:
       type: object
       required:
         - destID
+        - user_hash
       properties:
         copyFileName:
           type: string
@@ -1042,6 +1168,9 @@ components:
           format: uuid
           example: 9b81d950-b605-471f-a654-4fffba6bcfc5
           description: ID of the destination directory
+        user_hash:
+          example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+          type: string
 
     CloudFile:
       description: Represents a classic file, sent by the server
@@ -1055,6 +1184,7 @@ components:
         - size
         - updated_at
         - created_at
+        - signs
         - tags
         - shareMode
       properties:
@@ -1096,6 +1226,11 @@ components:
           format: date-time
           description: File creation date
           example: "2017-07-21T15:32:28Z"
+        signs:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileSign"
+          description: File tag
         tags:
           type: array
           items:
@@ -1158,7 +1293,45 @@ components:
             oneOf:
               - $ref: "#/components/schemas/CloudFile"
               - $ref: "#/components/schemas/CloudDirectory"
-              
+
+    FileSign:
+      description: File sign
+      type: object
+      required:
+        - email
+        - created_at
+        - diggest
+      properties:
+        id:
+          type: string
+          example: email@gmail.com
+        created_at:
+          type: string
+          example: "2020-11-11T22:45:44.107Z"
+        hexColor:
+          type: string
+          example: "WUvzrO6JjXTUzYtUNLEV0iZnKKHbcCrIn1I82bTZD1VckxFXSozrOOxPBnjycha/BFyBEfb1MJ4BviGhqK8Giw=="
+
+    FileTag:
+      description: File tag
+      type: object
+      required:
+        - id
+        - name
+        - hexColor
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
+        name:
+          type: string
+          example: TODO
+        hexColor:
+          type: string
+          pattern: "^#(?:[0-9a-fA-F]{3}){1,2}$"
+          example: "#eeeeee"
+
     FileShareAccess:
       description: User who have a share access to a file
       type: object
@@ -1206,23 +1379,3 @@ components:
           type: string
           description: msg
           example: <error message>
-
-    FileTag:
-      description: File tag
-      type: object
-      required:
-        - id
-        - name
-        - hexColor
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: 65af88e0-4d6f-80da-1cab-6ef5db2c719a
-        name:
-          type: string
-          example: TODO
-        hexColor:
-          type: string
-          pattern: "^#(?:[0-9a-fA-F]{3}){1,2}$"
-          example: "#eeeeee"

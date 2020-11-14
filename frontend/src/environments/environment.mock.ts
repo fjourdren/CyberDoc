@@ -9,7 +9,10 @@ export const environment = {
   defaultUserServiceName: "mock",
   apiBaseURL: "<unused>",
   authCookieDomain: "<unused>",
-  authCookieName: "access_token"
+  authCookieName: "access_token",
+  userHashCookieName: "user_hash",
+  userLocalStorageKey: "real_user",
+  recoveryKeyDownloadedLocalStorageKey: "recovery_key_download",
 };
 
 /*

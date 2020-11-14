@@ -58,6 +58,10 @@ export class MockUserService implements UserService {
     constructor() {
         this._load();
     }
+    
+    exportRecoveryKey(): Observable<string> {
+        return of("");
+    }
 
     addTag(tag: FileTag): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {

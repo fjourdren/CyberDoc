@@ -5,6 +5,10 @@ import {requireNonNull} from "../helpers/DataValidation";
 
 import AuthService from "./AuthService";
 import FileService from "./FileService";
+import HttpCodes from "../helpers/HttpCodes";
+import EncryptionFileService from "./EncryptionFileService";
+import CryptoHelper from "../helpers/CryptoHelper";
+import IUserEncryptionKeys, { UserEncryptionKeys } from "../models/UserEncryptionKeys";
 
 class UserService {
 
@@ -19,7 +23,7 @@ class UserService {
     }
 
     // profile update
-    public static async updateProfile(user_id: string | undefined, firstname: string | undefined, lastname: string | undefined, email: string | undefined, password: string | undefined, phoneNumber: string | undefined, secret: string | undefined, twoFactorApp: boolean | undefined, twoFactorSms: boolean | undefined): Promise<Record<string, IUser | string>> {
+    public static async updateProfile(user_hash: string | undefined, new_user_hash: string | undefined, user_id: string | undefined, firstname: string | undefined, lastname: string | undefined, email: string | undefined, password: string | undefined, phoneNumber: string | undefined, secret: string | undefined, twoFactorApp: boolean | undefined, twoFactorSms: boolean | undefined): Promise<Record<string, IUser | string>> {
         let user = requireNonNull(await User.findById(user_id).exec());
 
         if (firstname != undefined)
@@ -39,7 +43,30 @@ class UserService {
         if (twoFactorSms != undefined)
             user.twoFactorSms = twoFactorSms;
 
-        user = requireNonNull(await user.save());
+        requireNonNull(await user.save());
+
+
+        // if email or password has been changed, we update the user's encryption private key value 
+        if(user_hash != undefined && (email != undefined || password != undefined)) {
+            requireNonNull(new_user_hash, HttpCodes.BAD_REQUEST, "You need to provide the new user_hash encryption key if you change the email or the password");
+            if(new_user_hash) {
+                // decrypt private key
+                const user_privateKey: string = (await EncryptionFileService.getPrivateKey(user, user_hash)).exportKey("private");
+    
+                // reencrypt new private key
+                const encrypted_private_key: string = CryptoHelper.encryptAES(new_user_hash, user_privateKey);
+
+                // get public key
+                const user_publicKey: string = (await EncryptionFileService.getPublicKey(user.email)).exportKey("public");
+
+                // recreate new object
+                let keys: IUserEncryptionKeys = new UserEncryptionKeys();
+                keys.public_key = user_publicKey;
+                keys.encrypted_private_key = encrypted_private_key.toString();
+
+                await User.updateOne({_id: user._id}, {$set: { 'userKeys': keys }});
+            }
+        }
 
         const newToken = AuthService.generateJWTToken(user, true);
 
