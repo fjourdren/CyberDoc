@@ -1,6 +1,7 @@
 import { SHA3 } from 'sha3';
-import nodeRSA from 'node-rsa';
+import nodeRSA, { Encoding } from 'node-rsa';
 import crypto from 'crypto';
+import NodeRSA from 'node-rsa';
 
 const DEFAULT_KEY_LENGTH: 512 | 224 | 256 | 384 = 512;
 const AES_DEFAULT_KEY_LENGTH: 16 | 24 | 32 = 16;
@@ -35,6 +36,17 @@ class CryptoHelper {
 
     public static decryptRSA(key: nodeRSA, encrypted_content: string): string {
         return key.decrypt(encrypted_content, 'binary');
+    }
+
+
+    // rsa sign
+    public static signBuffer(private_key: NodeRSA, diggest_buffer: Buffer, encoding: Encoding, source_encoding: Encoding): string {
+        return private_key.sign(diggest_buffer, encoding, source_encoding);
+    }
+
+    // verify sign
+    public static verifySignBuffer(public_key: NodeRSA, content_buffer: Buffer, diggest: string, source_encoding: Encoding, signature_encoding: Encoding): Boolean {
+        return public_key.verify(content_buffer, diggest, source_encoding, signature_encoding);
     }
 
 
