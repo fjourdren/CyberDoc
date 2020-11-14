@@ -378,10 +378,14 @@ class FileController {
             await FileService.requireFileCanBeViewed(user, file);
             const user_hash = requireUserHash(req);
 
-            const pdfStream = await FileService.generatePDF(user_hash, user, file);
+            const pdfStream = await FileService.generatePDF(file);
+            let pdfFileName = file.name;
+            if (pdfFileName.indexOf(".") !== -1) {
+                pdfFileName.substring(0, pdfFileName.lastIndexOf("."));
+            }
 
             res.set('Content-Type', 'application/pdf');
-            res.set('Content-Disposition', 'attachment; filename="' + file.name + '.pdf"');
+            res.set('Content-Disposition', `attachment; filename="${pdfFileName}"`);
             res.status(HttpCodes.OK);
             pdfStream.pipe(res);
         } catch (err) {
@@ -579,19 +583,26 @@ class FileController {
 
     public static async removeSharingAccess(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = requireAuthenticatedUser(res);
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const sharedWithUserEmail = req.params.email.toLowerCase();
 
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
-            const user = requireNonNull(await User.findOne({ "email": req.params.email.toLowerCase() }).exec(), HttpCodes.NOT_FOUND, "User not found");
             FileService.requireFileIsDocument(file);
             await FileService.requireIsFileOwner(currentUser, file);
 
-            const index = file.sharedWith.indexOf(user._id);
-            if (index !== -1) {
-                file.sharedWith.splice(index, 1);
+            let index = file.sharedWithPending.indexOf(sharedWithUserEmail);
+            if (index !== -1) { // sharedWithUser exists in sharedWithpending
+                file.sharedWithPending.splice(index, 1);
                 await file.save();
             } else {
-                throw new HTTPError(HttpCodes.BAD_REQUEST, "Specified email doesn't have sharing access to the file");
+                const user = requireNonNull(await User.findOne({ "email": sharedWithUserEmail}).exec(), HttpCodes.NOT_FOUND, "User not found");
+                index = file.sharedWith.indexOf(user._id);
+                if (index !== -1) {
+                    file.sharedWith.splice(index, 1);
+                    await file.save();
+                } else {
+                    throw new HTTPError(HttpCodes.BAD_REQUEST, "Specified email doesn't have sharing access to the file");
+                }
             }
 
             // remove key from user

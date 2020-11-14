@@ -1,0 +1,10 @@
+traefik.enable=true
+traefik.http.routers.swaggerrouter.rule=Host(`swagger.fulgen.fr`)
+traefik.http.routers.swaggerrouter.tls=true
+traefik.http.routers.swaggerrouter.tls.certresolver=myresolver
+traefik.http.services.swaggerservice.loadbalancer.server.port=8080
+traefik.http.middlewares.swaggersratelimit.ratelimit.average=30
+traefik.http.middlewares.swaggersratelimit.ratelimit.burst=15
+traefik.http.middlewares.swaggersratelimit.ratelimit.period=1m
+traefik.http.middlewares.swaggersratelimit.ratelimit.sourcecriterion.requesthost=true
+traefik.http.routers.swaggersrouter.middlewares=swaggersratelimit@docker

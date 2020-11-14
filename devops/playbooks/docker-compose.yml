@@ -1,0 +1,111 @@
+version: "3"
+services:
+
+  traefik:
+    image: traefik:latest
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/docker_mount/traefik/conf.d:/etc/traefik/conf.d
+      # certificate data
+      - /etc/traefik/acme.json:/acme.json
+    network_mode: host
+    command:
+      - "--global.sendanonymoususage=false"   # deactivate data sending
+      - "--global.checknewversion=false"      # deactivate update checking
+      - "--accesslog=true"                    # access logs
+      - "--api=true"                          # API on
+      - "--api.insecure=true"                 # expose API on 8080
+      - "--api.dashboard=true"                # activate dashboard
+      - "--log.level=INFO"                    # activate logs
+      - "--providers.docker=true"
+      #- "--providers.docker.exposedbydefault=true" # ONLY for debug
+      - "--providers.file.directory=/etc/traefik/conf.d/" # able to load configurations on folder (yaml and toml)
+      - "--providers.file.watch=true"           # able to load dynamic configuration
+      - "--entrypoints.web.address=:80"         # WEB entrypoint for 80
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure" # global redirect web to websecure
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https" # global redirect http scheme to https
+      - "--entrypoints.websecure.address=:443"  # WEBSECURE entrypoint for 443
+      - "--certificatesresolvers.myresolver.acme.email=fulgencorp@gmail.com" # registration email for let's encrypt
+      - "--certificatesresolvers.myresolver.acme.storage=acme.json"          # storage for certificate information
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web" # http challenge for certificate
+    labels:
+      - "traefik.enable=true"
+
+  portainer:
+    image: portainer/portainer
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainerrouter.rule=Host(`portainer.fulgen.fr`)"
+      - "traefik.http.routers.portainerrouter.tls=true"
+      - "traefik.http.routers.portainerrouter.tls.certresolver=myresolver"
+      - "traefik.http.services.portainerservice.loadbalancer.server.port=9000"
+      - "traefik.http.middlewares.portainerratelimit.ratelimit.average=30"
+      - "traefik.http.middlewares.portainerratelimit.ratelimit.burst=15"
+      - "traefik.http.middlewares.portainerratelimit.ratelimit.period=1m"
+      - "traefik.http.middlewares.portainerratelimit.ratelimit.sourcecriterion.requesthost=true"
+      - "traefik.http.routers.portainerrouter.middlewares=portainerratelimit@docker"
+
+  jenkins:
+    image: jenkins/jenkins
+    restart: always
+    volumes:
+      - /etc/jenkins:/var/jenkins_home 
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jenkinsrouter.rule=Host(`jenkins.fulgen.fr`)"
+      - "traefik.http.routers.jenkinsrouter.tls=true"
+      - "traefik.http.routers.jenkinsrouter.tls.certresolver=myresolver"
+      - "traefik.http.services.jenkinsservice.loadbalancer.server.port=8080"
+      - "traefik.http.middlewares.jenkinsratelimit.ratelimit.average=30"
+      - "traefik.http.middlewares.jenkinsratelimit.ratelimit.burst=15"
+      - "traefik.http.middlewares.jenkinsratelimit.ratelimit.period=1m"
+      - "traefik.http.middlewares.jenkinsratelimit.ratelimit.sourcecriterion.requesthost=true"
+      - "traefik.http.routers.jenkinsrouter.middlewares=jenkinsratelimit@docker"
+
+  sonarqube:
+    image: sonarqube
+    restart: always
+    volumes:
+      - /etc/sonarqube/sonarqube_conf:/opt/sonarqube/conf
+      - /etc/sonarqube/sonarqube_data:/opt/sonarqube/data
+      - /etc/sonarqube/sonarqube_extensions:/opt/sonarqube/extensions
+      - /etc/sonarqube/sonarqube_bundled-plugins:/opt/sonarqube/lib/bundled-plugins
+    # EXAMPLE
+    #command:
+    #  - -Dhttp.proxyHost= PROXY_IP
+    #  - -Dhttp.proxyPort= PROXY_PORT
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarquberouter.rule=Host(`sonarqube.fulgen.fr`)"
+      - "traefik.http.routers.sonarquberouter.tls=true"
+      - "traefik.http.routers.sonarquberouter.tls.certresolver=myresolver"
+      - "traefik.http.services.sonarqubeservice.loadbalancer.server.port=9000" 
+      - "traefik.http.middlewares.sonarquberatelimit.ratelimit.average=30"
+      - "traefik.http.middlewares.sonarquberatelimit.ratelimit.burst=15"
+      - "traefik.http.middlewares.sonarquberatelimit.ratelimit.period=1m"
+      - "traefik.http.middlewares.sonarquberatelimit.ratelimit.sourcecriterion.requesthost=true"
+      - "traefik.http.routers.sonarquberouter.middlewares=sonarquberatelimit@docker"
+  
+  mongodb:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    # EXAMPLE
+    #environment:
+    #  MONGO_INITDB_ROOT_USERNAME: login
+    #  MONGO_INITDB_ROOT_PASSWORD: password
+    labels:
+      - "traefik.enable=true"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'
+          memory: 1000M
+
+

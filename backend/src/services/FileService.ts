@@ -2,10 +2,10 @@ import Guid from 'guid';
 import { Types } from 'mongoose';
 import MongoClient from 'mongodb'
 import { Readable } from 'stream';
+import NodeRSA from 'node-rsa';
 import fs from "fs";
 import path from 'path';
 import sharp from 'sharp'
-const filepreview = require('pngenerator');
 const libre = require("libreoffice-convert");
 
 import { promisify } from "util";
@@ -18,12 +18,12 @@ import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
 import { anyToReadable, streamToBuffer } from '../helpers/Conversions';
 import CryptoHelper from '../helpers/CryptoHelper';
+import generatePreviewSync, { GeneratePreviewOptions } from '../helpers/filepreview';
 
 import { IUser, User } from "../models/User";
 import { IFile, File, FileType, ShareMode } from "../models/File";
 import IUserSign, { UserSign } from '../models/UserSign';
 import { FileEncryptionKeysSchema } from '../models/FileEncryptionKeys';
-import NodeRSA from 'node-rsa';
 
 enum PreciseFileType {
     Folder = "Folder",
@@ -520,7 +520,7 @@ class FileService {
         FileService.requireFileIsDocument(file);
 
         //Keep this list synced with frontend\src\app\services\files-utils\files-utils.service.ts
-        //FileType.{Text,Document,Spreadsheet,Spreadsheet}
+        //FileType.{Text,Document,Spreadsheet,Presentation}
         const VALID_MIMEYPES_FOR_PDF_GENERATION = [
             "text/plain",
             "application/msword",
@@ -557,7 +557,7 @@ class FileService {
         FileService.requireFileIsDocument(file);
 
         //Keep this list synced with frontend\src\app\services\files-utils\files-utils.service.ts
-        //FileType.{PDF,Text,Document,Spreadsheet,Spreadsheet}
+        //FileType.{PDF,Text,Document,Spreadsheet,Presentation}
         const VALID_OFFICE_MIMEYPES = [
             "text/plain",
             "application/pdf",
@@ -576,7 +576,6 @@ class FileService {
         if (
             !file.mimetype.startsWith("image/") &&
             !file.mimetype.startsWith("video/") &&
-            !file.mimetype.startsWith("audio/") &&
             !VALID_OFFICE_MIMEYPES.includes(file.mimetype)
         ) {
             throw new HTTPError(HttpCodes.BAD_REQUEST, "Preview is not available for this file");
@@ -594,31 +593,41 @@ class FileService {
         let contentOutputFile: Buffer;
 
         if (file.mimetype.startsWith("image/")) {
-            contentOutputFile = await sharp(buffer).resize({ width: 200 }).extract({ left: 0, top: 0, width: 200, height: 130 }).png().toBuffer();
+            contentOutputFile = buffer;
         } else {
             // save input file in temp file
             fs.writeFileSync(tempInputFile, buffer);
 
             // generate image and save it in a temp directory
-            const options = {
+            const options: GeneratePreviewOptions = {
                 quality: 100,
                 background: '#ffffff',
                 pagerange: '1'
             };
 
-            filepreview.generateSync(tempInputFile, tempOutputImage, options);
-            contentOutputFile = await sharp(tempOutputImage).resize({ width: 200 }).extract({ left: 0, top: 0, width: 200, height: 130 }).png().toBuffer();
+            let fileType: "other" | "video" | "image" | "pdf" = "other";
+            if (file.mimetype.startsWith("video/")) fileType = "video";
+            else if (file.mimetype === "application/pdf") fileType = "pdf";
+
+            try {
+                generatePreviewSync(tempInputFile, fileType, tempOutputImage, options);
+            } catch (e) {
+                throw new HTTPError(HttpCodes.INTERNAL_ERROR, `Cannot create this preview! ${e}`);
+            }
+
+            contentOutputFile = fs.readFileSync(tempOutputImage);
+            contentOutputFile = await sharp(contentOutputFile).resize({ width: 300, height: 200 }).png().toBuffer();
+
+            // delete two temp files
+            fs.unlinkSync(tempInputFile);
+            fs.unlinkSync(tempOutputImage);
         }
 
         // create readable
+        contentOutputFile = await sharp(contentOutputFile).resize({ width: 300, height: 200 }).png().toBuffer();
         const readableOutput = new Readable();
         readableOutput.push(contentOutputFile);
         readableOutput.push(null);
-
-        // delete two temp files
-        fs.unlinkSync(tempInputFile);
-        fs.unlinkSync(tempOutputImage);
-
         return readableOutput;
     }
 
