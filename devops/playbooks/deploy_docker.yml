@@ -1,0 +1,59 @@
+- hosts: glvps
+  name: install docker 
+  gather_facts: false
+  become_method: sudo
+  become: yes
+  tasks:
+
+  - name: install epel-release
+    yum:
+      name: epel-release
+      state: latest
+    become: yes
+
+  - name: add Docker repo
+    get_url:
+      url: https://download.docker.com/linux/centos/docker-ce.repo
+      dest: /etc/yum.repos.d/docer-ce.repo
+
+  - name: update du systeme
+    yum: name=* state=latest
+
+  - name: install yum-utils
+    yum:
+      name: yum-utils
+      state: latest
+
+  - name: install python3
+    yum:
+      name: python3
+      state: latest
+  
+  - name: installation pip3 docker-compose
+    pip:
+      name: docker-compose
+
+  - name: install containerd.io >1.2.2
+    command: sudo yum install -y https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm
+    
+  - name: install docker-ce-cli
+    yum:
+      name: docker-ce-cli
+      state: latest
+
+  - name: install docker-ce
+    yum:
+      name: docker-ce
+      state: latest
+  
+  - name: restart docker service
+    systemd: 
+      name: docker.service
+      state: restarted
+  
+  - name: enable docker service
+    systemd:
+      name: docker.service
+      enabled: yes
+      masked: no
+
