@@ -68,7 +68,8 @@ export class TwoFactorEditComponent {
                             width: '500px',
                             data: {
                                 twoFactorMode: 'app',
-                                password: xAuthTokenArray[0]
+                                password: xAuthTokenArray[0],
+                                token: xAuthTokenArray[2]
                             }
                         });
 
@@ -87,7 +88,8 @@ export class TwoFactorEditComponent {
                 width: '500px',
                 data: {
                     twoFactorMode: 'app',
-                    xAuthTokenArray: null
+                    password: null,
+                    token: null
                 }
             });
 
@@ -138,7 +140,9 @@ export class TwoFactorEditComponent {
                         const refDialog = this.dialog.open(TwoFactorEditDialogComponent, {
                             width: '500px',
                             data: {
-                                twoFactorMode: 'sms'
+                                twoFactorMode: 'sms',
+                                password: xAuthTokenArray[0],
+                                token: xAuthTokenArray[2]
                             }
                         });
 
@@ -157,7 +161,8 @@ export class TwoFactorEditComponent {
                 width: '500px',
                 data: {
                     twoFactorMode: 'sms',
-                    xAuthTokenArray: null
+                    password: null,
+                    token: null
                 }
             });
 
