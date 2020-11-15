@@ -378,7 +378,7 @@ class FileController {
             await FileService.requireFileCanBeViewed(user, file);
             const user_hash = requireUserHash(req);
 
-            const pdfStream = await FileService.generatePDF(file);
+            const pdfStream = await FileService.generatePDF(user_hash, user, file);
             let pdfFileName = file.name;
             if (pdfFileName.indexOf(".") !== -1) {
                 pdfFileName.substring(0, pdfFileName.lastIndexOf("."));
@@ -612,7 +612,7 @@ class FileController {
             }
 
             // remove key from user
-            await EncryptionFileService.removeFileKeyFromUser(user, file);
+            await EncryptionFileService.removeFileKeyFromUser(currentUser, file);
 
             // reply
             res.status(HttpCodes.OK);
