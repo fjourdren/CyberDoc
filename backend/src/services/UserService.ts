@@ -61,9 +61,15 @@ class UserService {
         }
         if (twoFactorApp != undefined) {
             user.twoFactorApp = twoFactorApp;
+            if(!twoFactorApp) {
+                user.secret = '';
+            }
         }
         if (twoFactorSms != undefined) {
             user.twoFactorSms = twoFactorSms;
+            if(!twoFactorSms) {
+                user.phoneNumber = '';
+            }
         }
 
         user = requireNonNull(await user.save());
