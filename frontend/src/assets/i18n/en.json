@@ -117,7 +117,7 @@
         "create_account": "Create new account",
         "email_already_exists": "An user with this email already exists",
         "forgot_password": "Forgot your password ?",
-        "already_register": "Already register ?",
+        "already_register": "Already registered ?",
         "login_error": "Wrong login or password",
         "repeat_password": "Repeat your password",
         "passwords_must_match": "Passwords must match",
