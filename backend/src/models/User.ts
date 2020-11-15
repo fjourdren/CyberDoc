@@ -123,8 +123,8 @@ export interface IUser extends mongoose.Document {
     lastname: string;
     email: string;
     password: string;
-    phoneNumber: string;
-    secret: string;
+    phoneNumber: string | undefined;
+    secret: string | undefined;
     twoFactorApp: boolean;
     twoFactorSms: boolean;
     role: Role;

@@ -32,9 +32,12 @@ export class TwoFactorEditComponent {
     changeTwoFactorApp(event): void {
         if (this.twoFactorApp || this.twoFactorSms) {
             if (this.twoFactorApp) {
-                if (this.twoFactorSms) { // 2FA by APP & 2FA by SMS are already activated
+                if (this.twoFactorSms) { // 2FA by APP & 2FA by SMS are already activated => Disable 2FA by App
                     this.dialog.open(SecurityCheckDialogComponent, {
-                        maxWidth: '500px'
+                        maxWidth: '500px',
+                        data: {
+                            checkTwoFactor: true
+                        }
                     }).afterClosed().subscribe(xAuthTokenArray => {
                         if (xAuthTokenArray && xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
                             this.userServiceProvider.default().updateTwoFactor(
@@ -61,15 +64,17 @@ export class TwoFactorEditComponent {
             } else { // User wants to add 2FA by App (2FA by SMS is ON)
                 event.source.checked = false;
                 this.dialog.open(SecurityCheckDialogComponent, {
-                    maxWidth: '500px'
+                    maxWidth: '500px',
+                    data: {
+                        checkTwoFactor: false
+                    }
                 }).afterClosed().subscribe(xAuthTokenArray => {
-                    if (xAuthTokenArray && xAuthTokenArray.length === 3) { // [password:smsOrApp:2faToken]
+                    if (xAuthTokenArray && xAuthTokenArray.length === 1) {
                         const refDialog = this.dialog.open(TwoFactorEditDialogComponent, {
                             width: '500px',
                             data: {
                                 twoFactorMode: 'app',
-                                password: xAuthTokenArray[0],
-                                token: xAuthTokenArray[2]
+                                xAuthTokenArray
                             }
                         });
 
@@ -79,6 +84,8 @@ export class TwoFactorEditComponent {
                             }
                             this.refresh();
                         });
+                    } else {
+                        event.source.checked = true;
                     }
                 });
             }
@@ -88,8 +95,7 @@ export class TwoFactorEditComponent {
                 width: '500px',
                 data: {
                     twoFactorMode: 'app',
-                    password: null,
-                    token: null
+                    xAuthTokenArray: null
                 }
             });
 
@@ -105,9 +111,12 @@ export class TwoFactorEditComponent {
     changeTwoFactorSms(event): void {
         if (this.twoFactorSms || this.twoFactorApp) { // 2FA already used at least 1 time before
             if (this.twoFactorSms) {
-                if (this.twoFactorApp) { // 2FA SMS & APP  already activated => Going to disable 2FA by SMS
+                if (this.twoFactorApp) { // 2FA SMS & APP already activated => Disable 2FA by SMS
                     this.dialog.open(SecurityCheckDialogComponent, {
-                        maxWidth: '500px'
+                        maxWidth: '500px',
+                        data: {
+                            checkTwoFactor: true
+                        }
                     }).afterClosed().subscribe(xAuthTokenArray => {
                         if (xAuthTokenArray && xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
                             this.userServiceProvider.default().updateTwoFactor(
@@ -134,15 +143,17 @@ export class TwoFactorEditComponent {
             } else { // User wants to activate 2FA by Sms (2FA by App already ON)
                 event.source.checked = false;
                 this.dialog.open(SecurityCheckDialogComponent, {
-                    maxWidth: '500px'
+                    maxWidth: '500px',
+                    data: {
+                        checkTwoFactor: false
+                    }
                 }).afterClosed().subscribe(xAuthTokenArray => {
-                    if (xAuthTokenArray && xAuthTokenArray.length === 3) { // [password:smsOrApp:2faToken]
+                    if (xAuthTokenArray && xAuthTokenArray.length === 1) {
                         const refDialog = this.dialog.open(TwoFactorEditDialogComponent, {
                             width: '500px',
                             data: {
                                 twoFactorMode: 'sms',
-                                password: xAuthTokenArray[0],
-                                token: xAuthTokenArray[2]
+                                xAuthTokenArray
                             }
                         });
 
@@ -152,6 +163,8 @@ export class TwoFactorEditComponent {
                             }
                             this.refresh();
                         });
+                    } else {
+                        event.source.checked = true;
                     }
                 });
             }
@@ -161,8 +174,7 @@ export class TwoFactorEditComponent {
                 width: '500px',
                 data: {
                     twoFactorMode: 'sms',
-                    password: null,
-                    token: null
+                    xAuthTokenArray: null
                 }
             });
 

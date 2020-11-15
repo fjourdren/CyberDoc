@@ -17,7 +17,7 @@ export interface UserService {
 
     register(user: User, password: string, fileId: string): Observable<any>;
 
-    updateProfile(firstName: string, lastName: string, newEmail: string, xAuthTokenArray: string): Observable<void>;
+    updateProfile(firstName: string, lastName: string, newEmail: string, xAuthTokenArray: string[]): Observable<void>;
 
     recoverPassword(email: string): Observable<void>;
 
@@ -25,10 +25,10 @@ export interface UserService {
 
     searchExistingUser(email: string): Observable<User>;
 
-    updatePassword(password: string, appOrSms: 'app' | 'sms', token: string): Observable<void>;
+    updatePassword(password: string, xAuthTokenArray: string[]): Observable<void>;
 
     updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, secret: string | undefined, phoneNumber: string | undefined,
-                    xAuthTokenArray: string[] | undefined): Observable<void>;
+                    xAuthTokenArray: string[]): Observable<void>;
 
     login(email: string, password: string): Observable<any>;
 

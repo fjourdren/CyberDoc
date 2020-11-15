@@ -52,8 +52,7 @@ export class SettingsSecurityComponent {
 
         this.passwordForm = this.fb.group({
             newPassword: ['', [Validators.required, passwordValidator()]],
-            newPasswordConfirmation: ['', [Validators.required, passwordValidator()]],
-            email: [this.userServiceProvider.default().getActiveUser().email, Validators.required]
+            newPasswordConfirmation: ['', [Validators.required, passwordValidator()]]
         }, {
             validator: MustMatch('newPassword', 'newPasswordConfirmation')
         });
@@ -66,18 +65,20 @@ export class SettingsSecurityComponent {
 
         this.loading = true;
         this.dialog.open(SecurityCheckDialogComponent, {
-            maxWidth: '500px'
+            maxWidth: '500px',
+            data: {
+                checkTwoFactor: true
+            }
         }).afterClosed().subscribe(xAuthTokenArray => {
-            if (xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
+            if (xAuthTokenArray && xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
                 this.userServiceProvider.default().updatePassword(
-                    xAuthTokenArray[0],
-                    xAuthTokenArray[1],
-                    xAuthTokenArray[2]
+                    this.passwordForm.get('newPassword').value,
+                    xAuthTokenArray
                 ).toPromise().then(() => {
-                    this.loading = false;
                     this.snackBar.dismiss();
                     this.snackBar.open('Password updated', null, { duration: 1500 });
                     this.passwordForm.reset();
+                    this.loading = false;
                 });
             } else {
                 this.loading = false;
@@ -93,7 +94,7 @@ export class SettingsSecurityComponent {
         const refDialog = this.dialog.open(SettingsRenameDeviceDialogComponent, {
             width: '400px',
             data: {
-                name: name
+                name
             }
         });
         refDialog.afterClosed().toPromise().then(() => {
@@ -101,7 +102,7 @@ export class SettingsSecurityComponent {
         });
     }
 
-    refreshDevice() {
+    refreshDevice(): void {
         this.userServiceProvider.default().getUserDevices().toPromise().then((value) => {
             this.dataSource.data = value;
         });

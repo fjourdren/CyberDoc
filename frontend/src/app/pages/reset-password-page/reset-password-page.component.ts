@@ -64,7 +64,6 @@ export class ResetPasswordPageComponent {
             this.router.navigate(['/login']);
             return;
         }
-        console.log(this.token);
 
         this.loading = true;
         this.resetForm.disable();

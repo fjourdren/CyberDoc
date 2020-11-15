@@ -48,7 +48,10 @@ export class SettingsProfileComponent {
         this.loading = true;
         if (this.profileForm.get('newEmail').value !== this.userServiceProvider.default().getActiveUser().email) { // Changed email address
             this.dialog.open(SecurityCheckDialogComponent, {
-                maxWidth: '500px'
+                maxWidth: '500px',
+                data: {
+                    checkTwoFactor: true
+                }
             }).afterClosed().subscribe(xAuthTokenArray => {
                 if (xAuthTokenArray && xAuthTokenArray.length === 3) { // [password:smsOrApp:2faToken]
                     this.userServiceProvider.default().updateProfile(
@@ -87,7 +90,10 @@ export class SettingsProfileComponent {
 
     deleteAccount(): void {
         this.dialog.open(SecurityCheckDialogComponent, {
-            maxWidth: '500px'
+            maxWidth: '500px',
+            data: {
+                checkTwoFactor: true
+            }
         }).afterClosed().subscribe(xAuthTokenArray => {
             if (xAuthTokenArray && xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
                 this.userServiceProvider.default().deleteAccount(xAuthTokenArray).toPromise();
