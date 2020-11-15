@@ -58,6 +58,10 @@ export class MockUserService implements UserService {
     constructor() {
         this._load();
     }
+
+    importRecoveryKey(email: string, password: string, file: File, resetPasswordJWTToken: string): Observable<void> {
+        return of(null);
+    }
     
     exportRecoveryKey(): Observable<string> {
         return of("");
