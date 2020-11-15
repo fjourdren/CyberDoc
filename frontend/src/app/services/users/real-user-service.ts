@@ -51,14 +51,14 @@ export class RealUserService implements UserService {
             //UserHash Cookie
             const hash = new SHA3(512); //FIXME constant keySize
             hash.update(user.email + password);
-                
+
             this.cookieService.set(
                 environment.userHashCookieName,
                 hash.digest('hex').substring(0, 32),
                 this._jwtHelper.getTokenExpirationDate(response.token),
                 '/',
                 environment.authCookieDomain);
-        
+
             this._setUser(this._jwtHelper.decodeToken(response.token).user);
             return response;
         }));
@@ -184,7 +184,7 @@ export class RealUserService implements UserService {
             //UserHash Cookie
             const hash = new SHA3(512); //FIXME constant keySize
             hash.update(email + password);
-                
+
             this.cookieService.set(
                 environment.userHashCookieName,
                 hash.digest('hex').substring(0, 32),
@@ -265,6 +265,21 @@ export class RealUserService implements UserService {
 
     exportRecoveryKey(): Observable<string> {
         return this.httpClient.get(`${environment.apiBaseURL}/users/keys`, { responseType: "text", withCredentials: true });
+    }
+
+    importRecoveryKey(email: string, password: string, file: File, resetPasswordJWTToken: string): Observable<void> {
+        const hash = new SHA3(512); //FIXME constant keySize
+        hash.update(email + password);
+
+        const formData = new FormData();
+        formData.set("upfile", file);
+        formData.set("user_hash", hash.digest('hex').substring(0, 32));
+        return this.httpClient.post(`${environment.apiBaseURL}/users/keys`, formData, {
+            headers: {
+                "Authorization": `Bearer ${resetPasswordJWTToken}`,
+            },
+            withCredentials: true
+        }).pipe(map(() => { }));
     }
 
     private _setUser(user: User) {

@@ -37,4 +37,5 @@ export interface UserService {
     createUserDevice(name: string, browser: string, OS: string): Observable<void>;
     
     exportRecoveryKey(): Observable<string>;
+    importRecoveryKey(email: string, password: string, file: File, resetPasswordJWTToken: string): Observable<void>;
 }
