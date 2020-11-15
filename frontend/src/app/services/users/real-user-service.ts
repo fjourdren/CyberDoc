@@ -82,12 +82,12 @@ export class RealUserService implements UserService {
         }));
     }
 
-    updateProfile(firstName: string, lastName: string, newEmail: string, xAuthToken: string): Observable<void> {
+    updateProfile(firstName: string, lastName: string, newEmail: string, xAuthTokenArray: string[]): Observable<void> {
         let options: object;
-        if (xAuthToken !== null) {
+        if (xAuthTokenArray !== null) {
             options = {
                 headers: {
-                    'x-auth-token': btoa(xAuthToken[0] + ':' + xAuthToken[1] + ':' + xAuthToken[2])
+                    'x-auth-token': btoa(xAuthTokenArray[0] + ':' + xAuthTokenArray[1] + ':' + xAuthTokenArray[2])
                 },
                 withCredentials: true
             };
@@ -114,12 +114,12 @@ export class RealUserService implements UserService {
 
     }
 
-    updatePassword(password: string, appOrSms: 'app' | 'sms', token: string): Observable<void> {
+    updatePassword(password: string, xAuthTokenArray: string[]): Observable<void> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
             password
         }, {
             headers: {
-                'x-auth-token': btoa(password + ':' + appOrSms + ':' + token)
+                'x-auth-token': btoa(xAuthTokenArray[0] + ':' + xAuthTokenArray[1] + ':' + xAuthTokenArray[2])
             },
             withCredentials: true
         }).pipe(map(response => {
@@ -135,42 +135,42 @@ export class RealUserService implements UserService {
 
     updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, secret: string, phoneNumber: string,
                     xAuthTokenArray: string[]): Observable<void> {
-        if (xAuthTokenArray === null) { // First time registering 2FA
-            return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
-                twoFactorApp,
-                twoFactorSms,
-                secret,
-                phoneNumber
-            }, {withCredentials: true}).pipe(map(response => {
-                this.cookieService.set(
-                    environment.authCookieName,
-                    response.token,
-                    this._jwtHelper.getTokenExpirationDate(response.token),
-                    '/',
-                    environment.authCookieDomain);
-                this._setUser(this._jwtHelper.decodeToken(response.token).user);
-            }));
-        } else { // Already registered 2FA
-            return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
-                twoFactorApp,
-                twoFactorSms,
-                secret,
-                phoneNumber
-            }, {
-                headers: {
-                    'x-auth-token': btoa(xAuthTokenArray[0] + ':' + xAuthTokenArray[1] + ':' + xAuthTokenArray[2])
-                },
+        let options: object;
+        if (xAuthTokenArray !== null) { // Already 2FA registered
+            if (xAuthTokenArray.length === 1) { // Add 2FA
+                options = {
+                    headers: {
+                        'x-auth-token': btoa(xAuthTokenArray[0])
+                    },
+                    withCredentials: true
+                };
+            } else if (xAuthTokenArray.length === 3) { // Remove 2FA
+                options = {
+                    headers: {
+                        'x-auth-token': btoa(xAuthTokenArray[0] + ':' + xAuthTokenArray[1] + ':' + xAuthTokenArray[2])
+                    },
+                    withCredentials: true
+                };
+            }
+        } else { // First time 2FA registering
+            options = {
                 withCredentials: true
-            }).pipe(map(response => {
-                this.cookieService.set(
-                    environment.authCookieName,
-                    response.token,
-                    this._jwtHelper.getTokenExpirationDate(response.token),
-                    '/',
-                    environment.authCookieDomain);
-                this._setUser(this._jwtHelper.decodeToken(response.token).user);
-            }));
+            };
         }
+        return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
+            twoFactorApp,
+            twoFactorSms,
+            secret,
+            phoneNumber
+        }, options).pipe(map(response => {
+            this.cookieService.set(
+                environment.authCookieName,
+                response.token,
+                this._jwtHelper.getTokenExpirationDate(response.token),
+                '/',
+                environment.authCookieDomain);
+            this._setUser(this._jwtHelper.decodeToken(response.token).user);
+        }));
     }
 
     login(email: string, password: string): Observable<any> {

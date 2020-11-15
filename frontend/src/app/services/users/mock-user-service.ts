@@ -132,7 +132,7 @@ export class MockUserService implements UserService {
         }));
     }
 
-    updateProfile(firstName: string, lastName: string, newEmail: string, xAuthToken: string): Observable<void> {
+    updateProfile(firstName: string, lastName: string, newEmail: string, xAuthTokenArray: string[]): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
@@ -152,16 +152,17 @@ export class MockUserService implements UserService {
         }));
     }
 
-    updatePassword(password: string, appOrSms: 'app' | 'sms', token: string): Observable<void> {
+    updatePassword(password: string, xAuthTokenArray: string[]): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
             }
-
-            const pass = this._passwords.get(appOrSms);
-
-            this._passwords.set(appOrSms, password);
-            this._save();
+            const user = this._users.get(this.getActiveUser().email);
+            const pass = this._passwords.get(user.email);
+            if (pass === password) {
+                this._passwords.set(user.email, password);
+                this._save();
+            }
         }));
     }
 
@@ -214,7 +215,7 @@ export class MockUserService implements UserService {
     }
 
     resetPassword(resetPasswordJWTToken: string, password: string): Observable<void> {
-        return this.updatePassword(password, null, null);
+        return this.updatePassword(password, null);
     }
 
     searchExistingUser(email: string): Observable<User> {

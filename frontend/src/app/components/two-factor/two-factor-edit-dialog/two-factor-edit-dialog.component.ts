@@ -106,11 +106,11 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
 
         switch (this.data.twoFactorMode) {
             case 'sms': {
-                promise = this._update2FAWithSMS(this.data.password, this.data.token);
+                promise = this._update2FAWithSMS(this.data.xAuthTokenArray);
                 break;
             }
             case 'app': {
-                promise = this._update2FAWithApp(this.data.password, this.data.token);
+                promise = this._update2FAWithApp(this.data.xAuthTokenArray);
                 break;
             }
             default: {
@@ -216,22 +216,18 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
         }
     }
 
-    private async _update2FAWithApp(password: string, token: string): Promise<void> {
+    private async _update2FAWithApp(xAuthTokenArray: string[]): Promise<void> {
         const currentUser = this.userServiceProvider.default().getActiveUser();
         const tokenForm = this.tokenForm.get('token').value;
         await this.twoFAServiceProvider.default().verifyTokenByApp(this.qrSecret, tokenForm).toPromise();
-
-        const xAuthTokenArray = password && token ? [password, 'sms', token] : null;
         await this.userServiceProvider.default().updateTwoFactor(
             true, currentUser.twoFactorSms, this.qrSecret, undefined, xAuthTokenArray).toPromise();
     }
 
-    private async _update2FAWithSMS(password: string, token: string): Promise<void> {
+    private async _update2FAWithSMS(xAuthTokenArray: string[]): Promise<void> {
         const currentUser = this.userServiceProvider.default().getActiveUser();
         const tokenForm = this.tokenForm.get('token').value;
         await this.twoFAServiceProvider.default().verifyTokenBySms(this.validPhoneNumber, tokenForm).toPromise();
-
-        const xAuthTokenArray = password && token ? [password, 'app', token] : null;
         await this.userServiceProvider.default().updateTwoFactor(
             currentUser.twoFactorApp, true, undefined, this.validPhoneNumber, xAuthTokenArray).toPromise();
     }
