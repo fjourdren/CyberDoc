@@ -82,7 +82,6 @@ class AuthService {
     // isPasswordValid ?
     public static async isPasswordValid(email: string, password: string): Promise<boolean> {
         const user: IUser = requireNonNull(await User.findOne({email: email}).exec(), HttpCodes.UNAUTHORIZED, "Invalid user");
-
         const isPasswordValid = bcrypt.compareSync(password, user.password);
 
         if (!isPasswordValid)

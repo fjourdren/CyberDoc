@@ -8,6 +8,7 @@ import {UserService} from './user-service';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {CookieService} from 'ngx-cookie-service';
 import {environment} from 'src/environments/environment';
+import { Base64 } from 'js-base64';
 
 export class RealUserService implements UserService {
 
@@ -87,7 +88,7 @@ export class RealUserService implements UserService {
         if (xAuthTokenArray !== null) {
             options = {
                 headers: {
-                    'x-auth-token': btoa(xAuthTokenArray[0] + ':' + xAuthTokenArray[1] + ':' + xAuthTokenArray[2])
+                    'x-auth-token': Base64.encode(xAuthTokenArray[0] + '\t' + xAuthTokenArray[1] + '\t' + xAuthTokenArray[2])
                 },
                 withCredentials: true
             };
@@ -119,7 +120,7 @@ export class RealUserService implements UserService {
             password
         }, {
             headers: {
-                'x-auth-token': btoa(xAuthTokenArray[0] + ':' + xAuthTokenArray[1] + ':' + xAuthTokenArray[2])
+                'x-auth-token': Base64.encode(xAuthTokenArray[0] + '\t' + xAuthTokenArray[1] + '\t' + xAuthTokenArray[2])
             },
             withCredentials: true
         }).pipe(map(response => {
@@ -140,14 +141,14 @@ export class RealUserService implements UserService {
             if (xAuthTokenArray.length === 1) { // Add 2FA
                 options = {
                     headers: {
-                        'x-auth-token': btoa(xAuthTokenArray[0])
+                        'x-auth-token': Base64.encode(xAuthTokenArray[0])
                     },
                     withCredentials: true
                 };
             } else if (xAuthTokenArray.length === 3) { // Remove 2FA
                 options = {
                     headers: {
-                        'x-auth-token': btoa(xAuthTokenArray[0] + ':' + xAuthTokenArray[1] + ':' + xAuthTokenArray[2])
+                        'x-auth-token': Base64.encode(xAuthTokenArray[0] + '\t' + xAuthTokenArray[1] + '\t' + xAuthTokenArray[2])
                     },
                     withCredentials: true
                 };
@@ -231,7 +232,7 @@ export class RealUserService implements UserService {
     deleteAccount(xAuthTokenArray: string[]): Observable<void> {
         return this.httpClient.delete<any>(`${environment.apiBaseURL}/users/profile`, {
             headers: {
-                'x-auth-token': btoa(xAuthTokenArray[0] + ':' + xAuthTokenArray[1] + ':' + xAuthTokenArray[2])
+                'x-auth-token': Base64.encode(xAuthTokenArray[0] + '\t' + xAuthTokenArray[1] + '\t' + xAuthTokenArray[2])
             },
             withCredentials: true
         }).pipe(map(() => {

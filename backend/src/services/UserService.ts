@@ -37,9 +37,9 @@ class UserService {
             if (!tokenBase64) {
                 throw new HTTPError(HttpCodes.UNAUTHORIZED, 'No X-Auth-Token : authorization denied');
             }
-            const decryptedToken = new Buffer(tokenBase64, 'base64').toString('ascii').split(':');
+            const decryptedToken = new Buffer(tokenBase64, 'base64').toString('utf-8').split('\t');
             if ((twoFactorSms && !user.twoFactorSms) || (twoFactorApp && !user.twoFactorApp)) { // 2FA is added, check only password
-                await AuthService.isPasswordValid(user.email, decryptedToken.join(':'));
+                await AuthService.isPasswordValid(user.email, decryptedToken[0]);
             } else { // Check password and 2FA
                 await UserService.securityCheck(decryptedToken, secret, phoneNumber, user);
             }
@@ -94,7 +94,7 @@ class UserService {
         if (!tokenBase64) {
             throw new HTTPError(HttpCodes.UNAUTHORIZED, 'No X-Auth-Token : authorization denied');
         }
-        const decryptedToken = new Buffer(tokenBase64, 'base64').toString('ascii').split(':');
+        const decryptedToken = new Buffer(tokenBase64, 'base64').toString('utf-8').split('\t');
 
         await this.securityCheck(decryptedToken, undefined, undefined, user);
         const user_root: IFile = requireNonNull(await File.findById(user.directory_id));
@@ -107,10 +107,9 @@ class UserService {
             throw new HTTPError(HttpCodes.BAD_REQUEST, 'Bad x-auth-token');
         }
 
-        const password = decryptedToken.slice(0, decryptedToken.length - 2).join(':'); // If password has ':' chars
-        console.log(password);
-        const appOrSms = decryptedToken[decryptedToken.length - 2];
-        const token = decryptedToken[decryptedToken.length - 1];
+        const password = decryptedToken[0];
+        const appOrSms = decryptedToken[1];
+        const token = decryptedToken[2];
 
         if (token.length != 6) {
             throw new HTTPError(HttpCodes.BAD_REQUEST, 'Token size must be equal to 6');
