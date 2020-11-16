@@ -106,11 +106,11 @@ export class FilesSignConfirmDialogComponent {
       this.loading = false;
       this.dialogRef.close(true);
     }).catch(err => {
-      if (err instanceof HttpErrorResponse && err.status === 400) {
+      
         this.dialogRef.disableClose = false;
         this.loading = false;
         this.dialogRef.close(true);
-      }
+      
     });
   }
 
