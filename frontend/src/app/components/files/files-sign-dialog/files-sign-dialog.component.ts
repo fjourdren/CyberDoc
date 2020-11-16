@@ -39,10 +39,11 @@ export class FilesSignDialogComponent {
     //TO REMOVE ONCE LISTSIGNATORIES READY
     this.dataSource.data = response;
 
-    this.fsProvider.default().listSignatories(this.file._id).toPromise().then(values=>{
-      //TO TEST ONCE LISTSIGNATORIES READY
+    //TO TEST ONCE LISTSIGNATORIES READY
+    //this.fsProvider.default().listSignatories(this.file._id).toPromise().then(values=>{
+      
       //this.dataSource.data = values;
-    });
+    //});
   }
 
   @HostListener("keydown", ['$event'])
