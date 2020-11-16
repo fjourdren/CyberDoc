@@ -77,6 +77,9 @@ class UserEncryptionController {
             user_keys.public_key = public_key;
             user_keys.encrypted_private_key = CryptoHelper.encryptAES(user_hash, private_key);
 
+            user.userKeys = user_keys;
+            await user.save();
+
             // reply to the user
             res.status(HttpCodes.OK);
             res.json({

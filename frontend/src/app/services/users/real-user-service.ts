@@ -213,7 +213,6 @@ export class RealUserService implements UserService {
     }
 
     resetPassword(resetPasswordJWTToken: string, email: string, password: any): Observable<void> {
-        console.warn("Authorization", `Bearer ${resetPasswordJWTToken}`);
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
             "email": email,
             "password": password
@@ -223,6 +222,8 @@ export class RealUserService implements UserService {
             },
             withCredentials: true
         }).pipe(map(response => {
+            this.cookieService.delete(environment.authCookieName);
+            this.cookieService.delete(environment.userHashCookieName);
         }));
     }
 
@@ -279,7 +280,10 @@ export class RealUserService implements UserService {
                 "Authorization": `Bearer ${resetPasswordJWTToken}`,
             },
             withCredentials: true
-        }).pipe(map(() => { }));
+        }).pipe(map(() => {
+            this.cookieService.delete(environment.authCookieName);
+            this.cookieService.delete(environment.userHashCookieName);
+        }));
     }
 
     private _setUser(user: User) {
