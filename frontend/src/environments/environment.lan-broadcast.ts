@@ -9,7 +9,9 @@ export const environment = {
   defaultUserServiceName: "real",
   apiBaseURL: "http://192.168.1.10:3000/v1", /* FIXME replace with your local IP */
   authCookieDomain: "192.168.1.10", /* FIXME replace with your local IP */
-  authCookieName: "access_token"
+  authCookieName: "access_token",
+  userHashCookieName: "user_hash",
+  userLocalStorageKey: "real_user",
 };
 
 /*

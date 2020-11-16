@@ -67,4 +67,12 @@
             {{ 'fileaction.delete' | translate }}
         </span>
     </a>
+    <!-- We can sign a file as an owner or a collaborator -->
+    <a href="#" *ngIf="!data.node.isDirectory" mat-list-item (click)="onBottomSheetSelection($event,'sign')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-file-signature"></mat-icon>
+            {{ 'fileaction.sign' | translate }}
+        </span>
+    </a>
+    
 </mat-nav-list>
