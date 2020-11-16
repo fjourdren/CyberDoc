@@ -143,6 +143,11 @@
         "confirm_new_password": "Confirm new password",
         "two_factor_card_title": "Two-Factor Authentication",
         "two_factor_card_subtitle": "Require a key in addition to your password.",
+        "export_data": {
+            "title": "Download your personal data",
+            "subtitle": "This will provide your account data, not the actual files stored by you.",
+            "button": "Download"
+        },
         "danger_zone": "Danger zone"
     },
     "dialogs": {

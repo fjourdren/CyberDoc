@@ -33,9 +33,9 @@ export interface UserService {
 
     userUpdated(): Observable<User>;
     getUserDevices(): Observable<Device[]>;
-    renameUserDevice(oldName: string,name: string): Observable<void>;
+    renameUserDevice(oldName: string, name: string): Observable<void>;
     createUserDevice(name: string, browser: string, OS: string): Observable<void>;
-    
+
     exportRecoveryKey(): Observable<string>;
     importRecoveryKey(email: string, password: string, file: File, resetPasswordJWTToken: string): Observable<void>;
 }

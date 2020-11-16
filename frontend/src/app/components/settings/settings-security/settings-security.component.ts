@@ -104,21 +104,30 @@ export class SettingsSecurityComponent {
         });
     }
 
-    refreshDevice() {
+    refreshDevice(): void {
         this.userServiceProvider.default().getUserDevices().toPromise().then((value) => {
             this.dataSource.data = value;
         });
     }
 
-    downloadRecoveryKey() {
+    downloadRecoveryKey(): void {
         this.loading = true;
         this.userServiceProvider.default().exportRecoveryKey().toPromise().then(recoveryKey => {
           this.loading = false;
           const anchor = document.createElement('a');
-          anchor.download = "recovery-key.txt";
+          anchor.download = 'recovery-key.txt';
           anchor.href = `data:text/plain,${recoveryKey}`;
           anchor.click();
           anchor.remove();
         });
-      }    
+      }
+
+    exportData(): void {
+        const anchor = document.createElement('a');
+        const user = this.userServiceProvider.default().getActiveUser();
+        anchor.download = `${user.email}-personal-data.txt`;
+        anchor.href = `data:text/plain,${JSON.stringify(user)}`;
+        anchor.click();
+        anchor.remove();
+    }
 }
