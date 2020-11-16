@@ -129,5 +129,11 @@
             <mat-icon fontSet="fa" fontIcon="fa-trash"></mat-icon>
             <span>{{ 'fileaction.delete' | translate }}</span>
         </button>
+        <!-- We can't sign a directory -->
+        <button *ngIf="!selectedNode.isDirectory" mat-menu-item
+            (click)="onContextMenuOrBottomSheetSelection('sign')">
+            <mat-icon fontSet="fa" fontIcon="fa-file-signature"></mat-icon>
+            <span>{{ 'fileaction.sign' | translate }}</span>
+        </button>
     </ng-template>
 </mat-menu>

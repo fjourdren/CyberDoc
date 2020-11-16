@@ -1,0 +1,42 @@
+<div mat-dialog-title class="mat-headline">
+    {{'sign.signwith' | translate}}
+  </div>
+  <div mat-dialog-content>
+    <h3><b>{{ 'sign.signBy' | translate }}</b></h3>
+</div>
+  <div id="table-container">
+    <table mat-table [dataSource]="dataSource">
+      This file has already been signed by :
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef> Name </th>
+        <td class="signatories-column" mat-cell *matCellDef="let element">
+          {{element.name}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef> Email </th>
+        <td class="signatories-column" mat-cell *matCellDef="let element">
+          {{element.email}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef> Date </th>
+        <td class="signatories-column" mat-cell *matCellDef="let element">
+          {{element.date}}
+        </td>
+      </ng-container>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+
+  
+  
+  <div mat-dialog-actions align="end">
+    
+    <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+    <div class="fill"></div>
+    <button [disabled]="loading" mat-raised-button 
+      (click)="onCloseBtnClicked()">{{'general.close' | translate}}</button>   
+    <button [disabled]="loading" mat-raised-button color="primary"
+      (click)="addSignatories()">{{'sign.sign' | translate}}</button>
+  </div>
