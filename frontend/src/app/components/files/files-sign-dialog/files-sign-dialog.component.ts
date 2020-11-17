@@ -37,13 +37,14 @@ export class FilesSignDialogComponent {
 
   update() {
     //TO REMOVE ONCE LISTSIGNATORIES READY
-    this.dataSource.data = response;
+    
 
     //TO TEST ONCE LISTSIGNATORIES READY
-    //this.fsProvider.default().listSignatories(this.file._id).toPromise().then(values=>{
-      
-      //this.dataSource.data = values;
-    //});
+    this.fsProvider.default().listSignatories(this.file._id).toPromise().then(values=>{
+      this.dataSource.data = values;
+    }).catch(err => {
+      this.dataSource.data = response;
+  });
   }
 
   @HostListener("keydown", ['$event'])
@@ -106,7 +107,7 @@ export class FilesSignConfirmDialogComponent {
       this.loading = false;
       this.dialogRef.close(true);
     }).catch(err => {
-      
+        console.log("Error, couldn't sign file : "+this.file._id);
         this.dialogRef.disableClose = false;
         this.loading = false;
         this.dialogRef.close(true);
