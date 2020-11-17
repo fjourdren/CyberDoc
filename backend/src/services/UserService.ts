@@ -32,7 +32,10 @@ class UserService {
         const firstTimeTwoFactorRegistering = !user.twoFactorSms && !user.twoFactorApp;
 
        // if you are trying to modify email, password or 2FA (not for the first time)
-        if (((email != undefined && email !== user.email) || password != undefined)
+        if (((email != undefined && email !== user.email)
+            || password != undefined
+            || (twoFactorApp != undefined && twoFactorApp !== user.twoFactorApp)
+            || (twoFactorSms != undefined && twoFactorSms !== user.twoFactorSms))
             && !firstTimeTwoFactorRegistering) {
             if (!tokenBase64) {
                 throw new HTTPError(HttpCodes.UNAUTHORIZED, 'No X-Auth-Token : authorization denied');
