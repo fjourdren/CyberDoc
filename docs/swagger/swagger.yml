@@ -309,6 +309,14 @@ components:
       in: cookie
       name: access_token
       type: apiKey
+    resetPasswordToken:
+      in: query
+      name: access_token
+      type: apiKey
+    x-auth-token:
+      type: apiKey
+      in: header
+      name: x-auth-token
 info:
   description: "- The application defines three rights for each node :\n  - `read`\n\
     \  - `write`\n  - `owner`\n"
@@ -400,6 +408,7 @@ paths:
       summary: Check if user enters valid password
       tags:
       - Check password
+
   /auth/signin:
     post:
       description: Login a user
@@ -1681,6 +1690,7 @@ paths:
           description: Server error
       security:
       - jwtToken: []
+      - x-auth-token: []
       summary: Delete active user account
       tags:
       - Users
@@ -1773,6 +1783,7 @@ paths:
       security:
       - jwtToken: []
       - resetPasswordToken: []
+      - x-auth-token: []
       summary: Set current user properties and reset password (forgotten password)
       tags:
       - Users
