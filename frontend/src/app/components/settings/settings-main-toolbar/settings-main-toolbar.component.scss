@@ -13,8 +13,11 @@
 #app-name-icon-container {
     display:flex;
     align-items:center;
-    padding-left: 4px; 
+    padding-left: 4px;
     padding-right: 4px;
+    font-size: 23px;
+    font-family: 'Montserrat', serif;
+    color: black;
 }
 
 a {
