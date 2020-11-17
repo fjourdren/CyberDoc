@@ -21,6 +21,7 @@ FileRouter.put('/:fileId', AuthMiddleware.isAuthenticate, FileController.updateC
 FileRouter.patch('/:fileId', AuthMiddleware.isAuthenticate, UserMiddleware.hasRoles([Role.OWNER]), FileController.edit);
 FileRouter.delete('/:fileId', AuthMiddleware.isAuthenticate, FileController.delete);
 
+FileRouter.get('/:fileId/etherpad-url', AuthMiddleware.isAuthenticate, FileController.getEtherpadURL)
 FileRouter.post('/:fileId/copy', AuthMiddleware.isAuthenticate, FileController.copy);
 
 FileRouter.get('/:fileId/preview', AuthMiddleware.isAuthenticate, FileController.preview);

@@ -14,6 +14,8 @@ import EncryptionFileService from '../services/EncryptionFileService';
 import { anyToReadable, streamToBuffer } from '../helpers/Conversions';
 import { Readable } from 'stream';
 import { requireAuthenticatedUser, requireFile, requireUserHash } from '../helpers/Utils';
+import { EtherpadData } from '../models/EtherpadData';
+import Axios from 'axios';
 
 class FileController {
 
@@ -601,7 +603,7 @@ class FileController {
                 file.sharedWithPending.splice(index, 1);
                 await file.save();
             } else {
-                const user = requireNonNull(await User.findOne({ "email": sharedWithUserEmail}).exec(), HttpCodes.NOT_FOUND, "User not found");
+                const user = requireNonNull(await User.findOne({ "email": sharedWithUserEmail }).exec(), HttpCodes.NOT_FOUND, "User not found");
                 index = file.sharedWith.indexOf(user._id);
                 if (index !== -1) {
                     file.sharedWith.splice(index, 1);
@@ -649,7 +651,45 @@ class FileController {
         }
     }
 
+    public static async getEtherpadURL(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
+            const user_hash = requireUserHash(req);
 
+            FileService.requireFileIsDocument(file);
+            await FileService.requireFileCanBeViewed(currentUser, file);
+
+            if (file.mimetype !== "text/plain") {
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "This file cannot be opened in CyberDoc");
+            }
+
+            const etherpadData = await EtherpadData.findOne({ key: `pad:${file._id}` }).exec();
+            if (!etherpadData) {
+                //Create etherpad Pad
+                const documentGridFs = await FileService.getFileContent(user_hash, currentUser, file);
+                const content: string = documentGridFs.content;
+
+                await Axios.get(`${process.env.ETHERPAD_ROOT_API_URL}/createPad?padID=${file._id}&apikey=${process.env.ETHERPAD_API_KEY}&text=${content}`);
+            }
+
+            let url: string;
+            if (await FileService.fileCanBeModified(currentUser, file)) {
+                url = `${process.env.ETHERPAD_ROOT_URL}/p/${file._id}`; //READWRITE
+            } else {
+                url = `${process.env.ETHERPAD_ROOT_URL}/p/r.${file._id}`; //READONLY
+            }
+
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "Success",
+                url
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
 
     // set up functions
     private static _requireAuthenticatedUser(res: Response): IUser {

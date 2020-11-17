@@ -24,6 +24,7 @@ import { IUser, User } from "../models/User";
 import { IFile, File, FileType, ShareMode } from "../models/File";
 import IUserSign, { UserSign } from '../models/UserSign';
 import { FileEncryptionKeysSchema } from '../models/FileEncryptionKeys';
+import { EtherpadData } from '../models/EtherpadData';
 
 enum PreciseFileType {
     Folder = "Folder",
@@ -295,17 +296,31 @@ class FileService {
     public static async getFileContent(user_hash: string, user: IUser, file: IFile): Promise<Record<any, any>> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
+        const fileObjectID = Types.ObjectId(file.document_id);
+
+        if (file.mimetype === "text/plain") {
+            //Sync version stored by Etherpad with GridFS
+            const etherpadPadID =  `pad:${file._id}`;
+            const etherpadData = await EtherpadData.findOne({key: etherpadPadID}).exec();
+            console.warn(etherpadData);
+            if (etherpadData) {
+                const text = JSON.parse(etherpadData.val).atext.text;
+                console.warn(file);
+                file = await FileService.updateContentDocument(user_hash, user, file, Buffer.from(text, "utf8"));
+                console.warn(file);
+            }
+        }
 
         // get file infos & content
         const infos: any = await FileService.getFileInformations(file);
-        const content: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
+        const content: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(fileObjectID);
         const out: string = await EncryptionFileService.decryptFileContent(user_hash, user, file, content);
 
         return { infos: infos, content: out };
     }
 
     // update a document content
-    public static async updateContentDocument(user_hash: string, user: IUser, file: IFile, fileContentBuffer: Buffer): Promise<any> {
+    public static async updateContentDocument(user_hash: string, user: IUser, file: IFile, fileContentBuffer: Buffer): Promise<IFile> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
 
@@ -319,6 +334,7 @@ class FileService {
 
         // get gridfs for document_id and put data in it
         const newDocumentId: string = await GridFSTalker.update(Types.ObjectId(file.document_id), fileGridFSInfos.filename, fileGridFSInfos.contentType, readableEncryptedContent);
+        console.error(newDocumentId);
         file.document_id = newDocumentId;
 
         // get file size and save it in File model
