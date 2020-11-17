@@ -7,6 +7,7 @@ import { SecurityCheckDialogComponent } from '../../security-check-dialog/securi
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { SettingsRenameDeviceDialogComponent } from '../settings-rename-device-dialog/settings-rename-device-dialog.component';
+import {CloudFile} from '../../../models/files-api-models';
 
 function passwordValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
@@ -104,21 +105,29 @@ export class SettingsSecurityComponent {
         });
     }
 
-    refreshDevice() {
+    refreshDevice(): void {
         this.userServiceProvider.default().getUserDevices().toPromise().then((value) => {
             this.dataSource.data = value;
         });
     }
 
-    downloadRecoveryKey() {
+    downloadRecoveryKey(): void {
         this.loading = true;
         this.userServiceProvider.default().exportRecoveryKey().toPromise().then(recoveryKey => {
           this.loading = false;
           const anchor = document.createElement('a');
-          anchor.download = "recovery-key.txt";
+          anchor.download = 'recovery-key.txt';
           anchor.href = `data:text/plain,${recoveryKey}`;
           anchor.click();
           anchor.remove();
         });
-      }    
+      }
+
+    exportData(): void {
+        const anchor = document.createElement('a');
+        anchor.download = `${this.userServiceProvider.default().getActiveUser().email}-personal-data.txt`;
+        anchor.href = this.userServiceProvider.default().getDataExportURL();
+        anchor.click();
+        anchor.remove();
+    }
 }

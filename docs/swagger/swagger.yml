@@ -1776,6 +1776,47 @@ paths:
       summary: Set current user properties and reset password (forgotten password)
       tags:
       - Users
+  /users/exportData:
+    get:
+      description: Get user's files data
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  filesData:
+                    items:
+                      $ref: '#/components/schemas/CloudFile'
+                  msg:
+                    example: Success
+                    type: string
+                  success:
+                    example: true
+                    type: boolean
+                required:
+                  - success
+                  - msg
+                  - filesData
+                type: object
+          description: Success
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Not logged in
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericErrorResponse'
+          description: Server error
+      security:
+        - jwtToken: []
+      summary: Export user's files data
+      tags:
+        - User's file data
   /users/tags:
     post:
       description: Create a tag

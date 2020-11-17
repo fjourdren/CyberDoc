@@ -73,6 +73,11 @@ class UserService {
         return {"user": user, "newToken": newToken};
     }
 
+    // Export Files Data
+    public static async getAllFiles(user: IUser): Promise<IFile[]> {
+        return await File.find({owner_id: user._id}).exec();
+    }
+
     // delete user account service
     public static async delete(_id: string): Promise<IUser> {
         const user: IUser = requireNonNull(await User.findById(_id));

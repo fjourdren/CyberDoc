@@ -11,7 +11,7 @@ import { IUser, User } from "../models/User";
 import Mailer from "../helpers/Mailer";
 import jwt from "jsonwebtoken";
 import EncryptionFileService from '../services/EncryptionFileService';
-import { anyToReadable, streamToBuffer } from '../helpers/Conversions';
+import { anyToReadable } from '../helpers/Conversions';
 import { Readable } from 'stream';
 import { requireAuthenticatedUser, requireFile, requireUserHash } from '../helpers/Utils';
 
@@ -649,8 +649,6 @@ class FileController {
         }
     }
 
-
-
     // set up functions
     private static _requireAuthenticatedUser(res: Response): IUser {
         return requireNonNull(res.locals.APP_JWT_TOKEN.user, HttpCodes.UNAUTHORIZED, "Auth is missing or invalid");
@@ -668,7 +666,6 @@ class FileController {
 
         return requireNonNull(file, HttpCodes.BAD_REQUEST, `File missing (${fieldName})`)
     }
-
 }
 
 export default FileController;
