@@ -47,7 +47,7 @@
         </span>
     </a>
     <!-- We can always copy files as an Owner -->
-    <a href="#" *ngIf="isOwner()" mat-list-item (click)="onBottomSheetSelection($event,'copy')">
+    <a href="#" *ngIf="!data.node.isDirectory && isOwner()" mat-list-item (click)="onBottomSheetSelection($event,'copy')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-copy"></mat-icon>
             {{ 'fileaction.copy' | translate }}
