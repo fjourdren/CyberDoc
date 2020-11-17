@@ -9,6 +9,11 @@ import {requireNonNull} from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
 import Mailer from '../helpers/Mailer';
+import CryptoHelper from '../helpers/CryptoHelper';
+import NodeRSA from 'node-rsa';
+import { FileEncryptionKeysSchema } from '../models/FileEncryptionKeys';
+import IUserEncryptionKeys, { UserEncryptionKeys } from '../models/UserEncryptionKeys';
+import EncryptionFileService from './EncryptionFileService';
 
 class AuthService {
 
@@ -20,7 +25,7 @@ class AuthService {
     }
 
     // register service
-    public static async signup(firstname: string, lastname: string, email: string, password: string, role: Role): Promise<string> {
+    public static async signup(user_hash: string, firstname: string, lastname: string, email: string, password: string, role: Role): Promise<string> {
         // build object
         const newUser: IUser = new User();
         newUser._id = Guid.raw()
@@ -31,6 +36,17 @@ class AuthService {
         newUser.role = role;
         newUser.twoFactorApp = false;
         newUser.twoFactorSms = false;
+
+        // generate user's key
+        const random_user_key: NodeRSA = CryptoHelper.generateRSAKeys(); // used to have by default user's RSA keys
+        const public_key: string = random_user_key.exportKey("public");
+        const private_key: string = random_user_key.exportKey("private");
+
+        const user_keys: IUserEncryptionKeys = new UserEncryptionKeys();
+        user_keys.public_key = public_key;
+        user_keys.encrypted_private_key = CryptoHelper.encryptAES(user_hash, private_key);
+
+        newUser.userKeys = user_keys;
 
         // build user's root directory
         const root_user_dir: IFile = new File();
@@ -82,7 +98,6 @@ class AuthService {
     // isPasswordValid ?
     public static async isPasswordValid(email: string, password: string): Promise<boolean> {
         const user: IUser = requireNonNull(await User.findOne({email: email}).exec(), HttpCodes.UNAUTHORIZED, "Invalid user");
-
         const isPasswordValid = bcrypt.compareSync(password, user.password);
 
         if (!isPasswordValid)
@@ -102,7 +117,10 @@ class AuthService {
         const url: string = process.env.APP_FRONTEND_URL + "/passwordReset?token=" + token;
 
         //await Mailer.sendTextEmail(email, process.env.SENDGRID_MAIL_FROM, "hello", "hello", "hello");
-        await Mailer.sendTemplateEmail(email, process.env.SENDGRID_MAIL_FROM, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, {url: url});
+        await Mailer.sendTemplateEmail(email, {
+            email: process.env.SENDGRID_MAIL_FROM,
+            name: process.env.SENDGRID_MAIL_FROM_NAME
+        }, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, {url: url});
     }
 
     // validate that the token is correct

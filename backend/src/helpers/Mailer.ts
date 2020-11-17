@@ -22,7 +22,7 @@ class Mailer {
 
 
     // send Transactional email
-    public static async sendTemplateEmail(to: string, from: string, templateId: string, dynamicTemplateData: any): Promise<void> {      
+    public static async sendTemplateEmail(to: string, from: any, templateId: string, dynamicTemplateData: any): Promise<void> {
         const msg: any = {
             to: to,
             from: from,

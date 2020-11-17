@@ -13,21 +13,11 @@ function passwordValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
         const password = control.value;
 
-        if (!password) {
-            return {passwordValidator: {invalid: true}};
-        }
-        if (!password.match(/[A-Z]/g)) {
-            return {passwordValidator: {invalid: true}};
-        }
-        if (!password.match(/[a-z]/g)) {
-            return {passwordValidator: {invalid: true}};
-        }
-        if (!password.match(/[0-9]/g)) {
-            return {passwordValidator: {invalid: true}};
-        }
-        if (!password.replace(/[0-9a-zA-Z ]/g, '').length) {
-            return {passwordValidator: {invalid: true}};
-        }
+        if (!password) { return { passwordValidator: { invalid: true } }; }
+        if (!password.match(/[A-Z]/g)) { return { passwordValidator: { invalid: true } }; }
+        if (!password.match(/[a-z]/g)) { return { passwordValidator: { invalid: true } }; }
+        if (!password.match(/[0-9]/g)) { return { passwordValidator: { invalid: true } }; }
+        if (!password.replace(/[0-9a-zA-Z ]/g, '').length) { return { passwordValidator: { invalid: true } }; }
 
         return null;
     };
@@ -63,8 +53,7 @@ export class SettingsSecurityComponent {
 
         this.passwordForm = this.fb.group({
             newPassword: ['', [Validators.required, passwordValidator()]],
-            newPasswordConfirmation: ['', [Validators.required, passwordValidator()]],
-            email: [this.userServiceProvider.default().getActiveUser().email, Validators.required]
+            newPasswordConfirmation: ['', [Validators.required, passwordValidator()]]
         }, {
             validator: MustMatch('newPassword', 'newPasswordConfirmation')
         });
@@ -77,14 +66,16 @@ export class SettingsSecurityComponent {
 
         this.loading = true;
         this.dialog.open(SecurityCheckDialogComponent, {
-            maxWidth: '500px'
+            maxWidth: '500px',
+            data: {
+                checkTwoFactor: true
+            }
         }).afterClosed().subscribe(res => {
-            if (res.result) {
+            if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
                 this.userServiceProvider.default().updatePassword(
                     this.passwordForm.get('newPassword').value,
-                    this.userServiceProvider.default().getActiveUser().email
+                    res.xAuthTokenArray
                 ).toPromise().then(() => {
-                    this.loading = false;
                     this.snackBar.dismiss();
                     this.snackBar.open('Password updated', null, {duration: 1500});
                     this.passwordForm.reset();
@@ -94,7 +85,7 @@ export class SettingsSecurityComponent {
                             disableClose: true
                         });
                     }
-
+                    this.loading = false;
                 });
             } else {
                 this.loading = false;
@@ -122,5 +113,25 @@ export class SettingsSecurityComponent {
         this.userServiceProvider.default().getUserDevices().toPromise().then((value) => {
             this.dataSource.data = value;
         });
+    }
+
+    downloadRecoveryKey(): void {
+        this.loading = true;
+        this.userServiceProvider.default().exportRecoveryKey().toPromise().then(recoveryKey => {
+            this.loading = false;
+            const anchor = document.createElement('a');
+            anchor.download = 'recovery-key.txt';
+            anchor.href = `data:text/plain,${recoveryKey}`;
+            anchor.click();
+            anchor.remove();
+        });
+    }
+
+    exportData(): void {
+        const anchor = document.createElement('a');
+        anchor.download = `${this.userServiceProvider.default().getActiveUser().email}-personal-data.txt`;
+        anchor.href = this.userServiceProvider.default().getDataExportURL();
+        anchor.click();
+        anchor.remove();
     }
 }

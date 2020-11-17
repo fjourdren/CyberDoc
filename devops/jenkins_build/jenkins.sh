@@ -18,6 +18,9 @@ then
   false
 fi
 
+sudo chmod 667 $frontendDir/exec.sh
+sudo chmod 667 $backendDir/exec.sh
+
 ## frontend
 sudo docker stop frontend || true && sudo docker rm frontend || true
 sudo docker run --rm  -v /home/centos/workspace/cyberdoc:/opt  -w /opt/frontend  teracy/angular-cli /opt/devops/docker_frontend/exec.sh

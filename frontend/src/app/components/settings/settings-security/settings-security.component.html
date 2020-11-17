@@ -40,6 +40,26 @@
             [disabled]="passwordForm.invalid || loading">{{'general.update' | translate}}</button>
     </mat-card-content>
 </mat-card>
+
+<mat-card>
+    <mat-card-header>
+        <mat-icon mat-card-avatar>lock</mat-icon>
+        <mat-card-title>{{'exportrecoverykey.title' | translate}}</mat-card-title>
+        <mat-card-subtitle>
+            {{'exportrecoverykey.subtitle1' | translate}}
+            <br>
+            <div>
+                {{ 'exportrecoverykey.subtitle2a' | translate }}
+                <b>{{ 'exportrecoverykey.subtitle2b' | translate }}</b>
+            </div>    
+        </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <button [disabled]="loading" mat-raised-button (click)="downloadRecoveryKey()" color="primary">{{ 'exportrecoverykey.download_key' | translate }}</button>
+    </mat-card-content>
+</mat-card>
+
+
 <mat-card>
     <mat-card-header>
         <mat-icon mat-card-avatar>devices</mat-icon>
@@ -50,6 +70,18 @@
         <app-two-factor-edit [displayGenerationEmergencyCodes]="true"></app-two-factor-edit>
     </mat-card-content>
 </mat-card>
+
+<mat-card>
+    <mat-card-header>
+        <mat-icon mat-card-avatar>get_app</mat-icon>
+        <mat-card-title>{{'settings.export_data.title' | translate}}</mat-card-title>
+        <mat-card-subtitle>{{'settings.export_data.subtitle' | translate}}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <button [disabled]="loading" mat-raised-button (click)="exportData()" color="primary">{{ 'settings.export_data.button' | translate }}</button>
+    </mat-card-content>
+</mat-card>
+
 <mat-card>
     <mat-card-header>
         <mat-icon mat-card-avatar>devices</mat-icon>
