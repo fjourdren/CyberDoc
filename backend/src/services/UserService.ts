@@ -73,6 +73,25 @@ class UserService {
         return {"user": user, "newToken": newToken};
     }
 
+    // Export Files Data
+    public static async exportData(directoryId: string): Promise<IFile[]> {
+        const files_data: IFile[] = [];
+        await File.find({parent_file_id: directoryId}).exec().then(files => {
+            for (const file of files) {
+                if (FileService.fileIsDocument(file)) {
+                    files_data.push(file);
+                } else if (FileService.fileIsDirectory(file)) {
+                    this.exportData(file._id).then(subFiles => {
+                        subFiles.forEach(subFile => {
+                            files_data.push(subFile);
+                        });
+                    });
+                }
+            }
+        });
+        return files_data;
+    }
+
     // delete user account service
     public static async delete(_id: string): Promise<IUser> {
         const user: IUser = requireNonNull(await User.findById(_id));
