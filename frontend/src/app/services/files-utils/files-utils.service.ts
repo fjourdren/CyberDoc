@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
+
 export const DIRECTORY_MIMETYPE = "application/x-dir";
 
 export enum FileType {
@@ -102,10 +103,10 @@ export class FilesUtilsService {
 
   isPDFExportAvailable(fileType: FileType): boolean {
     return [
+      FileType.Text,
       FileType.Document,
       FileType.Spreadsheet,
-      FileType.Presentation,
-      FileType.PDF
+      FileType.Presentation
     ].indexOf(fileType) !== -1;
   }
 }

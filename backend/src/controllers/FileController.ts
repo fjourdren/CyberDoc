@@ -6,17 +6,24 @@ import HTTPError from '../helpers/HTTPError';
 
 import FileService from '../services/FileService';
 
-import { IFile, File, FileType, ShareMode } from "../models/File";
+import { File, FileType, IFile, ShareMode } from "../models/File";
 import { IUser, User } from "../models/User";
+import Mailer from "../helpers/Mailer";
+import jwt from "jsonwebtoken";
+import EncryptionFileService from '../services/EncryptionFileService';
+import { anyToReadable } from '../helpers/Conversions';
+import { Readable } from 'stream';
+import { requireAuthenticatedUser, requireFile, requireUserHash } from '../helpers/Utils';
 
 class FileController {
 
     public static async upload(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
-            const name = requireNonNull(req.body.name, 400, "missing name");
-            const mimetype = requireNonNull(req.body.mimetype, 400, "missing mimetype");
-            const destinationDir = requireNonNull(await File.findById(req.body.folderID), 404, "destination dir not found");
+            const currentUser = requireAuthenticatedUser(res);
+            const name = requireNonNull(req.body.name, HttpCodes.BAD_REQUEST, "Missing name");
+            const mimetype = requireNonNull(req.body.mimetype, HttpCodes.BAD_REQUEST, "Missing mimetype");
+            const destinationDir = requireNonNull(await File.findById(req.body.folderID), HttpCodes.NOT_FOUND, "Destination dir not found");
+            const user_hash = requireUserHash(req);
             FileService.requireFileIsDirectory(destinationDir);
 
             let fileToSave = new File();
@@ -33,8 +40,8 @@ class FileController {
             if (FileService.fileIsDirectory(fileToSave)) {
                 fileToSave = await FileService.createDirectory(fileToSave);
             } else {
-                const fileContents = FileController._requireFile(req, "upfile");
-                fileToSave = await FileService.createDocument(fileToSave, fileToSave.name, mimetype, fileContents.buffer);
+                const fileContents = requireFile(req, "upfile");
+                fileToSave = await FileService.createDocument(user_hash, fileToSave, fileToSave.name, mimetype, fileContents.buffer);
             }
 
             res.status(HttpCodes.OK);
@@ -50,7 +57,7 @@ class FileController {
 
     public static async search(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
+            const currentUser = requireAuthenticatedUser(res);
             const userCache = new Map<string, IUser>();
             const bodySearch: Record<string, unknown> = req.body;
             let files: any[] = await FileService.search(res.locals.APP_JWT_TOKEN.user, bodySearch);
@@ -109,7 +116,7 @@ class FileController {
 
     public static async get(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
+            const currentUser = requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
             await FileService.requireFileCanBeViewed(currentUser, file);
             const fileOwner = requireNonNull(await User.findById(file.owner_id).exec());
@@ -153,6 +160,7 @@ class FileController {
                             "updated_at": fileInDir.updated_at,
                             "created_at": fileInDir.created_at,
                             "tags": fileInDir.tags,
+                            "signs": fileInDir.signs,
                             "shareMode": fileInDir.shareMode,
                             "preview": fileInDir.preview
                         });
@@ -204,6 +212,7 @@ class FileController {
                         "size": file.size,
                         "updated_at": file.updated_at,
                         "created_at": file.updated_at,
+                        "signs": file.signs,
                         "tags": file.tags,
                         "shareMode": file.shareMode
                     }
@@ -217,14 +226,15 @@ class FileController {
     // update content of a file
     public static async updateContent(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
+            const currentUser = requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
-            const fileContents = FileController._requireFile(req, "upfile");
+            const fileContents = requireFile(req, "upfile");
+            const user_hash = requireUserHash(req);
 
             await FileService.requireFileCanBeModified(currentUser, file);
             FileService.requireFileIsDocument(file);
 
-            await FileService.updateContentDocument(file, fileContents.buffer);
+            await FileService.updateContentDocument(user_hash, currentUser, file, fileContents.buffer);
 
             res.status(HttpCodes.OK);
             res.json({
@@ -239,16 +249,22 @@ class FileController {
     // edit atributes of a file controller
     public static async edit(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
+            const currentUser = requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
-            await FileService.requireIsFileOwner(currentUser, file);
 
-            if (req.body.name != undefined)
+            // You can edit name of a readwrite file
+            if (req.body.name != undefined) {
+                await FileService.requireFileCanBeModified(currentUser, file);
                 file.name = req.body.name;
-            if (req.body.directoryID != undefined)
+            }
+
+            if (req.body.directoryID != undefined) {
+                await FileService.requireIsFileOwner(currentUser, file);
                 file.parent_file_id = req.body.directoryID;
+            }
 
             if (req.body.preview != undefined) {
+                await FileService.requireIsFileOwner(currentUser, file);
                 if (file.type == FileType.DIRECTORY) {
                     if (req.body.preview)
                         throw new HTTPError(HttpCodes.BAD_REQUEST, "You can't turn on preview on a directory.");
@@ -257,6 +273,7 @@ class FileController {
             }
 
             if (req.body.shareMode != undefined) {
+                await FileService.requireIsFileOwner(currentUser, file);
                 if (req.body.shareMode === ShareMode.READONLY || req.body.shareMode === ShareMode.READWRITE) {
                     file.shareMode = req.body.shareMode;
                 } else {
@@ -280,11 +297,11 @@ class FileController {
         }
     }
 
-    
+
     // delete a file controller
     public static async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
+            const currentUser = requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
             await FileService.requireIsFileOwner(currentUser, file);
 
@@ -306,15 +323,17 @@ class FileController {
     // copy a file controller
     public static async copy(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
+            const currentUser = requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
             const copyFileName = req.body.copyFileName; //undefined value is OK
             const destination = requireNonNull(await File.findById(req.body.destID).exec(), 404, "Destination directory not found");
+            const user_hash = requireUserHash(req);
+
 
             FileService.requireFileIsDocument(file);
             FileService.requireFileIsDirectory(destination);
             await FileService.requireFileCanBeCopied(currentUser, file);
-            const out = await FileService.copyDocument(currentUser, file, req.body.destID, copyFileName);
+            const out = await FileService.copyDocument(user_hash, currentUser, file, req.body.destID, copyFileName);
 
             // reply to user
             res.status(HttpCodes.OK);
@@ -332,15 +351,16 @@ class FileController {
     // ask to generate a preview of a file controller
     public static async preview(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
+            const user = requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
-            await FileService.requireFileCanBeViewed(currentUser, file);
+            await FileService.requireFileCanBeViewed(user, file);
+            const user_hash = requireUserHash(req);
 
-            if (!file.preview){
+            if (!file.preview) {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "Preview not allowed for this file");
             }
 
-            const previewImg = await FileService.generatePreview(file);
+            const previewImg = await FileService.generatePreview(user_hash, user, file);
 
             res.set('Content-Type', 'image/png');
             res.status(HttpCodes.OK);
@@ -353,14 +373,19 @@ class FileController {
     // generate file pdf
     public static async exportPDF(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
+            const user = requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
-            await FileService.requireFileCanBeViewed(currentUser, file);
+            await FileService.requireFileCanBeViewed(user, file);
+            const user_hash = requireUserHash(req);
 
-            const pdfStream = await FileService.generatePDF(file);
+            const pdfStream = await FileService.generatePDF(user_hash, user, file);
+            let pdfFileName = file.name;
+            if (pdfFileName.indexOf(".") !== -1) {
+                pdfFileName.substring(0, pdfFileName.lastIndexOf("."));
+            }
 
             res.set('Content-Type', 'application/pdf');
-            res.set('Content-Disposition', 'attachment; filename="' + file.name + '.pdf"');
+            res.set('Content-Disposition', `attachment; filename="${pdfFileName}"`);
             res.status(HttpCodes.OK);
             pdfStream.pipe(res);
         } catch (err) {
@@ -371,17 +396,21 @@ class FileController {
     // start downloading a file controller
     public static async download(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
+            const user = requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), 404, "File not found");
-            await FileService.requireFileCanBeViewed(currentUser, file);
+            await FileService.requireFileCanBeViewed(user, file);
+            const user_hash = requireUserHash(req);
 
-            const documentGridFs = await FileService.getFileContent(file);
+            const documentGridFs = await FileService.getFileContent(user_hash, user, file);
+            const documentGridFsReadable: Readable = anyToReadable(documentGridFs.content);
 
             // start the download
             res.set('Content-Type', (documentGridFs.infos as any).contentType);
             res.set('Content-Disposition', 'attachment; filename="' + file.name + '"');
             res.status(HttpCodes.OK);
-            documentGridFs.stream.pipe(res);
+
+            //documentGridFsReadable.pipe(res);
+            res/*.attachment('foo.png').type('png')*/.send(Buffer.from(documentGridFs.content, "binary"));
         } catch (err) {
             next(err);
         }
@@ -389,14 +418,43 @@ class FileController {
 
     public static async getSharedFiles(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
+            const currentUser = requireAuthenticatedUser(res);
+            const userCache = new Map<string, IUser>();
             const sharedFiles = await FileService.getSharedFiles(currentUser);
+
+            const results = [];
+            for (const file of sharedFiles) {
+                let ownerName = "Unknown";
+                if (file.owner_id === currentUser._id) {
+                    ownerName = `${currentUser.firstname} ${currentUser.lastname}`;
+                } else {
+                    if (!userCache.has(file.owner_id)) {
+                        userCache.set(file.owner_id, requireNonNull(await User.findById(file.owner_id).exec()));
+                    }
+                    const user = userCache.get(file.owner_id);
+                    ownerName = `${user?.firstname} ${user?.lastname}`;
+                }
+
+                if (file.type == FileType.DOCUMENT) {
+                    results.push({
+                        "_id": file._id,
+                        "name": file.name,
+                        "ownerName": ownerName,
+                        "mimetype": file.mimetype,
+                        "size": file.size,
+                        "updated_at": file.updated_at,
+                        "created_at": file.created_at,
+                        "preview": file.preview,
+                        "shareMode": file.shareMode
+                    });
+                }
+            }
 
             res.status(HttpCodes.OK);
             res.json({
                 success: true,
                 msg: "Success",
-                sharedFiles: sharedFiles
+                results
             });
         } catch (err) {
             next(err);
@@ -405,12 +463,12 @@ class FileController {
 
     public static async getSharedAccesses(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
+            const currentUser = requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
             FileService.requireFileIsDocument(file);
             await FileService.requireFileCanBeViewed(currentUser, file);
 
-            const users: Array<{email: string, name: string}> = [];
+            const users: Array<{ email: string, name: string }> = [];
             for (const userID of file.sharedWith) {
                 const user = requireNonNull(await User.findById(userID));
                 users.push({
@@ -419,10 +477,10 @@ class FileController {
                 });
             }
 
-            if (currentUser._id !== file.owner_id){
-                if (users.findIndex(item => item.email === currentUser.email) === -1){
+            if (currentUser._id !== file.owner_id) {
+                if (users.findIndex(item => item.email === currentUser.email) === -1) {
                     throw new HTTPError(HttpCodes.NOT_FOUND, "File not found");
-                }    
+                }
             }
 
 
@@ -430,7 +488,8 @@ class FileController {
             res.json({
                 success: true,
                 msg: "Success",
-                shared_users: users
+                shared_users: users,
+                shared_users_pending: file.sharedWithPending
             });
         } catch (err) {
             next(err);
@@ -438,22 +497,86 @@ class FileController {
     }
 
     public static async addSharingAccess(req: Request, res: Response, next: NextFunction): Promise<void> {
+        let status: string;
         try {
-            const currentUser = FileController._requireAuthenticatedUser(res);
+            const currentUser = requireAuthenticatedUser(res);
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
-            const user = requireNonNull(await User.findOne({"email": req.body.email}).exec(), HttpCodes.NOT_FOUND, "User not found");
             FileService.requireFileIsDocument(file);
             await FileService.requireIsFileOwner(currentUser, file);
+            const otherUserEmail = req.body.email;
+            const user = await User.findOne({ "email": otherUserEmail }).exec();
+            if (user) {
+                if (user._id === currentUser._id) {
+                    throw new HTTPError(HttpCodes.BAD_REQUEST, "You are the owner of the file, you can't share it with yourself");
+                } else {
+                    if (file.sharedWith.indexOf(user._id) !== -1) {
+                        throw new HTTPError(HttpCodes.BAD_REQUEST, "This user has already an access to this file");
+                    }
+                    file.sharedWith.push(user._id);
+                    await file.save();
+                    const url: string = process.env.APP_FRONTEND_URL + "/shared-with-me";
+                    await Mailer.sendTemplateEmail(otherUserEmail,
+                        {
+                            email: process.env.SENDGRID_MAIL_FROM,
+                            name: process.env.SENDGRID_MAIL_FROM_NAME
+                        },
+                        process.env.SENDGRID_TEMPLATE_SHARED_WITH_YOU as string,
+                        {
+                            file_owner_email: currentUser.email,
+                            filename: file.name,
+                            url: url
+                        }
+                    );
 
-            if (user._id === currentUser._id){
-                throw new HTTPError(HttpCodes.BAD_REQUEST, "You are the owner of the file, you can't share it with yourself");
+                    // add key to the user
+                    const user_hash = requireUserHash(req);
+                    const file_aes_key: string = await EncryptionFileService.getFileKey(currentUser, file, user_hash);
+                    await EncryptionFileService.addFileKeyToUser(user, file, file_aes_key);
+
+                    console.log('[Debug] An email has been sent to ' + otherUserEmail);
+                    status = "Success";
+                    res.status(HttpCodes.OK);
+                    res.json({
+                        success: true,
+                        msg: status
+                    });
+                }
+            } else {
+                if (file.sharedWithPending.includes(otherUserEmail)) {
+                    throw new HTTPError(HttpCodes.BAD_REQUEST, "This user has already received an email to collaborate on this file.");
+                }
+                const token = jwt.sign({
+                    email: otherUserEmail,
+                    fileOwnerEmail: currentUser.email
+                }, process.env.JWT_SECRET, {
+                    expiresIn: 36000
+                });
+                file.sharedWithPending.push(otherUserEmail);
+                await file.save();
+                const url: string = process.env.APP_FRONTEND_URL + "/register?token=" + token;
+                await Mailer.sendTemplateEmail(otherUserEmail,
+                    {
+                        email: process.env.SENDGRID_MAIL_FROM,
+                        name: process.env.SENDGRID_MAIL_FROM_NAME
+                    },
+                    process.env.SENDGRID_TEMPLATE_REQUEST_CREATE_ACCOUNT,
+                    {
+                        file_owner_email: currentUser.email,
+                        filename: file.name,
+                        url: url
+                    }
+                );
+
+                console.log('[Debug] An email has been sent to ' + otherUserEmail);
+                status = "Waiting";
+                res.status(HttpCodes.OK);
+                res.json({
+                    success: true,
+                    msg: status
+                });
             }
 
-            if (file.sharedWith.indexOf(user._id) === -1){
-                file.sharedWith.push(user._id);
-                await file.save();    
-            }
-
+            // reply
             res.status(HttpCodes.OK);
             res.json({
                 success: true,
@@ -467,19 +590,54 @@ class FileController {
     public static async removeSharingAccess(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const currentUser = FileController._requireAuthenticatedUser(res);
+            const sharedWithUserEmail = req.params.email.toLowerCase();
 
             const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
-            const user = requireNonNull(await User.findOne({"email": req.params.email}).exec(), HttpCodes.NOT_FOUND, "User not found");
             FileService.requireFileIsDocument(file);
             await FileService.requireIsFileOwner(currentUser, file);
 
-            const index = file.sharedWith.indexOf(user._id);
-            if (index !== -1) {
-                file.sharedWith.splice(index, 1);
+            let index = file.sharedWithPending.indexOf(sharedWithUserEmail);
+            if (index !== -1) { // sharedWithUser exists in sharedWithpending
+                file.sharedWithPending.splice(index, 1);
                 await file.save();
             } else {
-                throw new HTTPError(HttpCodes.BAD_REQUEST, "Specified email doesn't have sharing access to the file");
+                const user = requireNonNull(await User.findOne({ "email": sharedWithUserEmail}).exec(), HttpCodes.NOT_FOUND, "User not found");
+                index = file.sharedWith.indexOf(user._id);
+                if (index !== -1) {
+                    file.sharedWith.splice(index, 1);
+                    await file.save();
+                } else {
+                    throw new HTTPError(HttpCodes.BAD_REQUEST, "Specified email doesn't have sharing access to the file");
+                }
             }
+
+            // remove key from user
+            await EncryptionFileService.removeFileKeyFromUser(currentUser, file);
+
+            // reply
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "Success"
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    // add a sign to the file
+    public static async addSign(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const currentUser = FileController._requireAuthenticatedUser(res);
+            const file = requireNonNull(await File.findById(req.params.fileId).exec(), HttpCodes.NOT_FOUND, "File not found");
+            const user_hash = requireUserHash(req);
+
+
+            FileService.requireFileIsDocument(file);
+            await FileService.requireFileCanBeViewed(currentUser, file);
+
+            // sign the document
+            await FileService.addSign(user_hash, currentUser, file);
 
             res.status(HttpCodes.OK);
             res.json({
@@ -491,6 +649,7 @@ class FileController {
         }
     }
 
+    // set up functions
     private static _requireAuthenticatedUser(res: Response): IUser {
         return requireNonNull(res.locals.APP_JWT_TOKEN.user, HttpCodes.UNAUTHORIZED, "Auth is missing or invalid");
     }
@@ -507,7 +666,6 @@ class FileController {
 
         return requireNonNull(file, HttpCodes.BAD_REQUEST, `File missing (${fieldName})`)
     }
-
 }
 
 export default FileController;

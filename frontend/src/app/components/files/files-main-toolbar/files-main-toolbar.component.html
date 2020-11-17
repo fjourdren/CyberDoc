@@ -2,14 +2,15 @@
     <button *ngIf="!hideMenuButton" mat-icon-button (click)="menuButtonClicked.emit()">
         <mat-icon>menu</mat-icon>
     </button>
-    <div id="app-name-icon-container" *ngIf="!hideAppName">
+    <a id="app-name-icon-container" *ngIf="!hideAppName" [routerLink]="['/files']">
         <img id="app-icon" width="36" height="36" src="/assets/favicon.ico">
         <span>{{'general.appname' | translate}}</span>
-    </div>
+    </a>
     <div id="search-div">
         <mat-form-field floatLabel="never">
-            <input [(ngModel)]="searchInput" (change)="onSearchInputChange($event)" matInput id="search-input"
-                type="text">
+            <mat-icon matPrefix>search</mat-icon>
+            <input [(ngModel)]="searchInput"
+                (change)="onSearchInputChange($event)" matInput id="search-input" type="text">
         </mat-form-field>
         <button (click)="openFilterDialog()" matSuffix mat-icon-button class="search-btn">
             <mat-icon>filter_alt</mat-icon>

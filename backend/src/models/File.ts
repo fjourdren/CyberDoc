@@ -4,6 +4,7 @@ import uniqueValidator from 'mongoose-unique-validator';
 import Guid from 'guid';
 
 import ITag, { Tag } from './Tag';
+import IUserSign, { UserSign } from './UserSign';
 
 
 /**
@@ -11,11 +12,11 @@ import ITag, { Tag } from './Tag';
  */
 export enum FileType {
     DIRECTORY = 0,
-    DOCUMENT  = 1
+    DOCUMENT = 1
 }
 
 export enum ShareMode {
-    READONLY = "readonly",
+    READONLY  = "readonly",
     READWRITE = "readwrite"
 }
 
@@ -63,13 +64,8 @@ export const FileSchema = new mongoose.Schema({
         required: true,
         default: true
     },
-    updated_at: {
-        type   : Date,
-        default: new Date().getTime()
-    },
-    created_at: {
-        type   : Date,
-        default: new Date().getTime()
+    signs: {
+        type: [UserSign.schema]
     },
     shareMode: {
         type: ShareMode,
@@ -78,6 +74,18 @@ export const FileSchema = new mongoose.Schema({
     sharedWith: {
         type: [String],
         default: []
+    },
+    sharedWithPending: {
+        type: [String],
+        default: []
+    },
+    updated_at: {
+        type   : Date,
+        default: new Date().getTime()
+    },
+    created_at: {
+        type   : Date,
+        default: new Date().getTime()
     }
 },
 {
@@ -85,25 +93,24 @@ export const FileSchema = new mongoose.Schema({
 });
 
 
-// DO NOT export this, Type script validation (= Mongoose raw model)
 export interface IFile extends mongoose.Document {
-    _id           : string;
-    type          : FileType;
-    mimetype      : string;
-    name          : string;
-    size        : number;
-    document_id   : string;
-    parent_file_id: string;
-    owner_id      : string;
-    tags          : ITag[];
-    preview       : boolean;
-    updated_at    : string;
-    created_at    : string;
-    shareMode     : ShareMode;
-    sharedWith    : string[];
+    _id              : string;
+    type             : FileType;
+    mimetype         : string;
+    name             : string;
+    size             : number;
+    document_id      : string;
+    parent_file_id   : string;
+    owner_id         : string;
+    tags             : ITag[];
+    preview          : boolean;
+    signs            : IUserSign[];
+    shareMode        : ShareMode;
+    sharedWith       : string[];
+    sharedWithPending: string[];
+    updated_at       : string;
+    created_at       : string;
 }
-
-
 
 
 /**
@@ -111,13 +118,13 @@ export interface IFile extends mongoose.Document {
  */
 FileSchema.plugin(uniqueValidator);
 
-FileSchema.pre<IFile>("update", function(next) {
+FileSchema.pre<IFile>("update", function (next) {
     this.updated_at = new Date().getTime().toString();
     next();
 });
 
 // Hide sensible information before exporting the object
-FileSchema.methods.toJSON = function() {
+FileSchema.methods.toJSON = function () {
     const obj = this.toObject();
     delete obj.__v;
     delete obj.owner_id;

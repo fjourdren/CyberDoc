@@ -1,90 +1,117 @@
-<mat-card style="margin-bottom: 10px;">
-	<mat-card-content>
-		<mat-accordion>
-			<mat-expansion-panel>
-				<mat-expansion-panel-header>
-					<mat-panel-title>
-						Password
-					</mat-panel-title>
-					<mat-panel-description>
-						Set a unique password to protect your personal CyberDoc account.
-					</mat-panel-description>
-				</mat-expansion-panel-header>
-				<form [formGroup]="passwordForm" (ngSubmit)="onSubmitPassword()">
-					<mat-form-field>
-						<label>
-							<input [type]="isTextFieldType ? 'text' : 'password'" matInput formControlName="oldPassword" placeholder="Old password" autocomplete="on">
-						</label>
-					</mat-form-field>
-					<button (click)="toggleOldPasswordFieldType($event)" mat-flat-button item-right>
-						<mat-icon>{{isTextFieldType ? 'visibility_off' : 'visibility'}}</mat-icon>
-					</button>
-					<mat-error *ngIf="checkError('oldPassword', 'required') && passwordForm.get('oldPassword').touched">Old password is required.</mat-error>
-					<mat-form-field>
-						<label>
-							<input [type]="isTextFieldType2 ? 'text' : 'password'" matInput formControlName="newPassword" placeholder="New password" autocomplete="on">
-						</label>
-					</mat-form-field>
-					<button (click)="toggleNewPasswordFieldType($event)" mat-flat-button item-right>
-						<mat-icon>{{isTextFieldType2 ? 'visibility_off' : 'visibility'}}</mat-icon>
-					</button>
-					<mat-error *ngIf="checkError('newPassword', 'required') && passwordForm.get('newPassword').touched">New password is required.</mat-error>
-					<mat-error *ngIf="checkError('newPassword', 'minlength') && passwordForm.get('newPassword').touched">New password must be at least 8 characters long.</mat-error>
-					<mat-error *ngIf="checkError('newPassword', 'pattern') && passwordForm.get('newPassword').touched">New password must have at least 1 uppercase, 1 alphanumeric & 1 symbol.</mat-error>
-					<mat-form-field>
-						<label>
-							<input [type]="isTextFieldType3 ? 'text' : 'password'" matInput formControlName="newPasswordConfirmation" placeholder="Confirm new password" autocomplete="on">
-						</label>
-					</mat-form-field>
-					<button (click)="toggleNewPasswordConfirmFieldType($event)" mat-flat-button item-right>
-						<mat-icon>{{isTextFieldType3 ? 'visibility_off' : 'visibility'}}</mat-icon>
-					</button>
-					<mat-error *ngIf="checkError('newPasswordConfirmation', 'required') && passwordForm.get('newPasswordConfirmation').touched">New password confirmation is required.</mat-error>
-					<mat-error *ngIf="checkError('newPasswordConfirmation', 'minlength') && passwordForm.get('newPasswordConfirmation').touched">New password confirmation must be at least 8 characters long.</mat-error>
-					<mat-error *ngIf="checkError('newPasswordConfirmation', 'pattern') && passwordForm.get('newPasswordConfirmation').touched">New password confirmation must have at least 1 uppercase, 1 alphanumeric & 1 symbol.</mat-error>
-					<mat-error *ngIf="checkError('newPasswordConfirmation', 'mustMatch') && passwordForm.get('newPasswordConfirmation').touched">Must match with new password.</mat-error>
-					<label>
-						<input type="email" hidden formControlName="email">
-					</label>
-					<button mat-flat-button color="primary" type="submit" [disabled]="passwordForm.invalid">Update my password</button>
-				</form>
-			</mat-expansion-panel>
-			<mat-expansion-panel>
-				<mat-expansion-panel-header>
-					<mat-panel-title>
-						Two-Factor Authentication
-					</mat-panel-title>
-					<mat-panel-description>
-						Require a key in addition to your password.
-					</mat-panel-description>
-				</mat-expansion-panel-header>
-				<mat-list>
-					<mat-list-item *ngIf="twoFactorApp">
-						<button mat-flat-button color="success" class="two-factor-status">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
-						<button mat-raised-button color="primary" (click)="disableTwoFactor('app')">Disable 2FA by App</button>
-					</mat-list-item>
-					<mat-list-item *ngIf="!twoFactorApp">
-						<button mat-flat-button color="warn" class="two-factor-status">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
-						<button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('app')">Enable 2FA by App</button>
-					</mat-list-item>
-                    <mat-list-item *ngIf="twoFactorSms">
-						<button mat-flat-button color="success" class="two-factor-status">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
-                        <button mat-raised-button color="primary" (click)="disableTwoFactor('sms')">Disable 2FA sent by SMS</button>
-                    </mat-list-item>
-                    <mat-list-item *ngIf="!twoFactorSms">
-						<button mat-flat-button color="warn" class="two-factor-status">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
-                        <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('sms')">Enable 2FA sent by SMS</button>
-                    </mat-list-item>
-                    <mat-list-item *ngIf="twoFactorEmail">
-						<button mat-flat-button color="success" class="two-factor-status">Enabled <mat-icon aria-hidden="false" aria-label="Enabled">done</mat-icon></button>
-                        <button mat-raised-button color="primary" (click)="disableTwoFactor('email')">Disable 2FA sent by emails</button>
-                    </mat-list-item>
-                    <mat-list-item *ngIf="!twoFactorEmail">
-						<button mat-flat-button color="warn" class="two-factor-status">Disabled <mat-icon aria-hidden="false" aria-label="Disabled">close</mat-icon></button>
-                        <button mat-raised-button color="primary" (click)="openDialogActivateTwoFactor('email')">Enable 2FA sent by emails</button>
-                    </mat-list-item>
-                </mat-list>
-			</mat-expansion-panel>
-		</mat-accordion>
-	</mat-card-content>
+<mat-card>
+    <mat-card-header>
+        <mat-icon mat-card-avatar>lock</mat-icon>
+        <mat-card-title>{{'settings.password_card_title' | translate}}</mat-card-title>
+        <mat-card-subtitle>{{'settings.password_card_subtitle' | translate}}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <form [formGroup]="passwordForm" (ngSubmit)="onSubmitPassword()" id="password-form">
+            <mat-form-field>
+                <input required id="password-form-field" matInput autocomplete="new-password"
+                    [type]="hidePassword2 ? 'password' : 'text'" formControlName="newPassword"
+                    placeholder="{{'settings.new_password' | translate}}">
+                <button type="button" mat-icon-button matSuffix (click)="hidePassword2 = !hidePassword2">
+                    <mat-icon>{{hidePassword2 ? 'visibility_off' : 'visibility'}}</mat-icon>
+                </button>
+                <mat-error *ngIf="checkError('newPassword','required')">
+                    {{ 'general.no_empty' | translate }}
+                </mat-error>
+                <mat-error *ngIf="checkError('newPassword','pattern')">
+                    {{ 'accounts.password_restrictions' | translate }}</mat-error>
+                <mat-hint>{{ 'accounts.password_restrictions' | translate }}</mat-hint>
+            </mat-form-field>
+            <mat-form-field>
+                <input required id="password-confirm-form-field" matInput autocomplete="new-password"
+                    [type]="hidePassword3 ? 'password' : 'text'" formControlName="newPasswordConfirmation"
+                    placeholder="{{'settings.confirm_new_password' | translate}}">
+                <button type="button" mat-icon-button matSuffix (click)="hidePassword3 = !hidePassword3">
+                    <mat-icon>{{hidePassword3 ? 'visibility_off' : 'visibility'}}</mat-icon>
+                </button>
+                <mat-error *ngIf="checkError('newPasswordConfirmation','required')">
+                    {{ 'general.no_empty' | translate }}
+                </mat-error>
+                <mat-error
+                    *ngIf="passwordForm.get('newPassword').value !== passwordForm.get('newPasswordConfirmation').value">
+                    {{ 'accounts.passwords_must_match' | translate }}
+                </mat-error>
+            </mat-form-field>
+        </form>
+        <button mat-flat-button color="primary" type="submit" (click)="onSubmitPassword()"
+            [disabled]="passwordForm.invalid || loading">{{'general.update' | translate}}</button>
+    </mat-card-content>
+</mat-card>
+
+<mat-card>
+    <mat-card-header>
+        <mat-icon mat-card-avatar>lock</mat-icon>
+        <mat-card-title>{{'exportrecoverykey.title' | translate}}</mat-card-title>
+        <mat-card-subtitle>
+            {{'exportrecoverykey.subtitle1' | translate}}
+            <br>
+            <div>
+                {{ 'exportrecoverykey.subtitle2a' | translate }}
+                <b>{{ 'exportrecoverykey.subtitle2b' | translate }}</b>
+            </div>    
+        </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <button [disabled]="loading" mat-raised-button (click)="downloadRecoveryKey()" color="primary">{{ 'exportrecoverykey.download_key' | translate }}</button>
+    </mat-card-content>
+</mat-card>
+
+
+<mat-card>
+    <mat-card-header>
+        <mat-icon mat-card-avatar>devices</mat-icon>
+        <mat-card-title>{{'settings.two_factor_card_title' | translate}}</mat-card-title>
+        <mat-card-subtitle>{{'settings.two_factor_card_subtitle' | translate}}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <app-two-factor-edit></app-two-factor-edit>
+    </mat-card-content>
+</mat-card>
+
+<mat-card>
+    <mat-card-header>
+        <mat-icon mat-card-avatar>get_app</mat-icon>
+        <mat-card-title>{{'settings.export_data.title' | translate}}</mat-card-title>
+        <mat-card-subtitle>{{'settings.export_data.subtitle' | translate}}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <button [disabled]="loading" mat-raised-button (click)="exportData()" color="primary">{{ 'settings.export_data.button' | translate }}</button>
+    </mat-card-content>
+</mat-card>
+
+<mat-card>
+    <mat-card-header>
+        <mat-icon mat-card-avatar>devices</mat-icon>
+        <mat-card-title>{{'settings.user_devices_card_title' | translate}}</mat-card-title>
+        <mat-card-subtitle>{{'settings.user_devices_card_subtitle' | translate}}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <table mat-table [dataSource]="dataSource">
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef> {{'file.name' | translate}} </th>
+                <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+            </ng-container>
+            <ng-container matColumnDef="browser">
+                <th mat-header-cell *matHeaderCellDef> {{'settings.browser' | translate}} </th>
+                <td mat-cell *matCellDef="let element"> {{element.browser}} </td>
+            </ng-container>
+            <ng-container matColumnDef="OS">
+                <th mat-header-cell *matHeaderCellDef> {{'settings.device' | translate}}  </th>
+                <td mat-cell *matCellDef="let element"> {{element.OS}} </td>
+            </ng-container>
+            <ng-container matColumnDef="rename">
+                <th mat-header-cell *matHeaderCellDef> </th>
+                <td class="editbutton-column" mat-cell *matCellDef="let element">
+                    <button [disabled]="loading" mat-icon-button (click)="renameDevice(element.name)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    </mat-card-content>
 </mat-card>

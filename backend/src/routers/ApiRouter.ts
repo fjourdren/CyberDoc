@@ -2,7 +2,7 @@ import express from 'express';
 
 import AuthRouter from './API/AuthRouter';
 import UserRouter from './API/UserRouter';
-import FileRouter from './API/FileRouter';
+import  FileRouter from './API/FileRouter';
 import TwoFactorAuthRouter from './API/TwoFactorAuthRouter';
 
 // main Router

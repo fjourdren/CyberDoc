@@ -1,0 +1,14 @@
+<mat-list id="twoFactorList">
+    <mat-list-item>
+        <div class="twoFactorContent">
+            <p>With an application</p>
+            <mat-slide-toggle [checked]="twoFactorApp" (change)="changeTwoFactorApp($event)"></mat-slide-toggle>
+        </div>
+    </mat-list-item>
+    <mat-list-item>
+        <div class="twoFactorContent">
+            <p>With SMS</p>
+            <mat-slide-toggle [checked]="twoFactorSms" (change)="changeTwoFactorSms($event)"></mat-slide-toggle>
+        </div>
+    </mat-list-item>
+</mat-list>

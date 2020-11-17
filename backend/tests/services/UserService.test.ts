@@ -91,7 +91,7 @@ describe('testing UserService', () => {
             let user_1 = D.requireNonNull(await U.User.findOne({email: mock_user_1.email}).exec());
             
             // update user 1
-            await UserService.updateProfile(user_id, firstname, lastname, email, password, phoneNumber, secret, twoFactorApp, twoFactorSms, twoFactorEmail);
+            await UserService.updateProfile(undefined, undefined, user_id, undefined, firstname, lastname, email, password, phoneNumber, secret, twoFactorApp, twoFactorSms);
 
             // get user 1 after update
             const updated_user_1 = D.requireNonNull(await U.User.findOne({_id: user_1.id}).exec());
@@ -108,7 +108,6 @@ describe('testing UserService', () => {
             expect(updated_user_1.secret).toBe(secret);
             expect(updated_user_1.twoFactorApp).toBe(twoFactorApp);
             expect(updated_user_1.twoFactorSms).toBe(twoFactorSms);
-            expect(updated_user_1.twoFactorEmail).toBe(twoFactorEmail);
             expect(updated_user_1.__v).toBe(0);
 
         });
@@ -128,7 +127,7 @@ describe('testing UserService', () => {
 
             // try to update user 2 with user 1 email
             try{
-                D.requireNonNull(await UserService.updateProfile(user_2._id, undefined, undefined, mock_user_1.email, undefined, undefined, undefined, undefined, undefined, undefined));
+                D.requireNonNull(await UserService.updateProfile(undefined, undefined, user_2._id, undefined, undefined, mock_user_1.email, undefined, undefined, undefined, undefined, undefined, undefined));
             } catch (e) {
                 E = e;
             }
@@ -149,7 +148,7 @@ describe('testing UserService', () => {
             let user_1 = D.requireNonNull(await U.User.findOne({email: mock_user_1.email}).exec());
 
             // delete user 1
-            await UserService.delete(user_1._id);
+            await UserService.delete(user_1, "");
 
             // try to get user 1 
             try{
@@ -166,7 +165,7 @@ describe('testing UserService', () => {
         it('should not find a user to delete', async () => {
             let E: any;
             try{
-                await UserService.delete(mockClass.User._id)
+                await UserService.delete(mockClass.User, "")
             } catch(e) {
                 E = e;
             }

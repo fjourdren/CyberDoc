@@ -4,6 +4,10 @@ table {
     width: 100%;
     user-select: none;
 }
+
+td {
+  word-break: break-word;
+}
   
 .mat-form-field-infix{
   width: auto !important;
@@ -45,7 +49,7 @@ mat-icon {
   font-size: 20px;
 }
 
-#context-menu-div {
+.context-menu-div {
   visibility: hidden;
   position: fixed
 }
@@ -54,4 +58,8 @@ mat-icon {
   margin-top: 48px;
   left: calc(50% - 24px);
   position: absolute;
+}
+
+input {
+  display: none;
 }

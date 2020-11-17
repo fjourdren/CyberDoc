@@ -1,0 +1,42 @@
+html,
+body {
+    height: 100%;
+    user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    color: #B0BEC5;
+    display: table;
+    font-weight: 100;
+    font-family: 'Lato', sans-serif;
+}
+
+.container {
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.content {
+    text-align: center;
+    display: inline-block;
+}
+
+img{
+    width: 40%;
+    height: auto;
+}
+
+.title {
+    color: black;
+    font-weight: 900;
+    font-size: 72px;
+    margin-bottom: 40px;
+}

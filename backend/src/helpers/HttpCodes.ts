@@ -7,6 +7,7 @@ enum HttpCodes {
     PAYMENT_REQUIRED = 402,
     FORBIDDEN        = 403,
     NOT_FOUND        = 404,
+    TOO_MANY_REQUESTS = 429,
     INTERNAL_ERROR   = 500,
     NOT_IMPLEMENTED  = 501
 }

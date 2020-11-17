@@ -1,101 +1,133 @@
-<table mat-table [dataSource]="dataSource" matSort>
+<div style="height: 100%;" (contextmenu)="onContextMenu($event, undefined)" *ngIf="dataSource && dataSource.data.length !== 0">
+    <table mat-table [dataSource]="dataSource" matSort>
 
-    <ng-container matColumnDef="icon">
-        <th mat-header-cell *matHeaderCellDef> </th>
-        <td class="icon-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
-            (dblclick)="onDoubleClick(element)">
-            <mat-icon fontSet="fa" fontIcon="{{getIconForMimetype(element.mimetype)}}"></mat-icon>
-        </td>
-    </ng-container>
+        <ng-container matColumnDef="icon">
+            <th mat-header-cell *matHeaderCellDef> </th>
+            <td class="icon-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
+                (dblclick)="onDoubleClick(element)">
+                <mat-icon fontSet="fa" fontIcon="{{getIconForMimetype(element.mimetype)}}"></mat-icon>
+            </td>
+        </ng-container>
 
-    <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'file.name' | translate }} </th>
-        <td class="name-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
-            (dblclick)="onDoubleClick(element)" (touchstart)="onTouchStart(element)"> {{element.name}} </td>
-    </ng-container>
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'file.name' | translate }} </th>
+            <td class="name-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
+                (dblclick)="onDoubleClick(element)" (touchstart)="onTouchStart(element)"> {{element.name}} </td>
+        </ng-container>
 
-    <ng-container matColumnDef="type">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'file.type' | translate }} </th>
-        <td class="type-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
-            (dblclick)="onDoubleClick(element)" (touchstart)="onTouchStart(element)">
-            {{getFileTypeFromMimetype(element.mimetype) | translate}} </td>
-    </ng-container>
+        <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'file.type' | translate }} </th>
+            <td class="type-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
+                (dblclick)="onDoubleClick(element)" (touchstart)="onTouchStart(element)">
+                {{getFileTypeFromMimetype(element.mimetype) | translate}} </td>
+        </ng-container>
 
-    <ng-container matColumnDef="size">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'file.size' | translate }} </th>
-        <td class="size-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
-            (dblclick)="onDoubleClick(element)" (touchstart)="onTouchStart(element)">
-            {{element.size ? (element.size | filesize) : '—'}} </td>
-    </ng-container>
+        <ng-container matColumnDef="size">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'file.size' | translate }} </th>
+            <td class="size-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
+                (dblclick)="onDoubleClick(element)" (touchstart)="onTouchStart(element)">
+                {{element.size ? (element.size | filesize) : '—'}} </td>
+        </ng-container>
 
-    <ng-container matColumnDef="date">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'file.modified' | translate }} </th>
-        <td class="date-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
-            (dblclick)="onDoubleClick(element)" (touchstart)="onTouchStart(element)">
-            {{element.updated_at ? (element.updated_at | date) : '—'}} </td>
-    </ng-container>
+        <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'file.modified' | translate }} </th>
+            <td class="date-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
+                (dblclick)="onDoubleClick(element)" (touchstart)="onTouchStart(element)">
+                {{element.updated_at ? (element.updated_at | date) : '—'}} </td>
+        </ng-container>
 
-    <ng-container matColumnDef="menubutton">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td class="menubutton-column" mat-cell *matCellDef="let element">
-            <button *ngIf="!restrictions.isContextAndBottomSheetDisabled(element)" mat-icon-button
-                (click)="openBottomSheet(element)">
-                <mat-icon>more_vert</mat-icon>
-            </button>
-        </td>
-    </ng-container>
+        <ng-container matColumnDef="menubutton">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td class="menubutton-column" mat-cell *matCellDef="let element">
+                <button *ngIf="!restrictions.isContextAndBottomSheetDisabled(element)" mat-icon-button
+                    (click)="openBottomSheet(element)">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+            </td>
+        </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr (contextmenu)="onContextMenu($event, row)" class="example-box" mat-row
-        *matRowDef="let row; columns: displayedColumns;"
-        [ngClass]="{'disabled': restrictions.isDisabled(row), 'selected': !isTouchScreen && selectedNode && selectedNode._id === row._id}">
-    </tr>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr (contextmenu)="onContextMenu($event, row)" class="example-box" mat-row
+            *matRowDef="let row; columns: displayedColumns;"
+            [ngClass]="{'disabled': restrictions.isDisabled(row), 'selected': !isTouchScreen && selectedNode && selectedNode._id === row._id}">
+        </tr>
 
-</table>
-
-<div class="mat-title" id="no-items-div" *ngIf="!dataSource || (dataSource && dataSource.data.length === 0)">{{'general.noitems' | translate}}</div>
-
-<div [style.left]="contextMenuPosition.x" [style.top]="contextMenuPosition.y" [matMenuTriggerFor]="contextMenu"
-    id="context-menu-div">
+    </table>
 </div>
 
-<mat-menu #contextMenu="matMenu">
+<div class="mat-title" id="no-items-div" *ngIf="!dataSource || (dataSource && dataSource.data.length === 0)">
+    {{'general.noitems' | translate}}</div>
+
+<div #newContextMenuTrigger="matMenuTrigger" [style.left]="contextMenuPosition.x" [style.top]="contextMenuPosition.y"
+    [matMenuTriggerFor]="newContextMenu" class="context-menu-div">
+</div>
+
+<div #fileContextMenuTrigger="matMenuTrigger" [style.left]="contextMenuPosition.x" [style.top]="contextMenuPosition.y"
+    [matMenuTriggerFor]="fileContextMenu" class="context-menu-div">
+</div>
+
+<mat-menu #newContextMenu="matMenu">
     <ng-template matMenuContent>
+        <button mat-menu-item (click)="uploadFile()">
+            <mat-icon>publish</mat-icon>{{ 'upload.import_file' | translate }}
+        </button>
+        <button mat-menu-item (click)="createFolder()">
+            <mat-icon>create_new_folder</mat-icon>{{ 'upload.new_directory' | translate }}
+        </button>
+    </ng-template>
+</mat-menu>
+<input type="file" #file>
+
+<mat-menu #fileContextMenu="matMenu">
+    <ng-template matMenuContent>
+        <!-- We can open every files -->
         <button mat-menu-item (click)="onContextMenuOrBottomSheetSelection('open')">
             <mat-icon fontSet="fa" fontIcon="fa-external-link-alt"></mat-icon>
             <span>{{ 'fileaction.open' | translate }}</span>
         </button>
-        <button *ngIf="selectedNode && !selectedNode.isDirectory" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('download')">
+        <!-- We can download every files -->
+        <button *ngIf="selectedNode && !selectedNode.isDirectory" mat-menu-item
+            (click)="onContextMenuOrBottomSheetSelection('download')">
             <mat-icon fontSet="fa" fontIcon="fa-file-download"></mat-icon>
             <span>{{ 'fileaction.download' | translate }}</span>
         </button>
-        <button *ngIf="isPDFExportAvailable(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('export')">
+        <!-- We can export PDF when it is available -->
+        <button *ngIf="isPDFExportAvailable(selectedNode)" mat-menu-item
+            (click)="onContextMenuOrBottomSheetSelection('export')">
             <mat-icon fontSet="fa" fontIcon="fa-file-pdf"></mat-icon>
             <span>{{ 'fileaction.export' | translate }}</span>
         </button>
+        <!-- We can't share a directory, a file shared with us neither -->
+        <button *ngIf="!selectedNode.isDirectory && !sharedWithMeMode" mat-menu-item
+            (click)="onContextMenuOrBottomSheetSelection('share')">
+            <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>
+            <span>{{ 'fileaction.share' | translate }}</span>
+        </button>
+        <!-- We can't share a directory, a file shared with us neither -->
         <button *ngIf="showDetailsButton" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('details')">
             <mat-icon fontSet="fa" fontIcon="fa-info-circle"></mat-icon>
             <span>{{ 'fileaction.details' | translate }}</span>
         </button>
-        <button *ngIf="!isReadOnly(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('move')">
+        <!-- We can move every files that are in "My safebox" as an Owner -->
+        <button *ngIf="isOwner() && !sharedWithMeMode" mat-menu-item
+            (click)="onContextMenuOrBottomSheetSelection('move')">
             <mat-icon fontSet="fa" fontIcon="fa-file-export"></mat-icon>
             <span>{{ 'fileaction.move' | translate }}</span>
         </button>
-        <button *ngIf="isCopyAvailable(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('copy')">
+        <!-- We can always copy files as an Owner -->
+        <button *ngIf="isOwner()" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('copy')">
             <mat-icon fontSet="fa" fontIcon="fa-copy"></mat-icon>
             <span>{{ 'fileaction.copy' | translate }}</span>
         </button>
-        <button *ngIf="!isReadOnly(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('rename')">
+        <!-- We can't rename a file shared in "read-only" mode -->
+        <button *ngIf="!sharedWithMeMode" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('rename')">
             <mat-icon fontSet="fa" fontIcon="fa-pen"></mat-icon>
             <span>{{ 'fileaction.rename' | translate }}</span>
         </button>
-        <button *ngIf="!isReadOnly(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('delete')">
+        <!-- We can't delete a file shared with us -->
+        <button *ngIf="!sharedWithMeMode" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('delete')">
             <mat-icon fontSet="fa" fontIcon="fa-trash"></mat-icon>
             <span>{{ 'fileaction.delete' | translate }}</span>
-        </button>
-        <button *ngIf="!isReadOnly(selectedNode) && !selectedNode.isDirectory" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('share')">
-            <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>
-            <span>{{ 'fileaction.share' | translate }}</span>
         </button>
     </ng-template>
 </mat-menu>

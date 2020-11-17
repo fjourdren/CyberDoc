@@ -140,6 +140,59 @@ paths:
         "500":
           description: Internal Error
 
+  /auth/forgottenPassword:               
+    post:
+      tags:
+        - Authentication
+      summary: Forgotten password
+      description: Ask the backend to send an email to the user with a token which will be usable to change user's password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - password
+              type: object
+              properties:
+                password:
+                  type: string
+                  example: Hello123456789@
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - msg
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  msg:
+                    type: string
+                    example: "Valid credentials"
+        "400":
+          description: Body is invalid (all values are required)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "403":
+          description: Bad login/password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+
   /users/profile:
     get:
       security:
@@ -193,13 +246,19 @@ paths:
         content:
           application/json:
             schema:
-              example: 
+              example:
+                user_hash: "qjeoeufjse16ef541sefssejesle"
+                new_user_hash: "1qzqz2qzd34qzd856effese"
                 firstname: "John"
                 lastname: "DOE"
                 email: "email@gmail.com"
                 password: "MyPassword"
               type: object
               properties:
+                user_hash:
+                  type: string
+                new_user_hash:
+                  type: string
                 firstname:
                   type: string
                 lastname:
@@ -295,7 +354,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericSuccessResponse"
         "400":
-          description: Body is invalid (all values are required)
+          description: Body is invalid (all values are required), or another tag with the same name already exists
           content:
             application/json:
               schema:
@@ -352,7 +411,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericSuccessResponse"
         "400":
-          description: Body is invalid (all values are required)
+          description: Body is invalid (all values are required), or another tag with the same name already exists
           content:
             application/json:
               schema:
@@ -416,31 +475,41 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenericErrorResponse"
 
-  /auth/forgottenPassword:               
-    post:
+  "/users/encryptfile":
+    get: 
       tags:
-        - Authentication
-      summary: Forgotten password
-      description: Ask the backend to send an email to the user with a token which will be usable to change user's password
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: "email@gmail.com"
+        - File encryption
+      security:
+        - jwtToken: []  
+      summary: Get user's encryption keys
+      description: Get user's encryption keys (public key not encrypted and private key encrypted)
       responses:
         "200":
-          description: Success / Unknown user
+          description: Success
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GenericSuccessResponse"
-        "400":
-          description: Email is invalid
+                type: object
+                required:
+                  - success
+                  - msg
+                  - public_key
+                  - encrypted_private_key
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  msg:
+                    type: string
+                    example: "Success"
+                  public_key:
+                    type: string
+                    example: "JIjefsueu5f45sefsffiosejfefsefbhtrtf"
+                  encrypted_private_key:
+                    type: string
+                    example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+        "401":
+          description: Not logged in
           content:
             application/json:
               schema:
@@ -451,7 +520,247 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GenericErrorResponse"
-          
+
+    post: 
+      tags:
+        - File encryption
+      security:
+        - jwtToken: []  
+      summary: Change user's encryption keys
+      description: Change user's encryption keys (public key not encrypted and private key encrypted)
+      parameters:
+        - name: tagId
+          in: path
+          description: Tag ID to edit
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - public_key
+                - encrypted_private_key
+              properties:
+                public_key:
+                  example: "JIjefsueu5f45sefsffiosejfefsefbhtrtf"
+                  type: string
+                encrypted_private_key:
+                  example: "sersefsf8qzdf4sesefsuufuheuiuHyu"
+                  type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericSuccessResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+  /users/devices:
+    get:
+      security:
+        - jwtToken: []  
+      tags:
+        - User's devices
+      summary: Get devices
+      description: Get devices
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - msg
+                  - devices
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  msg:
+                    type: string
+                    example: "Success"
+                  devices:
+                    items:
+                      $ref: "#/components/schemas/Devices"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+                
+    post:
+      tags:
+        - User's devices
+      security:
+        - jwtToken: []
+      summary: Create a device
+      description: Create a device
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              example: 
+                name: "Office computer"
+                browser: "Firefox"
+                OS: "Microsoft Windows 10"
+              type: object
+              required:
+                - user_hash
+              properties:
+                name:
+                  type: string
+                browser:
+                  type: string
+                OS:
+                  type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericSuccessResponse"
+        "400":
+          description: Body is invalid (all values are required) or name already used
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+
+  "/users/devices/{name}":
+    patch: 
+      tags:
+        - User's devices
+      security:
+        - jwtToken: []  
+      summary: Modify a device
+      description: Modify a device
+      parameters:
+        - name: name
+          in: path
+          description: Device's name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericSuccessResponse"
+        "400":
+          description: Body is invalid (all values are required) or name already used
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "404":
+          description: Tag not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+
+    delete:
+      tags:
+        - User's devices
+      security:
+        - jwtToken: []  
+      summary: Delete a device
+      description: Delete a device
+      parameters:
+        - name: name
+          in: path
+          description: Device's name
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericSuccessResponse"
+        "401":
+          description: Not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "404":
+          description: Device not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericErrorResponse"
+
+
 components:
   securitySchemes:
     jwtToken:
@@ -532,6 +841,22 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/FileTag"
+
+    Devices:
+      description: Device used by user to access to the service
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: Device's name
+        browser:
+          type: string
+          example: Device's browser
+        OS:
+          type: string
+          example: Device's operating system
 
     GenericSuccessResponse:
       description: Generic error response
