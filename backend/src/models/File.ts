@@ -5,6 +5,7 @@ import Guid from 'guid';
 
 import ITag, { Tag } from './Tag';
 import IUserSign, { UserSign } from './UserSign';
+import ISharedWithPending, { SharedWithPending } from './SharedWithPending';
 
 
 /**
@@ -72,12 +73,10 @@ export const FileSchema = new mongoose.Schema({
         default: ShareMode.READONLY
     },
     sharedWith: {
-        type: [String],
-        default: []
+        type: [String]
     },
     sharedWithPending: {
-        type: [String],
-        default: []
+        type: [SharedWithPending.schema]
     },
     updated_at: {
         type   : Date,
@@ -107,7 +106,7 @@ export interface IFile extends mongoose.Document {
     signs            : IUserSign[];
     shareMode        : ShareMode;
     sharedWith       : string[];
-    sharedWithPending: string[];
+    sharedWithPending: ISharedWithPending[];
     updated_at       : string;
     created_at       : string;
 }

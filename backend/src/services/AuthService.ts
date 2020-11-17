@@ -76,13 +76,19 @@ class AuthService {
             requireNonNull(await newUser.save());
 
             // Check if user has received invitations to collaborate on files
-            const files = await File.find({ sharedWithPending: newUser.email }).exec();
+            const files = await File.find({"sharedWithPending.email": newUser.email }).exec();
             for (const file of files) {
-                await File.update({ _id: file._id }, { $pull: { "sharedWithPending": newUser.email } });
-                console.log('[Debug] ' + newUser.email + ' removed from sharedWithPending (' + file.name + ')')
+                // add user to share user array
                 file.sharedWith.push(newUser._id);
-                await file.save();
-                console.log('[Debug] ' + newUser.email + ' added to sharedWith (' + file.name + ')');
+                requireNonNull(await file.save());
+
+                // get file_aes_key and add it to user
+                const sharedWithPending_index = file.sharedWithPending.map(function(e) { return e.email; }).indexOf(newUser.email);
+                const file_aes_key: string = file.sharedWithPending[sharedWithPending_index].file_aes_key;
+                requireNonNull(await EncryptionFileService.addFileKeyToUser(newUser, file, file_aes_key));
+            
+                // remove new user from sharedWithPending array
+                await File.update({_id: file._id}, { $pull: { "sharedWithPending": { "email": newUser.email }} }).exec();
             }
         } catch (e) {
             const error: Error = e;
