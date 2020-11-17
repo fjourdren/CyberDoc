@@ -293,11 +293,11 @@ export class MockFileSystem implements FileSystem {
     }
 
     sign(fileID: string): Observable<void>{
-        return;
+        return of();
     }
 
     listSignatories(fileID: string): Observable<RespondAnswerSign[]>{
-        return;
+        return of([]);
     }
 
     private _ensureFileExists(fileID: string, onlyDirectory: boolean = null) {
