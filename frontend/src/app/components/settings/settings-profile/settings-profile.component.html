@@ -17,8 +17,7 @@
 			</mat-form-field>
 		</form>
 		<button mat-flat-button color="primary" type="submit" (click)="updateProfile()"
-			[disabled]="profileForm.invalid || loading">{{'general.update' | translate}}</button>
-
+			[disabled]="profileForm.invalid || !(profileForm.controls['firstName'].dirty  || profileForm.controls['lastName'].dirty || profileForm.controls['newEmail'].dirty ) || loading">{{'general.update' | translate}}</button>
 	</mat-card-content>
 </mat-card>
 
@@ -73,11 +72,11 @@
 <mat-accordion>
 	<mat-expansion-panel>
 		<mat-expansion-panel-header>
-			<mat-panel-title>
+			<mat-panel-title id="danger-zone-title">
 				{{'settings.danger_zone' | translate}}
 			</mat-panel-title>
 		</mat-expansion-panel-header>
-		<mat-card>
+		<mat-card id="delete-account-card">
 			<mat-card-header>
 				<mat-icon mat-card-avatar>delete</mat-icon>
 				<mat-card-title>{{'settings.user_delete_card_title' | translate}}</mat-card-title>

@@ -7,17 +7,25 @@
           <b>{{ 'general.appname' | translate }}</b>
         </h1>
 
+        <p *ngIf="this.fileOwnerEmail"><span>{{ this.fileOwnerEmail }}</span> has invited you to join CyberDoc</p>
+
         <mat-card-header>
           <mat-card-title>{{ 'general.register' | translate }}</mat-card-title>
         </mat-card-header>
-
 
         <div class="error-txt" *ngIf="genericError">
           {{ 'general.generic_error' | translate }}
         </div>
 
-        <mat-card-content>
+        <div class="error-txt" *ngIf="emailAlreadyExistsError">
+          {{ 'accounts.email_already_exists' | translate }}
+        </div>
 
+        <div class="error-txt" *ngIf="tooManyRequestsError">
+          {{ 'accounts.too_many_requests' | translate }}
+        </div>
+
+        <mat-card-content>
           <div class="one-line-if-big-screen">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ 'accounts.first_name' | translate }}</mat-label>
@@ -89,7 +97,6 @@
           <br>
           <a routerLink="/login" mat-stroked-button color="primary">{{ 'accounts.already_register' | translate }}</a>
         </div>
-
       </mat-card>
     </form>
   </div>

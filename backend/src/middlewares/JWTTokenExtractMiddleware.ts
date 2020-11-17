@@ -24,6 +24,14 @@ class JWTTokenExtractMiddleware {
                     res.locals.APP_JWT_TOKEN = decoded;
                     res.locals.APP_RAW_JWT_TOKEN = jwtToken;
                 }
+            } else if (req.query && req.query.access_token) {
+                const jwtToken: string = req.query.access_token.toString();
+                const decoded: string[] = AuthService.validateToken(jwtToken);
+
+                if(decoded) {
+                    res.locals.APP_JWT_TOKEN     = decoded;
+                    res.locals.APP_RAW_JWT_TOKEN = jwtToken;
+                }
             }
 
             next();

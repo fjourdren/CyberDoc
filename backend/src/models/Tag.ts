@@ -22,7 +22,7 @@ export const TagSchema = new mongoose.Schema({
         uniqueCaseInsensitive: true,
         trim: true,
         validate: {
-            validator: function(value: string) {
+            validator: function (value: string) {
                 return (/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(value));
             },
             message: () => `Color needs to be a hexadecimal value`
@@ -31,7 +31,6 @@ export const TagSchema = new mongoose.Schema({
 });
 
 
-// DO NOT export this, Type script validation (= Mongoose raw model)
 export interface ITag extends mongoose.Document {
     _id: string;
     name: string;

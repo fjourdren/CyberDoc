@@ -1,0 +1,37 @@
+<div id="root-div">
+    <div id="form-container">
+        <form [formGroup]="tokenForm" novalidate (ngSubmit)="onSubmit()">
+            <mat-card id="card">
+                <h1 id='app-title'>
+                    <img src="/assets/icons/icon-192x192.png" width="100" height="100" alt="CyberDoc Header"/>
+                    <b>{{ 'general.appname' | translate }}</b>
+                </h1>
+
+                <mat-card-header>
+                    <mat-card-title>Two-factor authentication required</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <p *ngIf="twoFactorType === 'app'">Enter token generated on your application</p>
+                    <p *ngIf="twoFactorType === 'sms'">Enter token received on your phone</p>
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Token</mat-label>
+                        <input matInput formControlName="token" required maxlength="6">
+                        <mat-error *ngIf="tokenForm.controls['token'].hasError('required')">
+                            Token is <strong>required. </strong>
+                        </mat-error>
+                    </mat-form-field>
+                    <button *ngIf="twoFactorType === 'sms' && this.user.twoFactorApp"
+                            mat-raised-button color="basic" (click)="dialogTokenByApp()">I got a token with my App
+                    </button>
+                    <button *ngIf="twoFactorType === 'app' && this.user.twoFactorSms"
+                            mat-raised-button color="basic" (click)="sendTokenBySms()">Send me token by SMS
+                    </button>
+                </mat-card-content>
+                <mat-card-actions>
+                    <button [disabled]="loading || !tokenForm.valid" mat-raised-button color="primary" type="submit" class="submit">Validate token</button>
+                    <button [disabled]="loading" routerLink="/logout" mat-stroked-button color="primary">Back to login page</button>
+                </mat-card-actions>
+            </mat-card>
+        </form>
+    </div>
+</div>

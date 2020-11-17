@@ -1,0 +1,38 @@
+@import '../../../../theme.scss';
+
+mat-form-field {
+    width: 100%;
+}
+
+table{
+    width: 100%;
+}
+
+.tagcolor-column {
+    width: 32px;
+  }
+  
+  .editbutton-column, .deletebutton-column{
+    width: 32px;
+  }
+
+  .tag-color-div {
+    width: 20px; height: 20px;
+}
+
+
+mat-card, mat-expansion-panel {
+  margin: 10px;
+}
+
+#add-tag-btn, #delete-account-btn {
+  margin-top: 16px;;
+}
+
+#danger-zone-title {
+  color: $warn;
+}
+
+#delete-account-card {
+  border: 2px $warn solid;
+}

@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 
 import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from "../helpers/HTTPError";
+import AuthService from '../services/AuthService';
+import TwoFactorAuthService from '../services/TwoFactorAuthService';
 
 class AuthMiddleware {
 

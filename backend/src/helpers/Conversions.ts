@@ -17,3 +17,14 @@ export function streamToBuffer(stream: Readable): Promise<Buffer> {
         })
     });
 }
+
+
+export function anyToReadable(input: Buffer | string): Readable {
+    // convert to readable
+    const readable_obj = new Readable();
+    readable_obj.push(input);
+    readable_obj.push(null);
+
+    return readable_obj;
+}
+

@@ -10,4 +10,7 @@ app-files-generic-table, [mat-dialog-content] {
 
 #mat-dialog-title-div {
     align-self: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

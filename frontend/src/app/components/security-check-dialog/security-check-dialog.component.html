@@ -1,0 +1,20 @@
+<h1 mat-dialog-title>{{ 'dialogs.password_verify' | translate }}</h1>
+<div mat-dialog-content>
+    <form [formGroup]="passwordForm" (ngSubmit)="onSubmitPassword()" autocomplete="off">
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'general.password' | translate }}</mat-label>
+            <input autocomplete="current-password" required matInput [type]="hidePassword ? 'password' : 'text'"
+                   formControlName="password">
+            <button type="button" mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
+                <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+            <mat-error *ngIf="passwordForm.controls['password'].hasError('required')">
+                {{ 'general.no_empty' | translate }}
+            </mat-error>
+        </mat-form-field>
+        <div id="button-container">
+            <button mat-flat-button color="primary" type="submit" [disabled]="passwordForm.invalid">{{ 'general.confirm' | translate }}</button>
+            <button mat-button color="warn" matDialogClose>{{ 'general.cancel' | translate }}</button>
+        </div>
+    </form>
+</div>

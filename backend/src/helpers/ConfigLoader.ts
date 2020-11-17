@@ -32,14 +32,14 @@ declare global {
             APP_FRONTEND_URL: string;
             APP_PORT: number;
             JWT_SECRET: string;
-            JWT_ALGORITHM: string;
+            ENCRYPTION_IV: string;
             MONGODB_URL: string;
+            ENABLE_AUTH_API_SLOWDOWN: string;
             SENDGRID_API_KEY: string;
             SENDGRID_MAIL_FROM: string;
             SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD: string;
             SENDGRID_TEMPLATE_SEND_SHARING_CODE: string;
             SENDGRID_TEMPLATE_REQUEST_CREATE_ACCOUNT: string;
-            SENDGRID_TEMPLATE_2FA_TOKEN: string;
             TWILIO_ACCOUNT_SID: string;
             TWILIO_AUTH_TOKEN: string;
             TWILIO_SERVICE_ID: string;

@@ -27,12 +27,9 @@
             "styles": [
               "src/theme.scss",
               "src/styles.scss",
-              "./node_modules/@fortawesome/fontawesome-free/css/all.css",
-              "./node_modules/intl-tel-input/build/css/intlTelInput.css"
+              "./node_modules/@fortawesome/fontawesome-free/css/all.css"
             ],
-            "scripts": [
-              "./node_modules/intl-tel-input/build/js/intlTelInput.min.js"
-            ]
+            "scripts": []
           },
           "configurations": {
             "vps": {
@@ -48,6 +45,14 @@
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.mock.ts"
+                }
+              ]
+            },
+            "lan-broadcast": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.lan-broadcast.ts"
                 }
               ]
             },
@@ -97,6 +102,9 @@
             },
             "mock": {
               "browserTarget": "cyberdoc:build:mock"
+            },
+            "lan-broadcast": {
+              "browserTarget": "cyberdoc:build:lan-broadcast"
             }
           }
         },
@@ -123,7 +131,9 @@
               "src/styles.scss",
               "./node_modules/@fortawesome/fontawesome-free/css/all.css"
             ],
-            "scripts": []
+            "scripts": [
+              "./node_modules/ua-parser-js/dist/ua-parser.min.js"
+            ]
           }
         },
         "lint": {

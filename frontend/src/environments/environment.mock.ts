@@ -4,9 +4,15 @@
 
 export const environment = {
   production: false,
-  useSentry: true,
+  useSentry: false,
   defaultFSProviderName: "mock",
-  defaultUserServiceName: "mock"
+  defaultUserServiceName: "mock",
+  apiBaseURL: "<unused>",
+  authCookieDomain: "<unused>",
+  authCookieName: "access_token",
+  userHashCookieName: "user_hash",
+  userLocalStorageKey: "real_user",
+  recoveryKeyDownloadedLocalStorageKey: "recovery_key_download",
 };
 
 /*

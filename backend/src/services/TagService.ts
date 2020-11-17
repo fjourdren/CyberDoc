@@ -36,7 +36,7 @@ class TagService {
         if(newColor)
             updateString = Object.assign(updateString, { 'tags.$.hexColor': newColor });
 
-        // update mondo data
+        // update mongo data
         await User.updateMany({ _id: user._id, 'tags._id': tag._id }, { '$set': updateString });
         await File.updateMany({ owner_id: user._id, 'tags._id': tag._id }, { '$set': updateString });
     }
@@ -54,7 +54,7 @@ class TagService {
     }
 
     // add a tag to a file
-    public static async addToFile(file: IFile, tag: ITag): Promise<IFile> {
+    public static async addToFile(file: IFile, tag: ITag): Promise<void> {
         const tags: ITag[] = file.tags;
 
         // check that the file doesn't already have the tag
@@ -66,7 +66,7 @@ class TagService {
         file.tags.push(tag);
 
         // update tag list
-        return requireNonNull(await File.update({ _id: file._id }, {$set: {tags: file.tags}}).exec());
+        requireNonNull(await File.update({ _id: file._id }, {$set: {tags: file.tags}}).exec());
     }
 
     // remove a tag from a file

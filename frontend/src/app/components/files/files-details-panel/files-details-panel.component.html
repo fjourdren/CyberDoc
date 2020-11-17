@@ -1,42 +1,56 @@
 <div *ngIf="node">
-  <div class="mat-title">
-    <mat-icon fontSet="fa" fontIcon="{{getIconForMimetype(node.mimetype)}}"></mat-icon>
-    {{node.name}}
-  </div>
+    <div class="mat-title">
+        <mat-icon fontSet="fa" fontIcon="{{getIconForMimetype(node.mimetype)}}"></mat-icon>
+        {{node.name}}
+    </div>
 
-  <div *ngIf="node && node.preview" id="filepreview">
-    <img [src]="getFilePreviewImageURL()">
-  </div>
-  <mat-slide-toggle *ngIf="!node.isDirectory" (change)="onPreviewToogleChange($event)" [checked]="node.preview" >{{ 'file.preview' | translate }}</mat-slide-toggle>
+    <div *ngIf="node && isPreviewAvailable(node) && node.preview" id="filepreview">
+        <img [ngStyle]="{'display': previewLoaded ? 'initial': 'none'}" (error)="previewError = true" (load)="previewLoaded = true" [src]="getFilePreviewImageURL()">
 
-  <table id="details-table">
-    <tr *ngIf="!node.isDirectory">
-      <td class="mat-body-strong">{{ 'file.modified' | translate }}</td>
-      <td>{{node.updated_at | date}}&nbsp;&nbsp;</td>
-    </tr>
-    <tr>
-      <td class="mat-body-strong">{{ 'file.owner' | translate }}</td>
-      <td>{{node.ownerName}}&nbsp;&nbsp;</td>
-    </tr>
-    <tr *ngIf="!node.isDirectory">
-      <td class="mat-body-strong">{{ 'file.size' | translate }}</td>
-      <td>{{node.size | filesize}}&nbsp;&nbsp;</td>
-    </tr>
-    <tr>
-      <td class="mat-body-strong">{{ 'file.type' | translate }}</td>
-      <td [title]="node.mimetype">{{getFileTypeFromMimetype(node.mimetype) | translate }}&nbsp;&nbsp;</td>
-    </tr>
-  </table>
+        <div id="filepreview-loading" *ngIf="!previewLoaded && !previewError">
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+            <div>{{ 'file.loading_preview' | translate }}</div>    
+        </div>    
 
-  <mat-divider></mat-divider>
-  <div id="title-div" class="mat-h3">
-    <span id="title-span">{{'tags.tags' | translate}}</span>
-    <button id="add-tag-btn" mat-stroked-button mat-button (click)="createNewTag()">
-      {{'tags.create_new_tag' | translate}}
-    </button>
-  </div>
+        <div id="filepreview-loading" *ngIf="!previewLoaded && previewError">
+            <div>{{ 'file.error_loading_preview' | translate }}</div>    
+        </div>    
 
-  <app-files-tags-input [allTags]="allTags" [selectedTags]="nodeTags" (tagAdded)="onTagAdded($event)" (tagRemoved)="onTagRemoved($event)"></app-files-tags-input>
+    </div>
+
+    <mat-slide-toggle *ngIf="node && isPreviewAvailable(node)" (change)="onPreviewToggleChange($event)"
+                      [checked]="node.preview">{{ 'file.preview' | translate }}</mat-slide-toggle>
+
+    <table id="details-table">
+        <tr *ngIf="!node.isDirectory">
+            <td class="mat-body-strong">{{ 'file.modified' | translate }}</td>
+            <td>{{node.updated_at | date}}&nbsp;&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="mat-body-strong">{{ 'file.owner' | translate }}</td>
+            <td>{{node.ownerName}}&nbsp;&nbsp;</td>
+        </tr>
+        <tr *ngIf="!node.isDirectory">
+            <td class="mat-body-strong">{{ 'file.size' | translate }}</td>
+            <td>{{node.size | filesize}}&nbsp;&nbsp;</td>
+        </tr>
+        <tr>
+            <td class="mat-body-strong">{{ 'file.type' | translate }}</td>
+            <td [title]="node.mimetype">{{getFileTypeFromMimetype(node.mimetype) | translate }}&nbsp;&nbsp;</td>
+        </tr>
+    </table>
+
+    <mat-divider></mat-divider>
+    <div id="title-div" class="mat-h3" *ngIf="!sharedWithMeMode">
+        <span id="title-span">{{'tags.tags' | translate}}</span>
+        <button id="add-tag-btn" mat-stroked-button mat-button (click)="createNewTag()">
+            {{'tags.create_new_tag' | translate}}
+        </button>
+    </div>
+
+    <app-files-tags-input [allTags]="allTags" [selectedTags]="nodeTags" (tagAdded)="onTagAdded($event)"
+                          (tagRemoved)="onTagRemoved($event)" (newTagCreated)="createNewTag($event)" *ngIf="!sharedWithMeMode">
+    </app-files-tags-input>
 
 </div>
 

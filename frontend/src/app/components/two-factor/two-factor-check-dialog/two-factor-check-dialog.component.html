@@ -1,0 +1,24 @@
+<h1 mat-dialog-title>{{ 'dialogs.two_factor_auth_required' | translate }}</h1>
+<div mat-dialog-content>
+    <form [formGroup]="twoFactorForm" novalidate (ngSubmit)="onSubmit()">
+        <mat-card-content>
+            <p *ngIf="twoFactorType === 'app'">{{ 'twofactor.enter_token_app' | translate }}</p>
+            <p *ngIf="twoFactorType === 'sms'">{{ 'twofactor.enter_token_sms' | translate }}</p>
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Token</mat-label>
+                <input matInput formControlName="token" required maxlength="6">
+                <mat-error *ngIf="twoFactorForm.controls['token'].hasError('required')">
+                    Token is <strong>required. </strong>
+                </mat-error>
+            </mat-form-field>
+            <button *ngIf="twoFactorType === 'app' && this.user.twoFactorSms"
+                    mat-raised-button color="basic" (click)="sendTokenBySms()">{{ 'twofactor.send_code_by_sms' | translate }}
+            </button>
+        </mat-card-content>
+
+        <div id="button-container">
+            <button mat-raised-button color="primary" type="submit" class="submit" [disabled]="loading || twoFactorForm.invalid">{{ 'general.confirm' | translate }}</button>
+            <button mat-button color="warn" matDialogClose>{{ 'general.cancel' | translate }}</button>
+        </div>
+    </form>
+</div>

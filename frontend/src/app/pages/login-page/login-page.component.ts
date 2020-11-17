@@ -1,9 +1,9 @@
 import {Component} from '@angular/core';
 import {FormBuilder, Validators} from '@angular/forms';
-import {UserServiceProvider} from '../../services/users/user-service-provider'
+import {UserServiceProvider} from '../../services/users/user-service-provider';
 import {HttpErrorResponse} from '@angular/common/http';
 import {Router} from '@angular/router';
-import {JwtHelperService} from "@auth0/angular-jwt";
+import {JwtHelperService} from '@auth0/angular-jwt';
 
 @Component({
     selector: 'app-login-page',
@@ -43,13 +43,14 @@ export class LoginPageComponent {
             .toPromise().then(token => {
             this.loading = false;
             if (!(this._jwtHelper.decodeToken(token).user).twoFactorApp
-                && !(this._jwtHelper.decodeToken(token).user).twoFactorSms
-                && !(this._jwtHelper.decodeToken(token).user).twoFactorEmail) {
+                && !(this._jwtHelper.decodeToken(token).user).twoFactorSms) {
                 // If no 2FA option is defined, force user to turn it on
                 this.router.navigate(['/two-factor-register']);
+               
             } else {
                 // Else, verify it is the user
                 this.router.navigate(['/two-factor']);
+                
             }
         }, error => {
             this.loading = false;

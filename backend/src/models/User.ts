@@ -6,6 +6,9 @@ import validator from 'validator';
 import Guid from 'guid';
 
 import ITag, { Tag } from './Tag';
+import IDevice, { Device } from './Device';
+import IUserEncryptionKeys, { UserEncryptionKeys } from './UserEncryptionKeys';
+import IFileEncryptionKeys, { FileEncryptionKeys } from './FileEncryptionKeys';
 
 
 /**
@@ -71,11 +74,7 @@ export const UserSchema = new mongoose.Schema({
     },
     phoneNumber: {
         type: String,
-        trim: true,
-        validate: {
-            validator: (value: string) => validator.isMobilePhone(value, undefined, { strictMode: true }),
-            message: '{VALUE} is not a valid phone number'
-        }
+        trim: true
     },
     secret: {
         type: String,
@@ -93,10 +92,6 @@ export const UserSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
-    twoFactorEmail: {
-        type: Boolean,
-        required: true
-    },
     role: {
         type: String,
         enum: Object.values(Role),
@@ -105,6 +100,17 @@ export const UserSchema = new mongoose.Schema({
     tags: {
         type: [Tag.schema]
     },
+    devices: {
+        type: [Device.schema],
+        default: []
+    },
+    // file encryption data
+    userKeys: {
+        type: UserEncryptionKeys.schema
+    },
+    filesKeys: {
+        type: [FileEncryptionKeys.schema]
+    },
     updated_at: {
         type: Date,
         default: new Date().getTime()
@@ -112,14 +118,14 @@ export const UserSchema = new mongoose.Schema({
     created_at: {
         type: Date,
         default: new Date().getTime()
-    }
+    },
 },
     {
         collection: 'User',
     });
 
 
-// DO NOT export this, Type script validation (= Mongoose raw model)
+
 export interface IUser extends mongoose.Document {
     _id: string;
     directory_id: string;
@@ -127,13 +133,15 @@ export interface IUser extends mongoose.Document {
     lastname: string;
     email: string;
     password: string;
-    phoneNumber: string;
-    secret: string;
+    phoneNumber: string | undefined;
+    secret: string | undefined;
     twoFactorApp: boolean;
     twoFactorSms: boolean;
-    twoFactorEmail: boolean;
     role: Role;
     tags: ITag[];
+    devices: IDevice[];
+    userKeys: IUserEncryptionKeys,
+    filesKeys: IFileEncryptionKeys[],
     updated_at: string;
     created_at: string;
 }
@@ -146,6 +154,7 @@ UserSchema.plugin(uniqueValidator);
 
 UserSchema.pre<IUser>("save", function (next: mongoose.HookNextFunction): void {
     this.updated_at = new Date().getTime().toString();
+    this.email = this.email.toLowerCase();
 
     if (this.isModified('password')) {
         const salt = bcrypt.genSaltSync(10);
@@ -157,14 +166,23 @@ UserSchema.pre<IUser>("save", function (next: mongoose.HookNextFunction): void {
 
 UserSchema.pre<IUser>("update", function (next: mongoose.HookNextFunction): void {
     this.updated_at = new Date().getTime().toString();
+    if (this.email) this.email = this.email.toLowerCase();
     next();
 });
 
 // Hide sensible information before exporting the object
 UserSchema.methods.toJSON = function () {
     const obj = this.toObject();
+
+    // delete unneeded value
     delete obj.__v;
+
+    // delete user's private information
     delete obj.password;
+    delete obj.userKeys;
+    delete obj.filesKeys;
+
+    delete obj.secret;
     return obj;
 }
 

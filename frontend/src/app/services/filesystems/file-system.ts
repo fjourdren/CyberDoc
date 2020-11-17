@@ -18,12 +18,15 @@ export interface FileSystem {
     rename(node: CloudNode, newName: string): Observable<void>;
     delete(node: CloudNode): Observable<void>;
     setPreviewEnabled(file: CloudFile, enabled: boolean): Observable<void>;
+    setShareMode(file: CloudFile, shareMode: string): Observable<void>;
 
-    share(fileID: string, email: String): Observable<void>;
+    share(fileID: string, email: string): Observable<void>;
     // MOCK : share(fileID: string, email: String): Observable<RespondShare>;
-    getShareWith(fileID: String): Observable<RespondShare[]>;
-    deleteShare(fileID: string, email: String): Observable<void>;
-  
+    getSharedWith(fileID: string): Observable<RespondShare[]>;
+    getSharedFiles(): Observable<CloudDirectory>;
+    getSharedWithPending(fileID: string): Observable<string[]>;
+    deleteShare(fileID: string, email: string): Observable<void>;
+
     addTag(node: CloudNode, tag: FileTag): Observable<void>;
     removeTag(node: CloudNode, tag: FileTag): Observable<void>;
 

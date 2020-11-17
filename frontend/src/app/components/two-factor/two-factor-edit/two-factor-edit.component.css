@@ -1,0 +1,16 @@
+#twoFactorList {
+    display: flex;
+    flex-direction: column;
+}
+
+.twoFactorContent {
+    width: 100%;
+    align-content: flex-start;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+mat-slide-toggle {
+    margin-left: 10px;
+}
