@@ -43,6 +43,18 @@ export interface RespondShare {
   email: string;
 }
 
+export interface RespondSign {
+  name: string;
+  email: string;
+  date: string;
+}
+
+export interface RespondAnswerSign {
+  user_email: string;
+  created_at: string;
+  diggest: string;
+}
+
 export const NO_TYPE_FILTER = FileType.Unknown;
 export const NO_DATEDIFF_DEFAULT = -1;
 export const VALID_DATEDIFF_VALUES = [-1, 0, 1, 7, 30, 60, 90, 365];

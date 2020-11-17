@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { CloudDirectory, CloudFile, CloudNode, FileTag, RespondShare, SearchParams } from 'src/app/models/files-api-models';
+import { CloudDirectory, CloudFile, CloudNode, FileTag, RespondAnswerSign, RespondShare, RespondSign, SearchParams } from 'src/app/models/files-api-models';
 
 export interface Upload {
     filename: string;
@@ -24,9 +24,12 @@ export interface FileSystem {
     // MOCK : share(fileID: string, email: String): Observable<RespondShare>;
     getSharedWith(fileID: string): Observable<RespondShare[]>;
     getSharedFiles(): Observable<CloudDirectory>;
-    getSharedWithPending(fileID: string): Observable<string[]>;
-    deleteShare(fileID: string, email: string): Observable<void>;
+    getSharedWithPending(fileID: String): Observable<string[]>;
+    deleteShare(fileID: string, email: String): Observable<void>;
 
+    sign(fileID: string): Observable<void>;
+    listSignatories(fileID: string): Observable<RespondAnswerSign[]>;
+  
     addTag(node: CloudNode, tag: FileTag): Observable<void>;
     removeTag(node: CloudNode, tag: FileTag): Observable<void>;
 

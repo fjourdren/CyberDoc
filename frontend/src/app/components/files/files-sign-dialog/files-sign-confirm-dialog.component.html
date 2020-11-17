@@ -1,0 +1,14 @@
+<h1 mat-dialog-title>
+    {{'fileaction.sign' | translate}}
+</h1>
+
+<div mat-dialog-content>
+    {{ 'sign.signAreYouSure' | translate }}
+</div>
+
+<div mat-dialog-actions align="end">
+    <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+    <button [disabled]="loading" mat-button (click)="onCancelBtnClicked()">{{'general.cancel' | translate}}</button>
+    <button [disabled]="loading" mat-raised-button color="warn"
+        (click)="onSignBtnClicked()">{{'fileaction.sign' | translate}}</button>
+</div>

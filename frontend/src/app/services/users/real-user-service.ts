@@ -53,14 +53,12 @@ export class RealUserService implements UserService {
             //UserHash Cookie
             const hash = new SHA3(512); //FIXME constant keySize
             hash.update(user.email + password);
-
             this.cookieService.set(
                 environment.userHashCookieName,
                 hash.digest('hex').substring(0, 32),
                 this._jwtHelper.getTokenExpirationDate(response.token),
                 '/',
                 environment.authCookieDomain);
-
             this._setUser(this._jwtHelper.decodeToken(response.token).user);
             return response;
         }));
@@ -180,7 +178,6 @@ export class RealUserService implements UserService {
             //UserHash Cookie
             const hash = new SHA3(512); //FIXME constant keySize
             hash.update(email + password);
-
             this.cookieService.set(
                 environment.userHashCookieName,
                 hash.digest('hex').substring(0, 32),

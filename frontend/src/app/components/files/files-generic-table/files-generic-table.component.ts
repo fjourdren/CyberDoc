@@ -25,8 +25,9 @@ import { UserServiceProvider } from 'src/app/services/users/user-service-provide
 import { FilesShareMenuDialogComponent } from '../files-share-menu-dialog/files-share-menu-dialog.component';
 import { isDirectory } from "@angular-devkit/build-angular/src/angular-cli-files/utilities/is-directory";
 import { FilesNewFolderDialogComponent } from '../files-new-folder-dialog/files-new-folder-dialog.component';
+import {FilesSignDialogComponent} from '../files-sign-dialog/files-sign-dialog.component'
 
-export type FileAction = 'open' | 'download' | 'export' | 'rename' | 'copy' | 'delete' | 'move' | 'details' | 'share';
+export type FileAction = 'open' | 'download' | 'export' | 'rename' | 'copy' | 'delete' | 'move' | 'details' | 'share' | 'sign';
 
 @Component({
     selector: 'app-files-generic-table',
@@ -315,6 +316,10 @@ export class FilesGenericTableComponent implements AfterViewInit {
                 this.shareNode(this.selectedNode);
                 break;
             }
+            case 'sign': {
+                this.signNode(this.selectedNode);
+                break;
+            }
         }
     }
 
@@ -361,6 +366,14 @@ export class FilesGenericTableComponent implements AfterViewInit {
     shareNode(node: CloudNode) {
         this.dialog.open(FilesShareMenuDialogComponent, {
             width: '400px',
+            height: '400px',
+            data: node
+        });
+    }
+
+    signNode(node: CloudNode){
+        this.dialog.open(FilesSignDialogComponent, {
+            width: '500px',
             height: '400px',
             data: node
         });

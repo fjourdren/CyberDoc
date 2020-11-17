@@ -92,6 +92,7 @@ import {TwoFactorEditDialogComponent} from './components/two-factor/two-factor-e
 import { TwoFactorEditComponent } from './components/two-factor/two-factor-edit/two-factor-edit.component';
 import { DevicePageComponent } from './pages/device-page/device-page.component';
 import { SettingsRenameDeviceDialogComponent } from './components/settings/settings-rename-device-dialog/settings-rename-device-dialog.component';
+import { FilesSignDialogComponent, FilesSignConfirmDialogComponent } from './components/files/files-sign-dialog/files-sign-dialog.component';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
 
 // AoT requires an exported function for factories
@@ -181,6 +182,8 @@ if (environment.useSentry) {
         TwoFactorEditComponent,
         DevicePageComponent,
         SettingsRenameDeviceDialogComponent,
+        FilesSignDialogComponent,
+        FilesSignConfirmDialogComponent,
         ExportRecoveryKeyPageComponent,
     ],
     imports: [

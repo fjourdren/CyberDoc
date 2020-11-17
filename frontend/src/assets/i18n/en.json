@@ -40,7 +40,8 @@
         "create": "Create",
         "share": "Share",
         "export": "PDF export",
-        "delete_confirm": "Are you sure you want to delete '{{name}}' ?"
+        "delete_confirm": "Are you sure you want to delete '{{name}}' ?",
+        "sign": "Sign document"
     },
     "file": {
         "preview": "Preview",
@@ -160,6 +161,14 @@
         "already_exists": "This name already exists",
         "please_give_name": "Please give it a name",
         "rename": "Rename device"
+    },
+    "sign": {
+        "sign": "Sign document",
+        "signwith": "Sign this file",
+        "signBy": "This file was signed by",
+        "noSign": "Nobody has sign this file yet",
+        "signAreYouSure": "Are you sure you want to sign ? You won't be able to modifiy the file afterward.",
+        "error": "You have already signed this file."
     },
     "general": {
         "generic_error": "Error. Please wait some time then retry",
