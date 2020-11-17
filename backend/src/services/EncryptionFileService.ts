@@ -54,7 +54,7 @@ class EncryptionFileService {
         const fromDb: IUser = requireNonNull(await User.findOne({'_id': user._id}).exec());
 
         // search the good key in the user's keys array
-        let user_file_key_object: IFileEncryptionKeys | undefined;
+        let user_file_key_object: IFileEncryptionKeys | undefined = undefined;
         for await (let inTest of fromDb.filesKeys) {
             if(file._id == inTest.file_id) {
                 user_file_key_object = inTest;
@@ -110,7 +110,7 @@ class EncryptionFileService {
      * Manage sharing by getting file's AES and encrypt it with user's public RSA key 
      **/
     // Share a file with a new user
-    public static async addFileKeyToUser(user: IUser, file: IFile, file_aes_key: string) {
+    public static async addFileKeyToUser(user: IUser, file: IFile, file_aes_key: string): Promise<IUser> {
         // encrypt file's AES with user's public key
         const user_public_key: NodeRSA = await EncryptionFileService.getPublicKey(user.email);
 

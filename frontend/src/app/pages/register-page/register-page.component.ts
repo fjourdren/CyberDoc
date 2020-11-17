@@ -55,7 +55,7 @@ export class RegisterPageComponent {
         // Manage registering after file sharing
         this.route.queryParams.subscribe(params => {
             if(params['data']) {
-                const cut: string[] = params['data'].split("-");
+                const cut: string[] = params['data'].split(";");
 
                 this.email = cut[0];
                 this.fileOwnerEmail = cut[1];
