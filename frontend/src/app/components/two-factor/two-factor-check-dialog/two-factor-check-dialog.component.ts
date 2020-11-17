@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, HostListener} from '@angular/core';
 import {FormBuilder, Validators} from '@angular/forms';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {TwoFactorServiceProvider} from '../../../services/twofactor/twofactor-service-provider';
@@ -32,6 +32,17 @@ export class TwoFactorCheckDialogComponent {
         } else if (this.user.twoFactorSms) {
             this.sendTokenBySms();
         }
+    }
+
+    @HostListener('keydown', ['$event'])
+    onKeyDown(evt: KeyboardEvent): void {
+        if (evt.key === 'Escape') {
+            this.onCancel();
+        }
+    }
+
+    onCancel(): void {
+        this.twoFactorDialog.close();
     }
 
     onSubmit(): void {

@@ -39,13 +39,15 @@ export class SecurityCheckDialogComponent implements OnInit {
                     this.dialog.open(TwoFactorCheckDialogComponent, {
                         maxWidth: '500px'
                     }).afterClosed().subscribe(twoFactorTypeAndToken => {
-                        const twoFactorTypeAndTokenArray = twoFactorTypeAndToken.split('\t');
-                        if (twoFactorTypeAndTokenArray[0]
-                            && (twoFactorTypeAndTokenArray[0] === 'app' || twoFactorTypeAndTokenArray[0] === 'sms')) {
-                            xAuthTokenArray.push(twoFactorTypeAndTokenArray[0]);
-                        }
-                        if (twoFactorTypeAndTokenArray[1] && twoFactorTypeAndTokenArray[1].length === 6) {
-                            xAuthTokenArray.push(twoFactorTypeAndTokenArray[1]);
+                        if (twoFactorTypeAndToken !== undefined) {
+                            const twoFactorTypeAndTokenArray = twoFactorTypeAndToken.split('\t');
+                            if (twoFactorTypeAndTokenArray[0]
+                                && (twoFactorTypeAndTokenArray[0] === 'app' || twoFactorTypeAndTokenArray[0] === 'sms')) {
+                                xAuthTokenArray.push(twoFactorTypeAndTokenArray[0]);
+                            }
+                            if (twoFactorTypeAndTokenArray[1] && twoFactorTypeAndTokenArray[1].length === 6) {
+                                xAuthTokenArray.push(twoFactorTypeAndTokenArray[1]);
+                            }
                         }
                         this.verifyPasswordDialog.close(xAuthTokenArray);
                     });
