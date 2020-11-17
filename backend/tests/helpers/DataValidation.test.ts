@@ -1,8 +1,8 @@
 import { requireNonNull, requireIsNull } from "../../src/helpers/DataValidation";
 
-describe('Testing DataValidation functions', () => {
+describe('testing DataValidation functions', () => {
 
-    describe('Testing function requireNonNull', () => {
+    describe('testing function requireNonNull', () => {
     
         it("should return values", () => {
             let value_1 = {};
@@ -43,7 +43,7 @@ describe('Testing DataValidation functions', () => {
     
     });
 
-    describe("Testing function requireIsNull", () => {
+    describe("testing function requireIsNull", () => {
 
         it("should return null", () => {
             let value_1 = null;
