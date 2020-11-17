@@ -3,13 +3,14 @@ import { Component, HostListener, Inject, NgZone } from '@angular/core';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
-import { CloudFile, RespondSign } from 'src/app/models/files-api-models';
+import { element } from 'protractor';
+import { CloudFile, RespondSign, RespondAnswerSign } from 'src/app/models/files-api-models';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 
-const response: RespondSign[] = [
-  {name: "Alexis LE GAL", email:"alegal@enssat.fr", date:"13/11/2020"},
-  {name: "Clément FORGEARD", email:"cforgeard@enssat.fr", date:"15/11/2020"}
+const response: RespondAnswerSign[] = [
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""}
 ]
 
 @Component({
@@ -21,7 +22,9 @@ export class FilesSignDialogComponent {
   
 
   loading = false;
-  displayedColumns: string[] = ['name', 'email', 'date'];
+  hasAlreadySign = false;
+  isEmpty = false;
+  displayedColumns: string[] = ['user_email', 'created_at'];
   dataSource = new MatTableDataSource([]);
   constructor(public dialogRef: MatDialogRef<FilesSignDialogComponent>,
     private dialog: MatDialog,
@@ -36,15 +39,22 @@ export class FilesSignDialogComponent {
   }
 
   update() {
-    //TO REMOVE ONCE LISTSIGNATORIES READY
-    
-
     //TO TEST ONCE LISTSIGNATORIES READY
     this.fsProvider.default().listSignatories(this.file._id).toPromise().then(values=>{
       this.dataSource.data = values;
+      if(values.length === 0){
+        this.isEmpty = true;
+      }
+      values.forEach(element=>{
+        if(element.user_email===this.userServiceProvider.default().getActiveUser().email){
+          this.hasAlreadySign = true;
+        }
+      })
     }).catch(err => {
       this.dataSource.data = response;
   });
+  
+  
   }
 
   @HostListener("keydown", ['$event'])

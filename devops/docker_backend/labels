@@ -1,0 +1,10 @@
+traefik.enable=true
+traefik.http.routers.backendrouter.rule=Host(`api.cyberdoc.fulgen.fr`)
+traefik.http.routers.backendrouter.tls=true
+traefik.http.routers.backendrouter.tls.certresolver=myresolver
+traefik.http.services.backendservice.loadbalancer.server.port=3000
+traefik.http.middlewares.backendratelimit.ratelimit.average=100
+traefik.http.middlewares.backendratelimit.ratelimit.burst=30
+traefik.http.middlewares.backendratelimit.ratelimit.period=1m
+traefik.http.middlewares.backendratelimit.ratelimit.sourcecriterion.requesthost=true
+traefik.http.routers.backendrouter.middlewares=backendratelimit@docker

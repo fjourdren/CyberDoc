@@ -44,7 +44,7 @@ class AuthService {
 
         const user_keys: IUserEncryptionKeys = new UserEncryptionKeys();
         user_keys.public_key = public_key;
-        user_keys.encrypted_private_key = JSON.stringify(CryptoHelper.encryptAES(user_hash, private_key));
+        user_keys.encrypted_private_key = CryptoHelper.encryptAES(user_hash, private_key);
 
         newUser.userKeys = user_keys;
 
@@ -118,7 +118,10 @@ class AuthService {
         const url: string = process.env.APP_FRONTEND_URL + "/passwordReset?token=" + token;
 
         //await Mailer.sendTextEmail(email, process.env.SENDGRID_MAIL_FROM, "hello", "hello", "hello");
-        await Mailer.sendTemplateEmail(email, process.env.SENDGRID_MAIL_FROM, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, {url: url});
+        await Mailer.sendTemplateEmail(email, {
+            email: process.env.SENDGRID_MAIL_FROM,
+            name: process.env.SENDGRID_MAIL_FROM_NAME
+        }, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, {url: url});
     }
 
     // validate that the token is correct

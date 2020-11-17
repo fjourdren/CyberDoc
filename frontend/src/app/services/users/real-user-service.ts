@@ -51,14 +51,12 @@ export class RealUserService implements UserService {
             //UserHash Cookie
             const hash = new SHA3(512); //FIXME constant keySize
             hash.update(user.email + password);
-                
             this.cookieService.set(
                 environment.userHashCookieName,
                 hash.digest('hex').substring(0, 32),
                 this._jwtHelper.getTokenExpirationDate(response.token),
                 '/',
                 environment.authCookieDomain);
-        
             this._setUser(this._jwtHelper.decodeToken(response.token).user);
             return response;
         }));
@@ -184,7 +182,6 @@ export class RealUserService implements UserService {
             //UserHash Cookie
             const hash = new SHA3(512); //FIXME constant keySize
             hash.update(email + password);
-                
             this.cookieService.set(
                 environment.userHashCookieName,
                 hash.digest('hex').substring(0, 32),
@@ -213,7 +210,6 @@ export class RealUserService implements UserService {
     }
 
     resetPassword(resetPasswordJWTToken: string, email: string, password: any): Observable<void> {
-        console.warn("Authorization", `Bearer ${resetPasswordJWTToken}`);
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
             "email": email,
             "password": password
@@ -223,6 +219,8 @@ export class RealUserService implements UserService {
             },
             withCredentials: true
         }).pipe(map(response => {
+            this.cookieService.delete(environment.authCookieName);
+            this.cookieService.delete(environment.userHashCookieName);
         }));
     }
 
@@ -263,6 +261,27 @@ export class RealUserService implements UserService {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/devices`, { name, browser, OS }, { withCredentials: true }).pipe(map(response => { }));
     }
 
+    exportRecoveryKey(): Observable<string> {
+        return this.httpClient.get(`${environment.apiBaseURL}/users/keys`, { responseType: "text", withCredentials: true });
+    }
+
+    importRecoveryKey(email: string, password: string, file: File, resetPasswordJWTToken: string): Observable<void> {
+        const hash = new SHA3(512); //FIXME constant keySize
+        hash.update(email + password);
+
+        const formData = new FormData();
+        formData.set("upfile", file);
+        formData.set("user_hash", hash.digest('hex').substring(0, 32));
+        return this.httpClient.post(`${environment.apiBaseURL}/users/keys`, formData, {
+            headers: {
+                "Authorization": `Bearer ${resetPasswordJWTToken}`,
+            },
+            withCredentials: true
+        }).pipe(map(() => {
+            this.cookieService.delete(environment.authCookieName);
+            this.cookieService.delete(environment.userHashCookieName);
+        }));
+    }
 
     private _setUser(user: User) {
         localStorage.setItem(environment.userLocalStorageKey, JSON.stringify(user));

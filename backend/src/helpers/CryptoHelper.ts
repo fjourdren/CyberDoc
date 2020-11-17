@@ -5,7 +5,6 @@ import NodeRSA from 'node-rsa';
 
 const DEFAULT_KEY_LENGTH: 512 | 224 | 256 | 384 = 512;
 const AES_DEFAULT_KEY_LENGTH: 16 | 24 | 32 = 16;
-const iv = "fba684d2a09989b2";
 
 class CryptoHelper {
     // cut the AES_DEFAULT_KEY_LENGTH first chars of an user_hash
@@ -61,7 +60,7 @@ class CryptoHelper {
         const algorithm = 'aes-256-ctr';
 
         // create cipher
-        const cipher = crypto.createCipheriv(algorithm, encryption_key, iv);
+        const cipher = crypto.createCipheriv(algorithm, encryption_key, /*process.env.ENCRYPTION_IV*/ "fba684d2a09989b2");
 
         // encrypt
         const encrypted = Buffer.concat([cipher.update(content), cipher.final()]);
@@ -78,7 +77,7 @@ class CryptoHelper {
         const toDecrypt = content.toString();
 
         // create cypher
-        const decipher = crypto.createDecipheriv(algorithm, encryption_key, iv);
+        const decipher = crypto.createDecipheriv(algorithm, encryption_key, /*process.env.ENCRYPTION_IV*/ "fba684d2a09989b2");
 
         // decrypt
         const decrpyted = Buffer.concat([decipher.update(Buffer.from(toDecrypt, 'base64')), decipher.final()]);

@@ -65,8 +65,7 @@ export const FileSchema = new mongoose.Schema({
         default: true
     },
     signs: {
-        type: [UserSign.schema],
-        default: []
+        type: [UserSign.schema]
     },
     shareMode: {
         type: ShareMode,

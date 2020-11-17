@@ -1,0 +1,73 @@
+@import "../../../theme.scss";
+
+.full-width {
+  width: 100%;
+}
+
+#card {
+  max-width: 400px;
+}
+
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+form {
+  min-width: 400px;
+}
+
+#root-div {
+  background-color: mat-color($primary);
+  height: 100vh;
+}
+
+#form-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 100vh;
+}
+
+#app-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#button-container{
+  display: flex;
+  flex-direction: column;
+}
+
+.error-txt {
+  color: $warn;
+  font-weight: bold;
+  padding-bottom: 12px;
+}
+
+mat-progress-bar {
+  margin-left: -16px;
+  width: calc(100% + 32px);
+  margin-top: -16px !important;
+  margin-bottom: 16px;
+}
+
+@media screen and (max-width: 400px) {
+  #card {
+    width: unset;
+    height: unset;
+  }
+
+  form {
+    width: 100vw;
+    min-width: unset;
+    height: 100vh;
+  }
+}
+

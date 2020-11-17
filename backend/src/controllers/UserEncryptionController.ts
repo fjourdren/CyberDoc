@@ -12,6 +12,8 @@ import { anyToReadable } from '../helpers/Conversions';
 import { Readable } from 'stream';
 import IUserEncryptionKeys, { UserEncryptionKeys } from '../models/UserEncryptionKeys';
 import { requireFile, requireUserHash } from '../helpers/Utils';
+import NodeRSA from 'node-rsa';
+import HTTPError from '../helpers/HTTPError';
 
 
 class UserEncryptionController {
@@ -50,7 +52,7 @@ class UserEncryptionController {
             const user_hash = requireUserHash(req);
 
             // get user updated
-            const user: IUser = requireNonNull(await User.findById(res.locals.APP_JWT_TOKEN.user._id).exec(), HttpCodes.BAD_REQUEST, "User not found");
+            const user: IUser = requireNonNull(await User.findOne({email: res.locals.APP_JWT_TOKEN.email}).exec(), HttpCodes.BAD_REQUEST, "User not found");
 
             // get file content
             const fileContents: any = requireFile(req, "upfile").buffer.toString();
@@ -60,10 +62,23 @@ class UserEncryptionController {
             const public_key: string = cutContent[0];
             const private_key: string = "-----BEGIN RSA PRIVATE KEY-----" + cutContent[1];
 
+            //chech if keys are valid
+            try {
+                const test_nodersa = new NodeRSA();
+                test_nodersa.importKey(public_key, "public");
+                test_nodersa.importKey(private_key, "private");    
+            } catch (err) {
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "Invalid recovery key");
+            }
+
+
             // save keys to the user
             const user_keys: IUserEncryptionKeys = new UserEncryptionKeys();
             user_keys.public_key = public_key;
             user_keys.encrypted_private_key = CryptoHelper.encryptAES(user_hash, private_key);
+
+            user.userKeys = user_keys;
+            await user.save();
 
             // reply to the user
             res.status(HttpCodes.OK);

@@ -7,9 +7,8 @@ import validator from 'validator';
 export const UserSignSchema = new mongoose.Schema({
     user_email: {
         type: String,
+        sparse: true,
         required: true,
-        unique: true,
-        uniqueCaseInsensitive: true,
         trim: true,
         minlength: 5,
         validate: {

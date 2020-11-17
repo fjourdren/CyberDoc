@@ -1,0 +1,105 @@
+- hosts: glvps
+  name: firewalld rules
+  gather_facts: false
+  become_method: sudo
+  become: yes
+  tasks:
+
+  - name: install iptables
+    yum:
+      name: iptables
+      state: latest
+
+  - name: install firewalld
+    yum:
+      name: firewalld
+      state: latest
+  
+  - name: restart firewalld service
+    systemd: 
+      name: firewalld.service
+      state: started
+
+  - name: enable firewalld service
+    systemd:
+      name: firewalld.service
+      enabled: yes
+      masked: no
+
+  # ADDING DOCKER INTERFACE TO THE TRUSTED ZONE
+  - name: firewall-cmd --permanent --zone=trusted --change-interface=docker0
+    firewalld:
+      zone: trusted
+      interface: docker0
+      permanent: yes
+      state: enabled
+
+  # WEB HTTP
+  - name: firewall-cmd --zone=public --add-port=80/tcp
+    firewalld:
+      zone: public
+      port: 80/tcp
+      permanent: yes
+      state: enabled
+
+   # SECUREWEB HTTPS
+  - name: firewall-cmd --zone=public --add-port=443/tcp
+    firewalld:
+      zone: public
+      port: 443/tcp
+      permanent: yes
+      state: enabled
+
+  # DOCKER CONNEXION PORT
+  - name: firewall-cmd --zone=public --add-port=4243/tcp
+    firewalld:
+      zone: public
+      port: 4342/tcp
+      permanent: yes
+      state: enabled
+
+  # TRAEFIK
+  - name: firewall-cmd --zone=public --add-port=8080/tcp
+    firewalld:
+      zone: public
+      port: 8080/tcp
+      permanent: yes
+      state: enabled
+
+  - name: installation de squid
+    yum:
+      name: squid
+      state: latest
+
+  - name: deploy squid configuration
+    template:
+      src: /etc/ansible/playbooks/squid.conf
+      dest: /etc/squid/squid.conf
+      owner: root
+      group: squid
+      mode: 0640
+      backup: yes
+
+  - name: firewall-cmd --zone=public  --add-port=3128/tcp
+    firewalld:
+      zone: public
+      port: 3128/tcp
+      permanent: yes
+      state: enabled
+
+  - name: enable squid service
+    systemd:
+      name: squid.service
+      enabled: yes
+      masked: no
+
+  - name: restart squid service
+    systemd: 
+      name: squid.service
+      state: started
+
+  - name: reload firewalld
+    systemd: 
+      name: firewalld.service
+      state: reloaded   
+
