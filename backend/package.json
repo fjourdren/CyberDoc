@@ -9,7 +9,7 @@
   "scripts": {
     "test": "jest --forceExit --coverage=true --runInBand --verbose=false",
     "tsc": "tsc",
-    "build": "tsc",
+    "build": "tsc && npm run sonarqube",
     "clean": "rm -rf dist",
     "dev": "nodemon",
     "startdev": "cross-env APP_ENV=dev ts-node src/server.ts",
