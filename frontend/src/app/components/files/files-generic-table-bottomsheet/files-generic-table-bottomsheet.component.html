@@ -60,13 +60,6 @@
             {{ 'fileaction.rename' | translate }}
         </span>
     </a>
-    <!-- We can't delete a file shared with us -->
-    <a href="#" *ngIf="!data.sharedWithMeMode" mat-list-item (click)="onBottomSheetSelection($event,'delete')">
-        <span>
-            <mat-icon fontSet="fa" fontIcon="fa-trash"></mat-icon>
-            {{ 'fileaction.delete' | translate }}
-        </span>
-    </a>
     <!-- We can sign a file as an owner or a collaborator -->
     <a href="#" *ngIf="!data.node.isDirectory" mat-list-item (click)="onBottomSheetSelection($event,'sign')">
         <span>
@@ -74,5 +67,13 @@
             {{ 'fileaction.sign' | translate }}
         </span>
     </a>
+    <!-- We can't delete a file shared with us -->
+    <a href="#" *ngIf="!data.sharedWithMeMode" mat-list-item (click)="onBottomSheetSelection($event,'delete')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-trash"></mat-icon>
+            {{ 'fileaction.delete' | translate }}
+        </span>
+    </a>
+    
     
 </mat-nav-list>

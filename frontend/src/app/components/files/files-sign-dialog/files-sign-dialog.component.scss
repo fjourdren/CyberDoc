@@ -2,12 +2,20 @@
 
 table {
     width: 100%;
+    overflow-x: scroll;
+    
 }
 
 .error-txt {
   color: $warn;
   font-weight: bold;
   padding-bottom: 12px;
+  align-items: center;
+}
+.text-txt {
+  
+  font-weight: bold;
+  padding-right: 10px;
   align-items: center;
 }
 
@@ -43,10 +51,11 @@ mat-spinner {
 }
 
 #table-container {
-  height: calc(100% - 193px); /*HACK*/
+  height: calc(100% - 163px); /*HACK*/
   overflow-y: auto;
 }
 
 mat-form-field {
-  margin-bottom: 8px;
+  margin-bottom: 1px;
 }
+

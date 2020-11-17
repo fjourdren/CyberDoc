@@ -1,13 +1,15 @@
 <div mat-dialog-title class="mat-headline">
     {{'sign.signwith' | translate}}
   </div>
-  <div *ngIf="!isEmpty" mat-dialog-content>
+  <div class="error-txt" *ngIf="genericError">{{ 'general.generic_error' | translate }}</div>
+  <div *ngIf="!isEmpty && !genericError" mat-dialog-content>
     <h3><b>{{ 'sign.signBy' | translate }}</b></h3>
 </div>
-<div *ngIf="isEmpty" mat-dialog-content>
+<div *ngIf="isEmpty && !genericError" mat-dialog-content>
   <h3><b>{{ 'sign.noSign' | translate }}</b></h3>
 </div>
-  <div id="table-container">
+
+  <div *ngIf="!isEmpty && !genericError" id="table-container">
     <table mat-table [dataSource]="dataSource">
       
       <ng-container matColumnDef="user_email">
@@ -22,15 +24,18 @@
           {{element.created_at}}
         </td>
       </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
   </div>
-
-  <div class="error-txt" *ngIf="hasAlreadySign" align="center">{{ 'sign.error' | translate }}</div>
+  <div *ngIf="isEmpty || genericError" id="table-container"></div>
   
-  <div mat-dialog-actions align="end">
-    <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+  
+  <div mat-dialog-actions align="end"> 
     <div class="fill"></div>
+    <div class="text-txt" *ngIf="hasAlreadySign">{{ 'sign.error' | translate }}  </div>
+    <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+    
     <button [disabled]="loading" mat-raised-button 
       (click)="onCloseBtnClicked()">{{'general.close' | translate}}</button>   
     <button [disabled]="loading || hasAlreadySign" mat-raised-button color="primary"
