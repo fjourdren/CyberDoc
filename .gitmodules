@@ -1,0 +1,3 @@
+[submodule "cyberdoc-etherpad"]
+	path = cyberdoc-etherpad
+	url = https://github.com/cforgeard/cyberdoc-etherpad
