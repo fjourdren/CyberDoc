@@ -12,11 +12,11 @@ function passwordValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
         const password = control.value;
 
-        if (!password) return {passwordValidator: {invalid: true}};
-        if (!password.match(/[A-Z]/g)) return {passwordValidator: {invalid: true}};
-        if (!password.match(/[a-z]/g)) return {passwordValidator: {invalid: true}};
-        if (!password.match(/[0-9]/g)) return {passwordValidator: {invalid: true}};
-        if (!password.replace(/[0-9a-zA-Z ]/g, "").length) return {passwordValidator: {invalid: true}};
+        if (!password) { return { passwordValidator: { invalid: true } }; }
+        if (!password.match(/[A-Z]/g)) { return { passwordValidator: { invalid: true } }; }
+        if (!password.match(/[a-z]/g)) { return { passwordValidator: { invalid: true } }; }
+        if (!password.match(/[0-9]/g)) { return { passwordValidator: { invalid: true } }; }
+        if (!password.replace(/[0-9a-zA-Z ]/g, '').length) { return { passwordValidator: { invalid: true } }; }
 
         return null;
     };
@@ -48,16 +48,11 @@ export class SettingsSecurityComponent {
         private fb: FormBuilder,
         private snackBar: MatSnackBar,
         private dialog: MatDialog) {
-    }
-
-
-    ngOnInit(): void {
         this.refreshDevice();
 
         this.passwordForm = this.fb.group({
             newPassword: ['', [Validators.required, passwordValidator()]],
-            newPasswordConfirmation: ['', [Validators.required, passwordValidator()]],
-            email: [this.userServiceProvider.default().getActiveUser().email, Validators.required]
+            newPasswordConfirmation: ['', [Validators.required, passwordValidator()]]
         }, {
             validator: MustMatch('newPassword', 'newPasswordConfirmation')
         });
@@ -70,17 +65,20 @@ export class SettingsSecurityComponent {
 
         this.loading = true;
         this.dialog.open(SecurityCheckDialogComponent, {
-            maxWidth: '500px'
-        }).afterClosed().subscribe(isPasswordAndTwoFactorVerified => {
-            if (isPasswordAndTwoFactorVerified) {
+            maxWidth: '500px',
+            data: {
+                checkTwoFactor: true
+            }
+        }).afterClosed().subscribe(xAuthTokenArray => {
+            if (xAuthTokenArray && xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
                 this.userServiceProvider.default().updatePassword(
                     this.passwordForm.get('newPassword').value,
-                    this.userServiceProvider.default().getActiveUser().email
+                    xAuthTokenArray
                 ).toPromise().then(() => {
-                    this.loading = false;
                     this.snackBar.dismiss();
                     this.snackBar.open('Password updated', null, { duration: 1500 });
                     this.passwordForm.reset();
+                    this.loading = false;
                 });
             } else {
                 this.loading = false;
@@ -96,7 +94,7 @@ export class SettingsSecurityComponent {
         const refDialog = this.dialog.open(SettingsRenameDeviceDialogComponent, {
             width: '400px',
             data: {
-                'name': name
+                name
             }
         });
         refDialog.afterClosed().toPromise().then(() => {
@@ -104,21 +102,29 @@ export class SettingsSecurityComponent {
         });
     }
 
-    refreshDevice() {
+    refreshDevice(): void {
         this.userServiceProvider.default().getUserDevices().toPromise().then((value) => {
             this.dataSource.data = value;
         });
     }
 
-    downloadRecoveryKey() {
+    downloadRecoveryKey(): void {
         this.loading = true;
         this.userServiceProvider.default().exportRecoveryKey().toPromise().then(recoveryKey => {
-          this.loading = false;
-          const anchor = document.createElement('a');
-          anchor.download = "recovery-key.txt";
-          anchor.href = `data:text/plain,${recoveryKey}`;
-          anchor.click();
-          anchor.remove();
+            this.loading = false;
+            const anchor = document.createElement('a');
+            anchor.download = 'recovery-key.txt';
+            anchor.href = `data:text/plain,${recoveryKey}`;
+            anchor.click();
+            anchor.remove();
         });
-      }    
+    }
+
+    exportData(): void {
+        const anchor = document.createElement('a');
+        anchor.download = `${this.userServiceProvider.default().getActiveUser().email}-personal-data.txt`;
+        anchor.href = this.userServiceProvider.default().getDataExportURL();
+        anchor.click();
+        anchor.remove();
+    }
 }

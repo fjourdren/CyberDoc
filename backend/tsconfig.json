@@ -67,6 +67,6 @@
 
     "resolveJsonModule": true,                /* Allow to include json modules */
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*","tests/**/*"],
   "exclude": ["node_modules"]
 }

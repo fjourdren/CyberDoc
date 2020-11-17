@@ -9,13 +9,15 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { CookieService } from 'ngx-cookie-service';
 import { environment } from "src/environments/environment";
 import { SHA3 } from 'sha3';
+import { Base64 } from 'js-base64';
 
 export class RealUserService implements UserService {
 
     private _userUpdated$ = new EventEmitter<User>();
     private _jwtHelper = new JwtHelperService();
 
-    constructor(private httpClient: HttpClient, private cookieService: CookieService) { }
+    constructor(private httpClient: HttpClient, private cookieService: CookieService) {
+    }
 
     getActiveUser(): User {
         if (!this.getJwtToken()) {
@@ -93,12 +95,18 @@ export class RealUserService implements UserService {
         }));
     }
 
-    updateProfile(firstName: string, lastName: string, newEmail: string, oldEmail: string): Observable<void> {
+
+    updateProfile(firstName: string, lastName: string, newEmail: string, xAuthTokenArray: string[]): Observable<void> {
+        let options = { withCredentials: true };
+        if (xAuthTokenArray) {
+            options["headers"] = { 'x-auth-token': Base64.encode(xAuthTokenArray[0] + '\t' + xAuthTokenArray[1] + '\t' + xAuthTokenArray[2]) }
+        }
+
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
             email: newEmail,
             firstname: firstName,
             lastname: lastName
-        }, { withCredentials: true }).pipe(map(response => {
+        }, options).pipe(map(response => {
             this.cookieService.set(
                 environment.authCookieName,
                 response.token,
@@ -109,10 +117,15 @@ export class RealUserService implements UserService {
         }));
     }
 
-    updatePassword(password: string, email: string): Observable<void> {
+    updatePassword(password: string, xAuthTokenArray: string[]): Observable<void> {
+        let options = {
+            withCredentials: true,
+            headers: { 'x-auth-token': Base64.encode(xAuthTokenArray[0] + '\t' + xAuthTokenArray[1] + '\t' + xAuthTokenArray[2]) }
+        };
+
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
             password
-        }, { withCredentials: true }).pipe(map(response => {
+        }, options).pipe(map(response => {
             this.cookieService.set(
                 environment.authCookieName,
                 response.token,
@@ -123,39 +136,22 @@ export class RealUserService implements UserService {
         }));
     }
 
-    updatePhoneNumber(phoneNumber: string): Observable<void> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
-            phoneNumber
-        }, { withCredentials: true }).pipe(map(response => {
-            this.cookieService.set(
-                environment.authCookieName,
-                response.token,
-                this._jwtHelper.getTokenExpirationDate(response.token),
-                '/',
-                environment.authCookieDomain);
-            this._setUser(this._jwtHelper.decodeToken(response.token).user);
-        }));
-    }
+    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, secret: string, phoneNumber: string,
+        xAuthTokenArray: string[]): Observable<void> {
 
-    updateSecret(secret: string): Observable<void> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
-            secret
-        }, { withCredentials: true }).pipe(map(response => {
-            this.cookieService.set(
-                environment.authCookieName,
-                response.token,
-                this._jwtHelper.getTokenExpirationDate(response.token),
-                '/',
-                environment.authCookieDomain);
-            this._setUser(this._jwtHelper.decodeToken(response.token).user);
-        }));
-    }
+        let options = { withCredentials: true };
+        if (xAuthTokenArray && xAuthTokenArray.length === 3) {
+            options["headers"] = { 'x-auth-token': Base64.encode(xAuthTokenArray[0] + '\t' + xAuthTokenArray[1] + '\t' + xAuthTokenArray[2]) }
+        } else if (xAuthTokenArray && xAuthTokenArray.length === 1) {
+            options["headers"] = { 'x-auth-token': Base64.encode(xAuthTokenArray[0]) }
+        }
 
-    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean): Observable<void> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
             twoFactorApp,
             twoFactorSms,
-        }, { withCredentials: true }).pipe(map(response => {
+            secret,
+            phoneNumber
+        }, options).pipe(map(response => {
             this.cookieService.set(
                 environment.authCookieName,
                 response.token,
@@ -205,17 +201,17 @@ export class RealUserService implements UserService {
     recoverPassword(email: string): Observable<void> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/auth/forgottenPassword`, {
             email
-        }).pipe(map(response => {
+        }).pipe(map(() => {
         }));
     }
 
-    resetPassword(resetPasswordJWTToken: string, email: string, password: any): Observable<void> {
+    resetPassword(resetPasswordJWTToken: string, password: string): Observable<void> {
+        console.warn('Authorization', `Bearer ${resetPasswordJWTToken}`);
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
-            "email": email,
-            "password": password
+            password
         }, {
             headers: {
-                "Authorization": `Bearer ${resetPasswordJWTToken}`,
+                Authorization: `Bearer ${resetPasswordJWTToken}`
             },
             withCredentials: true
         }).pipe(map(response => {
@@ -236,11 +232,15 @@ export class RealUserService implements UserService {
         }));
     }
 
-    deleteAccount(): Observable<void> {
-        return this.httpClient.delete<any>(`${environment.apiBaseURL}/users/profile`, { withCredentials: true })
-            .pipe(map(() => {
-                this.logout();
-            }));
+    deleteAccount(xAuthTokenArray: string[]): Observable<void> {
+        return this.httpClient.delete<any>(`${environment.apiBaseURL}/users/profile`, {
+            headers: {
+                'x-auth-token': Base64.encode(xAuthTokenArray[0] + '\t' + xAuthTokenArray[1] + '\t' + xAuthTokenArray[2])
+            },
+            withCredentials: true
+        }).pipe(map(() => {
+            this.logout();
+        }));
     }
 
     userUpdated(): Observable<User> {
@@ -281,6 +281,10 @@ export class RealUserService implements UserService {
             this.cookieService.delete(environment.authCookieName);
             this.cookieService.delete(environment.userHashCookieName);
         }));
+    }
+
+    getDataExportURL(): string {
+        return `${environment.apiBaseURL}/users/exportData`;
     }
 
     private _setUser(user: User) {

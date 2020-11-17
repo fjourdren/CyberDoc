@@ -81,7 +81,7 @@ export class ResetPasswordPageComponent implements AfterViewInit {
         this.resetForm.disable();
 
         this.userServiceProvider.default().importRecoveryKey(this.email, this.resetForm.controls.password.value, this.recoverykeyFile, this.token).toPromise().then(()=>{
-            this.userServiceProvider.default().resetPassword(this.token, this.email, this.resetForm.controls.password.value).toPromise().then(() => {
+            this.userServiceProvider.default().resetPassword(this.token, this.resetForm.controls.password.value).toPromise().then(() => {
                 this.loading = false;
                 this.reset = true;
             });    

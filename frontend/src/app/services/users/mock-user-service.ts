@@ -1,10 +1,10 @@
 import {UserService} from './user-service';
 
 import {Observable, of} from 'rxjs';
-import {User, Device} from 'src/app/models/users-api-models';
+import {Device, User} from 'src/app/models/users-api-models';
 import {delay, map} from 'rxjs/operators';
 import {EventEmitter} from '@angular/core';
-import {FileTag} from 'src/app/models/files-api-models';
+import {CloudFile, FileTag} from 'src/app/models/files-api-models';
 import {HttpErrorResponse} from '@angular/common/http';
 
 
@@ -58,13 +58,16 @@ export class MockUserService implements UserService {
     constructor() {
         this._load();
     }
+    getDataExportURL(): string {
+        throw new Error('Method not implemented.');
+    }
 
     importRecoveryKey(email: string, password: string, file: File, resetPasswordJWTToken: string): Observable<void> {
         return of(null);
     }
-    
+
     exportRecoveryKey(): Observable<string> {
-        return of("");
+        return of('');
     }
 
     addTag(tag: FileTag): Observable<void> {
@@ -140,19 +143,19 @@ export class MockUserService implements UserService {
         }));
     }
 
-    updateProfile(firstName: string, lastName: string, newEmail: string, oldEmail: string): Observable<void> {
+    updateProfile(firstName: string, lastName: string, newEmail: string, xAuthTokenArray: string[]): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
             }
 
-            const user = this._users.get(oldEmail);
-            const pass = this._passwords.get(oldEmail);
+            const user = this._users.get(this.getActiveUser().email);
+            const pass = this._passwords.get(user.email);
             user.firstname = firstName;
             user.lastname = lastName;
             user.email = newEmail;
-            this._users.delete(oldEmail);
-            this._passwords.delete(oldEmail);
+            this._users.delete(user.email);
+            this._passwords.delete(user.email);
             this._users.set(newEmail, user);
             this._passwords.set(newEmail, pass);
             this._save();
@@ -160,46 +163,22 @@ export class MockUserService implements UserService {
         }));
     }
 
-    updatePassword(password: string, email: string): Observable<any> {
+    updatePassword(password: string, xAuthTokenArray: string[]): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
             }
-
-            const pass = this._passwords.get(email);
-
-            this._passwords.set(email, password);
-            this._save();
-        }));
-    }
-
-    updatePhoneNumber(phoneNumber: string): Observable<void> {
-        return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            if (!this.getActiveUser()) {
-                this._throw403('already logged in');
+            const user = this._users.get(this.getActiveUser().email);
+            const pass = this._passwords.get(user.email);
+            if (pass === password) {
+                this._passwords.set(user.email, password);
+                this._save();
             }
-            const user = this._getUser();
-            user.phoneNumber = phoneNumber;
-            this._users.set(user.email, user);
-            this._save();
-            this._setUser(user);
         }));
     }
 
-    updateSecret(secret: string): Observable<void> {
-        return of(null).pipe(delay(DELAY)).pipe(map(() => {
-            if (!this.getActiveUser()) {
-                this._throw403('already logged in');
-            }
-            const user = this._getUser();
-            user.secret = secret;
-            this._users.set(user.email, user);
-            this._save();
-            this._setUser(user);
-        }));
-    }
-
-    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean): Observable<void> {
+    updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, secret: string, phoneNumber: string,
+                    xAuthTokenArray: string[]): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
@@ -241,13 +220,13 @@ export class MockUserService implements UserService {
         }));
     }
 
-    recoverPassword(email: string): Observable<void>{
+    recoverPassword(email: string): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
         }));
     }
 
-    resetPassword(resetPasswordJWTToken: string, email: string, password: any): Observable<void> {
-        return this.updatePassword(password, email);
+    resetPassword(resetPasswordJWTToken: string, password: string): Observable<void> {
+        return this.updatePassword(password, null);
     }
 
     searchExistingUser(email: string): Observable<User> {
@@ -275,7 +254,7 @@ export class MockUserService implements UserService {
         }));
     }
 
-    deleteAccount(): Observable<void> {
+    deleteAccount(xAuthTokenArray: string[]): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             if (!this.getActiveUser()) {
                 this._throw403('already logged in');
@@ -287,6 +266,18 @@ export class MockUserService implements UserService {
             this._setUser(null);
             this._save();
         }));
+    }
+
+    getUserDevices(): Observable<Device[]> {
+        return null;
+    }
+
+    renameUserDevice(oldName: string, name: string): Observable<void> {
+        return;
+    }
+
+    createUserDevice(name: string, browser: string, OS: string): Observable<void> {
+        return;
     }
 
     private _getUser(): User {
@@ -352,23 +343,12 @@ export class MockUserService implements UserService {
         });
     }
 
-    private _throw400(error: string): void{
+    private _throw400(error: string): void {
         throw new HttpErrorResponse({
             error,
             statusText: 'FORBIDDEN',
             status: 400,
             url: '/fake-url'
         });
-    }
-
-    getUserDevices(): Observable<Device[]>{
-        return null;
-    }
-    renameUserDevice(oldName: string, name: string): Observable<void>{
-        return;
-    }
-
-    createUserDevice(name: string, browser: string, OS: string): Observable<void>{
-        return;
     }
 }

@@ -34,6 +34,10 @@ declare global {
             JWT_SECRET: string;
             ENCRYPTION_IV: string;
             MONGODB_URL: string;
+            ENABLE_AUTH_API_SLOWDOWN: string;
+            ETHERPAD_ROOT_URL: string;
+            ETHERPAD_ROOT_API_URL: string;
+            ETHERPAD_API_KEY: string;
             SENDGRID_API_KEY: string;
             SENDGRID_MAIL_FROM: string;
             SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD: string;
