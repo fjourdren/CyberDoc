@@ -17,7 +17,7 @@ afterEach(async () => await dbHandler.clearDatabase());
 
 afterAll(async () => await dbHandler.closeDatabase());
 
-describe('Testing TagService', () => {
+describe('testing TagService', () => {
     let mock_user_1 = mockClass.User;
     let name = "mock_tag";
     let hexColor = "#AAAAAA";
