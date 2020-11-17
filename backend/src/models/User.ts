@@ -4,6 +4,7 @@ import uniqueValidator from 'mongoose-unique-validator';
 import bcrypt from 'bcryptjs';
 import validator from 'validator';
 import Guid from 'guid';
+import hexColorRegex from 'hex-color-regex';
 
 import ITag, { Tag } from './Tag';
 import IDevice, { Device } from './Device';
@@ -111,6 +112,15 @@ export const UserSchema = new mongoose.Schema({
     filesKeys: {
         type: [FileEncryptionKeys.schema]
     },
+    // HexColor, used by Etherpad
+    hexColor: {
+        type: String,
+        trim: true,
+        validate: {
+            validator: (value: string) => hexColorRegex({ strict: true }).test(value),
+            message: '{VALUE} is not a valid hexColor'
+        }
+    },
     updated_at: {
         type: Date,
         default: new Date().getTime()
@@ -140,8 +150,9 @@ export interface IUser extends mongoose.Document {
     role: Role;
     tags: ITag[];
     devices: IDevice[];
-    userKeys: IUserEncryptionKeys,
-    filesKeys: IFileEncryptionKeys[],
+    userKeys: IUserEncryptionKeys;
+    filesKeys: IFileEncryptionKeys[];
+    hexColor: string;
     updated_at: string;
     created_at: string;
 }

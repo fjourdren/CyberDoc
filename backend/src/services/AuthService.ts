@@ -2,10 +2,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Guid from 'guid';
 
-import {File, FileType, IFile} from "../models/File";
-import {IUser, Role, User} from "../models/User";
+import { File, FileType, IFile } from "../models/File";
+import { IUser, Role, User } from "../models/User";
 
-import {requireNonNull} from '../helpers/DataValidation';
+import { requireNonNull } from '../helpers/DataValidation';
 import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
 import Mailer from '../helpers/Mailer';
@@ -15,11 +15,22 @@ import { FileEncryptionKeysSchema } from '../models/FileEncryptionKeys';
 import IUserEncryptionKeys, { UserEncryptionKeys } from '../models/UserEncryptionKeys';
 import EncryptionFileService from './EncryptionFileService';
 
+const AVAILABLE_HEX_COLORS = [
+    "#ffc7c7", "#fff1c7", "#e3ffc7", "#c7ffd5", "#c7ffff", "#c7d5ff", "#e3c7ff", "#ffc7f1",
+    "#ffa8a8", "#ffe699", "#cfff9e", "#99ffb3", "#a3ffff", "#99b3ff", "#cc99ff", "#ff99e5",
+    "#e7b1b1", "#e9dcAf", "#cde9af", "#bfedcc", "#b1e7e7", "#c3cdee", "#d2b8ea", "#eec3e6",
+    "#e9cece", "#e7e0ca", "#d3e5c7", "#bce1c5", "#c1e2e2", "#c1c9e2", "#cfc1e2", "#e0bdd9",
+    "#baded3", "#a0f8eb", "#b1e7e0", "#c3c8e4", "#cec5e2", "#b1d5e7", "#cda8f0", "#f0f0a8",
+    "#f2f2a6", "#f5a8eb", "#c5f9a9", "#ececbb", "#e7c4bc", "#daf0b2", "#b0a0fd", "#bce2e7",
+    "#cce2bb", "#ec9afe", "#edabbd", "#aeaeea", "#c4e7b1", "#d722bb", "#f3a5e7", "#ffa8a8",
+    "#d8c0c5", "#eaaedd", "#adc6eb", "#bedad1", "#dee9af", "#e9afc2", "#f8d2a0", "#b3b3e6"
+]
+
 class AuthService {
 
     // generate a JWT token
     public static generateJWTToken(user: IUser, authorized: boolean): string {
-        return jwt.sign({user, authorized: authorized}, process.env.JWT_SECRET, {
+        return jwt.sign({ user, authorized: authorized }, process.env.JWT_SECRET, {
             expiresIn: 86400 // 24 hours
         });
     }
@@ -36,6 +47,9 @@ class AuthService {
         newUser.role = role;
         newUser.twoFactorApp = false;
         newUser.twoFactorSms = false;
+
+        const randomHexColorIndex = Math.floor(Math.random() * AVAILABLE_HEX_COLORS.length);
+        newUser.hexColor = AVAILABLE_HEX_COLORS[randomHexColorIndex];
 
         // generate user's key
         const random_user_key: NodeRSA = CryptoHelper.generateRSAKeys(); // used to have by default user's RSA keys
@@ -62,9 +76,9 @@ class AuthService {
             requireNonNull(await newUser.save());
 
             // Check if user has received invitations to collaborate on files
-            const files = await File.find({sharedWithPending: newUser.email}).exec();
-            for (const file of files){
-                await File.update({_id: file._id}, {$pull:  {"sharedWithPending": newUser.email}});
+            const files = await File.find({ sharedWithPending: newUser.email }).exec();
+            for (const file of files) {
+                await File.update({ _id: file._id }, { $pull: { "sharedWithPending": newUser.email } });
                 console.log('[Debug] ' + newUser.email + ' removed from sharedWithPending (' + file.name + ')')
                 file.sharedWith.push(newUser._id);
                 await file.save();
@@ -85,7 +99,7 @@ class AuthService {
 
     // login service
     public static async login(email: string, password: string): Promise<string> {
-        const user: IUser = requireNonNull(await User.findOne({email: email.toLowerCase()}).exec(), HttpCodes.UNAUTHORIZED, "Invalid credentials");
+        const user: IUser = requireNonNull(await User.findOne({ email: email.toLowerCase() }).exec(), HttpCodes.UNAUTHORIZED, "Invalid credentials");
 
         const passwordIsValid = bcrypt.compareSync(password, user.password);
 
@@ -97,7 +111,8 @@ class AuthService {
 
     // isPasswordValid ?
     public static async isPasswordValid(email: string, password: string): Promise<boolean> {
-        const user: IUser = requireNonNull(await User.findOne({email: email}).exec(), HttpCodes.UNAUTHORIZED, "Invalid user");
+        const user: IUser = requireNonNull(await User.findOne({ email: email }).exec(), HttpCodes.UNAUTHORIZED, "Invalid user");
+
         const isPasswordValid = bcrypt.compareSync(password, user.password);
 
         if (!isPasswordValid)
@@ -108,9 +123,9 @@ class AuthService {
 
     // forgotten password service
     public static async forgottenPassword(email: string): Promise<void> {
-        requireNonNull(await User.findOne({email: email.toLowerCase()}).exec());
+        requireNonNull(await User.findOne({ email: email.toLowerCase() }).exec());
 
-        const token: string = jwt.sign({email}, process.env.JWT_SECRET, {
+        const token: string = jwt.sign({ email }, process.env.JWT_SECRET, {
             expiresIn: 36000 // 10 hours
         });
 
@@ -120,7 +135,7 @@ class AuthService {
         await Mailer.sendTemplateEmail(email, {
             email: process.env.SENDGRID_MAIL_FROM,
             name: process.env.SENDGRID_MAIL_FROM_NAME
-        }, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, {url: url});
+        }, process.env.SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD, { url: url });
     }
 
     // validate that the token is correct
