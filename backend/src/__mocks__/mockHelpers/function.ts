@@ -15,7 +15,7 @@ export async function signup_user_1(){
 
     let user = mockClass.User;
 
-    return await AuthService.signup(user.firstname, user.lastname, user.email, user.password, user.role)
+    return await AuthService.signup("", user.firstname, user.lastname, user.email, user.password, user.role)
 }
 
 export async function signup_user_2(){
@@ -29,6 +29,6 @@ export async function signup_user_2(){
 
     let user = mockClass.User_2;
 
-    return await AuthService.signup(user.firstname, user.lastname, user.email, user.password, user.role)
+    return await AuthService.signup("", user.firstname, user.lastname, user.email, user.password, user.role)
 }
 

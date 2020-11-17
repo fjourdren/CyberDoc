@@ -16,7 +16,6 @@ user.phoneNumber = "+33660571778";
 user.secret = "JL5QH7CTHVIFXWU6S4TREV7BTMXCMTYK";
 user.twoFactorApp = false;
 user.twoFactorSms = false;
-user.twoFactorEmail = false;
 
 let root_user_dir: IFile = new File();
 root_user_dir._id = Guid.raw();
@@ -41,7 +40,6 @@ user_2.phoneNumber = "+33660571700";
 user_2.secret = "000QH7CTHVIFXWU6S4TREV7BTMXCMTYK";
 user_2.twoFactorApp = false;
 user_2.twoFactorSms = false;
-user_2.twoFactorEmail = false;
 
 let root_user_dir_2: IFile = new File();
 root_user_dir_2._id = Guid.raw();

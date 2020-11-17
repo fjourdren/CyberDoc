@@ -65,7 +65,7 @@ describe('Testing AuthService', () => {
 
         it('should pass', async () => {
 
-            const l = await AuthService.signup(firstname, lastname, email, password, role);
+            const l = await AuthService.signup("", firstname, lastname, email, password, role);
             expect(spyRequireNonNull).toHaveBeenCalledTimes(2);
             spyRequireNonNull.mockClear();
         });
@@ -74,7 +74,7 @@ describe('Testing AuthService', () => {
 
             let firstname = '';
             try{
-                let l = await AuthService.signup(firstname, lastname, email, password, role);
+                let l = await AuthService.signup("", firstname, lastname, email, password, role);
             } catch(e) {
                 expect(e.errors.firstname.properties.message).toBe("Path `firstname` is required.");
             }
@@ -85,8 +85,8 @@ describe('Testing AuthService', () => {
         it('should not pass because email is not unique in the database', async () => {
 
             try{
-                await AuthService.signup(firstname, lastname, email, password, role);
-                await AuthService.signup(firstname, lastname, email, password, role);
+                await AuthService.signup("", firstname, lastname, email, password, role);
+                await AuthService.signup("", firstname, lastname, email, password, role);
             } catch(e) {
                 expect(e.message).toBe("Another account with this mail already exists");
                 expect(e.statusCode).toBe(409);
@@ -109,7 +109,7 @@ describe('Testing AuthService', () => {
 
         it('should login', async () => {
 
-            const token = await AuthService.signup(firstname, lastname, email, password, role);
+            const token = await AuthService.signup("", firstname, lastname, email, password, role);
 
             const spygenerateJWTToken = jest.spyOn(AuthService, 'generateJWTToken').mockImplementationOnce((user = mockClass.User) => {
                 return "valid-token";
@@ -123,7 +123,7 @@ describe('Testing AuthService', () => {
         it('should not login : invalid credentials', async () => {
 
             let E: any;
-            const token = await AuthService.signup(firstname, lastname, email, password, role);
+            const token = await AuthService.signup("", firstname, lastname, email, password, role);
 
             const spygenerateJWTToken = jest.spyOn(AuthService, 'generateJWTToken').mockImplementationOnce((user = mockClass.User) => {
                 return "valid-token";
@@ -145,7 +145,7 @@ describe('Testing AuthService', () => {
             let E: any;
             
             // Add of the user in the mongodb to make login test afterward
-            const token = await AuthService.signup(firstname, lastname, email, password, role);
+            const token = await AuthService.signup("", firstname, lastname, email, password, role);
 
             const spygenerateJWTToken = jest.spyOn(AuthService, 'generateJWTToken').mockImplementationOnce((user = mockClass.User) => {
                 return "valid-token";
