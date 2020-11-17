@@ -77,7 +77,7 @@ class CryptoHelper {
         const toDecrypt = content.toString();
 
         // create cypher
-        const decipher = crypto.createCipheriv(algorithm, encryption_key, process.env.ENCRYPTION_IV);
+        const decipher = crypto.createDecipheriv(algorithm, encryption_key, process.env.ENCRYPTION_IV);
 
         // decrypt
         const decrpyted = Buffer.concat([decipher.update(Buffer.from(toDecrypt, 'base64')), decipher.final()]);
