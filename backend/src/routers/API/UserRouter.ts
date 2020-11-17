@@ -24,6 +24,6 @@ UserRouter.patch('/devices/:name', AuthMiddleware.isAuthenticate, UserDeviceCont
 UserRouter.delete('/devices/:name', AuthMiddleware.isAuthenticate, UserDeviceController.delete);
 // import and export user's encryption keys
 UserRouter.get('/keys', AuthMiddleware.isAuthenticate, UserEncryptionController.export);
-UserRouter.post('/keys', AuthMiddleware.isAuthenticate, UserEncryptionController.import);
+UserRouter.post('/keys', AuthMiddleware.isAuthenticateOrEditToken, UserEncryptionController.import);
 
 export default UserRouter;

@@ -9,11 +9,12 @@ import {
     FileTag,
     RespondShare,
     RespondSign,
+    RespondAnswerSign,
     SearchParams
 } from 'src/app/models/files-api-models';
 import {DIRECTORY_MIMETYPE} from '../files-utils/files-utils.service';
 import {FileSystem, Upload} from './file-system';
-import { environment } from "src/environments/environment";
+import { environment } from 'src/environments/environment';
 
 export class RealFileSystem implements FileSystem {
 
@@ -21,33 +22,35 @@ export class RealFileSystem implements FileSystem {
     private _currentUpload$ = new EventEmitter<Upload>();
 
     private _uploadXhr: XMLHttpRequest;
-    private _timeStarted: number = -1;
+    private _timeStarted = -1;
 
     constructor(private httpClient: HttpClient) {}
 
-    share(fileID: string, email: String): Observable<void> {
+    share(fileID: string, email: string): Observable<void> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/files/${fileID}/sharing`, {
-            "email": email
+            email
         }, {withCredentials: true}).pipe(map(response => {
             this._refreshNeeded$.emit();
         }, null));
     }
 
-    getSharedWith(fileID: String): Observable<RespondShare[]>{
-        return this.httpClient.get<any>(`${environment.apiBaseURL}/files/${fileID}/sharing`, {withCredentials: true}).pipe(map(response => {    
+    getSharedWith(fileID: string): Observable<RespondShare[]>{
+        return this.httpClient.get<any>(`${environment.apiBaseURL}/files/${fileID}/sharing`,
+            {withCredentials: true}).pipe(map(response => {
             return response.shared_users as RespondShare[];
         }));
     }
 
-    getSharedWithPending(fileID: String): Observable<string[]>{
-        return this.httpClient.get<any>(`${environment.apiBaseURL}/files/${fileID}/sharing`, {withCredentials: true}).pipe(map(response => {
+    getSharedWithPending(fileID: string): Observable<string[]>{
+        return this.httpClient.get<any>(`${environment.apiBaseURL}/files/${fileID}/sharing`,
+            {withCredentials: true}).pipe(map(response => {
             return response.shared_users_pending as string[];
         }));
     }
 
-    deleteShare(fileID: string, email: String): Observable<void>{
-        return this.httpClient.delete<any>(`${environment.apiBaseURL}/files/${fileID}/sharing/${email}`, {withCredentials: true})
-            .pipe(map(response => this._refreshNeeded$.emit(), null));
+    deleteShare(fileID: string, email: string): Observable<void>{
+        return this.httpClient.delete<any>(`${environment.apiBaseURL}/files/${fileID}/sharing/${email}`,
+            {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     sign(fileID: string): Observable<void>{
@@ -56,9 +59,10 @@ export class RealFileSystem implements FileSystem {
         }, null));
     }
 
-    listSignatories(fileID: string): Observable<RespondSign[]>{
-        return this.httpClient.get<any>(`${environment.apiBaseURL}/files/${fileID}/sign`, {withCredentials: true}).pipe(map(response => {    
-            return response.signed_users as RespondSign[];
+    listSignatories(fileID: string): Observable<RespondAnswerSign[]>{
+        return this.httpClient.get<any>(`${environment.apiBaseURL}/files/${fileID}`, {withCredentials: true}).pipe(map(response => {  
+            console.log(response.content.signs);  
+            return response.content.signs as RespondAnswerSign[];
         }));
     }
 
@@ -93,9 +97,9 @@ export class RealFileSystem implements FileSystem {
 
     createDirectory(name: string, parentFolder: CloudDirectory): Observable<void> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/files`, {
-            "folderID": parentFolder._id,
-            "mimetype": DIRECTORY_MIMETYPE,
-            "name": name
+            folderID: parentFolder._id,
+            mimetype: DIRECTORY_MIMETYPE,
+            name
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
@@ -118,11 +122,11 @@ export class RealFileSystem implements FileSystem {
         }
 
         return this.httpClient.post<any>(`${environment.apiBaseURL}/files/search`, {
-            "tagIDs": searchParams.tagIDs.length > 0 ? searchParams.tagIDs : null,
-            "name": searchParams.name,
-            "type": searchParams.type,
-            "startLastModifiedDate": startDate,
-            "endLastModifiedDate": endDate
+            tagIDs: searchParams.tagIDs.length > 0 ? searchParams.tagIDs : null,
+            name: searchParams.name,
+            type: searchParams.type,
+            startLastModifiedDate: startDate,
+            endLastModifiedDate: endDate
         }, {withCredentials: true}).pipe(map(response => {
             const folder = new CloudDirectory();
 
@@ -142,20 +146,20 @@ export class RealFileSystem implements FileSystem {
 
     copy(file: CloudFile, fileName: string, destination: CloudDirectory): Observable<void> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/files/${file._id}/copy`, {
-            "copyFileName": fileName,
-            "destID": destination._id
+            copyFileName: fileName,
+            destID: destination._id
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     move(node: CloudNode, destination: CloudDirectory): Observable<void> {
         return this.httpClient.patch<any>(`${environment.apiBaseURL}/files/${node._id}`, {
-            "directoryID": destination._id,
+            directoryID: destination._id,
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     rename(node: CloudNode, newName: string): Observable<void> {
         return this.httpClient.patch<any>(`${environment.apiBaseURL}/files/${node._id}`, {
-            "name": newName
+            name: newName
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
@@ -166,20 +170,20 @@ export class RealFileSystem implements FileSystem {
 
     setPreviewEnabled(file: CloudFile, enabled: boolean): Observable<void> {
         return this.httpClient.patch<any>(`${environment.apiBaseURL}/files/${file._id}`, {
-            "preview": enabled,
+            preview: enabled,
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     setShareMode(file: CloudFile, shareMode: string): Observable<void> {
         return this.httpClient.patch<any>(`${environment.apiBaseURL}/files/${file._id}`, {
-            "shareMode": shareMode,
+            shareMode,
         }, { withCredentials: true }).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     addTag(node: CloudNode, tag: FileTag): Observable<void> {
         console.warn(tag);
         return this.httpClient.post<any>(`${environment.apiBaseURL}/files/${node._id}/tags`, {
-            "tagId": tag._id
+            tagId: tag._id
         }, {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
@@ -203,15 +207,15 @@ export class RealFileSystem implements FileSystem {
 
     startFileUpload(file: File, destination: CloudDirectory): void {
         const formData = new FormData();
-        formData.append("folderID", destination._id);
-        formData.append("mimetype", file.type || "application/octet-stream");
-        formData.append("name", file.name);
-        formData.append("upfile", file);
+        formData.append('folderID', destination._id);
+        formData.append('mimetype', file.type || 'application/octet-stream');
+        formData.append('name', file.name);
+        formData.append('upfile', file);
 
-        //Need to use a XMLHttpRequest, to have cancel capability
+        // Need to use a XMLHttpRequest, to have cancel capability
         this._uploadXhr = new XMLHttpRequest();
         this._uploadXhr.upload.onprogress = (evt) => {
-            //https://stackoverflow.com/questions/21162749/how-do-i-calculate-the-time-remaining-for-my-upload
+            // https://stackoverflow.com/questions/21162749/how-do-i-calculate-the-time-remaining-for-my-upload
             let timeElasped = 0;
             if (this._timeStarted === -1) {
                 this._timeStarted = Date.now();
@@ -225,16 +229,16 @@ export class RealFileSystem implements FileSystem {
                 filename: file.name,
                 progress: (evt.loaded / evt.total),
                 remainingSeconds: (evt.total - evt.loaded) / uploadSpeed
-            }
+            };
             this._currentUpload$.emit(obj);
-        }
+        };
 
         this._uploadXhr.onerror = (evt) => {
             this._currentUpload$.emit(null);
             this._timeStarted = -1;
             this._uploadXhr = null;
-            throw new Error("Error while uploading"); //TODO better handling
-        }
+            throw new Error('Error while uploading'); // TODO better handling
+        };
 
         this._uploadXhr.onreadystatechange = () => {
             if (this._uploadXhr.readyState === XMLHttpRequest.DONE) {
@@ -243,15 +247,15 @@ export class RealFileSystem implements FileSystem {
                 this._timeStarted = -1;
                 this._uploadXhr = null;
             }
-        }
+        };
 
         this._uploadXhr.onabort = () => {
             this._currentUpload$.emit(null);
             this._timeStarted = -1;
             this._uploadXhr = null;
-        }
+        };
 
-        this._uploadXhr.open("POST", `${environment.apiBaseURL}/files`, true);
+        this._uploadXhr.open('POST', `${environment.apiBaseURL}/files`, true);
         this._uploadXhr.withCredentials = true;
         this._uploadXhr.send(formData);
     }
@@ -269,5 +273,4 @@ export class RealFileSystem implements FileSystem {
     refreshNeeded(): Observable<void> {
         return this._refreshNeeded$.asObservable();
     }
-
 }

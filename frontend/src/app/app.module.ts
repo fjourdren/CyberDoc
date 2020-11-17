@@ -93,6 +93,7 @@ import { TwoFactorEditComponent } from './components/two-factor/two-factor-edit/
 import { DevicePageComponent } from './pages/device-page/device-page.component';
 import { SettingsRenameDeviceDialogComponent } from './components/settings/settings-rename-device-dialog/settings-rename-device-dialog.component';
 import { FilesSignDialogComponent, FilesSignConfirmDialogComponent } from './components/files/files-sign-dialog/files-sign-dialog.component';
+import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
@@ -183,6 +184,7 @@ if (environment.useSentry) {
         SettingsRenameDeviceDialogComponent,
         FilesSignDialogComponent,
         FilesSignConfirmDialogComponent,
+        ExportRecoveryKeyPageComponent,
     ],
     imports: [
         BrowserModule,

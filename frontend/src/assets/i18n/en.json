@@ -50,7 +50,9 @@
         "size": "Size",
         "type": "Type",
         "owner": "Owner",
-        "copy_new_name": "Copy of {{filename}}"
+        "copy_new_name": "Copy of {{filename}}",
+        "loading_preview": "Loading preview...",
+        "error_loading_preview": "Sorry, we can't preview this file"
     },
     "sharing": {
         "folderName": "Shared with me",
@@ -69,6 +71,15 @@
         "canceled": "Upload canceled",
         "under_ten_seconds": "less than 10 seconds remaining",
         "finishing_upload": "Finishing upload..."
+    },
+    "exportrecoverykey": {
+        "title": "Download your recovery key",
+        "subtitle1": "You will need this if you have forgotten your password or lost your Authenticator.",
+        "subtitle2a": "If you lose this recovery key and forget your password",
+        "subtitle2b": "all your files will be inaccessible, even by CyberDoc.",
+        "subtitle3": "You must download you key before continue",
+        "download_key": "Download recovery key",
+        "invalid_recovery_key": "Invalid recovery key"
     },
     "twofactor": {
         "twofactor_qr_code_computer": "Please use your 2FA app (such as Authy) to scan this QR code and get a code",
@@ -107,7 +118,7 @@
         "create_account": "Create new account",
         "email_already_exists": "An user with this email already exists",
         "forgot_password": "Forgot your password ?",
-        "already_register": "Already register ?",
+        "already_register": "Already registered ?",
         "login_error": "Wrong login or password",
         "repeat_password": "Repeat your password",
         "passwords_must_match": "Passwords must match",
@@ -149,7 +160,9 @@
         "sign": "Sign document",
         "signwith": "Sign this file",
         "signBy": "This file was signed by",
-        "signAreYouSure": "Are you sure you want to sign ? You won't be able to modifiy the file afterward."
+        "noSign": "Nobody has sign this file yet",
+        "signAreYouSure": "Are you sure you want to sign ? You won't be able to modifiy the file afterward.",
+        "error": "You have already sign this file."
     },
     "general": {
         "generic_error": "Error. Please wait some time then retry",
@@ -177,6 +190,7 @@
         "search": "Search",
         "filter": "Filter",
         "reset": "Reset",
+        "continue": "Continue",
         "remaining": "remaining",
         "loading": "Loading...",
         "noitems": "No items",

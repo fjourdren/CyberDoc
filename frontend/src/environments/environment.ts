@@ -12,6 +12,7 @@ export const environment = {
   authCookieName: "access_token",
   userHashCookieName: "user_hash",
   userLocalStorageKey: "real_user",
+  recoveryKeyDownloadedLocalStorageKey: "recovery_key_download",
 };
 
 /*

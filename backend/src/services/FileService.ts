@@ -2,10 +2,10 @@ import Guid from 'guid';
 import { Types } from 'mongoose';
 import MongoClient from 'mongodb'
 import { Readable } from 'stream';
+import NodeRSA from 'node-rsa';
 import fs from "fs";
 import path from 'path';
 import sharp from 'sharp'
-const filepreview = require('pngenerator');
 const libre = require("libreoffice-convert");
 
 import { promisify } from "util";
@@ -18,12 +18,12 @@ import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
 import { anyToReadable, streamToBuffer } from '../helpers/Conversions';
 import CryptoHelper from '../helpers/CryptoHelper';
+import generatePreviewSync, { GeneratePreviewOptions } from '../helpers/filepreview';
 
 import { IUser, User } from "../models/User";
 import { IFile, File, FileType, ShareMode } from "../models/File";
 import IUserSign, { UserSign } from '../models/UserSign';
 import { FileEncryptionKeysSchema } from '../models/FileEncryptionKeys';
-import NodeRSA from 'node-rsa';
 
 enum PreciseFileType {
     Folder = "Folder",
@@ -164,36 +164,7 @@ class FileService {
         // get file size and save it in File model
         file.size = fileContentBuffer.length;
 
-
-
-        //============= TODO: tests
-        /*let rsa: NodeRSA = CryptoHelper.generateRSAKeys();
-        let encrypted_rsa: string = CryptoHelper.encryptRSA(rsa, fileContentBuffer);
-        let decrypted_rsa: string = CryptoHelper.decryptRSA(rsa, encrypted_rsa);
-        fs.writeFileSync("filenameRSA.png", decrypted_rsa, 'binary');
-        
-
-
-        // aes        
-        const key: string = CryptoHelper.generateAES();
-        const hash = CryptoHelper.encryptAES(key, fileContentBuffer);
-        const text = CryptoHelper.decryptAES(key, hash);
-
-        fs.writeFileSync("filenameAES.png", text, 'binary');
-
-
-
-        // normal
-        fs.writeFileSync("filename.png", fileContentBuffer.toString('binary'), 'binary');
-        
-        // e2e
-        const t: string = (await FileService.getFileContent(user_hash, user, file)).content;
-        fs.writeFileSync("filenameE2E_TOTAL.png", t, 'binary');
-        */
-        // ====================
-
-
-
+        // save file
         return await file.save();
     }
 
@@ -476,17 +447,16 @@ class FileService {
         newFile.sharedWith        = [];
         newFile.sharedWithPending = [];
 
-        // read file content and convert
+        // read file content
         const content: MongoClient.GridFSBucketReadStream = GridFSTalker.getFileContent(Types.ObjectId(file.document_id));
-        const content_buffer: Buffer = await streamToBuffer(content); // used to rebuild document from a stream of chunk
-
+        
         // decrypt content
-        const aes_file_key: string = await EncryptionFileService.getFileKey(user, file, user_hash);
-        const decrypt_content: string = CryptoHelper.decryptAES(aes_file_key, content_buffer);
+        const decrypted = await EncryptionFileService.decryptFileContent(user_hash, user, file, content);
+        const decrypt_content = Buffer.from(decrypted, "binary");
 
         // encrypt with a new eas key
         const encrypted_new_file: Record<any, any> = EncryptionFileService.encryptFileContent(decrypt_content);
-        const encrypted_new_file_readable: Readable = anyToReadable(encrypted_new_file["content"]);
+        const encrypted_new_file_readable: Readable = anyToReadable(encrypted_new_file.content);
 
         // save new file with gridfs
         const objectId: string = await GridFSTalker.create(newFile.name, newFile.mimetype, encrypted_new_file_readable);
@@ -550,7 +520,7 @@ class FileService {
         FileService.requireFileIsDocument(file);
 
         //Keep this list synced with frontend\src\app\services\files-utils\files-utils.service.ts
-        //FileType.{Text,Document,Spreadsheet,Spreadsheet}
+        //FileType.{Text,Document,Spreadsheet,Presentation}
         const VALID_MIMEYPES_FOR_PDF_GENERATION = [
             "text/plain",
             "application/msword",
@@ -587,7 +557,7 @@ class FileService {
         FileService.requireFileIsDocument(file);
 
         //Keep this list synced with frontend\src\app\services\files-utils\files-utils.service.ts
-        //FileType.{PDF,Text,Document,Spreadsheet,Spreadsheet}
+        //FileType.{PDF,Text,Document,Spreadsheet,Presentation}
         const VALID_OFFICE_MIMEYPES = [
             "text/plain",
             "application/pdf",
@@ -606,7 +576,6 @@ class FileService {
         if (
             !file.mimetype.startsWith("image/") &&
             !file.mimetype.startsWith("video/") &&
-            !file.mimetype.startsWith("audio/") &&
             !VALID_OFFICE_MIMEYPES.includes(file.mimetype)
         ) {
             throw new HTTPError(HttpCodes.BAD_REQUEST, "Preview is not available for this file");
@@ -624,33 +593,78 @@ class FileService {
         let contentOutputFile: Buffer;
 
         if (file.mimetype.startsWith("image/")) {
-            contentOutputFile = await sharp(buffer).resize({ width: 200 }).extract({ left: 0, top: 0, width: 200, height: 130 }).png().toBuffer();
+            contentOutputFile = buffer;
         } else {
             // save input file in temp file
             fs.writeFileSync(tempInputFile, buffer);
 
             // generate image and save it in a temp directory
-            const options = {
+            const options: GeneratePreviewOptions = {
                 quality: 100,
                 background: '#ffffff',
                 pagerange: '1'
             };
 
-            filepreview.generateSync(tempInputFile, tempOutputImage, options);
-            contentOutputFile = await sharp(tempOutputImage).resize({ width: 200 }).extract({ left: 0, top: 0, width: 200, height: 130 }).png().toBuffer();
+            let fileType: "other" | "video" | "image" | "pdf" = "other";
+            if (file.mimetype.startsWith("video/")) fileType = "video";
+            else if (file.mimetype === "application/pdf") fileType = "pdf";
+
+            try {
+                generatePreviewSync(tempInputFile, fileType, tempOutputImage, options);
+            } catch (e) {
+                throw new HTTPError(HttpCodes.INTERNAL_ERROR, `Cannot create this preview! ${e}`);
+            }
+
+            contentOutputFile = fs.readFileSync(tempOutputImage);
+            contentOutputFile = await sharp(contentOutputFile).resize({ width: 300, height: 200 }).png().toBuffer();
+
+            // delete two temp files
+            fs.unlinkSync(tempInputFile);
+            fs.unlinkSync(tempOutputImage);
         }
 
         // create readable
+        contentOutputFile = await sharp(contentOutputFile).resize({ width: 300, height: 200 }).png().toBuffer();
         const readableOutput = new Readable();
         readableOutput.push(contentOutputFile);
         readableOutput.push(null);
-
-        // delete two temp files
-        fs.unlinkSync(tempInputFile);
-        fs.unlinkSync(tempOutputImage);
-
         return readableOutput;
     }
+/*
+    public static async addSign(user_hash: string, user: IUser, file: IFile) {
+        // check if user hasn't already sign the file
+        if(file.signs.map(function(e) { return e.user_email; }).indexOf(user.email) != -1) {
+            throw new HTTPError(HttpCodes.BAD_REQUEST, "You already signed that document");
+        }
+
+        // get user's private key
+        const private_key: NodeRSA = await EncryptionFileService.getPrivateKey(user, user_hash);
+
+        // get file content
+        const file_content: String = (await FileService.getFileContent(user_hash, user, file)).content;
+
+         // create sign object
+        const u_sign: IUserSign = new UserSign();
+        u_sign.user_email       = user.email;
+        u_sign.created_at       = new Date(Date.now());
+
+        // generate diggest buffer
+        const content_buffer: Buffer = Buffer.from(u_sign.user_email + u_sign.created_at + file_content);
+
+        // calculate sign encryption print
+        u_sign.diggest = CryptoHelper.signBuffer(private_key, content_buffer, "base64", "binary");
+
+        // add UserSign to the list
+        file.signs.push(u_sign);
+
+        // verify sign
+        // TODO: move signature verification on client side
+        //const public_key: NodeRSA = await EncryptionFileService.getPublicKey(user.email);
+        //console.log(CryptoHelper.verifySignBuffer(public_key, content_buffer, u_sign.diggest, "binary", "base64"));
+
+        // update signs
+        return requireNonNull(await File.updateOne({ _id: file._id }, {$set: {signs: file.signs}}).exec());
+    }*/
 
     public static async addSign(user_hash: string, user: IUser, file: IFile) {
         // check if user hasn't already sign the file

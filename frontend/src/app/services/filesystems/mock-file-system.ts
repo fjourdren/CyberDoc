@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { EventEmitter } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
-import { CloudNode, CloudDirectory, SearchParams, FileTag, CloudFile, PathItem, RespondShare, RespondSign } from 'src/app/models/files-api-models';
+import { CloudNode, CloudDirectory, SearchParams, FileTag, CloudFile, PathItem, RespondShare, RespondSign, RespondAnswerSign } from 'src/app/models/files-api-models';
 import { DIRECTORY_MIMETYPE, FilesUtilsService, FileType } from '../files-utils/files-utils.service';
 import { FileSystem, Upload } from './file-system';
 import { UserServiceProvider } from '../users/user-service-provider'
@@ -296,7 +296,7 @@ export class MockFileSystem implements FileSystem {
         return;
     }
 
-    listSignatories(fileID: string): Observable<RespondSign[]>{
+    listSignatories(fileID: string): Observable<RespondAnswerSign[]>{
         return;
     }
 

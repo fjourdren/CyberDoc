@@ -59,6 +59,14 @@ export class MockUserService implements UserService {
         this._load();
     }
 
+    importRecoveryKey(email: string, password: string, file: File, resetPasswordJWTToken: string): Observable<void> {
+        return of(null);
+    }
+    
+    exportRecoveryKey(): Observable<string> {
+        return of("");
+    }
+
     addTag(tag: FileTag): Observable<void> {
         return of(null).pipe(delay(DELAY)).pipe(map(() => {
             const user = this._getUser();
