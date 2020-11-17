@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { EventEmitter } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { FileTag } from 'src/app/models/files-api-models';
+import {CloudDirectory, CloudFile, FileTag} from 'src/app/models/files-api-models';
 import { User, Device } from 'src/app/models/users-api-models';
 import { UserService } from './user-service';
 import { JwtHelperService } from '@auth0/angular-jwt';
@@ -284,6 +284,10 @@ export class RealUserService implements UserService {
             this.cookieService.delete(environment.authCookieName);
             this.cookieService.delete(environment.userHashCookieName);
         }));
+    }
+
+    getDataExportURL(): string {
+        return `${environment.apiBaseURL}/users/exportData`;
     }
 
     private _setUser(user: User) {
