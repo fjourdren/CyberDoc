@@ -115,7 +115,7 @@
             <span>{{ 'fileaction.move' | translate }}</span>
         </button>
         <!-- We can always copy files as an Owner -->
-        <button *ngIf="isOwner()" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('copy')">
+        <button *ngIf="!selectedNode.isDirectory && isOwner()" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('copy')">
             <mat-icon fontSet="fa" fontIcon="fa-copy"></mat-icon>
             <span>{{ 'fileaction.copy' | translate }}</span>
         </button>
