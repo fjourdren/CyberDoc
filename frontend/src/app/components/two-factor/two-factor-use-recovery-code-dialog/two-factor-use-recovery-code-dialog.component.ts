@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, HostListener} from '@angular/core';
 import {TwoFactorServiceProvider} from '../../../services/twofactor/twofactor-service-provider';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {MatDialogRef} from '@angular/material/dialog';
@@ -22,6 +22,17 @@ export class TwoFactorUseRecoveryCodeDialogComponent {
                 public recoverTwoFactorDialog: MatDialogRef<TwoFactorUseRecoveryCodeDialogComponent>) {
     }
 
+    @HostListener('keydown', ['$event'])
+    onKeyDown(evt: KeyboardEvent): void {
+        if (evt.key === 'Escape') {
+            this.onCancel();
+        }
+    }
+
+    onCancel(): void {
+        this.recoverTwoFactorDialog.close();
+    }
+
     onSubmit(): void {
         if (this.recoverTwoFactorForm.invalid) {
             return;
@@ -30,8 +41,8 @@ export class TwoFactorUseRecoveryCodeDialogComponent {
             .toPromise().then(recoveryCodesLeft => {
             this.loading = true;
             this.recoverTwoFactorDialog.close({
-                result: true,
-                recoveryCodesLeft
+                recoveryCodesLeft,
+                usedCode: this.recoverTwoFactorForm.get('code').value
             });
         }).catch(err => {
             this.loading = false;

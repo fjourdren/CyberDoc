@@ -30,7 +30,7 @@ export class MockTwoFactorService implements TwoFactorService {
         return undefined;
     }
 
-    generateRecoveryCodes(): Observable<string[]> {
+    generateRecoveryCodes(xAuthTokenArray: string[]): Observable<string[]> {
         return undefined;
     }
 }

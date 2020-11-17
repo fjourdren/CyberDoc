@@ -33,7 +33,6 @@
     "@sentry/angular": "^5.26.0",
     "@sentry/tracing": "^5.26.0",
     "classlist.js": "^1.1.20150312",
-    "file-saver": "^2.0.2",
     "google-libphonenumber": "^3.2.14",
     "intl-tel-input": "^17.0.6",
     "js-base64": "^3.6.0",

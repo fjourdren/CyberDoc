@@ -7,5 +7,5 @@ export interface TwoFactorService {
     verifyTokenBySms(phoneNumber: string | undefined, token: string): Observable<boolean>;
     generateSecretUriAndQr(email: string): Observable<any>;
     useRecoveryCode(code: string): Observable<boolean>;
-    generateRecoveryCodes(): Observable<string[]>;
+    generateRecoveryCodes(xAuthTokenArray: string[]): Observable<string[]>;
 }

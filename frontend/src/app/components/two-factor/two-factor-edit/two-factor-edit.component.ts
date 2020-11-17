@@ -14,7 +14,6 @@ import {SecurityCheckDialogComponent} from '../../security-check-dialog/security
 export class TwoFactorEditComponent {
     @Output() twoFactorAppEvent = new EventEmitter<boolean>();
     @Output() twoFactorSmsEvent = new EventEmitter<boolean>();
-    @Input() displayGenerationEmergencyCodes: boolean;
     twoFactorApp: boolean;
     twoFactorSms: boolean;
 
@@ -189,10 +188,24 @@ export class TwoFactorEditComponent {
         }
     }
 
-    generateNewEmergencyCodes(): void {
-        this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
-            width: '500px',
-            disableClose: true
+    generateRecoveryCodes(): void {
+        this.dialog.open(SecurityCheckDialogComponent, {
+            maxWidth: '500px',
+            data: {
+                checkTwoFactor: true
+            }
+        }).afterClosed().subscribe(res => {
+            if (res) {
+                if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) { // [password:smsOrApp:2faToken]
+                    this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+                        width: '500px',
+                        disableClose: true,
+                        data: {
+                            xAuthTokenArray: res.xAuthTokenArray
+                        }
+                    });
+                }
+            }
         });
     }
 }

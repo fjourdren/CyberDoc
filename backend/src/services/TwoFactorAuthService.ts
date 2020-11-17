@@ -105,6 +105,11 @@ class TwoFactorAuthService {
         await User.updateOne({ _id: user._id, 'twoFactorRecoveryCodes.code': code}, { '$set': updateString });
         return user.twoFactorRecoveryCodes.filter(c => c.isValid).length > 1;
     }
+
+    public static async verifyUsedRecoveryCode(email: string, tokenOrCode: string): Promise<boolean> {
+        const user: IUser = requireNonNull(await User.findOne({email: email}).exec(), HttpCodes.UNAUTHORIZED, "Invalid user");
+        return user.twoFactorRecoveryCodes.find(code => code.code === tokenOrCode) !== undefined;
+    }
 }
 
 export default TwoFactorAuthService;

@@ -5,6 +5,7 @@ import {TwoFactorService} from './twofactor-service';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {CookieService} from 'ngx-cookie-service';
 import { environment } from 'src/environments/environment';
+import {Base64} from 'js-base64';
 
 export class RealTwoFactorService implements TwoFactorService {
     private jwtHelper = new JwtHelperService();
@@ -65,7 +66,6 @@ export class RealTwoFactorService implements TwoFactorService {
     }
 
     useRecoveryCode(code: string): Observable<boolean> {
-        // TODO : Add x-auth-token in headers when "securityCheck" branch will be merged
         return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/useRecoveryCode`, {code},
             {withCredentials: true}).pipe(map(response => {
             if (response) {
@@ -81,10 +81,13 @@ export class RealTwoFactorService implements TwoFactorService {
         }));
     }
 
-    generateRecoveryCodes(): Observable<string[]> {
-        // TODO : Add x-auth-token in headers when "securityCheck" branch will be merged
-        return this.httpClient.get<any>(`${environment.apiBaseURL}/2fa/generateRecoveryCodes`,
-            {withCredentials: true}).pipe(map(response => {
+    generateRecoveryCodes(xAuthTokenArray: string[]): Observable<string[]> {
+        return this.httpClient.get<any>(`${environment.apiBaseURL}/2fa/generateRecoveryCodes`, {
+                headers: {
+                    'x-auth-token': Base64.encode(xAuthTokenArray[0] + '\t' + xAuthTokenArray[1] + '\t' + xAuthTokenArray[2])
+                },
+                withCredentials: true
+            }).pipe(map(response => {
             return response.recoveryCodes;
         }));
     }
