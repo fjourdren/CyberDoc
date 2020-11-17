@@ -14,6 +14,7 @@ import EncryptionFileService from '../services/EncryptionFileService';
 import { anyToReadable, streamToBuffer } from '../helpers/Conversions';
 import { Readable } from 'stream';
 import { requireAuthenticatedUser, requireFile, requireUserHash } from '../helpers/Utils';
+import ISharedWithPending, { SharedWithPending } from '../models/SharedWithPending';
 
 class FileController {
 
@@ -489,7 +490,7 @@ class FileController {
                 success: true,
                 msg: "Success",
                 shared_users: users,
-                shared_users_pending: file.sharedWithPending
+                shared_users_pending: file.sharedWithPending.map(function(e) { return e.email; })
             });
         } catch (err) {
             next(err);
@@ -505,15 +506,29 @@ class FileController {
             await FileService.requireIsFileOwner(currentUser, file);
             const otherUserEmail = req.body.email;
             const user = await User.findOne({ "email": otherUserEmail }).exec();
-            if (user) {
+
+            // get file's useful informations
+            const user_hash = requireUserHash(req);
+            const file_aes_key: string = await EncryptionFileService.getFileKey(currentUser, file, user_hash);
+
+            if (user != undefined) {
+                // check that user who share the file is different with user that will be shared
                 if (user._id === currentUser._id) {
                     throw new HTTPError(HttpCodes.BAD_REQUEST, "You are the owner of the file, you can't share it with yourself");
                 } else {
+                    // check if user isn't already in shared list
                     if (file.sharedWith.indexOf(user._id) !== -1) {
                         throw new HTTPError(HttpCodes.BAD_REQUEST, "This user has already an access to this file");
                     }
+
+                    // add user to share list
                     file.sharedWith.push(user._id);
                     await file.save();
+
+                    // add key to the user
+                    await EncryptionFileService.addFileKeyToUser(user, file, file_aes_key);
+
+                    // generate email
                     const url: string = process.env.APP_FRONTEND_URL + "/shared-with-me";
                     await Mailer.sendTemplateEmail(otherUserEmail,
                         {
@@ -528,32 +543,27 @@ class FileController {
                         }
                     );
 
-                    // add key to the user
-                    const user_hash = requireUserHash(req);
-                    const file_aes_key: string = await EncryptionFileService.getFileKey(currentUser, file, user_hash);
-                    await EncryptionFileService.addFileKeyToUser(user, file, file_aes_key);
-
-                    console.log('[Debug] An email has been sent to ' + otherUserEmail);
                     status = "Success";
-                    res.status(HttpCodes.OK);
-                    res.json({
-                        success: true,
-                        msg: status
-                    });
                 }
             } else {
-                if (file.sharedWithPending.includes(otherUserEmail)) {
-                    throw new HTTPError(HttpCodes.BAD_REQUEST, "This user has already received an email to collaborate on this file.");
+                // check if email is already in sharedWithPendingArray
+                for(let i = 0; i < file.sharedWithPending.length; i++) {
+                    if(file.sharedWithPending[i].email == otherUserEmail) {
+                        throw new HTTPError(HttpCodes.BAD_REQUEST, "This user has already received an email to collaborate on this file.");
+                    }
                 }
-                const token = jwt.sign({
-                    email: otherUserEmail,
-                    fileOwnerEmail: currentUser.email
-                }, process.env.JWT_SECRET, {
-                    expiresIn: 36000
-                });
-                file.sharedWithPending.push(otherUserEmail);
+
+                // add SharedWithPending Object to the database array
+                const shared_with_pending_obj: ISharedWithPending = new SharedWithPending();
+                shared_with_pending_obj.email = otherUserEmail;
+                shared_with_pending_obj.file_aes_key = file_aes_key;
+
+                file.sharedWithPending.push(shared_with_pending_obj);
                 await file.save();
-                const url: string = process.env.APP_FRONTEND_URL + "/register?token=" + token;
+
+                // generate email
+                const data: string = otherUserEmail + ";" + currentUser.email;
+                const url: string = process.env.APP_FRONTEND_URL + "/register?data=" + data;
                 await Mailer.sendTemplateEmail(otherUserEmail,
                     {
                         email: process.env.SENDGRID_MAIL_FROM,
@@ -567,20 +577,14 @@ class FileController {
                     }
                 );
 
-                console.log('[Debug] An email has been sent to ' + otherUserEmail);
                 status = "Waiting";
-                res.status(HttpCodes.OK);
-                res.json({
-                    success: true,
-                    msg: status
-                });
             }
 
             // reply
             res.status(HttpCodes.OK);
             res.json({
                 success: true,
-                msg: "Success"
+                msg: status
             });
         } catch (err) {
             next(err);
@@ -596,23 +600,16 @@ class FileController {
             FileService.requireFileIsDocument(file);
             await FileService.requireIsFileOwner(currentUser, file);
 
-            let index = file.sharedWithPending.indexOf(sharedWithUserEmail);
+            let index = file.sharedWithPending.map(function(e) { return e.email; }).indexOf(sharedWithUserEmail);
             if (index !== -1) { // sharedWithUser exists in sharedWithpending
-                file.sharedWithPending.splice(index, 1);
-                await file.save();
+                // remove new user from sharedWithPending array
+                await File.updateOne({_id: file._id}, { $pull: { "sharedWithPending": { "email": sharedWithUserEmail }} }).exec();
             } else {
+                // get existing user and remove key from user
                 const user = requireNonNull(await User.findOne({ "email": sharedWithUserEmail}).exec(), HttpCodes.NOT_FOUND, "User not found");
-                index = file.sharedWith.indexOf(user._id);
-                if (index !== -1) {
-                    file.sharedWith.splice(index, 1);
-                    await file.save();
-                } else {
-                    throw new HTTPError(HttpCodes.BAD_REQUEST, "Specified email doesn't have sharing access to the file");
-                }
+                await File.updateOne({_id: file._id}, { $pull: { "sharedWith": user._id} }).exec();
+                await EncryptionFileService.removeFileKeyFromUser(user, file);
             }
-
-            // remove key from user
-            await EncryptionFileService.removeFileKeyFromUser(currentUser, file);
 
             // reply
             res.status(HttpCodes.OK);
