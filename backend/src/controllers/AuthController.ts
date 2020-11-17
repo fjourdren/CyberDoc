@@ -64,7 +64,6 @@ class AuthController {
         }
     }
 
-
     // forgotten password controller
     public static async forgottenPassword(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {

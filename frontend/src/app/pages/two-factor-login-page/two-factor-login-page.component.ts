@@ -53,8 +53,8 @@ export class TwoFactorLoginPageComponent implements OnInit {
         try {
             switch (this.twoFactorType) {
                 case 'app':
-                    this.twoFactorServiceProvider.default().verifyTokenByApp(this.user.secret,
-                        this.tokenForm.get('token').value).toPromise().then(() => {
+                    this.twoFactorServiceProvider.default().verifyTokenByApp(
+                        undefined, this.tokenForm.get('token').value).toPromise().then(() => {
                         this.loading = false;
                         this.router.navigate(['/files']);
                     }).catch(err => {
@@ -63,8 +63,8 @@ export class TwoFactorLoginPageComponent implements OnInit {
                     });
                     break;
                 case 'sms':
-                    this.twoFactorServiceProvider.default().verifyTokenBySms(this.user.phoneNumber,
-                        this.tokenForm.get('token').value).toPromise().then(() => {
+                    this.twoFactorServiceProvider.default().verifyTokenBySms(
+                        undefined, this.tokenForm.get('token').value).toPromise().then(() => {
                         this.loading = false;
                         this.router.navigate(['/files']);
                     }).catch(err => {
@@ -85,7 +85,7 @@ export class TwoFactorLoginPageComponent implements OnInit {
 
     sendTokenBySms(): void {
         this.twoFactorType = 'sms';
-        this.twoFactorServiceProvider.default().sendTokenBySms(this.user.phoneNumber).toPromise()
+        this.twoFactorServiceProvider.default().sendTokenBySms(undefined).toPromise()
             .catch(err => this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {duration: 2500}));
     }
 }
