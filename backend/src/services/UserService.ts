@@ -74,22 +74,8 @@ class UserService {
     }
 
     // Export Files Data
-    public static async exportData(directoryId: string): Promise<IFile[]> {
-        const files_data: IFile[] = [];
-        await File.find({parent_file_id: directoryId}).exec().then(files => {
-            for (const file of files) {
-                if (FileService.fileIsDocument(file)) {
-                    files_data.push(file);
-                } else if (FileService.fileIsDirectory(file)) {
-                    this.exportData(file._id).then(subFiles => {
-                        subFiles.forEach(subFile => {
-                            files_data.push(subFile);
-                        });
-                    });
-                }
-            }
-        });
-        return files_data;
+    public static async getAllFiles(user: IUser): Promise<IFile[]> {
+        return await File.find({owner_id: user._id}).exec();
     }
 
     // delete user account service

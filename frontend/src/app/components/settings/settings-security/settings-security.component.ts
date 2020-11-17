@@ -125,13 +125,9 @@ export class SettingsSecurityComponent {
 
     exportData(): void {
         const anchor = document.createElement('a');
-        const user_data = this.userServiceProvider.default().getActiveUser();
-        anchor.download = `${user_data.email}-personal-data.txt`;
-        this.userServiceProvider.default().getFilesData().toPromise().then(files => {
-            anchor.href = `data:text/plain,user_data = ${JSON.stringify(user_data)}`;
-            anchor.href += `\nfiles_data = ${JSON.stringify(files)}`;
-            anchor.click();
-            anchor.remove();
-        });
+        anchor.download = `${this.userServiceProvider.default().getActiveUser().email}-personal-data.txt`;
+        anchor.href = this.userServiceProvider.default().getDataExportURL();
+        anchor.click();
+        anchor.remove();
     }
 }
