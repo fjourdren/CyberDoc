@@ -97,12 +97,10 @@ export class TwoFactorLoginPageComponent implements OnInit {
             maxWidth: '500px'
         });
         refDialog.afterClosed().toPromise().then(res => {
-            if (res.result) {
-                if (!res.recoveryCodesLeft) {
-                    this.router.navigate(['/generateRecoveryCodes']);
-                } else {
-                    this.router.navigate(['/files']);
-                }
+            if (res && res.recoveryCodesLeft === false) {
+                this.router.navigate(['/generateRecoveryCodes']);
+            } else {
+                this.router.navigate(['/files']);
             }
         });
     }

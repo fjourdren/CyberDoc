@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, HostListener} from '@angular/core';
 import {AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
@@ -71,25 +71,26 @@ export class SettingsSecurityComponent {
                 checkTwoFactor: true
             }
         }).afterClosed().subscribe(res => {
-            if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
-                this.userServiceProvider.default().updatePassword(
-                    this.passwordForm.get('newPassword').value,
-                    res.xAuthTokenArray
-                ).toPromise().then(() => {
-                    this.snackBar.dismiss();
-                    this.snackBar.open('Password updated', null, {duration: 1500});
-                    this.passwordForm.reset();
-                    if (res.noRecoveryCodeLeft) {
-                        this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
-                            maxWidth: '500px',
-                            disableClose: true
-                        });
-                    }
-                    this.loading = false;
-                });
-            } else {
-                this.loading = false;
+            if (res) {
+                if ((res.xAuthTokenArray && res.xAuthTokenArray.length === 3) // 2FA verified
+                    || (res.recoveryCodesLeft)) { // Used a recovery code
+                    this.userServiceProvider.default().updatePassword(
+                        this.passwordForm.get('newPassword').value,
+                        res.xAuthTokenArray
+                    ).toPromise().then(() => {
+                        this.snackBar.dismiss();
+                        this.snackBar.open('Password updated', null, {duration: 1500});
+                        this.passwordForm.reset();
+                        if (res.recoveryCodeLeft === false) {
+                            this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+                                maxWidth: '500px',
+                                disableClose: true
+                            });
+                        }
+                    });
+                }
             }
+            this.loading = false;
         });
     }
 

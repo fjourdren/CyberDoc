@@ -47,7 +47,7 @@ class UserService {
             if ((twoFactorSms && !user.twoFactorSms) || (twoFactorApp && !user.twoFactorApp)) { // 2FA is added, check only password
                 await AuthService.isPasswordValid(user.email, decryptedToken[0]);
             } else { // Check password and 2FA
-                await UserService.securityCheck(decryptedToken, secret, phoneNumber, user);
+                await UserService.securityCheck(decryptedToken, user);
             }
         }
 
@@ -130,33 +130,39 @@ class UserService {
         }
         const decryptedToken = new Buffer(tokenBase64, 'base64').toString('utf-8').split('\t');
 
-        await this.securityCheck(decryptedToken, undefined, undefined, user);
+        await this.securityCheck(decryptedToken, user);
         const user_root: IFile = requireNonNull(await File.findById(user.directory_id));
         requireNonNull(await FileService.deleteDirectory(user_root, true)); // true => force root directory to be deleted
         return requireNonNull(await User.findByIdAndDelete(user).exec());
     }
 
-    private static async securityCheck(decryptedToken: string[], secret: string | undefined, phoneNumber: string | undefined, user: IUser) {
+    public static async securityCheck(decryptedToken: string[], user: IUser): Promise<void> {
         if (decryptedToken.length <= 0) {
             throw new HTTPError(HttpCodes.BAD_REQUEST, 'Bad x-auth-token');
         }
 
         const password = decryptedToken[0];
-        const appOrSms = decryptedToken[1];
-        const token = decryptedToken[2];
+        const appOrSmsOrRecoveryCode = decryptedToken[1];
+        const tokenOrCode = decryptedToken[2];
 
-        if (token.length != 6) {
+        if ((appOrSmsOrRecoveryCode === 'app' || appOrSmsOrRecoveryCode === 'sms')
+            && tokenOrCode.length !== 6) {
             throw new HTTPError(HttpCodes.BAD_REQUEST, 'Token size must be equal to 6');
+        } else if(appOrSmsOrRecoveryCode === 'recoveryCode' && tokenOrCode.length !== 36) {
+            throw new HTTPError(HttpCodes.BAD_REQUEST, 'Recovery code size must be equal to 36');
         }
 
         await AuthService.isPasswordValid(user.email, password);
 
-        switch (appOrSms) {
+        switch (appOrSmsOrRecoveryCode) {
             case 'app':
-                await TwoFactorAuthService.verifyTokenGeneratedByApp(user.email, secret || user.secret, token);
+                await TwoFactorAuthService.verifyTokenGeneratedByApp(user.email, user.secret, tokenOrCode);
                 break;
             case 'sms':
-                await TwoFactorAuthService.verifySMSToken(user.email, phoneNumber || user.phoneNumber, token);
+                await TwoFactorAuthService.verifySMSToken(user.email, user.phoneNumber, tokenOrCode);
+                break;
+            case 'recoveryCode':
+                await TwoFactorAuthService.verifyUsedRecoveryCode(user.email, tokenOrCode);
                 break;
             default:
                 throw new HTTPError(HttpCodes.BAD_REQUEST, 'appOrSms must be equal to app or sms');

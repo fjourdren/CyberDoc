@@ -58,8 +58,8 @@ export class TwoFactorCheckDialogComponent {
                     undefined, this.twoFactorForm.get('token').value).toPromise().then(() => {
                     this.loading = false;
                     this.twoFactorDialog.close({
-                        noRecoveryCodeLeft: true,
-                        xAuthTokenArray: 'app\t' + this.twoFactorForm.get('token').value
+                        recoveryCodesLeft: true,
+                        twoFactorTypeAndToken: 'app\t' + this.twoFactorForm.get('token').value
                     });
                 }).catch(err => {
                     this.loading = false;
@@ -75,8 +75,8 @@ export class TwoFactorCheckDialogComponent {
                     undefined, this.twoFactorForm.get('token').value).toPromise().then(() => {
                         this.loading = false;
                         this.twoFactorDialog.close({
-                            noRecoveryCodeLeft: true,
-                            xAuthTokenArray: 'sms\t' + this.twoFactorForm.get('token').value
+                            recoveryCodesLeft: true,
+                            twoFactorTypeAndToken: 'sms\t' + this.twoFactorForm.get('token').value
                         });
                     }).catch(err => {
                     this.loading = false;
@@ -98,10 +98,12 @@ export class TwoFactorCheckDialogComponent {
 
     openDialogRecovery(): void {
         const refDialog = this.dialog.open(TwoFactorUseRecoveryCodeDialogComponent, {
-            maxWidth: '400px'
+            maxWidth: '450px'
         });
         refDialog.afterClosed().toPromise().then(res => {
-            this.twoFactorDialog.close(res);
+            if (res) {
+                this.twoFactorDialog.close(res);
+            }
         });
     }
 

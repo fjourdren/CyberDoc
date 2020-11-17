@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, HostListener, Inject, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {UserServiceProvider} from '../../services/users/user-service-provider';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
@@ -22,10 +22,21 @@ export class SecurityCheckDialogComponent implements OnInit {
                 @Inject(MAT_DIALOG_DATA) public data) {
     }
 
+    @HostListener('keydown', ['$event'])
+    onKeyDown(evt: KeyboardEvent): void {
+        if (evt.key === 'Escape') {
+            this.onCancel();
+        }
+    }
+
     ngOnInit(): void {
         this.passwordForm = this.fb.group({
             password: [null, Validators.required]
         });
+    }
+
+    onCancel(): void {
+        this.verifyPasswordDialog.close();
     }
 
     onSubmitPassword(): void {
@@ -40,22 +51,32 @@ export class SecurityCheckDialogComponent implements OnInit {
                     this.dialog.open(TwoFactorCheckDialogComponent, {
                         maxWidth: '500px'
                     }).afterClosed().subscribe(res => {
-                        if (res.twoFactorTypeAndToken !== undefined) {
-                            const twoFactorTypeAndTokenArray = res.twoFactorTypeAndToken.split('\t');
-                            if (twoFactorTypeAndTokenArray[0]
-                                && (twoFactorTypeAndTokenArray[0] === 'app' || twoFactorTypeAndTokenArray[0] === 'sms')) {
-                                xAuthTokenArray.push(twoFactorTypeAndTokenArray[0]);
+                        if (res) {
+                            if (res.twoFactorTypeAndToken !== undefined) {
+                                const twoFactorTypeAndTokenArray = res.twoFactorTypeAndToken.split('\t');
+                                if (twoFactorTypeAndTokenArray[0]
+                                    && (twoFactorTypeAndTokenArray[0] === 'app' || twoFactorTypeAndTokenArray[0] === 'sms')) {
+                                    xAuthTokenArray.push(twoFactorTypeAndTokenArray[0]);
+                                }
+                                if (twoFactorTypeAndTokenArray[1] && twoFactorTypeAndTokenArray[1].length === 6) {
+                                    xAuthTokenArray.push(twoFactorTypeAndTokenArray[1]);
+                                }
+                            } else if (res.usedCode !== undefined) {
+                                xAuthTokenArray.push('recoveryCode');
+                                xAuthTokenArray.push(res.usedCode);
                             }
-                            if (twoFactorTypeAndTokenArray[1] && twoFactorTypeAndTokenArray[1].length === 6) {
-                                xAuthTokenArray.push(twoFactorTypeAndTokenArray[1]);
-                            }
-                        }
-                        this.verifyPasswordDialog.close(xAuthTokenArray);
-                        if (!res.recoveryCodesLeft) {
-                            this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
-                                maxWidth: '500px',
-                                disableClose: true
+                            this.verifyPasswordDialog.close({
+                                xAuthTokenArray,
+                                recoveryCodesLeft: res.recoveryCodesLeft
                             });
+                            if (res.recoveryCodesLeft === false) {
+                                this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+                                    maxWidth: '500px',
+                                    disableClose: true
+                                });
+                            }
+                        } else {
+                            this.verifyPasswordDialog.close();
                         }
                     });
                 } else {

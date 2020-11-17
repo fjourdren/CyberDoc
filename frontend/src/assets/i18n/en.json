@@ -146,7 +146,7 @@
         "confirm_new_password": "Confirm new password",
         "two_factor_card_title": "Two-Factor Authentication",
         "two_factor_card_subtitle": "Require a key in addition to your password.",
-        "generate_new_emergency_codes": "Generate new emergency codes",
+        "generate_recovery_codes": "Generate new recovery codes",
         "generate": "Generate",
         "export_data": {
             "title": "Download your personal data",

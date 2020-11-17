@@ -11,11 +11,11 @@
             <mat-slide-toggle [checked]="twoFactorSms" (change)="changeTwoFactorSms($event)"></mat-slide-toggle>
         </div>
     </mat-list-item>
-    <mat-list-item *ngIf="displayGenerationEmergencyCodes">
+    <mat-list-item>
         <div class="twoFactorContent">
-            <p>{{'settings.generate_new_emergency_codes' | translate}}</p>
+            <p>{{'settings.generate_recovery_codes' | translate}}</p>
 
-            <button mat-stroked-button (click)="generateNewEmergencyCodes()">
+            <button mat-stroked-button (click)="generateRecoveryCodes()">
                 {{'settings.generate' | translate}}
             </button>
         </div>
