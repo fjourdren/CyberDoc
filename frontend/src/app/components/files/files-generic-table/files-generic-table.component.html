@@ -124,10 +124,17 @@
             <mat-icon fontSet="fa" fontIcon="fa-pen"></mat-icon>
             <span>{{ 'fileaction.rename' | translate }}</span>
         </button>
+        <!-- We can't sign a directory -->
+        <button *ngIf="!selectedNode.isDirectory" mat-menu-item
+            (click)="onContextMenuOrBottomSheetSelection('sign')">
+            <mat-icon fontSet="fa" fontIcon="fa-file-signature"></mat-icon>
+            <span>{{ 'fileaction.sign' | translate }}</span>
+        </button>
         <!-- We can't delete a file shared with us -->
         <button *ngIf="!sharedWithMeMode" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('delete')">
             <mat-icon fontSet="fa" fontIcon="fa-trash"></mat-icon>
             <span>{{ 'fileaction.delete' | translate }}</span>
         </button>
+        
     </ng-template>
 </mat-menu>

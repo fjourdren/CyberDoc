@@ -8,6 +8,8 @@ import {
     CloudNode,
     FileTag,
     RespondShare,
+    RespondSign,
+    RespondAnswerSign,
     SearchParams
 } from 'src/app/models/files-api-models';
 import {DIRECTORY_MIMETYPE} from '../files-utils/files-utils.service';
@@ -49,6 +51,19 @@ export class RealFileSystem implements FileSystem {
     deleteShare(fileID: string, email: string): Observable<void>{
         return this.httpClient.delete<any>(`${environment.apiBaseURL}/files/${fileID}/sharing/${email}`,
             {withCredentials: true}).pipe(map(response => this._refreshNeeded$.emit(), null));
+    }
+
+    sign(fileID: string): Observable<void>{
+        return this.httpClient.post<any>(`${environment.apiBaseURL}/files/${fileID}/sign`, {}, {withCredentials: true}).pipe(map(response => {
+            this._refreshNeeded$.emit();
+        }, null));
+    }
+
+    listSignatories(fileID: string): Observable<RespondAnswerSign[]>{
+        return this.httpClient.get<any>(`${environment.apiBaseURL}/files/${fileID}`, {withCredentials: true}).pipe(map(response => {  
+            
+            return response.content.signs as RespondAnswerSign[];
+        }));
     }
 
     get(nodeID: string): Observable<CloudNode> {
