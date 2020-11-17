@@ -61,7 +61,7 @@ class App {
             /*cforgeard 27/10/20, hack to develop onlyOffice*/
             res.header('Access-Control-Allow-Origin',req.get('origin'));
             res.header('Access-Control-Allow-Methods', 'OPTIONS,GET,PUT,POST,PATCH,DELETE');
-            res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, sentry-trace');
+            res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, sentry-trace, x-auth-token');
             if(req.method === 'OPTIONS') {
                 res.status(200).send();
             } else {
