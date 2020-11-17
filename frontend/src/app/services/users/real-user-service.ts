@@ -286,8 +286,12 @@ export class RealUserService implements UserService {
         }));
     }
 
-    private _setUser(user: User): void {
-        localStorage.setItem('real_user', JSON.stringify(user));
+    getDataExportURL(): string {
+        return `${environment.apiBaseURL}/users/exportData`;
+    }
+
+    private _setUser(user: User) {
+        localStorage.setItem(environment.userLocalStorageKey, JSON.stringify(user));
         if (user) {
             this._userUpdated$.emit(user);
         }

@@ -1,6 +1,6 @@
-import {Observable} from 'rxjs';
-import {FileTag} from 'src/app/models/files-api-models';
-import {Device, User} from 'src/app/models/users-api-models';
+import { Observable } from 'rxjs';
+import { FileTag } from 'src/app/models/files-api-models';
+import { User, Device } from 'src/app/models/users-api-models';
 
 export interface UserService {
     getActiveUser(): User;
@@ -28,7 +28,7 @@ export interface UserService {
     updatePassword(password: string, xAuthTokenArray: string[]): Observable<void>;
 
     updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, secret: string | undefined, phoneNumber: string | undefined,
-                    xAuthTokenArray: string[]): Observable<void>;
+        xAuthTokenArray: string[]): Observable<void>;
 
     login(email: string, password: string): Observable<any>;
 
@@ -41,12 +41,11 @@ export interface UserService {
     userUpdated(): Observable<User>;
 
     getUserDevices(): Observable<Device[]>;
-
     renameUserDevice(oldName: string, name: string): Observable<void>;
-
     createUserDevice(name: string, browser: string, OS: string): Observable<void>;
-    
+
     exportRecoveryKey(): Observable<string>;
     importRecoveryKey(email: string, password: string, file: File, resetPasswordJWTToken: string): Observable<void>;
 
+    getDataExportURL(): string;
 }

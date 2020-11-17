@@ -13,6 +13,9 @@ UserRouter.get('/profile', AuthMiddleware.isAuthenticate, UserController.profile
 UserRouter.post('/profile', AuthMiddleware.isAuthenticateOrEditToken, UserController.settings);
 UserRouter.delete('/profile', AuthMiddleware.isAuthenticate, UserController.delete);
 
+// Export files data
+UserRouter.get('/exportData', AuthMiddleware.isAuthenticate, UserController.exportData)
+
 // tag management
 UserRouter.post('/tags', AuthMiddleware.isAuthenticate, UserTagController.create);
 UserRouter.patch('/tags/:tagId', AuthMiddleware.isAuthenticate, UserTagController.edit);

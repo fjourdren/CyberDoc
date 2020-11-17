@@ -467,7 +467,7 @@ class FileService {
 
         // save key to every user that have access to source document
         const users: IUser[] = await EncryptionFileService.getUsersWithAccess(file);
-        for await (let user_to_add of users) {
+        for await (const user_to_add of users) {
             await EncryptionFileService.addFileKeyToUser(user_to_add, out, encrypted_new_file["aes_key"]);
         }
 
@@ -641,7 +641,7 @@ class FileService {
         const private_key: NodeRSA = await EncryptionFileService.getPrivateKey(user, user_hash);
 
         // get file content
-        const file_content: String = (await FileService.getFileContent(user_hash, user, file)).content;
+        const file_content: string = (await FileService.getFileContent(user_hash, user, file)).content;
 
          // create sign object
         const u_sign: IUserSign = new UserSign();
@@ -679,8 +679,6 @@ class FileService {
         }
         return file;
     }
-
-
 }
 
 export default FileService;
