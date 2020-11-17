@@ -14,15 +14,7 @@ class FileController {
     public static async upload(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const currentUser = FileController._requireAuthenticatedUser(res);
-            try{
-                const name = requireNonNull(req.body.name, 400, "missing name");
-            } catch(e) {
-                console.log("ERRRRRRRRRRROR");
-                console.log(e);
-                throw new Error(e);
-            }
-            console.log("zegqzeg")
-            console.log("pass")
+            const name = requireNonNull(req.body.name, 400, "missing name");
             const mimetype = requireNonNull(req.body.mimetype, 400, "missing mimetype");
             const destinationDir = requireNonNull(await File.findById(req.body.folderID), 404, "destination dir not found");
             FileService.requireFileIsDirectory(destinationDir);
