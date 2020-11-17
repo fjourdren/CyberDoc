@@ -1,7 +1,7 @@
 import * as twilio from 'twilio';
 import {VerificationInstance} from 'twilio/lib/rest/verify/v2/service/verification';
 import {VerificationCheckInstance} from 'twilio/lib/rest/verify/v2/service/verificationCheck';
-import IUser, { User } from "../models/User";
+import { IUser, User } from "../models/User";
 import {v4 as uuidv4} from 'uuid';
 import ITwoFactorRecoveryCode, {TwoFactorRecoveryCode} from '../models/TwoFactorRecoveryCode';
 import HTTPError from '../helpers/HTTPError';
@@ -33,23 +33,53 @@ class TwoFactorAuthService {
 
     /**
      * Verify that the provided token is correct
+     * @param email
      * @param phoneNumber
      * @param token
      */
-    public static async verifySMSToken(phoneNumber: string, token: string): Promise<VerificationCheckInstance> {
-        return TwoFactorAuthService.client.verify.services(process.env.TWILIO_SERVICE_ID)
-            .verificationChecks
-            .create({to: phoneNumber, code: token}).then(res => {
-                return res;
-            });
+    public static async verifySMSToken(email: string, phoneNumber: string | undefined,  token: string): Promise<VerificationCheckInstance> {
+        const user: IUser = requireNonNull(await User.findOne({email: email}).exec(), HttpCodes.UNAUTHORIZED, "Invalid user");
+        let verificationInstance;
+        if(phoneNumber) { // Registering => Currently no phoneNumber registered in DB
+            verificationInstance = await TwoFactorAuthService.client.verify.services(process.env.TWILIO_SERVICE_ID)
+                .verificationChecks
+                .create({to: phoneNumber, code: token}).then(res => {
+                    return res;
+                });
+        } else { // Checking
+            verificationInstance = await TwoFactorAuthService.client.verify.services(process.env.TWILIO_SERVICE_ID)
+                .verificationChecks
+                .create({to: user.phoneNumber, code: token}).then(res => {
+                    return res;
+                });
+        }
+
+        if(verificationInstance.status !== 'approved') {
+            throw new HTTPError(HttpCodes.FORBIDDEN, 'Invalid token');
+        }
+
+        return verificationInstance;
     }
 
     public static async generateSecretByEmail(email: string): Promise<any> {
         return twoFactor.generateSecret({name: 'CyberDoc', account: email});
     }
 
-    public static async verifyTokenGeneratedByApp(secret: string, token: string): Promise<number> {
-        return twoFactor.verifyToken(secret, token);
+    public static async verifyTokenGeneratedByApp(email: string, secret: string | undefined, token: string): Promise<boolean> {
+        const user: IUser = requireNonNull(await User.findOne({email: email}).exec(), HttpCodes.UNAUTHORIZED, "Invalid user");
+        let delta;
+        if(secret) { // Register => Currently no secret registered in DB
+            delta = twoFactor.verifyToken(secret, token);
+        } else { // Verify
+            requireNonNull(user.secret);
+            delta = twoFactor.verifyToken(user.secret, token);
+        }
+
+        if (delta === null || delta === -1 || delta === 1) {
+            throw new HTTPError(HttpCodes.FORBIDDEN, 'Invalid token');
+        }
+
+        return true;
     }
 
     public static async generateRecoveryCodes(user: IUser): Promise<ITwoFactorRecoveryCode[]> {

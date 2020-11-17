@@ -94,6 +94,7 @@ import { DevicePageComponent } from './pages/device-page/device-page.component';
 import { SettingsRenameDeviceDialogComponent } from './components/settings/settings-rename-device-dialog/settings-rename-device-dialog.component';
 import {TwoFactorGenerateRecoveryCodesDialogComponent} from './components/two-factor/two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
 import {TwoFactorUseRecoveryCodeDialogComponent} from './components/two-factor/two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
+import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
@@ -184,6 +185,7 @@ if (environment.useSentry) {
         TwoFactorUseRecoveryCodeDialogComponent,
         DevicePageComponent,
         SettingsRenameDeviceDialogComponent,
+        ExportRecoveryKeyPageComponent,
     ],
     imports: [
         BrowserModule,

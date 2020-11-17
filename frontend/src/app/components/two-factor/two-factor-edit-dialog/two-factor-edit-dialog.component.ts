@@ -53,11 +53,11 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
                 private sanitizer: DomSanitizer,
                 private snackBar: MatSnackBar,
                 private translateService: TranslateService,
-                @Inject(MAT_DIALOG_DATA) public twoFactorMode: 'sms' | 'app') {
+                @Inject(MAT_DIALOG_DATA) public data) {
     }
 
     ngAfterViewInit(): void {
-        switch (this.twoFactorMode) {
+        switch (this.data.twoFactorMode) {
             case 'sms': {
                 break;
             }
@@ -66,7 +66,7 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
                 break;
             }
             default: {
-                throw new Error(`Unknown 2FA mode : ${this.twoFactorMode}`);
+                throw new Error(`Unknown 2FA mode : ${this.data.twoFactorMode}`);
             }
         }
     }
@@ -74,7 +74,7 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
     @HostListener('keydown', ['$event'])
     onKeyDown(evt: KeyboardEvent): void {
         if (evt.key === 'Enter') {
-            switch (this.twoFactorMode) {
+            switch (this.data.twoFactorMode) {
                 case 'sms': {
                     if (this.tokenForm.valid) {
                         this.onOKBtnClick();
@@ -90,7 +90,7 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
                     break;
                 }
                 default: {
-                    throw new Error(`Unknown 2FA mode : ${this.twoFactorMode}`);
+                    throw new Error(`Unknown 2FA mode : ${this.data.twoFactorMode}`);
                 }
             }
         }
@@ -106,17 +106,17 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
         this.invalidTokenError = false;
         this.tooManyInvalidCodesError = false;
 
-        switch (this.twoFactorMode) {
+        switch (this.data.twoFactorMode) {
             case 'sms': {
-                promise = this._update2FAWithSMS();
+                promise = this._update2FAWithSMS(this.data.xAuthTokenArray);
                 break;
             }
             case 'app': {
-                promise = this._update2FAWithApp();
+                promise = this._update2FAWithApp(this.data.xAuthTokenArray);
                 break;
             }
             default: {
-                throw new Error(`Unknown 2FA mode : ${this.twoFactorMode}`);
+                throw new Error(`Unknown 2FA mode : ${this.data.twoFactorMode}`);
             }
         }
 
@@ -220,16 +220,17 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
         }
     }
 
-    private async _update2FAWithApp(): Promise<void> {
+    private async _update2FAWithApp(xAuthTokenArray: string[]): Promise<void> {
         const currentUser = this.userServiceProvider.default().getActiveUser();
-        await this.twoFAServiceProvider.default().verifyTokenByApp(this.qrSecret, this.tokenForm.get('token').value).toPromise();
-
+        const tokenForm = this.tokenForm.get('token').value;
+        await this.twoFAServiceProvider.default().verifyTokenByApp(this.qrSecret, tokenForm).toPromise();
         await this.userServiceProvider.default().updateTwoFactor(
-            true, /*twoFactorApp*/
-            currentUser.twoFactorSms
-        ).toPromise();
-
-        await this.userServiceProvider.default().updateSecret(this.qrSecret).toPromise().then(() => {
+            true,
+            currentUser.twoFactorSms,
+            this.qrSecret,
+            undefined,
+            xAuthTokenArray
+        ).toPromise().then(() => {
             this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
                 maxWidth: '400px',
                 disableClose: true
@@ -237,18 +238,17 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
         });
     }
 
-    private async _update2FAWithSMS(): Promise<void> {
+    private async _update2FAWithSMS(xAuthTokenArray: string[]): Promise<void> {
         const currentUser = this.userServiceProvider.default().getActiveUser();
-        await this.twoFAServiceProvider.default().verifyTokenBySms(
-            this.validPhoneNumber,
-            this.tokenForm.get('token').value).toPromise();
-
+        const tokenForm = this.tokenForm.get('token').value;
+        await this.twoFAServiceProvider.default().verifyTokenBySms(this.validPhoneNumber, tokenForm).toPromise();
         await this.userServiceProvider.default().updateTwoFactor(
             currentUser.twoFactorApp,
-            true /*twoFactorSms*/
-        ).toPromise();
-
-        await this.userServiceProvider.default().updatePhoneNumber(this.validPhoneNumber).toPromise().then(() => {
+            true,
+            undefined,
+            this.validPhoneNumber,
+            xAuthTokenArray
+        ).toPromise().then(() => {
             this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
                 maxWidth: '400px',
                 disableClose: true

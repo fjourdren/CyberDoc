@@ -41,6 +41,7 @@ class Server {
         this.appInstance.expressApp.set('port', this.port);
 
         this.appInstance.expressApp.listen(this.port, "0.0.0.0", () => {
+            logger.info("HELLO MY FRIEND");
             logger.info(`Listening at http://localhost:${this.port}`)
         })
     }

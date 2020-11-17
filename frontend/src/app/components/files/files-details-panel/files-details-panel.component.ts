@@ -17,6 +17,8 @@ export class FilesDetailsPanelComponent {
     @Input() allTags: FileTag[];
     @Input() nodeTags: FileTag[];
     @Input() sharedWithMeMode: boolean;
+    previewLoaded = false;
+    previewError = false;
 
     constructor(
         private filesUtils: FilesUtilsService,
@@ -35,6 +37,8 @@ export class FilesDetailsPanelComponent {
 
     @Input()
     set node(node: CloudNode) {
+        this.previewLoaded = false;
+        this.previewError = false;
         this._node = node;
         if (!node) {
             return;
@@ -81,7 +85,8 @@ export class FilesDetailsPanelComponent {
 
     createNewTag(tagName: string | undefined) {
         const dialogRef = this.dialog.open(SettingsCreateEditTagDialogComponent, {
-            maxWidth: "400px",
+            minWidth: "300px",
+            maxWidth: "500px",
             data: tagName
         })
 
@@ -98,6 +103,7 @@ export class FilesDetailsPanelComponent {
         if (node.isDirectory) return false;
         if (this.sharedWithMeMode) return false;
         if (this.filesUtils.getFileTypeForMimetype(node.mimetype) == FileType.Unknown) return false;
+        if (this.filesUtils.getFileTypeForMimetype(node.mimetype) == FileType.Audio) return false;
         return true;
     }
 

@@ -4,7 +4,7 @@ import {map} from 'rxjs/operators';
 import {TwoFactorService} from './twofactor-service';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {CookieService} from 'ngx-cookie-service';
-import {environment} from 'src/environments/environment';
+import { environment } from 'src/environments/environment';
 
 export class RealTwoFactorService implements TwoFactorService {
     private jwtHelper = new JwtHelperService();
@@ -12,7 +12,7 @@ export class RealTwoFactorService implements TwoFactorService {
     constructor(private httpClient: HttpClient, private cookieService: CookieService) {
     }
 
-    sendTokenBySms(phoneNumber: string): Observable<any> {
+    sendTokenBySms(phoneNumber: string | undefined): Observable<any> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/send/sms`, {
             phoneNumber
         }, {withCredentials: true}).pipe(map(response => {
@@ -20,8 +20,8 @@ export class RealTwoFactorService implements TwoFactorService {
         }));
     }
 
-    verifyTokenBySms(phoneNumber: string, token: string): Observable<boolean> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token`, {
+    verifyTokenBySms(phoneNumber: string | undefined, token: string): Observable<boolean> {
+        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token/sms`, {
             phoneNumber,
             token
         }, {withCredentials: true}).pipe(map(response => {
@@ -38,8 +38,8 @@ export class RealTwoFactorService implements TwoFactorService {
         }));
     }
 
-    verifyTokenByApp(secret: string, token: string): Observable<boolean> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token`, {
+    verifyTokenByApp(secret: string | undefined, token: string): Observable<boolean> {
+        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token/app`, {
             secret,
             token
         }, {withCredentials: true}).pipe(map(response => {
