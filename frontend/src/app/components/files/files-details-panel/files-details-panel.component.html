@@ -18,7 +18,7 @@
 
     </div>
 
-    <mat-slide-toggle *ngIf="node && isPreviewAvailable(node)" (change)="onPreviewToggleChange($event)"
+    <mat-slide-toggle *ngIf="node && isPreviewAvailable(node) && !sharedWithMeMode" (change)="onPreviewToggleChange($event)"
                       [checked]="node.preview">{{ 'file.preview' | translate }}</mat-slide-toggle>
 
     <table id="details-table">
