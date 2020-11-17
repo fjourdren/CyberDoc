@@ -120,6 +120,7 @@
         "already_register": "Already registered ?",
         "login_error": "Wrong login or password",
         "repeat_password": "Repeat your password",
+        "too_many_requests": "You can only do this action once every 30 minutes",
         "passwords_must_match": "Passwords must match",
         "password_restrictions": "Use at least eight characters with uppercase and lowercase letters, numbers and symbols."
     },
@@ -143,6 +144,11 @@
         "confirm_new_password": "Confirm new password",
         "two_factor_card_title": "Two-Factor Authentication",
         "two_factor_card_subtitle": "Require a key in addition to your password.",
+        "export_data": {
+            "title": "Download your personal data",
+            "subtitle": "This will provide your account data, not the actual files stored by you.",
+            "button": "Download"
+        },
         "danger_zone": "Danger zone"
     },
     "dialogs": {

@@ -4,7 +4,7 @@ import {Observable, of} from 'rxjs';
 import {Device, User} from 'src/app/models/users-api-models';
 import {delay, map} from 'rxjs/operators';
 import {EventEmitter} from '@angular/core';
-import {FileTag} from 'src/app/models/files-api-models';
+import {CloudFile, FileTag} from 'src/app/models/files-api-models';
 import {HttpErrorResponse} from '@angular/common/http';
 
 
@@ -58,13 +58,16 @@ export class MockUserService implements UserService {
     constructor() {
         this._load();
     }
+    getDataExportURL(): string {
+        throw new Error('Method not implemented.');
+    }
 
     importRecoveryKey(email: string, password: string, file: File, resetPasswordJWTToken: string): Observable<void> {
         return of(null);
     }
-    
+
     exportRecoveryKey(): Observable<string> {
-        return of("");
+        return of('');
     }
 
     addTag(tag: FileTag): Observable<void> {

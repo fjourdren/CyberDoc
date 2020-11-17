@@ -118,6 +118,11 @@ class UserService {
         return {'user': user, 'newToken': newToken};
     }
 
+    // Export Files Data
+    public static async getAllFiles(user: IUser): Promise<IFile[]> {
+        return await File.find({owner_id: user._id}).exec();
+    }
+
     // delete user account service
     public static async delete(user: IUser, tokenBase64: string | undefined): Promise<IUser> {
         if (!tokenBase64) {

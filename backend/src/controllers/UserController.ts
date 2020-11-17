@@ -7,6 +7,7 @@ import UserService from '../services/UserService';
 
 import IUser, { User } from '../models/User';
 import CryptoHelper from '../helpers/CryptoHelper';
+import {requireAuthenticatedUser} from '../helpers/Utils';
 
 class UserController {
 
@@ -57,6 +58,30 @@ class UserController {
             }
 
         } catch(err) {
+            next(err);
+        }
+    }
+
+
+    // Export files data
+    public static async exportData(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const currentUser = requireAuthenticatedUser(res);
+            const userFiles = await UserService.getAllFiles(currentUser);
+
+            let string = "";
+            string += JSON.stringify(currentUser);
+            string += "\n\n\n";
+            for (const file of userFiles) {
+                string += JSON.stringify(file);
+                string += "\n";
+            }
+        
+            res.set('Content-Type', "text/plain");
+            res.set('Content-Disposition', 'attachment; filename="' + currentUser.email + '-personal-data.txt"');
+            res.status(HttpCodes.OK);
+            res.send(Buffer.from(string, "utf-8"));
+        } catch (err) {
             next(err);
         }
     }
