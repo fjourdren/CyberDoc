@@ -36,8 +36,8 @@ export class RegisterPageComponent {
     emailAlreadyExistsError = false;
     genericError = false;
     registerForm: FormGroup;
+    email: string;
     fileOwnerEmail: string;
-    tokenEmail: string;
     fileId: string;
     private jwtHelper = new JwtHelperService();
     private _cookieDomain: string;
@@ -54,16 +54,18 @@ export class RegisterPageComponent {
 
         // Manage registering after file sharing
         this.route.queryParams.subscribe(params => {
-            if(params['token']) {
-                this.fileOwnerEmail = this.jwtHelper.decodeToken(params['token']).fileOwnerEmail;
-                this.tokenEmail = this.jwtHelper.decodeToken(params['token']).email;
+            if(params['data']) {
+                const cut: string[] = params['data'].split("-");
+
+                this.email = cut[0];
+                this.fileOwnerEmail = cut[1];
             }
         });
 
         this.registerForm = this.fb.group({
                 firstName: [null, Validators.required],
                 lastName: [null, Validators.required],
-                email: [{value: this.tokenEmail, disabled: !!this.tokenEmail}, [Validators.required, Validators.email]],
+                email: [{value: this.email, disabled: !!this.email}, [Validators.required, Validators.email]],
                 password: [null, [Validators.required, passwordValidator()]],
                 repeat: [null, Validators.required],
                 role: ['owner', Validators.required],
@@ -74,7 +76,7 @@ export class RegisterPageComponent {
     }
 
     onSubmit(): void {
-        if (this.registerForm.invalid || (this.tokenEmail && this.registerForm.controls.email.value !== this.tokenEmail)) {
+        if (this.registerForm.invalid || (this.email && this.registerForm.controls.email.value !== this.email)) {
             return;
         }
 
@@ -87,7 +89,7 @@ export class RegisterPageComponent {
             role: this.registerForm.controls.role.value,
             firstname: this.registerForm.controls.firstName.value,
             lastname: this.registerForm.controls.lastName.value,
-            email: this.tokenEmail || this.registerForm.controls.email.value,
+            email: this.email || this.registerForm.controls.email.value,
         } as User;
 
         this.userServiceProvider.default().register(user, this.registerForm.controls.password.value, this.fileId).toPromise().then(() => {
