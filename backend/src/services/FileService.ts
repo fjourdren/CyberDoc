@@ -296,18 +296,18 @@ class FileService {
     public static async getFileContent(user_hash: string, user: IUser, file: IFile): Promise<Record<any, any>> {
         // be sure that file is a document
         FileService.requireFileIsDocument(file);
-        const fileObjectID = Types.ObjectId(file.document_id);
+        let fileObjectID = Types.ObjectId(file.document_id);
 
         if (file.mimetype === "text/plain") {
             //Sync version stored by Etherpad with GridFS
             const etherpadPadID =  `pad:${file._id}`;
             const etherpadData = await EtherpadData.findOne({key: etherpadPadID}).exec();
-            console.warn(etherpadData);
             if (etherpadData) {
                 const text = JSON.parse(etherpadData.val).atext.text;
-                console.warn(file);
-                file = await FileService.updateContentDocument(user_hash, user, file, Buffer.from(text, "utf8"));
-                console.warn(file);
+                GridFSTalker.delete(fileObjectID);
+                await EncryptionFileService.deleteFileKeys(file);
+                file = await FileService.createDocument(user_hash, file, file.name, file.mimetype, Buffer.from(text, "utf8"));
+                fileObjectID = Types.ObjectId(file.document_id);
             }
         }
 
@@ -334,7 +334,6 @@ class FileService {
 
         // get gridfs for document_id and put data in it
         const newDocumentId: string = await GridFSTalker.update(Types.ObjectId(file.document_id), fileGridFSInfos.filename, fileGridFSInfos.contentType, readableEncryptedContent);
-        console.error(newDocumentId);
         file.document_id = newDocumentId;
 
         // get file size and save it in File model
