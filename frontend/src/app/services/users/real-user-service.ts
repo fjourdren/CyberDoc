@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { EventEmitter } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { FileTag } from 'src/app/models/files-api-models';
+import {CloudDirectory, CloudFile, FileTag} from 'src/app/models/files-api-models';
 import { User, Device } from 'src/app/models/users-api-models';
 import { UserService } from './user-service';
 import { JwtHelperService } from '@auth0/angular-jwt';
@@ -280,6 +280,12 @@ export class RealUserService implements UserService {
             },
             withCredentials: true
         }).pipe(map(() => { }));
+    }
+
+    getFilesData(): Observable<CloudFile[]> {
+        return this.httpClient.get<any>(`${environment.apiBaseURL}/users/exportData`, { withCredentials: true }).pipe(map(response => {
+            return response.filesData;
+        }));
     }
 
     private _setUser(user: User) {

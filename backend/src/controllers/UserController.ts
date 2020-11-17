@@ -7,6 +7,8 @@ import UserService from '../services/UserService';
 
 import IUser, { User } from '../models/User';
 import CryptoHelper from '../helpers/CryptoHelper';
+import {requireAuthenticatedUser} from '../helpers/Utils';
+import {IFile} from '../models/File';
 
 class UserController {
 
@@ -57,6 +59,23 @@ class UserController {
             }
 
         } catch(err) {
+            next(err);
+        }
+    }
+
+
+    // Export files data
+    public static async exportData(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const currentUser = requireAuthenticatedUser(res);
+            const filesData: IFile[] = await UserService.exportData(currentUser.directory_id);
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: "Success",
+                filesData
+            });
+        } catch (err) {
             next(err);
         }
     }

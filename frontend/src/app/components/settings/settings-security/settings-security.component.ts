@@ -7,6 +7,7 @@ import { SecurityCheckDialogComponent } from '../../security-check-dialog/securi
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { SettingsRenameDeviceDialogComponent } from '../settings-rename-device-dialog/settings-rename-device-dialog.component';
+import {CloudFile} from '../../../models/files-api-models';
 
 function passwordValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
@@ -124,10 +125,13 @@ export class SettingsSecurityComponent {
 
     exportData(): void {
         const anchor = document.createElement('a');
-        const user = this.userServiceProvider.default().getActiveUser();
-        anchor.download = `${user.email}-personal-data.txt`;
-        anchor.href = `data:text/plain,${JSON.stringify(user)}`;
-        anchor.click();
-        anchor.remove();
+        const user_data = this.userServiceProvider.default().getActiveUser();
+        anchor.download = `${user_data.email}-personal-data.txt`;
+        this.userServiceProvider.default().getFilesData().toPromise().then(files => {
+            anchor.href = `data:text/plain,user_data = ${JSON.stringify(user_data)}`;
+            anchor.href += `\nfiles_data = ${JSON.stringify(files)}`;
+            anchor.click();
+            anchor.remove();
+        });
     }
 }

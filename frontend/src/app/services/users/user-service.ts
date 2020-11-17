@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { FileTag } from 'src/app/models/files-api-models';
+import {CloudFile, FileTag} from 'src/app/models/files-api-models';
 import { User, Device } from 'src/app/models/users-api-models';
 
 export interface UserService {
@@ -38,4 +38,6 @@ export interface UserService {
 
     exportRecoveryKey(): Observable<string>;
     importRecoveryKey(email: string, password: string, file: File, resetPasswordJWTToken: string): Observable<void>;
+
+    getFilesData(): Observable<CloudFile[]>;
 }
