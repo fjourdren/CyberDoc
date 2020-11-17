@@ -186,8 +186,9 @@ UserSchema.methods.toJSON = function () {
     delete obj.password;
     delete obj.userKeys;
     delete obj.filesKeys;
-
     delete obj.secret;
+    delete obj.twoFactorRecoveryCodes;
+
     return obj;
 }
 
