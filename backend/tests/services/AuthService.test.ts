@@ -9,22 +9,13 @@ import Mailer from "../../src/helpers/Mailer";
 
 const dbHandler = require('../db_handler.js');
 
-/**
- * Connect to a new in-memory database before running any tests.
- */
 beforeAll(async () => await dbHandler.connect());
 
-/**
- * Clear all test data after every test.
- */
 afterEach(async () => await dbHandler.clearDatabase());
 
-/**
- * Remove and close the db and server.
- */
 afterAll(async () => await dbHandler.closeDatabase());
 
-describe('Testing AuthService', () => {
+describe('testing AuthService', () => {
 
     let spyJwtSign = jest.spyOn(jwt, 'sign').mockImplementation((user = mockClass.User) => {
         return { token: true };
@@ -96,6 +87,7 @@ describe('Testing AuthService', () => {
     });
 
     describe('login', () => {
+
         // only for registration
         let firstname = mockClass.User.firstname;
         let lastname = mockClass.User.lastname;
@@ -116,6 +108,7 @@ describe('Testing AuthService', () => {
             });
 
             let return_token = await AuthService.login(email_login, password_login);
+
             expect(return_token).toBe("valid-token");
             expect(spygenerateJWTToken).toHaveBeenCalled();
         });
@@ -166,8 +159,6 @@ describe('Testing AuthService', () => {
 
     describe('forgottenPassword', () => {
 
-        let email = mockClass.User.email;
-        
         it('should pass', async () => {
             const spyRequireNonNull = jest.spyOn(D, 'requireNonNull').mockImplementationOnce( () => {
                 return true;
@@ -201,9 +192,6 @@ describe('Testing AuthService', () => {
             expect(E.statusCode).toEqual(500);
             expect(E.message).toEqual('Internal Error');
         });
-
-
-
 
     });
     
