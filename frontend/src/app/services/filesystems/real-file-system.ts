@@ -61,7 +61,7 @@ export class RealFileSystem implements FileSystem {
 
     listSignatories(fileID: string): Observable<RespondAnswerSign[]>{
         return this.httpClient.get<any>(`${environment.apiBaseURL}/files/${fileID}`, {withCredentials: true}).pipe(map(response => {  
-            console.log(response.content.signs);  
+            
             return response.content.signs as RespondAnswerSign[];
         }));
     }

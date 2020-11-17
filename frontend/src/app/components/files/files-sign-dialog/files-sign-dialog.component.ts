@@ -4,13 +4,47 @@ import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { element } from 'protractor';
+import { stringify } from 'querystring';
 import { CloudFile, RespondSign, RespondAnswerSign } from 'src/app/models/files-api-models';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 
 const response: RespondAnswerSign[] = [
   {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
+  {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""},
+  {user_email:"alegal@enssat.fr", created_at:"13/11/2020", diggest:""},
   {user_email:"cforgeard@enssat.fr", created_at:"15/11/2020", diggest:""}
+
 ]
 
 @Component({
@@ -24,6 +58,9 @@ export class FilesSignDialogComponent {
   loading = false;
   hasAlreadySign = false;
   isEmpty = false;
+  genericError = false;
+  dateSign: string;
+  hourSign: string
   displayedColumns: string[] = ['user_email', 'created_at'];
   dataSource = new MatTableDataSource([]);
   constructor(public dialogRef: MatDialogRef<FilesSignDialogComponent>,
@@ -41,17 +78,22 @@ export class FilesSignDialogComponent {
   update() {
     //TO TEST ONCE LISTSIGNATORIES READY
     this.fsProvider.default().listSignatories(this.file._id).toPromise().then(values=>{
-      this.dataSource.data = values;
+      
       if(values.length === 0){
         this.isEmpty = true;
       }
-      values.forEach(element=>{
+      values.forEach(element=>{        
+        this.dateSign = element.created_at.slice(0,10);
+        this.hourSign = element.created_at.slice(11,19);
+        element.created_at= this.dateSign+" / "+this.hourSign;
         if(element.user_email===this.userServiceProvider.default().getActiveUser().email){
           this.hasAlreadySign = true;
         }
       })
+      this.dataSource.data = values;
+     
     }).catch(err => {
-      this.dataSource.data = response;
+      this.genericError = true;
   });
   
   
@@ -117,7 +159,7 @@ export class FilesSignConfirmDialogComponent {
       this.loading = false;
       this.dialogRef.close(true);
     }).catch(err => {
-        console.log("Error, couldn't sign file : "+this.file._id);
+        
         this.dialogRef.disableClose = false;
         this.loading = false;
         this.dialogRef.close(true);
