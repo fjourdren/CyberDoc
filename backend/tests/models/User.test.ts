@@ -52,7 +52,6 @@ describe('Testing User.ts file', () => {
         expect(insertion.secret).toBe("JL5QH7CTHVIFXWU6S4TREV7BTMXCMTYK");
         expect(insertion.twoFactorApp).toBe(false);
         expect(insertion.twoFactorSms).toBe(false);
-        expect(insertion.twoFactorEmail).toBe(false);
 
         const getter = await u.User.find();
 
