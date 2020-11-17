@@ -1,6 +1,6 @@
 import  AuthMiddleware  from "../../src/middlewares/AuthMiddleware";
 
-describe("Testing AuthMiddleware : isAuthenticate", () => {
+describe("testing AuthMiddleware : isAuthenticate", () => {
     it("should authorize", () => {
         let E: any;
         const req: any = {};
@@ -85,7 +85,7 @@ describe("Testing AuthMiddleware : isAuthenticate", () => {
 
 });
 
-describe("Testing AuthMiddleware : isntAuthenticate", () => {
+describe("testing AuthMiddleware : isntAuthenticate", () => {
 
     it("should authorize", () => {
         let E: any;
@@ -146,7 +146,7 @@ describe("Testing AuthMiddleware : isntAuthenticate", () => {
     });
 });
 
-describe("Testing AuthMiddleware : isAuthenticateOrEditToken", () => {
+describe("testing AuthMiddleware : isAuthenticateOrEditToken", () => {
   
     it("should not authorize", () => {
         let E: any;

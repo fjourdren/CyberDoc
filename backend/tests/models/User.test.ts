@@ -1,28 +1,16 @@
-import Guid from 'guid';
-
 const dbHandler = require('../db_handler.js');
 
 import * as u from '../../src/models/User';
 
-import { FileType, IFile, File } from '../../src/models/File';
 import mockClass from '../../src/__mocks__/mockHelpers/class'
 
-/**
- * Connect to a new in-memory database before running any tests.
- */
 beforeAll(async () => await dbHandler.connect());
 
-/**
- * Clear all test data after every test.
- */
 afterEach(async () => await dbHandler.clearDatabase());
 
-/**
- * Remove and close the db and server.
- */
 afterAll(async () => await dbHandler.closeDatabase());
-// TODO test phone number
-describe('Testing User.ts file', () => {
+
+describe('testing User.ts file', () => {
 
 
     it('enum role', () => {
@@ -119,9 +107,6 @@ describe('Testing User.ts file', () => {
         expect(E.errors.password.properties.path).toStrictEqual("password");
 
     });
-
-    
-
 
 });
 

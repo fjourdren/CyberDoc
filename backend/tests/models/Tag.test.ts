@@ -1,25 +1,14 @@
-import { Mongoose } from 'mongoose';
-
 const dbHandler = require('../db_handler.js');
 
 import * as t from '../../src/models/Tag';
 
-/**
- * Connect to a new in-memory database before running any tests.
- */
 beforeAll(async () => await dbHandler.connect());
 
-/**
- * Clear all test data after every test.
- */
 afterEach(async () => await dbHandler.clearDatabase());
 
-/**
- * Remove and close the db and server.
- */
 afterAll(async () => await dbHandler.closeDatabase());
 
-describe('Testing Tag.ts file', () => {
+describe('testing Tag.ts file', () => {
     let tag = new t.Tag();
     tag.name = "colorTag";
     tag.hexColor = "#6060C0";
@@ -70,10 +59,7 @@ describe('Testing Tag.ts file', () => {
         }
         expect(E.errors.hexColor.properties.message).toBe(`Color needs to be a hexadecimal value`);
 
-
     });
-
- 
 
 });
 
