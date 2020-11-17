@@ -101,7 +101,6 @@ export class FilesDetailsPanelComponent {
 
     isPreviewAvailable(node: CloudNode) {
         if (node.isDirectory) return false;
-        if (this.sharedWithMeMode) return false;
         if (this.filesUtils.getFileTypeForMimetype(node.mimetype) == FileType.Unknown) return false;
         if (this.filesUtils.getFileTypeForMimetype(node.mimetype) == FileType.Audio) return false;
         return true;
