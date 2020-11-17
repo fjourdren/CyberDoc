@@ -58,6 +58,9 @@ export class MockUserService implements UserService {
     constructor() {
         this._load();
     }
+    getDataExportURL(): string {
+        throw new Error('Method not implemented.');
+    }
 
     importRecoveryKey(email: string, password: string, file: File, resetPasswordJWTToken: string): Observable<void> {
         return of(null);
@@ -371,9 +374,5 @@ export class MockUserService implements UserService {
 
     createUserDevice(name: string, browser: string, OS: string): Observable<void>{
         return;
-    }
-
-    getFilesData(): Observable<CloudFile[]> {
-        return null;
     }
 }

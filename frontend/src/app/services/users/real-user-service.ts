@@ -282,10 +282,8 @@ export class RealUserService implements UserService {
         }).pipe(map(() => { }));
     }
 
-    getFilesData(): Observable<CloudFile[]> {
-        return this.httpClient.get<any>(`${environment.apiBaseURL}/users/exportData`, { withCredentials: true }).pipe(map(response => {
-            return response.filesData;
-        }));
+    getDataExportURL(): string {
+        return `${environment.apiBaseURL}/users/exportData`;
     }
 
     private _setUser(user: User) {
