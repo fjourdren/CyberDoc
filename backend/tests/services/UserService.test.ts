@@ -3,8 +3,6 @@ import * as U from "../../src/models/User"
 import mockClass from "../../src/__mocks__/mockHelpers/class";
 import * as helperFunction from '../../src/__mocks__/mockHelpers/function'
 import * as D from '../../src/helpers/DataValidation'
-import jwt from 'jsonwebtoken';
-import AuthService from "../../src/services/AuthService";
 const dbHandler = require('../db_handler.js');
 
 /**
@@ -22,7 +20,7 @@ afterEach(async () => await dbHandler.clearDatabase());
  */
 afterAll(async () => await dbHandler.closeDatabase());
 
-describe('Testing UserService', () => {
+describe('testing UserService', () => {
 
     describe('hasRoles', () => {
 
@@ -164,7 +162,7 @@ describe('Testing UserService', () => {
          
         });
 
-        it('should not find something to delete', async () => {
+        it('should not find a user to delete', async () => {
             let E: any;
             try{
                 await UserService.delete(mockClass.User, "")
