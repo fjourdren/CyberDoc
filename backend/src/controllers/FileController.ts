@@ -386,6 +386,7 @@ class FileController {
             if (pdfFileName.indexOf(".") !== -1) {
                 pdfFileName.substring(0, pdfFileName.lastIndexOf("."));
             }
+            pdfFileName += ".pdf";
 
             res.set('Content-Type', 'application/pdf');
             res.set('Content-Disposition', `attachment; filename="${pdfFileName}"`);
