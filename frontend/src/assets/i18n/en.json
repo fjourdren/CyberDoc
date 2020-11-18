@@ -116,7 +116,7 @@
         "owner": "Owner",
         "collaborator": "Collaborator",
         "create_account": "Create new account",
-        "email_already_exists": "An user with this email already exists",
+        "email_already_exists": "A user with this email already exists",
         "forgot_password": "Forgot your password ?",
         "already_register": "Already registered ?",
         "login_error": "Wrong login or password",
