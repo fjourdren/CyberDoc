@@ -8,6 +8,7 @@ import { SettingsDeleteTagDialogComponent } from '../settings-delete-tag-dialog/
 import { MatDialog } from '@angular/material/dialog';
 import { SettingsCreateEditTagDialogComponent } from '../settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
 import { SecurityCheckDialogComponent } from '../../security-check-dialog/security-check-dialog.component';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'app-settings-profile',
@@ -23,9 +24,10 @@ export class SettingsProfileComponent {
     dataSource = new MatTableDataSource<FileTag>([]);
 
     constructor(private userServiceProvider: UserServiceProvider,
-        private fb: FormBuilder,
-        private snackBar: MatSnackBar,
-        private dialog: MatDialog) {
+                private fb: FormBuilder,
+                private snackBar: MatSnackBar,
+                private dialog: MatDialog,
+                private router: Router) {
         this.profileForm = this.fb.group({
             firstName: ['', Validators.required],
             lastName: ['', Validators.required],
@@ -53,20 +55,24 @@ export class SettingsProfileComponent {
                     checkTwoFactor: true
                 }
             }).afterClosed().subscribe(res => {
-                if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) { // [password:smsOrApp:2faToken]
-                    this.userServiceProvider.default().updateProfile(
-                        this.profileForm.get('firstName').value,
-                        this.profileForm.get('lastName').value,
-                        this.profileForm.get('newEmail').value,
-                        res.xAuthTokenArray
-                    ).toPromise().then(() => {
-                        this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                            this.loading = false;
-                            this.profileForm.enable();
-                            this.snackBar.dismiss();
-                            this.snackBar.open('Profile updated', null, { duration: 1500 });
+                if (res) {
+                    if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) { // [password:smsOrApp:2faToken]
+                        this.userServiceProvider.default().updateProfile(
+                            this.profileForm.get('firstName').value,
+                            this.profileForm.get('lastName').value,
+                            this.profileForm.get('newEmail').value,
+                            res.xAuthTokenArray
+                        ).toPromise().then(() => {
+                            this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                                this.loading = false;
+                                this.profileForm.enable();
+                                this.snackBar.dismiss();
+                                this.snackBar.open('Profile updated', null, {duration: 1500});
+                            });
                         });
-                    });
+                    } else {
+                        this.loading = false;
+                    }
                 } else {
                     this.loading = false;
                 }
@@ -95,8 +101,17 @@ export class SettingsProfileComponent {
                 checkTwoFactor: true
             }
         }).afterClosed().subscribe(res => {
-            if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
-                this.userServiceProvider.default().deleteAccount(res.xAuthTokenArray).toPromise();
+            if (res) {
+                if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
+                    this.userServiceProvider.default().deleteAccount(res.xAuthTokenArray).toPromise().then(() => {
+                        this.loading = false;
+                        this.router.navigate(['/logout']);
+                    });
+                } else {
+                    this.loading = false;
+                }
+            } else {
+                this.loading = false;
             }
         });
     }
