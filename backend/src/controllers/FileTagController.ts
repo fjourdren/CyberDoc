@@ -41,7 +41,7 @@ class FileTagController {
                 throw new HTTPError(HttpCodes.UNAUTHORIZED, "User isn't owner");
 
             // add tag
-            requireNonNull(await TagService.addToFile(file, tag));
+            await TagService.addToFile(file, tag);
 
             // reply client
             res.status(HttpCodes.OK);
