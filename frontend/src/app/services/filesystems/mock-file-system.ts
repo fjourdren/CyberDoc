@@ -56,6 +56,10 @@ export class MockFileSystem implements FileSystem {
         return `/fake-export-url/${node._id}`;
     }
 
+    getEtherpadURL(file: CloudFile): Observable<string> {
+        return of(`/fake-etherpadurl/${file._id}`);
+    }
+
     // MOCK
     getSharedWith(id: string): Observable<RespondShare[]>{
         return of(null).pipe(delay(DELAY)).pipe(map(() => {

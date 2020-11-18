@@ -25,7 +25,7 @@ import { UserServiceProvider } from 'src/app/services/users/user-service-provide
 import { FilesShareMenuDialogComponent } from '../files-share-menu-dialog/files-share-menu-dialog.component';
 import { isDirectory } from "@angular-devkit/build-angular/src/angular-cli-files/utilities/is-directory";
 import { FilesNewFolderDialogComponent } from '../files-new-folder-dialog/files-new-folder-dialog.component';
-import {FilesSignDialogComponent} from '../files-sign-dialog/files-sign-dialog.component'
+import { FilesSignDialogComponent } from '../files-sign-dialog/files-sign-dialog.component'
 
 export type FileAction = 'open' | 'download' | 'export' | 'rename' | 'copy' | 'delete' | 'move' | 'details' | 'share' | 'sign';
 
@@ -179,6 +179,10 @@ export class FilesGenericTableComponent implements AfterViewInit {
         return this.restrictions.isReadOnly(file) || file && file.name === '..';
     }
 
+    canBeOpened(node: CloudNode): boolean {
+        return this.filesUtils.canBeOpenedInApp(this.filesUtils.getFileTypeForMimetype(node.mimetype));
+    }
+
     onContextMenu(event: MouseEvent, node: CloudNode): void {
         if (node && this._restrictions.isContextAndBottomSheetDisabled(node)) {
             return;
@@ -238,7 +242,11 @@ export class FilesGenericTableComponent implements AfterViewInit {
             this.isTouchScreen = true;
             this._touchStartEventTrigerred = true;
             this.setSelectedNode(node);
-            this.execActionOnSelectedNode('open');
+            if (this.filesUtils.canBeOpenedInApp(this.filesUtils.getFileTypeForMimetype(node.mimetype))) {
+                this.execActionOnSelectedNode('open');
+            } else {
+                this.execActionOnSelectedNode('download');
+            }
         });
     }
 
@@ -261,7 +269,11 @@ export class FilesGenericTableComponent implements AfterViewInit {
     onDoubleClick(node: CloudNode): void {
         this.ngZone.run(() => {
             this.setSelectedNode(node);
-            this.execActionOnSelectedNode('open');
+            if (this.filesUtils.canBeOpenedInApp(this.filesUtils.getFileTypeForMimetype(node.mimetype))) {
+                this.execActionOnSelectedNode('open');
+            } else {
+                this.execActionOnSelectedNode('download');
+            }
         });
     }
 
@@ -371,7 +383,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
         });
     }
 
-    signNode(node: CloudNode){
+    signNode(node: CloudNode) {
         this.dialog.open(FilesSignDialogComponent, {
             width: '500px',
             height: '400px',

@@ -94,6 +94,7 @@ import { DevicePageComponent } from './pages/device-page/device-page.component';
 import { SettingsRenameDeviceDialogComponent } from './components/settings/settings-rename-device-dialog/settings-rename-device-dialog.component';
 import { FilesSignDialogComponent, FilesSignConfirmDialogComponent } from './components/files/files-sign-dialog/files-sign-dialog.component';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
+import { FilesOpenDialogComponent } from './components/files/files-open-dialog/files-open-dialog.component';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
@@ -185,6 +186,7 @@ if (environment.useSentry) {
         FilesSignDialogComponent,
         FilesSignConfirmDialogComponent,
         ExportRecoveryKeyPageComponent,
+        FilesOpenDialogComponent,
     ],
     imports: [
         BrowserModule,

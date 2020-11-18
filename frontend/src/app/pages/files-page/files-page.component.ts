@@ -1,11 +1,13 @@
-import {BreakpointObserver} from '@angular/cdk/layout';
-import {HttpErrorResponse} from '@angular/common/http';
-import {AfterViewInit, Component, NgZone, ViewChild} from '@angular/core';
-import {MatDrawer} from '@angular/material/sidenav';
-import {ActivatedRoute, Router} from '@angular/router';
-import {CloudDirectory, CloudNode, isValidSearchParams, SearchParams} from 'src/app/models/files-api-models';
-import {FileSystemProvider} from 'src/app/services/filesystems/file-system-provider';
-import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AfterViewInit, Component, NgZone, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { MatDrawer } from '@angular/material/sidenav';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FilesOpenDialogComponent } from 'src/app/components/files/files-open-dialog/files-open-dialog.component';
+import { CloudDirectory, CloudNode, isValidSearchParams, SearchParams } from 'src/app/models/files-api-models';
+import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
+import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 
 @Component({
     selector: 'app-files-page',
@@ -27,11 +29,13 @@ export class FilesPageComponent implements AfterViewInit {
     routeSearchParams: SearchParams;
 
     constructor(private breakpointObserver: BreakpointObserver,
-                private route: ActivatedRoute,
-                private router: Router,
-                private ngZone: NgZone,
-                private fsProvider: FileSystemProvider,
-                private userServiceProvider: UserServiceProvider) {
+        private dialog: MatDialog,
+        private route: ActivatedRoute,
+        private router: Router,
+        private ngZone: NgZone,
+        private fsProvider: FileSystemProvider,
+        private userServiceProvider: UserServiceProvider) {
+
         this.fsProvider.default().refreshNeeded().subscribe(() => this.refresh());
         this.breakpointObserver.observe('(max-width: 600px)').subscribe(result => {
             this.smallScreen = result.matches;
@@ -140,7 +144,11 @@ export class FilesPageComponent implements AfterViewInit {
         if (node.isDirectory) {
             this.router.navigate(['/files', node._id]);
         } else {
-            this.router.navigate(['/file', node._id]);
+            this.dialog.open(FilesOpenDialogComponent, {
+                width: '96px',
+                height: '96px',
+                data: node
+            });
         }
     }
 

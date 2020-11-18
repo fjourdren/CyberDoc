@@ -204,6 +204,11 @@ export class RealFileSystem implements FileSystem {
         return `${environment.apiBaseURL}/files/${node._id}/preview`;
     }
 
+    getEtherpadURL(file: CloudFile): Observable<string> {
+        return this.httpClient.get<any>(`${environment.apiBaseURL}/files/${file._id}/etherpad-url`, {withCredentials: true})
+            .pipe(map(response => response.url));
+    }
+
 
     startFileUpload(file: File, destination: CloudDirectory): void {
         const formData = new FormData();
