@@ -1,34 +1,34 @@
-import {NextFunction, Request, Response} from 'express';
-import {requireNonNull} from '../helpers/DataValidation';
+import { NextFunction, Request, Response } from 'express';
+import { requireNonNull } from '../helpers/DataValidation';
 
 import HttpCodes from '../helpers/HttpCodes'
 
 import TwoFactorAuthService from '../services/TwoFactorAuthService';
 import jwt from "jsonwebtoken";
 import HTTPError from '../helpers/HTTPError';
-import {IUser, User} from '../models/User';
+import { IUser, User } from '../models/User';
 import ITwoFactorRecoveryCode from '../models/TwoFactorRecoveryCode';
 
 class TwoFactorAuthController {
     public static async sendTokenBySms(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const {phoneNumber} = req.body;
-            requireNonNull(phoneNumber);
+            const { phoneNumber } = req.body;
+            requireNonNull(phoneNumber, HttpCodes.BAD_REQUEST, "Missing phoneNumber");
             const verificationInstance = await TwoFactorAuthService.sendTokenViaSMS(phoneNumber);
             res.status(HttpCodes.OK);
             res.json(verificationInstance);
         } catch (err) {
-            if(err.code && err.code === 60200) next(new HTTPError(HttpCodes.BAD_REQUEST, "This phone number is invalid"));
-            else if(err.code && err.status === 429) next(new HTTPError(HttpCodes.TOO_MANY_REQUESTS, "Max send attempts reached"));
+            if (err.code && err.code === 60200) next(new HTTPError(HttpCodes.BAD_REQUEST, "This phone number is invalid"));
+            else if (err.code && err.status === 429) next(new HTTPError(HttpCodes.TOO_MANY_REQUESTS, "Max send attempts reached"));
             else next(err);
         }
     }
 
     public static async verifyTokenAppSms(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const {phoneNumber, secret, token} = req.body;
+            const { phoneNumber, secret, token } = req.body;
             // Check that token exists
-            requireNonNull(token);
+            requireNonNull(token, HttpCodes.BAD_REQUEST, "Missing token");
             let jwtToken: string;
             let output: boolean;
             if (secret) {
@@ -55,7 +55,7 @@ class TwoFactorAuthController {
                 }, process.env.JWT_SECRET, {
                     expiresIn: 36000
                 });
-                if(verificationInstance.status === 'approved') {
+                if (verificationInstance.status === 'approved') {
                     res.status(HttpCodes.OK);
                     res.json({
                         success: true,
@@ -66,16 +66,15 @@ class TwoFactorAuthController {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "Request should have either secret, phoneNumber.");
             }
         } catch (err) {
-            if(err.code && err.status === 429) next(new HTTPError(HttpCodes.TOO_MANY_REQUESTS, "Max check attempts reached"));
+            if (err.code && err.status === 429) next(new HTTPError(HttpCodes.TOO_MANY_REQUESTS, "Max check attempts reached"));
             else next(err);
         }
     }
 
     public static async generateSecretUriAndQr(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const {email} = req.body;
-
-            requireNonNull(email);
+            const { email } = req.body;
+            requireNonNull(email, HttpCodes.BAD_REQUEST, "Missing email");
 
             const secretUriAndQr: any = requireNonNull(await TwoFactorAuthService.generateSecretByEmail(email));
 
@@ -88,24 +87,23 @@ class TwoFactorAuthController {
 
     public static async useRecoveryCode(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const {code} = req.body;
-            requireNonNull(code);
+            const { code } = req.body;
+            const user = await TwoFactorAuthController._requireAuthenticatedUser(res);
+            requireNonNull(code, HttpCodes.BAD_REQUEST, "Missing code");
 
-            await TwoFactorAuthController._requireAuthenticatedUser(res).then(async user => {
-                const recoveryCodesLeft = await TwoFactorAuthService.useRecoveryCode(user, code);
-                const jwtToken = jwt.sign({
-                    user: res.locals.APP_JWT_TOKEN.user,
-                    authorized: true
-                }, process.env.JWT_SECRET, {
-                    expiresIn: 36000
-                });
-                res.status(HttpCodes.OK);
-                res.json({
-                    success: true,
-                    msg: 'Recovery code used',
-                    token: jwtToken,
-                    recoveryCodesLeft
-                });
+            const recoveryCodesLeft = await TwoFactorAuthService.useRecoveryCode(user, code);
+            const jwtToken = jwt.sign({
+                user: res.locals.APP_JWT_TOKEN.user,
+                authorized: true
+            }, process.env.JWT_SECRET, {
+                expiresIn: 36000
+            });
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: 'Recovery code used',
+                token: jwtToken,
+                recoveryCodesLeft
             });
         } catch (err) {
             next(err);
@@ -115,15 +113,13 @@ class TwoFactorAuthController {
 
     public static async generateRecoveryCodes(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            let recoveryCodes: ITwoFactorRecoveryCode[];
-            await TwoFactorAuthController._requireAuthenticatedUser(res).then(async user => {
-                recoveryCodes = requireNonNull(await TwoFactorAuthService.generateRecoveryCodes(user));
-                res.status(HttpCodes.OK);
-                res.json({
-                    success: true,
-                    msg: '5 Two-Factor recovery codes have been generated.',
-                    recoveryCodes: recoveryCodes.map(rc => rc.code)
-                });
+            const user = await TwoFactorAuthController._requireAuthenticatedUser(res);
+            const recoveryCodes = requireNonNull(await TwoFactorAuthService.generateRecoveryCodes(user));
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: '5 Two-Factor recovery codes have been generated.',
+                recoveryCodes: recoveryCodes.map(rc => rc.code)
             });
         } catch (err) {
             next(err);
