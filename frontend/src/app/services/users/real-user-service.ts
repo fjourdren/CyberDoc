@@ -236,9 +236,7 @@ export class RealUserService implements UserService {
                 'x-auth-token': Base64.encode(xAuthTokenArray[0] + '\t' + xAuthTokenArray[1] + '\t' + xAuthTokenArray[2])
             },
             withCredentials: true
-        }).pipe(map(() => {
-            this.logout();
-        }));
+        }).pipe(map(() => {}));
     }
 
     userUpdated(): Observable<User> {
