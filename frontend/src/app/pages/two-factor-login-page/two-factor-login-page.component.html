@@ -25,7 +25,8 @@
                     </button>
                     <button *ngIf="twoFactorType === 'app' && this.user.twoFactorSms"
                             mat-raised-button color="basic" (click)="sendTokenBySms()">Send me token by SMS
-                    </button>
+                    </button><br>
+                    <a mat-button (click)="openDialogRecovery()">{{ 'accounts.use_recovery_code' | translate }}</a>
                 </mat-card-content>
                 <mat-card-actions>
                     <button [disabled]="loading || !tokenForm.valid" mat-raised-button color="primary" type="submit" class="submit">Validate token</button>

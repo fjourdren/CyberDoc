@@ -1,0 +1,17 @@
+<h1 mat-dialog-title>{{ 'dialogs.two_factor_recovery_codes' | translate }}</h1>
+<div mat-dialog-content>
+    We have generated 5 new recovery codes :
+    <ul *ngFor="let generatedCode of this.generatedRecoveryCodes;">
+        <li>{{ generatedCode }}</li>
+    </ul>
+    <p>We recommend you to <strong>download and save</strong> these codes in a secure place (or write it on a piece of paper).</p>
+    <p>They will be useful in case you lose your phone or no longer have access to your two-factor application.</p>
+    <div id="downloadButton">
+        To do that, click on the following button :
+        <button mat-raised-button color="primary" mat-button (click)="downloadCodes()">Download</button>
+    </div>
+</div>
+<div mat-dialog-actions>
+    <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+    <button mat-raised-button color="primary" [disabled]="loading" mat-button (click)="onCancelBtnClicked()">{{'general.ok' | translate}}</button>
+</div>

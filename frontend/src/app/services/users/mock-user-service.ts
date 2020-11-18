@@ -47,7 +47,8 @@ const USER: User = {
             name: 'Done',
             hexColor: '#cccccc'
         },
-    ]
+    ],
+    twoFactorRecoveryCodes: []
 };
 
 export class MockUserService implements UserService {

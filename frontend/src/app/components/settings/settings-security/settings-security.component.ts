@@ -1,12 +1,12 @@
-import { Component } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
-import { MustMatch } from './_helpers/must-match.validator';
-import { SecurityCheckDialogComponent } from '../../security-check-dialog/security-check-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { MatTableDataSource } from '@angular/material/table';
-import { SettingsRenameDeviceDialogComponent } from '../settings-rename-device-dialog/settings-rename-device-dialog.component';
+import {Component, HostListener} from '@angular/core';
+import {AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators} from '@angular/forms';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
+import {MustMatch} from './_helpers/must-match.validator';
+import {SecurityCheckDialogComponent} from '../../security-check-dialog/security-check-dialog.component';
+import {MatDialog} from '@angular/material/dialog';
+import {MatTableDataSource} from '@angular/material/table';
+import {SettingsRenameDeviceDialogComponent} from '../settings-rename-device-dialog/settings-rename-device-dialog.component';
 
 function passwordValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
@@ -45,9 +45,9 @@ export class SettingsSecurityComponent {
     dataSource = new MatTableDataSource([]);
 
     constructor(private userServiceProvider: UserServiceProvider,
-        private fb: FormBuilder,
-        private snackBar: MatSnackBar,
-        private dialog: MatDialog) {
+                private fb: FormBuilder,
+                private snackBar: MatSnackBar,
+                private dialog: MatDialog) {
         this.refreshDevice();
 
         this.passwordForm = this.fb.group({
@@ -69,20 +69,21 @@ export class SettingsSecurityComponent {
             data: {
                 checkTwoFactor: true
             }
-        }).afterClosed().subscribe(xAuthTokenArray => {
-            if (xAuthTokenArray && xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
-                this.userServiceProvider.default().updatePassword(
-                    this.passwordForm.get('newPassword').value,
-                    xAuthTokenArray
-                ).toPromise().then(() => {
-                    this.snackBar.dismiss();
-                    this.snackBar.open('Password updated', null, { duration: 1500 });
-                    this.passwordForm.reset();
-                    this.loading = false;
-                });
-            } else {
-                this.loading = false;
+        }).afterClosed().subscribe(res => {
+            if (res) {
+                if ((res.xAuthTokenArray && res.xAuthTokenArray.length === 3) // 2FA verified
+                    || (res.recoveryCodesLeft)) { // Used a recovery code
+                    this.userServiceProvider.default().updatePassword(
+                        this.passwordForm.get('newPassword').value,
+                        res.xAuthTokenArray
+                    ).toPromise().then(() => {
+                        this.snackBar.dismiss();
+                        this.snackBar.open('Password updated', null, {duration: 1500});
+                        this.passwordForm.reset();
+                    });
+                }
             }
+            this.loading = false;
         });
     }
 

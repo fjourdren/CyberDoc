@@ -1,11 +1,13 @@
-import {NextFunction, Request, Response} from 'express';
-import {requireNonNull} from '../helpers/DataValidation';
+import { NextFunction, Request, Response } from 'express';
+import { requireNonNull } from '../helpers/DataValidation';
 
 import HttpCodes from '../helpers/HttpCodes';
 
 import TwoFactorAuthService from '../services/TwoFactorAuthService';
 import jwt from 'jsonwebtoken';
 import HTTPError from '../helpers/HTTPError';
+import { IUser, User } from '../models/User';
+import ITwoFactorRecoveryCode from '../models/TwoFactorRecoveryCode';
 
 class TwoFactorAuthController {
     public static async sendTokenBySms(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -89,9 +91,8 @@ class TwoFactorAuthController {
 
     public static async generateSecretUriAndQr(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const {email} = req.body;
-
-            requireNonNull(email);
+            const { email } = req.body;
+            requireNonNull(email, HttpCodes.BAD_REQUEST, "Missing email");
 
             const secretUriAndQr: any = requireNonNull(await TwoFactorAuthService.generateSecretByEmail(email));
 
@@ -100,6 +101,51 @@ class TwoFactorAuthController {
         } catch (err) {
             next(err);
         }
+    }
+
+    public static async useRecoveryCode(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { code } = req.body;
+            const user = await TwoFactorAuthController._requireAuthenticatedUser(res);
+            requireNonNull(code, HttpCodes.BAD_REQUEST, "Missing code");
+
+            const recoveryCodesLeft = await TwoFactorAuthService.useRecoveryCode(user, code);
+            const jwtToken = jwt.sign({
+                user: res.locals.APP_JWT_TOKEN.user,
+                authorized: true
+            }, process.env.JWT_SECRET, {
+                expiresIn: 36000
+            });
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: 'Recovery code used',
+                token: jwtToken,
+                recoveryCodesLeft
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+
+    public static async generateRecoveryCodes(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const user = await TwoFactorAuthController._requireAuthenticatedUser(res);
+            const recoveryCodes = requireNonNull(await TwoFactorAuthService.generateRecoveryCodes(user));
+            res.status(HttpCodes.OK);
+            res.json({
+                success: true,
+                msg: recoveryCodes.length + ' Two-Factor recovery codes have been generated.',
+                recoveryCodes: recoveryCodes.map(rc => rc.code)
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    private static async _requireAuthenticatedUser(res: Response): Promise<IUser> {
+        return requireNonNull(await User.findById(res.locals.APP_JWT_TOKEN.user._id).exec())
     }
 }
 
