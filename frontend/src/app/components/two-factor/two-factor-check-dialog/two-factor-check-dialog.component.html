@@ -11,9 +11,13 @@
                     Token is <strong>required. </strong>
                 </mat-error>
             </mat-form-field>
+            <button *ngIf="twoFactorType === 'sms' && this.user.twoFactorApp"
+                    mat-raised-button color="basic" (click)="dialogTokenByApp()">{{ 'twofactor.use_code_from_app' | translate }}
+            </button>
             <button *ngIf="twoFactorType === 'app' && this.user.twoFactorSms"
                     mat-raised-button color="basic" (click)="sendTokenBySms()">{{ 'twofactor.send_code_by_sms' | translate }}
-            </button>
+            </button><br>
+            <a mat-button (click)="openDialogRecovery()">{{ 'accounts.use_recovery_code' | translate }}</a>
         </mat-card-content>
 
         <div id="button-container">

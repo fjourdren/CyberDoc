@@ -52,13 +52,13 @@ export class SettingsProfileComponent {
                 data: {
                     checkTwoFactor: true
                 }
-            }).afterClosed().subscribe(xAuthTokenArray => {
-                if (xAuthTokenArray && xAuthTokenArray.length === 3) { // [password:smsOrApp:2faToken]
+            }).afterClosed().subscribe(res => {
+                if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) { // [password:smsOrApp:2faToken]
                     this.userServiceProvider.default().updateProfile(
                         this.profileForm.get('firstName').value,
                         this.profileForm.get('lastName').value,
                         this.profileForm.get('newEmail').value,
-                        xAuthTokenArray
+                        res.xAuthTokenArray
                     ).toPromise().then(() => {
                         this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
                             this.loading = false;
@@ -94,9 +94,9 @@ export class SettingsProfileComponent {
             data: {
                 checkTwoFactor: true
             }
-        }).afterClosed().subscribe(xAuthTokenArray => {
-            if (xAuthTokenArray && xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
-                this.userServiceProvider.default().deleteAccount(xAuthTokenArray).toPromise();
+        }).afterClosed().subscribe(res => {
+            if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
+                this.userServiceProvider.default().deleteAccount(res.xAuthTokenArray).toPromise();
             }
         });
     }

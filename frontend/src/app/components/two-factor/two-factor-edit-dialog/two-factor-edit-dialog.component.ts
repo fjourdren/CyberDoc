@@ -1,14 +1,15 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, HostListener, Inject } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { TwoFactorServiceProvider } from 'src/app/services/twofactor/twofactor-service-provider';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
-import { allCountries as __allCountries, PhoneNumberCountry } from './all-countries';
-import { PhoneNumberUtil } from 'google-libphonenumber';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { TranslateService } from '@ngx-translate/core';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import {HttpErrorResponse} from '@angular/common/http';
+import {AfterViewInit, Component, HostListener, Inject} from '@angular/core';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {TwoFactorServiceProvider} from 'src/app/services/twofactor/twofactor-service-provider';
+import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
+import {allCountries as __allCountries, PhoneNumberCountry} from './all-countries';
+import {PhoneNumberUtil} from 'google-libphonenumber';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {TranslateService} from '@ngx-translate/core';
+import {DomSanitizer, SafeUrl} from '@angular/platform-browser';
+import {TwoFactorGenerateRecoveryCodesDialogComponent} from '../two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
 
 const phoneNumberUtil = PhoneNumberUtil.getInstance();
 
@@ -46,12 +47,13 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
     });
 
     constructor(private dialogRef: MatDialogRef<TwoFactorEditDialogComponent>,
-        private twoFAServiceProvider: TwoFactorServiceProvider,
-        private userServiceProvider: UserServiceProvider,
-        private sanitizer: DomSanitizer,
-        private snackBar: MatSnackBar,
-        private translateService: TranslateService,
-        @Inject(MAT_DIALOG_DATA) public data) {
+                private dialog: MatDialog,
+                private twoFAServiceProvider: TwoFactorServiceProvider,
+                private userServiceProvider: UserServiceProvider,
+                private sanitizer: DomSanitizer,
+                private snackBar: MatSnackBar,
+                private translateService: TranslateService,
+                @Inject(MAT_DIALOG_DATA) public data) {
     }
 
     ngAfterViewInit(): void {
@@ -223,7 +225,20 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
         const tokenForm = this.tokenForm.get('token').value;
         await this.twoFAServiceProvider.default().verifyTokenByApp(this.qrSecret, tokenForm).toPromise();
         await this.userServiceProvider.default().updateTwoFactor(
-            true, currentUser.twoFactorSms, this.qrSecret, undefined, xAuthTokenArray).toPromise();
+            true,
+            currentUser.twoFactorSms,
+            this.qrSecret,
+            undefined,
+            xAuthTokenArray
+        ).toPromise().then(() => {
+            if (xAuthTokenArray === null) {
+                this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+                    maxWidth: '500px',
+                    disableClose: true
+                });
+            }
+            this.dialogRef.close(true);
+        });
     }
 
     private async _update2FAWithSMS(xAuthTokenArray: string[]): Promise<void> {
@@ -231,6 +246,19 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
         const tokenForm = this.tokenForm.get('token').value;
         await this.twoFAServiceProvider.default().verifyTokenBySms(this.validPhoneNumber, tokenForm).toPromise();
         await this.userServiceProvider.default().updateTwoFactor(
-            currentUser.twoFactorApp, true, undefined, this.validPhoneNumber, xAuthTokenArray).toPromise();
+            currentUser.twoFactorApp,
+            true,
+            undefined,
+            this.validPhoneNumber,
+            xAuthTokenArray
+        ).toPromise().then(() => {
+            if (xAuthTokenArray === null) {
+                this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+                    maxWidth: '500px',
+                    disableClose: true
+                });
+            }
+            this.dialogRef.close(true);
+        });
     }
 }

@@ -3,8 +3,9 @@ import {FormBuilder, Validators} from '@angular/forms';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {TwoFactorServiceProvider} from '../../../services/twofactor/twofactor-service-provider';
 import {UserServiceProvider} from '../../../services/users/user-service-provider';
-import {MatDialogRef} from '@angular/material/dialog';
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {TwoFactorUseRecoveryCodeDialogComponent} from '../two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
 
 @Component({
     selector: 'app-two-factor-dialog',
@@ -25,7 +26,8 @@ export class TwoFactorCheckDialogComponent {
                 private snackBar: MatSnackBar,
                 private twoFactorServiceProvider: TwoFactorServiceProvider,
                 private userServiceProvider: UserServiceProvider,
-                public twoFactorDialog: MatDialogRef<TwoFactorCheckDialogComponent>) {
+                public twoFactorDialog: MatDialogRef<TwoFactorCheckDialogComponent>,
+                private dialog: MatDialog) {
         this.user = this.jwtHelper.decodeToken(this.userServiceProvider.default().getJwtToken()).user;
         if (this.user.twoFactorApp) {
             this.twoFactorType = 'app';
@@ -55,7 +57,10 @@ export class TwoFactorCheckDialogComponent {
                 this.twoFactorServiceProvider.default().verifyTokenByApp(
                     undefined, this.twoFactorForm.get('token').value).toPromise().then(() => {
                     this.loading = false;
-                    this.twoFactorDialog.close('app\t' + this.twoFactorForm.get('token').value);
+                    this.twoFactorDialog.close({
+                        recoveryCodesLeft: true,
+                        twoFactorTypeAndToken: 'app\t' + this.twoFactorForm.get('token').value
+                    });
                 }).catch(err => {
                     this.loading = false;
                     if (err.status === 403) {
@@ -68,9 +73,12 @@ export class TwoFactorCheckDialogComponent {
             case 'sms':
                 this.twoFactorServiceProvider.default().verifyTokenBySms(
                     undefined, this.twoFactorForm.get('token').value).toPromise().then(() => {
-                    this.loading = false;
-                    this.twoFactorDialog.close('sms\t' + this.twoFactorForm.get('token').value);
-                }).catch(err => {
+                        this.loading = false;
+                        this.twoFactorDialog.close({
+                            recoveryCodesLeft: true,
+                            twoFactorTypeAndToken: 'sms\t' + this.twoFactorForm.get('token').value
+                        });
+                    }).catch(err => {
                     this.loading = false;
                     if (err.status === 403) {
                         this.snackBar.open(err.error.msg, null, {duration: 2500});
@@ -86,5 +94,20 @@ export class TwoFactorCheckDialogComponent {
         this.twoFactorType = 'sms';
         this.twoFactorServiceProvider.default().sendTokenBySms(undefined).toPromise()
             .catch(err => this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {duration: 2500}));
+    }
+
+    openDialogRecovery(): void {
+        const refDialog = this.dialog.open(TwoFactorUseRecoveryCodeDialogComponent, {
+            maxWidth: '450px'
+        });
+        refDialog.afterClosed().toPromise().then(res => {
+            if (res) {
+                this.twoFactorDialog.close(res);
+            }
+        });
+    }
+
+    dialogTokenByApp(): void {
+        this.twoFactorType = 'app';
     }
 }

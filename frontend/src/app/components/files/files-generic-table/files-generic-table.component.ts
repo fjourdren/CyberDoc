@@ -23,7 +23,6 @@ import { FilesRenameDialogComponent } from '../files-rename-dialog/files-rename-
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { FilesShareMenuDialogComponent } from '../files-share-menu-dialog/files-share-menu-dialog.component';
-import { isDirectory } from "@angular-devkit/build-angular/src/angular-cli-files/utilities/is-directory";
 import { FilesNewFolderDialogComponent } from '../files-new-folder-dialog/files-new-folder-dialog.component';
 import { FilesSignDialogComponent } from '../files-sign-dialog/files-sign-dialog.component'
 

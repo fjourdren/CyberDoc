@@ -1,0 +1,22 @@
+<h1 mat-dialog-title>{{ 'dialogs.recover_two_factor' | translate }}</h1>
+<div mat-dialog-content>
+    <form [formGroup]="recoverTwoFactorForm" novalidate (ngSubmit)="onSubmit()">
+        <mat-card-content>
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Recovery code</mat-label>
+                <input matInput formControlName="code" required maxlength="36">
+                <mat-error *ngIf="recoverTwoFactorForm.controls['code'].invalid && !recoverTwoFactorForm.controls['code'].hasError('required')">
+                    Recovery code is <strong>invalid.</strong>
+                </mat-error>
+                <mat-error *ngIf="recoverTwoFactorForm.controls['code'].hasError('required')">
+                    Recovery code is <strong>required.</strong>
+                </mat-error>
+            </mat-form-field>
+        </mat-card-content>
+
+        <div id="button-container">
+            <button mat-raised-button color="primary" type="submit" class="submit" [disabled]="loading || recoverTwoFactorForm.invalid">{{ 'general.confirm' | translate }}</button>
+            <button mat-button color="warn" matDialogClose>{{ 'general.cancel' | translate }}</button>
+        </div>
+    </form>
+</div>

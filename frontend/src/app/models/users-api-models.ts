@@ -1,6 +1,7 @@
 // from swagger file users.yml
 
 import { FileTag } from './files-api-models';
+import {TwoFactorRecoveryCode} from './two-factor-api-models';
 
 export class User {
     public _id: string;
@@ -16,6 +17,7 @@ export class User {
     public role: string;
     public directory_id: string;
     public tags: FileTag[];
+    public twoFactorRecoveryCodes: TwoFactorRecoveryCode[];
 }
 
 export class Device {

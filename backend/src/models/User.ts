@@ -10,7 +10,7 @@ import ITag, { Tag } from './Tag';
 import IDevice, { Device } from './Device';
 import IUserEncryptionKeys, { UserEncryptionKeys } from './UserEncryptionKeys';
 import IFileEncryptionKeys, { FileEncryptionKeys } from './FileEncryptionKeys';
-
+import ITwoFactorRecoveryCode, { TwoFactorRecoveryCode } from './TwoFactorRecoveryCode';
 
 /**
  * Users role enum
@@ -93,6 +93,10 @@ export const UserSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
+    twoFactorRecoveryCodes: {
+        type: [TwoFactorRecoveryCode.schema],
+        default: []
+    },
     role: {
         type: String,
         enum: Object.values(Role),
@@ -112,6 +116,14 @@ export const UserSchema = new mongoose.Schema({
     filesKeys: {
         type: [FileEncryptionKeys.schema]
     },
+    updated_at: {
+        type: Date,
+        default: new Date().getTime()
+    },
+    created_at: {
+        type: Date,
+        default: new Date().getTime()
+    },
     // HexColor, used by Etherpad
     hexColor: {
         type: String,
@@ -121,14 +133,7 @@ export const UserSchema = new mongoose.Schema({
             message: '{VALUE} is not a valid hexColor'
         }
     },
-    updated_at: {
-        type: Date,
-        default: new Date().getTime()
-    },
-    created_at: {
-        type: Date,
-        default: new Date().getTime()
-    },
+
 },
     {
         collection: 'User',
@@ -153,6 +158,7 @@ export interface IUser extends mongoose.Document {
     userKeys: IUserEncryptionKeys;
     filesKeys: IFileEncryptionKeys[];
     hexColor: string;
+    twoFactorRecoveryCodes: ITwoFactorRecoveryCode[];
     updated_at: string;
     created_at: string;
 }
@@ -192,8 +198,9 @@ UserSchema.methods.toJSON = function () {
     delete obj.password;
     delete obj.userKeys;
     delete obj.filesKeys;
-
     delete obj.secret;
+    delete obj.twoFactorRecoveryCodes;
+
     return obj;
 }
 
