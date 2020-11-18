@@ -34,8 +34,7 @@ export class FilesSignDialogComponent {
     this.fsProvider.default().listSignatories(this.file._id).toPromise().then(values => {
       this.dataSource.data = values;
       for (const element of values) {
-        //TODO i18n
-        element.created_at = `${element.created_at.slice(0, 10)} / ${element.created_at.slice(11, 19)}`;
+        element.created_at = new Date(element.created_at).toLocaleString();
         if (element.user_email === this.userServiceProvider.default().getActiveUser().email) {
           this.hasAlreadySign = true;
         }
