@@ -9,6 +9,7 @@ import {TwoFactorGenerateRecoveryCodesDialogComponent} from '../two-factor/two-f
 @Component({
     selector: 'app-delete-account-password-dialog',
     templateUrl: 'security-check-dialog.component.html',
+    styleUrls: ['./security-check-dialog.component.scss']
 })
 export class SecurityCheckDialogComponent implements OnInit {
     passwordForm: FormGroup;

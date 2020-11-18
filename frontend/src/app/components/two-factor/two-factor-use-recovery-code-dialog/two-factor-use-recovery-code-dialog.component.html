@@ -13,10 +13,10 @@
                 </mat-error>
             </mat-form-field>
         </mat-card-content>
-
-        <div id="button-container">
-            <button mat-raised-button color="primary" type="submit" class="submit" [disabled]="loading || recoverTwoFactorForm.invalid">{{ 'general.confirm' | translate }}</button>
-            <button mat-button color="warn" matDialogClose>{{ 'general.cancel' | translate }}</button>
-        </div>
     </form>
+</div>
+
+<div mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" (click)="onSubmit()"  [disabled]="loading || recoverTwoFactorForm.invalid">{{ 'general.confirm' | translate }}</button>
+    <button mat-button color="warn" matDialogClose>{{ 'general.cancel' | translate }}</button>
 </div>
