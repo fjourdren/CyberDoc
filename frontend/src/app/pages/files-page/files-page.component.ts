@@ -100,7 +100,6 @@ export class FilesPageComponent implements AfterViewInit {
                         case this.route.toString().indexOf('generateRecoveryCodes') !== -1: {
                             this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
                                 maxWidth: '500px',
-                                maxHeight: '700px',
                                 disableClose: true
                             });
                             this.redirectToDefaultPage();

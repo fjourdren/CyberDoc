@@ -205,7 +205,7 @@ export class TwoFactorEditComponent {
             if (res) {
                 if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) { // [password:smsOrApp:2faToken]
                     this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
-                        width: '500px',
+                        maxWidth: '500px',
                         disableClose: true,
                         data: {
                             xAuthTokenArray: res.xAuthTokenArray
