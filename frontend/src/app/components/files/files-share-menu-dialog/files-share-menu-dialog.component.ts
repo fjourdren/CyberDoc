@@ -15,7 +15,7 @@ import {UserServiceProvider} from 'src/app/services/users/user-service-provider'
 export class FilesShareMenuDialogComponent {
 
   loading = false;
-  newShareForm = this.fb.group({email: [null, [Validators.email]]});
+  newShareForm = this.fb.group({email: [null, [Validators.email, Validators.required]]});
   shareModeForm = this.fb.group({shareMode: [null]});
   shareAccessFormControl = new FormControl('readonly');
   displayedColumns: string[] = ['email-and-name', 'delete'];
@@ -78,7 +78,7 @@ export class FilesShareMenuDialogComponent {
     const formField = this.newShareForm.get('email');
     formField.setErrors(null);
 
-    if (!this.newShareForm.get('email').valid) {
+    if (!this.newShareForm.get('email').valid || !formField.value) {
       formField.setErrors({invalid: true});
       return;
     }
