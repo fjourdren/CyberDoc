@@ -22,7 +22,6 @@ import { DevicePageComponent } from './pages/device-page/device-page.component';
 import { DeviceGuard } from './guards/device/device.guard';
 import { DeviceCheckGuard } from './guards/device-check/device-check.guard';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
-import { RequireRecoveryKeyDownloadedGuard } from './guards/require-recovery-key-downloaded/require-recovery-key-downloaded.guard';
 
 
 const routes: Routes = [
@@ -31,11 +30,11 @@ const routes: Routes = [
   {
     path: 'files-search/:searchParams',
     component: FilesPageComponent,
-    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard, RequireRecoveryKeyDownloadedGuard/*, DeviceCheckGuard*/]
+    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/]
   },
-  {path: 'files/:dirID', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard, RequireRecoveryKeyDownloadedGuard/*, DeviceCheckGuard*/]},
-  {path: 'files', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard, RequireRecoveryKeyDownloadedGuard/*, DeviceCheckGuard*/]},
-  {path: 'shared-with-me', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard, RequireRecoveryKeyDownloadedGuard/*, DeviceCheckGuard*/]},
+  {path: 'files/:dirID', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/]},
+  {path: 'files', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/]},
+  {path: 'shared-with-me', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/]},
 
   { path: 'logout', component: LogoutPageComponent, canActivate: [LoggedInGuard] },
   { path: 'login', component: LoginPageComponent, canActivate: [LoggedOutGuard] },
@@ -58,12 +57,12 @@ const routes: Routes = [
   {
     path: 'settings/profile',
     component: SettingsProfilePageComponent,
-    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard, RequireRecoveryKeyDownloadedGuard/*, DeviceCheckGuard*/]
+    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/]
   },
   {
     path: 'settings/security',
     component: SettingsSecurityPageComponent,
-    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard, RequireRecoveryKeyDownloadedGuard/*, DeviceCheckGuard*/]
+    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/]
   },
 
   {path: '**', component: NotFoundPageComponent},
