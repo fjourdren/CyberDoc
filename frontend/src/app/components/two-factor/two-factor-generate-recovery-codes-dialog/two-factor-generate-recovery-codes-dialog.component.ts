@@ -22,7 +22,7 @@ export class TwoFactorGenerateRecoveryCodesDialogComponent implements OnInit {
 
     ngOnInit(): void {
         // Generates 5 recovery codes
-        this.twoFactorServiceProvider.default().generateRecoveryCodes(this.data.xAuthTokenArray).toPromise().then(codes => {
+        this.twoFactorServiceProvider.default().generateRecoveryCodes().toPromise().then(codes => {
             this.generatedRecoveryCodes = codes;
             this.link = 'data:text/plain,';
             this.generatedRecoveryCodes.forEach(code => {

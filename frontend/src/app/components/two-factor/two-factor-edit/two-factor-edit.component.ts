@@ -14,6 +14,7 @@ import {SecurityCheckDialogComponent} from '../../security-check-dialog/security
 export class TwoFactorEditComponent {
     @Output() twoFactorAppEvent = new EventEmitter<boolean>();
     @Output() twoFactorSmsEvent = new EventEmitter<boolean>();
+    @Input() canGenerateRecoveryCodes: boolean;
     twoFactorApp: boolean;
     twoFactorSms: boolean;
 
@@ -33,36 +34,38 @@ export class TwoFactorEditComponent {
     changeTwoFactorApp(event): void {
         if (this.twoFactorApp || this.twoFactorSms) {
             if (this.twoFactorApp) {
-                if (this.twoFactorSms) { // 2FA by APP & 2FA by SMS are already activated => Disable 2FA by App
+                if (this.twoFactorSms) { // Trying to disable 2FA APP
+                    event.source.checked = true;
                     this.dialog.open(SecurityCheckDialogComponent, {
                         maxWidth: '500px',
                         data: {
                             checkTwoFactor: true
                         }
-                    }).afterClosed().subscribe(xAuthTokenArray => {
-                        if (xAuthTokenArray && xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
-                            this.userServiceProvider.default().updateTwoFactor(
-                                !this.userServiceProvider.default().getActiveUser().twoFactorApp,
-                                this.userServiceProvider.default().getActiveUser().twoFactorSms,
-                                undefined,
-                                undefined,
-                                xAuthTokenArray
-                            ).toPromise().then(() => {
-                                this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                                    this.snackBar.open('2FA by App disabled', null, {duration: 2000});
-                                    this.refresh();
+                    }).afterClosed().subscribe(res => {
+                        if (res) {
+                            if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
+                                this.userServiceProvider.default().updateTwoFactor(
+                                    !this.userServiceProvider.default().getActiveUser().twoFactorApp,
+                                    this.userServiceProvider.default().getActiveUser().twoFactorSms,
+                                    undefined,
+                                    undefined,
+                                    res.xAuthTokenArray
+                                ).toPromise().then(() => {
+                                    this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                                        event.source.checked = false;
+                                        this.snackBar.open('2FA by App disabled', null, {duration: 2000});
+                                        this.refresh();
+                                    });
                                 });
-                            });
-                        } else {
-                            event.source.checked = true;
+                            }
                         }
                     });
-                } else { // Only 2FA by App is activated => Block user from removing it
+                } else { // Impossible to disable 2FA APP
                     event.source.checked = true;
                     this.snackBar.open('You have to keep at least one 2FA option to use CyberDoc',
                         null, {duration: 4000});
                 }
-            } else { // User wants to add 2FA by App (2FA by SMS is ON)
+            } else { // Trying to enable 2FA APP
                 event.source.checked = false;
                 this.dialog.open(SecurityCheckDialogComponent, {
                     maxWidth: '500px',
@@ -81,16 +84,17 @@ export class TwoFactorEditComponent {
 
                         refDialog.afterClosed().toPromise().then(res => {
                             if (res) {
-                                event.source.checked = true;
+                                this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                                    event.source.checked = true;
+                                    this.snackBar.open('2FA by App activated', null, {duration: 2000});
+                                    this.refresh();
+                                });
                             }
-                            this.refresh();
                         });
-                    } else {
-                        event.source.checked = true;
                     }
                 });
             }
-        } else { // Neither 2FA APP or 2FA SMS are activated
+        } else { // Trying to enable 2FA APP(first time 2FA registering)
             event.source.checked = false;
             const refDialog = this.dialog.open(TwoFactorEditDialogComponent, {
                 width: '500px',
@@ -110,38 +114,40 @@ export class TwoFactorEditComponent {
     }
 
     changeTwoFactorSms(event): void {
-        if (this.twoFactorSms || this.twoFactorApp) { // 2FA already used at least 1 time before
+        if (this.twoFactorSms || this.twoFactorApp) {
             if (this.twoFactorSms) {
-                if (this.twoFactorApp) { // 2FA SMS & APP already activated => Disable 2FA by SMS
+                if (this.twoFactorApp) { // Trying to disable 2FA SMS
+                    event.source.checked = true;
                     this.dialog.open(SecurityCheckDialogComponent, {
                         maxWidth: '500px',
                         data: {
                             checkTwoFactor: true
                         }
-                    }).afterClosed().subscribe(xAuthTokenArray => {
-                        if (xAuthTokenArray && xAuthTokenArray.length === 3) { // password:appOrSms:2faToken
-                            this.userServiceProvider.default().updateTwoFactor(
-                                this.userServiceProvider.default().getActiveUser().twoFactorApp,
-                                !this.userServiceProvider.default().getActiveUser().twoFactorSms,
-                                undefined,
-                                undefined,
-                                xAuthTokenArray
-                            ).toPromise().then(() => {
-                                this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
-                                    this.snackBar.open('2FA by SMS disabled', null, {duration: 2000});
-                                    this.refresh();
+                    }).afterClosed().subscribe(res => {
+                        if (res) {
+                            if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) { // password:2faType:2faToken
+                                this.userServiceProvider.default().updateTwoFactor(
+                                    this.userServiceProvider.default().getActiveUser().twoFactorApp,
+                                    !this.userServiceProvider.default().getActiveUser().twoFactorSms,
+                                    undefined,
+                                    undefined,
+                                    res.xAuthTokenArray
+                                ).toPromise().then(() => {
+                                    this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                                        event.source.checked = false;
+                                        this.snackBar.open('2FA by SMS disabled', null, {duration: 2000});
+                                        this.refresh();
+                                    });
                                 });
-                            });
-                        } else {
-                            event.source.checked = true;
+                            }
                         }
                     });
-                } else { // Only 2FA by SMS is activated
+                } else { // Impossible to disable 2FA SMS
                     event.source.checked = true;
                     this.snackBar.open('You have to keep at least one 2FA option to use CyberDoc',
                         null, {duration: 4000});
                 }
-            } else { // User wants to activate 2FA by Sms (2FA by App already ON)
+            } else { // Trying to enable 2FA SMS
                 event.source.checked = false;
                 this.dialog.open(SecurityCheckDialogComponent, {
                     maxWidth: '500px',
@@ -160,16 +166,17 @@ export class TwoFactorEditComponent {
 
                         refDialog.afterClosed().toPromise().then(res => {
                             if (res) {
-                                event.source.checked = true;
+                                this.userServiceProvider.default().refreshActiveUser().toPromise().then(() => {
+                                    event.source.checked = true;
+                                    this.snackBar.open('2FA by SMS activated', null, {duration: 2000});
+                                    this.refresh();
+                                });
                             }
-                            this.refresh();
                         });
-                    } else {
-                        event.source.checked = true;
                     }
                 });
             }
-        } else { // First time registering 2FA (neither 2FA App or 2FA Sms are activated)
+        } else { // Trying to enable 2FA SMS (first time 2FA registering)
             event.source.checked = false;
             const refDialog = this.dialog.open(TwoFactorEditDialogComponent, {
                 width: '500px',

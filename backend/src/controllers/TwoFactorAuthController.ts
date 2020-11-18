@@ -8,7 +8,6 @@ import jwt from 'jsonwebtoken';
 import HTTPError from '../helpers/HTTPError';
 import {IUser, User} from '../models/User';
 import ITwoFactorRecoveryCode from '../models/TwoFactorRecoveryCode';
-import UserService from '../services/UserService';
 
 class TwoFactorAuthController {
     public static async sendTokenBySms(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -134,14 +133,7 @@ class TwoFactorAuthController {
 
     public static async generateRecoveryCodes(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const tokenBase64 = req.header('x-auth-token');
-            if (!tokenBase64) {
-                throw new HTTPError(HttpCodes.UNAUTHORIZED, 'No X-Auth-Token : authorization denied');
-            }
-            const decryptedToken = new Buffer(tokenBase64, 'base64').toString('utf-8').split('\t');
-
             await TwoFactorAuthController._requireAuthenticatedUser(res).then(async user => {
-                await UserService.securityCheck(decryptedToken, user);
                 const recoveryCodes: ITwoFactorRecoveryCode[] = requireNonNull(await TwoFactorAuthService.generateRecoveryCodes(user));
                 res.status(HttpCodes.OK);
                 res.json({

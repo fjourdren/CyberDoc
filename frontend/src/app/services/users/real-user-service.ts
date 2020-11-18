@@ -140,14 +140,12 @@ export class RealUserService implements UserService {
 
     updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, secret: string, phoneNumber: string,
                     xAuthTokenArray: string[]): Observable<void> {
-
         const options = { withCredentials: true };
         if (xAuthTokenArray && xAuthTokenArray.length === 3) {
             options["headers"] = { 'x-auth-token': Base64.encode(xAuthTokenArray[0] + '\t' + xAuthTokenArray[1] + '\t' + xAuthTokenArray[2]) };
         } else if (xAuthTokenArray && xAuthTokenArray.length === 1) {
             options["headers"] = { 'x-auth-token': Base64.encode(xAuthTokenArray[0]) };
         }
-
         return this.httpClient.post<any>(`${environment.apiBaseURL}/users/profile`, {
             twoFactorApp,
             twoFactorSms,

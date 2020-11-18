@@ -231,10 +231,13 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
             undefined,
             xAuthTokenArray
         ).toPromise().then(() => {
-            this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
-                maxWidth: '400px',
-                disableClose: true
-            });
+            if (xAuthTokenArray === null) {
+                this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+                    maxWidth: '500px',
+                    disableClose: true
+                });
+            }
+            this.dialogRef.close(true);
         });
     }
 
@@ -249,10 +252,13 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
             this.validPhoneNumber,
             xAuthTokenArray
         ).toPromise().then(() => {
-            this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
-                maxWidth: '400px',
-                disableClose: true
-            });
+            if (xAuthTokenArray === null) {
+                this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+                    maxWidth: '500px',
+                    disableClose: true
+                });
+            }
+            this.dialogRef.close(true);
         });
     }
 }
