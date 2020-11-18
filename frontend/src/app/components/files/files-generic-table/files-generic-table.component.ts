@@ -241,11 +241,6 @@ export class FilesGenericTableComponent implements AfterViewInit {
             this.isTouchScreen = true;
             this._touchStartEventTrigerred = true;
             this.setSelectedNode(node);
-            if (this.filesUtils.canBeOpenedInApp(this.filesUtils.getFileTypeForMimetype(node.mimetype))) {
-                this.execActionOnSelectedNode('open');
-            } else {
-                this.execActionOnSelectedNode('download');
-            }
         });
     }
 
