@@ -78,7 +78,7 @@ export class FilesShareMenuDialogComponent {
     const formField = this.newShareForm.get('email');
     formField.setErrors(null);
 
-    if (!this.newShareForm.get('email').valid || !formField.value) {
+    if (!this.newShareForm.get('email').valid || !formField.value || formField.value.trim() === "") {
       formField.setErrors({invalid: true});
       return;
     }
