@@ -32,6 +32,7 @@ export class FilesSignDialogComponent {
 
   update() {
     this.fsProvider.default().listSignatories(this.file._id).toPromise().then(values => {
+      this.dataSource.data = values;
       for (const element of values) {
         //TODO i18n
         element.created_at = `${element.created_at.slice(0, 10)} / ${element.created_at.slice(11, 19)}`;
