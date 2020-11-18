@@ -4,7 +4,8 @@ import {map} from 'rxjs/operators';
 import {TwoFactorService} from './twofactor-service';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {CookieService} from 'ngx-cookie-service';
-import {environment} from 'src/environments/environment';
+import { environment } from 'src/environments/environment';
+import {Base64} from 'js-base64';
 
 export class RealTwoFactorService implements TwoFactorService {
     private jwtHelper = new JwtHelperService();
@@ -12,7 +13,7 @@ export class RealTwoFactorService implements TwoFactorService {
     constructor(private httpClient: HttpClient, private cookieService: CookieService) {
     }
 
-    sendTokenBySms(phoneNumber: string): Observable<any> {
+    sendTokenBySms(phoneNumber: string | undefined): Observable<any> {
         return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/send/sms`, {
             phoneNumber
         }, {withCredentials: true}).pipe(map(response => {
@@ -20,8 +21,8 @@ export class RealTwoFactorService implements TwoFactorService {
         }));
     }
 
-    verifyTokenBySms(phoneNumber: string, token: string): Observable<boolean> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token`, {
+    verifyTokenBySms(phoneNumber: string | undefined, token: string): Observable<boolean> {
+        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token/sms`, {
             phoneNumber,
             token
         }, {withCredentials: true}).pipe(map(response => {
@@ -38,8 +39,8 @@ export class RealTwoFactorService implements TwoFactorService {
         }));
     }
 
-    verifyTokenByApp(secret: string, token: string): Observable<boolean> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token`, {
+    verifyTokenByApp(secret: string | undefined, token: string): Observable<boolean> {
+        return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/verify/token/app`, {
             secret,
             token
         }, {withCredentials: true}).pipe(map(response => {
@@ -65,7 +66,6 @@ export class RealTwoFactorService implements TwoFactorService {
     }
 
     useRecoveryCode(code: string): Observable<boolean> {
-        // TODO : Add x-auth-token in headers when "securityCheck" branch will be merged
         return this.httpClient.post<any>(`${environment.apiBaseURL}/2fa/useRecoveryCode`, {code},
             {withCredentials: true}).pipe(map(response => {
             if (response) {
@@ -82,9 +82,9 @@ export class RealTwoFactorService implements TwoFactorService {
     }
 
     generateRecoveryCodes(): Observable<string[]> {
-        // TODO : Add x-auth-token in headers when "securityCheck" branch will be merged
-        return this.httpClient.get<any>(`${environment.apiBaseURL}/2fa/generateRecoveryCodes`,
-            {withCredentials: true}).pipe(map(response => {
+        return this.httpClient.get<any>(`${environment.apiBaseURL}/2fa/generateRecoveryCodes`, {
+                withCredentials: true
+            }).pipe(map(response => {
             return response.recoveryCodes;
         }));
     }

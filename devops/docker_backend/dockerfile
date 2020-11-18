@@ -1,6 +1,46 @@
-FROM node:14.11.0
+FROM ubuntu:20.04
+
+# disable linux interactive requests
+ENV DEBIAN_FRONTEND=noninteractive
+
+# install node
+RUN apt-get update && apt-get -y install nodejs npm
+
+# install libreoffice
+RUN apt-get update && apt-get install -y libreoffice
+
+# install preview dependencies (https://www.npmjs.com/package/filepreview-es6)
+RUN apt-get update && apt-get install -y unoconv ffmpeg imagemagick curl
+
+# fix pdf security rule from imagemagick
+RUN sed -i 's/<\/policymap>/  <policy domain="coder" rights="read | write" pattern="PDF" \/>\
+<\/policymap>/g' /etc/ImageMagick-6/policy.xml
+
+RUN npm i -g npm@latest
 
 # Create app directory
 RUN mkdir /app
 RUN mkdir /devops
+
 WORKDIR /app
+
+# Install app dependencies
+#RUN npm install
+
+# Build application
+#RUN npm run build
+
+# Delete useless files
+#RUN rm -rf .git
+#RUN rm -rf src/
+#RUN rm .env.example
+#RUN rm .eslintignore
+#RUN rm .eslintrc
+#RUN rm .gitignore
+#RUN rm dockerfile
+#RUN rm jest.config.js
+#RUN rm nodemon.json
+#RUN rm tsconfig.json
+
+# Run application
+#CMD [ "npm", "run", "start" ]

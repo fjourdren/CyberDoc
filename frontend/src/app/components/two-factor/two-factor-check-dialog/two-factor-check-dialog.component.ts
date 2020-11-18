@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, HostListener} from '@angular/core';
 import {FormBuilder, Validators} from '@angular/forms';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {TwoFactorServiceProvider} from '../../../services/twofactor/twofactor-service-provider';
@@ -36,6 +36,17 @@ export class TwoFactorCheckDialogComponent {
         }
     }
 
+    @HostListener('keydown', ['$event'])
+    onKeyDown(evt: KeyboardEvent): void {
+        if (evt.key === 'Escape') {
+            this.onCancel();
+        }
+    }
+
+    onCancel(): void {
+        this.twoFactorDialog.close();
+    }
+
     onSubmit(): void {
         if (this.twoFactorForm.invalid) {
             return;
@@ -43,11 +54,12 @@ export class TwoFactorCheckDialogComponent {
         this.loading = true;
         switch (this.twoFactorType) {
             case 'app':
-                this.twoFactorServiceProvider.default().verifyTokenByApp(this.user.secret,
-                    this.twoFactorForm.get('token').value).toPromise().then(() => {
+                this.twoFactorServiceProvider.default().verifyTokenByApp(
+                    undefined, this.twoFactorForm.get('token').value).toPromise().then(() => {
                     this.loading = false;
                     this.twoFactorDialog.close({
-                        result: true
+                        recoveryCodesLeft: true,
+                        twoFactorTypeAndToken: 'app\t' + this.twoFactorForm.get('token').value
                     });
                 }).catch(err => {
                     this.loading = false;
@@ -59,13 +71,14 @@ export class TwoFactorCheckDialogComponent {
                 });
                 break;
             case 'sms':
-                this.twoFactorServiceProvider.default().verifyTokenBySms(this.user.phoneNumber,
-                    this.twoFactorForm.get('token').value).toPromise().then(() => {
-                    this.loading = false;
-                    this.twoFactorDialog.close({
-                        result: true
-                    });
-                }).catch(err => {
+                this.twoFactorServiceProvider.default().verifyTokenBySms(
+                    undefined, this.twoFactorForm.get('token').value).toPromise().then(() => {
+                        this.loading = false;
+                        this.twoFactorDialog.close({
+                            recoveryCodesLeft: true,
+                            twoFactorTypeAndToken: 'sms\t' + this.twoFactorForm.get('token').value
+                        });
+                    }).catch(err => {
                     this.loading = false;
                     if (err.status === 403) {
                         this.snackBar.open(err.error.msg, null, {duration: 2500});
@@ -79,16 +92,18 @@ export class TwoFactorCheckDialogComponent {
 
     sendTokenBySms(): void {
         this.twoFactorType = 'sms';
-        this.twoFactorServiceProvider.default().sendTokenBySms(this.user.phoneNumber).toPromise()
+        this.twoFactorServiceProvider.default().sendTokenBySms(undefined).toPromise()
             .catch(err => this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {duration: 2500}));
     }
 
     openDialogRecovery(): void {
         const refDialog = this.dialog.open(TwoFactorUseRecoveryCodeDialogComponent, {
-            maxWidth: '400px'
+            maxWidth: '450px'
         });
         refDialog.afterClosed().toPromise().then(res => {
-            this.twoFactorDialog.close(res);
+            if (res) {
+                this.twoFactorDialog.close(res);
+            }
         });
     }
 

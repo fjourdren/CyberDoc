@@ -14,7 +14,7 @@ export class MockTwoFactorService implements TwoFactorService {
         return undefined;
     }
 
-    verifyTokenBySms(phoneNumber: string, token: string): Observable<boolean> {
+    verifyTokenBySms(token: string): Observable<boolean> {
         return undefined;
     }
 
