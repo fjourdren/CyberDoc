@@ -384,7 +384,7 @@ class FileController {
             const pdfStream = await FileService.generatePDF(user_hash, user, file);
             let pdfFileName = file.name;
             if (pdfFileName.indexOf(".") !== -1) {
-                pdfFileName.substring(0, pdfFileName.lastIndexOf("."));
+                pdfFileName = pdfFileName.substring(0, pdfFileName.lastIndexOf("."));
             }
             pdfFileName += ".pdf";
 
