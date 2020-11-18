@@ -5,6 +5,10 @@ import HttpCodes from '../helpers/HttpCodes'
 
 import AuthService from '../services/AuthService';
 
+import IUser from '../models/User';
+import CryptoHelper from '../helpers/CryptoHelper';
+import NodeRSA from 'node-rsa';
+
 class AuthController {
 
     // register controller
@@ -12,7 +16,9 @@ class AuthController {
         try {
             const {firstname, lastname, email, password, role} = req.body;
 
-            const jwtToken = requireNonNull(await AuthService.signup(firstname, lastname, email, password, role));
+            const user_hash = CryptoHelper.prepareUser_hash(CryptoHelper.sha3(email+password));
+
+            const jwtToken = requireNonNull(await AuthService.signup(user_hash, firstname, lastname, email, password, role));
             res.status(HttpCodes.CREATED);
             res.json({
                 success: true,
@@ -57,7 +63,6 @@ class AuthController {
             next(err);
         }
     }
-
 
     // forgotten password controller
     public static async forgottenPassword(req: Request, res: Response, next: NextFunction): Promise<void> {

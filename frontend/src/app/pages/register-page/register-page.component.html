@@ -21,6 +21,10 @@
           {{ 'accounts.email_already_exists' | translate }}
         </div>
 
+        <div class="error-txt" *ngIf="tooManyRequestsError">
+          {{ 'accounts.too_many_requests' | translate }}
+        </div>
+
         <mat-card-content>
           <div class="one-line-if-big-screen">
             <mat-form-field appearance="outline" class="full-width">

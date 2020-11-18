@@ -31,4 +31,7 @@ FileRouter.get('/:fileId/download', AuthMiddleware.isAuthenticate, FileControlle
 FileRouter.post('/:fileId/tags', AuthMiddleware.isAuthenticate, FileTagController.add);
 FileRouter.delete('/:fileId/tags/:tagId', AuthMiddleware.isAuthenticate, FileTagController.remove);
 
+// sign management
+FileRouter.post('/:fileId/sign', AuthMiddleware.isAuthenticate, FileController.addSign);
+
 export default FileRouter;

@@ -1,7 +1,7 @@
-import {Component} from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {TwoFactorServiceProvider} from '../../../services/twofactor/twofactor-service-provider';
-import {MatDialogRef} from '@angular/material/dialog';
-import {saveAs} from 'file-saver';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {UserServiceProvider} from '../../../services/users/user-service-provider';
 
 @Component({
     selector: 'app-two-factor-dialog',
@@ -9,15 +9,25 @@ import {saveAs} from 'file-saver';
     styleUrls: ['./two-factor-generate-recovery-codes-dialog.component.scss']
 })
 
-export class TwoFactorGenerateRecoveryCodesDialogComponent {
+export class TwoFactorGenerateRecoveryCodesDialogComponent implements OnInit {
     generatedRecoveryCodes: string[];
-    loading: any;
+    link: string;
+    loading: boolean;
 
     constructor(private twoFactorServiceProvider: TwoFactorServiceProvider,
-                public dialogRef: MatDialogRef<TwoFactorGenerateRecoveryCodesDialogComponent>) {
+                private userServiceProvider: UserServiceProvider,
+                public dialogRef: MatDialogRef<TwoFactorGenerateRecoveryCodesDialogComponent>,
+                @Inject(MAT_DIALOG_DATA) public data) {
+    }
+
+    ngOnInit(): void {
         // Generates 5 recovery codes
-        twoFactorServiceProvider.default().generateRecoveryCodes().toPromise().then(res => {
-            this.generatedRecoveryCodes = res;
+        this.twoFactorServiceProvider.default().generateRecoveryCodes().toPromise().then(codes => {
+            this.generatedRecoveryCodes = codes;
+            this.link = 'data:text/plain,';
+            this.generatedRecoveryCodes.forEach(code => {
+                this.link += code + '\n';
+            });
         });
     }
 
@@ -26,11 +36,11 @@ export class TwoFactorGenerateRecoveryCodesDialogComponent {
     }
 
     downloadCodes(): void {
-        let content = '';
-        this.generatedRecoveryCodes.forEach(c => {
-            content += c + '\n';
-        });
-        const blob = new Blob([content], {type: 'text/plain;charset=utf-8'});
-        saveAs(blob, 'cyberdoc_' + new Date().getTime() + '.txt');
+        this.loading = false;
+        const anchor = document.createElement('a');
+        anchor.download = `${this.userServiceProvider.default().getActiveUser().email}-recovery-codes_${new Date().getTime()}.txt`;
+        anchor.href = this.link;
+        anchor.click();
+        anchor.remove();
     }
 }

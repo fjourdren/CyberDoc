@@ -32,8 +32,9 @@ declare global {
             APP_FRONTEND_URL: string;
             APP_PORT: number;
             JWT_SECRET: string;
-            JWT_ALGORITHM: string;
+            ENCRYPTION_IV: string;
             MONGODB_URL: string;
+            ENABLE_AUTH_API_SLOWDOWN: string;
             SENDGRID_API_KEY: string;
             SENDGRID_MAIL_FROM: string;
             SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD: string;
