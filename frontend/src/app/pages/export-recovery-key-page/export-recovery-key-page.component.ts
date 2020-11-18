@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
-import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-export-recovery-key-page',
@@ -20,7 +19,6 @@ export class ExportRecoveryKeyPageComponent {
     this.userServiceProvider.default().exportRecoveryKey().toPromise().then(recoveryKey => {
       this.loading = false;
       this.keyIsDownloaded = true;
-      localStorage.setItem(environment.recoveryKeyDownloadedLocalStorageKey, "OK");
       const anchor = document.createElement('a');
       anchor.download = "recovery-key.txt";
       anchor.href = `data:text/plain,${recoveryKey}`;
