@@ -65,16 +65,16 @@ export class SecurityCheckDialogComponent implements OnInit {
                                 xAuthTokenArray.push('recoveryCode');
                                 xAuthTokenArray.push(res.usedCode);
                             }
-                            this.verifyPasswordDialog.close({
-                                xAuthTokenArray,
-                                recoveryCodesLeft: res.recoveryCodesLeft
-                            });
                             if (res.recoveryCodesLeft === false) {
                                 this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
                                     maxWidth: '500px',
                                     disableClose: true
                                 });
                             }
+                            this.verifyPasswordDialog.close({
+                                xAuthTokenArray,
+                                recoveryCodesLeft: res.recoveryCodesLeft
+                            });
                         } else {
                             this.verifyPasswordDialog.close();
                         }

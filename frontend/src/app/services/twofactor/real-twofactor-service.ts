@@ -81,11 +81,8 @@ export class RealTwoFactorService implements TwoFactorService {
         }));
     }
 
-    generateRecoveryCodes(xAuthTokenArray: string[]): Observable<string[]> {
+    generateRecoveryCodes(): Observable<string[]> {
         return this.httpClient.get<any>(`${environment.apiBaseURL}/2fa/generateRecoveryCodes`, {
-                headers: {
-                    'x-auth-token': Base64.encode(xAuthTokenArray[0] + '\t' + xAuthTokenArray[1] + '\t' + xAuthTokenArray[2])
-                },
                 withCredentials: true
             }).pipe(map(response => {
             return response.recoveryCodes;

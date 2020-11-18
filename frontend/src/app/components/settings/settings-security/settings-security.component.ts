@@ -7,7 +7,6 @@ import {SecurityCheckDialogComponent} from '../../security-check-dialog/security
 import {MatDialog} from '@angular/material/dialog';
 import {MatTableDataSource} from '@angular/material/table';
 import {SettingsRenameDeviceDialogComponent} from '../settings-rename-device-dialog/settings-rename-device-dialog.component';
-import {TwoFactorGenerateRecoveryCodesDialogComponent} from '../../two-factor/two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
 
 function passwordValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
@@ -81,12 +80,6 @@ export class SettingsSecurityComponent {
                         this.snackBar.dismiss();
                         this.snackBar.open('Password updated', null, {duration: 1500});
                         this.passwordForm.reset();
-                        if (res.recoveryCodeLeft === false) {
-                            this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
-                                maxWidth: '500px',
-                                disableClose: true
-                            });
-                        }
                     });
                 }
             }
