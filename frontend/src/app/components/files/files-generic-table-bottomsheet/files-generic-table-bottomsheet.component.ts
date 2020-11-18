@@ -2,7 +2,7 @@ import { CloudNode } from 'src/app/models/files-api-models';
 import { FilesUtilsService } from 'src/app/services/files-utils/files-utils.service';
 import { Component, Inject, NgZone } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
-import {UserServiceProvider} from "../../../services/users/user-service-provider";
+import { UserServiceProvider } from "../../../services/users/user-service-provider";
 
 export interface FilesGenericTableBottomsheetData {
   sharedWithMeMode: boolean;
@@ -39,6 +39,10 @@ export class FilesGenericTableBottomsheetComponent {
     return !this.data.readonlyMode && !node.isDirectory;
   }
 
+  canBeOpened(node: CloudNode): boolean {
+    return this.filesUtils.canBeOpenedInApp(this.filesUtils.getFileTypeForMimetype(node.mimetype));
+  }
+
   isPDFExportAvailable(node: CloudNode): boolean {
     const fileType = this.filesUtils.getFileTypeForMimetype(node.mimetype);
     return this.filesUtils.isPDFExportAvailable(fileType);
@@ -53,7 +57,7 @@ export class FilesGenericTableBottomsheetComponent {
     })
   }
 
-  isOwner(): boolean{
+  isOwner(): boolean {
     return this.userServiceProvider.default().getActiveUser().role === "owner";
   }
 }

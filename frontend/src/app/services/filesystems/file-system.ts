@@ -36,7 +36,7 @@ export interface FileSystem {
     getDownloadURL(node: CloudNode): string;
     getExportURL(node: CloudNode): string;
     getFilePreviewImageURL(node: CloudNode): string;
-
+    getEtherpadURL(file: CloudFile): Observable<string>;
 
     startFileUpload(file: File, destination: CloudDirectory): void;
     cancelFileUpload(): void;

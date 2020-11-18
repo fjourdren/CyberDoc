@@ -80,8 +80,8 @@
 
 <mat-menu #fileContextMenu="matMenu">
     <ng-template matMenuContent>
-        <!-- We can open every files -->
-        <button mat-menu-item (click)="onContextMenuOrBottomSheetSelection('open')">
+        <!-- We can open only txt files -->
+        <button *ngIf="canBeOpened(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('open')">
             <mat-icon fontSet="fa" fontIcon="fa-external-link-alt"></mat-icon>
             <span>{{ 'fileaction.open' | translate }}</span>
         </button>

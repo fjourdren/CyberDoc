@@ -5,8 +5,8 @@
             {{ data.node.name }}
         </span>
     </a>
-    <!-- We can open every files -->
-    <a href="#" mat-list-item (click)="onBottomSheetSelection($event,'open')">
+    <!-- We can open txt files -->
+    <a href="#" *ngIf="canBeOpened(data.node)" mat-list-item (click)="onBottomSheetSelection($event,'open')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-external-link-alt"></mat-icon>
             {{ 'fileaction.open' | translate }}

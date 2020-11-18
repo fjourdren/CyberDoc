@@ -101,6 +101,13 @@ export class FilesUtilsService {
     return FILETYPE_TO_FONTAWESOME_ICON.get(fileType);
   }
 
+  canBeOpenedInApp(fileType: FileType): boolean {
+    return [
+      FileType.Text,
+      FileType.Folder,
+    ].indexOf(fileType) !== -1;
+  }
+
   isPDFExportAvailable(fileType: FileType): boolean {
     return [
       FileType.Text,
