@@ -1,6 +1,5 @@
 <mat-toolbar *ngIf="currentDirectory" color="primary">
     <div *ngFor="let item of currentDirectory.path">
-        <a *ngIf="sharedWithMeMode" [routerLink]="['/shared-with-me']" mat-button>Shared with me</a>
         <a *ngIf="!sharedWithMeMode" [routerLink]="['/files', item.id]" mat-button>{{item.name}}</a>
         <button *ngIf="!sharedWithMeMode" mat-icon-button (click)="loadDataForContextMenu(item.id)" [matMenuTriggerFor]="menu">
             <mat-icon>keyboard_arrow_right</mat-icon>
