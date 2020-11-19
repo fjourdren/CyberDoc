@@ -304,9 +304,20 @@ class FileService {
             const etherpadData = await EtherpadData.findOne({key: etherpadPadID}).exec();
             if (etherpadData) {
                 const text = JSON.parse(etherpadData.val).atext.text;
+                const fileContentBuffer = Buffer.from(text, "utf8");
+
                 GridFSTalker.delete(fileObjectID);
-                await EncryptionFileService.deleteFileKeys(file);
-                file = await FileService.createDocument(user_hash, file, file.name, file.mimetype, Buffer.from(text, "utf8"));
+                const aes_file_key = await EncryptionFileService.getFileKey(user, file, user_hash);
+                const encryptProcessReply = EncryptionFileService.encryptFileContent(fileContentBuffer, aes_file_key);
+
+                const readablefileContent = new Readable();
+                readablefileContent.push(encryptProcessReply["content"]);
+                readablefileContent.push(null);
+
+                const docId = await GridFSTalker.create(file.name, file.mimetype, readablefileContent);
+                file.document_id = docId;
+                file.size = fileContentBuffer.length;
+                file = await file.save();
                 fileObjectID = Types.ObjectId(file.document_id);
             }
         }
