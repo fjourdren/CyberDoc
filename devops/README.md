@@ -224,7 +224,7 @@ Sonarqube projects will be created after the first scan occurs. Afterward, the p
 
 ## Maintenance mode
 
-If you need to make change on the infrastructure, you can use these commands to display "maintenance" on the screen of the application and services.
+If you need to make changes on the infrastructure, you can use these commands to display "maintenance" on the screen of the application and services.
 
 ```
 sudo docker stop startup_traefik_1
