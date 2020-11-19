@@ -17,7 +17,6 @@ export class PasswordRecoveryPageComponent {
 
   loading = false;
   wrongCredentialError = false;
-  genericError = false;
   recovered = false;
 
   constructor(private fb: FormBuilder,
@@ -30,7 +29,6 @@ export class PasswordRecoveryPageComponent {
     }
 
     this.loading = true;
-    this.genericError = false;
     this.wrongCredentialError = false;
     this.recovered = false;
     this.recoverForm.get("email").disable();
@@ -44,7 +42,7 @@ export class PasswordRecoveryPageComponent {
       if (error instanceof HttpErrorResponse && error.status == 401) {
         this.wrongCredentialError = true;
       } else {
-        this.genericError = true;
+        throw error;
       }
     });
   }

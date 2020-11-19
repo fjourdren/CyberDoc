@@ -20,7 +20,6 @@ export class LoginPageComponent {
     hidePassword = true;
     loading = false;
     wrongCredentialError = false;
-    genericError = false;
     private _jwtHelper = new JwtHelperService();
 
     constructor(private fb: FormBuilder,
@@ -34,7 +33,6 @@ export class LoginPageComponent {
         }
 
         this.loading = true;
-        this.genericError = false;
         this.wrongCredentialError = false;
         this.loginForm.get('email').disable();
         this.loginForm.get('password').disable();
@@ -60,7 +58,7 @@ export class LoginPageComponent {
             if (error instanceof HttpErrorResponse && error.status === 401) {
                 this.wrongCredentialError = true;
             } else {
-                this.genericError = true;
+                throw error;
             }
         });
     }

@@ -5,7 +5,6 @@ import { User } from 'src/app/models/users-api-models';
 import { MustMatch } from 'src/app/components/settings/settings-security/_helpers/must-match.validator';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { JwtHelperService } from '@auth0/angular-jwt';
 
 function passwordValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
@@ -31,12 +30,10 @@ export class RegisterPageComponent {
     loading = false;
     emailAlreadyExistsError = false;
     tooManyRequestsError = false;
-    genericError = false;
     registerForm: FormGroup;
     email: string;
     fileOwnerEmail: string;
     fileId: string;
-    private jwtHelper = new JwtHelperService();
 
     constructor(private fb: FormBuilder,
         private userServiceProvider: UserServiceProvider,
@@ -73,7 +70,6 @@ export class RegisterPageComponent {
 
         this.loading = true;
         this.registerForm.disable();
-        this.genericError = false;
         this.emailAlreadyExistsError = false;
         this.tooManyRequestsError = false;
 
@@ -96,7 +92,7 @@ export class RegisterPageComponent {
             } else if (error instanceof HttpErrorResponse && error.status === 429) {
                 this.tooManyRequestsError = true;
             } else {
-                this.genericError = true;
+                throw error;
             }
         });
     }
