@@ -301,7 +301,6 @@ Percentage of the requests served within a certain time (ms)
  100%    320 (longest request)
 ```
 - with curl
-- 
 ```
 maeg@maeg-HP-ProBook-650-G1:~$ curl https://api.cyberdoc.fulgen.fr/[0-20]
 

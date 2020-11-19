@@ -94,7 +94,7 @@ export class TwoFactorLoginPageComponent implements OnInit {
 
     openDialogRecovery(): void {
         const refDialog = this.dialog.open(TwoFactorUseRecoveryCodeDialogComponent, {
-            maxWidth: '500px'
+            maxWidth: '450px'
         });
         refDialog.afterClosed().toPromise().then(res => {
             if (res && res.recoveryCodesLeft === false) {
