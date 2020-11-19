@@ -76,11 +76,12 @@ export class FilesShareMenuDialogComponent {
 
   addEntry(): void {
     const formField = this.newShareForm.get('email');
-    formField.setErrors(null);
 
     if (!this.newShareForm.get('email').valid || !formField.value || formField.value.trim() === "") {
       formField.setErrors({invalid: true});
       return;
+    } else {
+      formField.setErrors(null);
     }
 
     // If the email entered is the email of the current user, ignore it
