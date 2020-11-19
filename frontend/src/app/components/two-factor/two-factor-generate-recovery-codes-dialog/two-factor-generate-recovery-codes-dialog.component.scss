@@ -1,8 +1,4 @@
-@import "../../../../theme.scss";
-
-mat-list {
-  height: 32px;
-}
+@import "src/theme";
 
 #downloadButton {
   display: flex;
@@ -11,10 +7,8 @@ mat-list {
   justify-content: space-around;
 }
 
-.mat-dialog-actions {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
+.mat-dialog-content {
+  width: 100%;
 }
 
 .mat-dialog-actions>button {

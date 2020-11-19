@@ -160,6 +160,8 @@
         "password_verify": "Verify your password",
         "two_factor_auth_required": "Two-factor authentication required",
         "recover_two_factor": "Recover Two-Factor authentication",
+        "recover_two_factor_tip": "Please, enter one of your recovery code.",
+        "uuid_example": "It looks like \"55b66298-5e13-4b5b-a610-d04e886d6be5\"",
         "two_factor_recovery_codes": "Two-factor recovery codes"
     },
     "devices": {

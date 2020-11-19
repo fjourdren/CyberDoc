@@ -12,9 +12,9 @@
                 {{ 'general.no_empty' | translate }}
             </mat-error>
         </mat-form-field>
-        <div id="button-container">
-            <button mat-flat-button color="primary" type="submit" [disabled]="passwordForm.invalid">{{ 'general.confirm' | translate }}</button>
-            <button mat-button color="warn" matDialogClose>{{ 'general.cancel' | translate }}</button>
-        </div>
     </form>
+</div>
+<div mat-dialog-actions align="end">
+    <button mat-flat-button color="primary" (click)="onSubmitPassword()" [disabled]="passwordForm.invalid">{{ 'general.confirm' | translate }}</button>
+    <button mat-button color="warn" matDialogClose>{{ 'general.cancel' | translate }}</button>
 </div>

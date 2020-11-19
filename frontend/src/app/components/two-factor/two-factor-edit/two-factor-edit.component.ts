@@ -203,14 +203,16 @@ export class TwoFactorEditComponent {
             }
         }).afterClosed().subscribe(res => {
             if (res) {
-                if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) { // [password:smsOrApp:2faToken]
-                    this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
-                        width: '500px',
-                        disableClose: true,
-                        data: {
-                            xAuthTokenArray: res.xAuthTokenArray
-                        }
-                    });
+                if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) { // [password:smsOrAppOrRecoveryCode:2faTokenOrRecoveryCode]
+                    if (res.xAuthTokenArray[1] === 'app' || res.xAuthTokenArray[1] === 'sms') {
+                        this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+                            maxWidth: '500px',
+                            disableClose: true,
+                            data: {
+                                xAuthTokenArray: res.xAuthTokenArray
+                            }
+                        });
+                    }
                 }
             }
         });
