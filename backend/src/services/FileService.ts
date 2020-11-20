@@ -645,8 +645,8 @@ class FileService {
             contentOutputFile = await sharp(contentOutputFile).resize({ width: 300, height: 200 }).png().toBuffer();
 
             // delete two temp files
-            fs.unlinkSync(tempInputFile);
-            fs.unlinkSync(tempOutputImage);
+            try {fs.unlinkSync(tempInputFile);} catch (err) {}
+            try {fs.unlinkSync(tempOutputImage);} catch (err) {}
         }
 
         // create readable
