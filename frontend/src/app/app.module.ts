@@ -131,10 +131,11 @@ const LOCAL_ERROR_HANDLER = [
 ];
 
 const SENTRY_ERROR_HANDLER = [
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
     {
         provide: ErrorHandler,
         useValue: Sentry.createErrorHandler({
-            showDialog: true,
+            showDialog: false,
         }),
     },
     {
