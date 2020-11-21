@@ -679,6 +679,12 @@ class FileController {
             if (!etherpadData) {
                 //Create etherpad Pad
                 const documentGridFs = await FileService.getFileContent(user_hash, currentUser, file);
+
+                //FIXME 21-11-2020 cforgeard HOTFIX because I don't know how to create a Etherpad PAD via a POST request
+                if (file.size > 10000) { // 10KO
+                    throw new HTTPError(HttpCodes.NOT_IMPLEMENTED, "Sorry but actually you can't open files larger than 10KO");
+                }
+
                 const content: string = documentGridFs.content;
 
                 await Axios.get(`${process.env.ETHERPAD_ROOT_API_URL}/createPad?padID=${file._id}&apikey=${process.env.ETHERPAD_API_KEY}&text=${content}`);

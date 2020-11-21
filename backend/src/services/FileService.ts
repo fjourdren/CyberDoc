@@ -696,7 +696,6 @@ class FileService {
         const files = await File.find({"owner_id": user._id, "type": FileType.DOCUMENT}).exec();
         let totalSize = 0;
         for (const file of files) {
-            console.warn(`${file.name} ${file.size}`);
             totalSize += file.size;
         }
 
