@@ -5,6 +5,7 @@ import { RealUserService } from './real-user-service';
 import { UserService } from './user-service';
 import { CookieService } from 'ngx-cookie-service';
 import { environment } from '../../../environments/environment';
+import { Gtag } from 'angular-gtag';
 
 @Injectable({
     providedIn: 'root'
@@ -12,7 +13,7 @@ import { environment } from '../../../environments/environment';
 export class UserServiceProvider {
     private _instances = new Map<string, UserService>();
 
-    constructor(private httpClient: HttpClient, private cookieService: CookieService){}
+    constructor(private httpClient: HttpClient, private cookieService: CookieService, private gtag: Gtag){}
 
     default(): UserService {
         return this.get(environment.defaultUserServiceName);
@@ -31,7 +32,7 @@ export class UserServiceProvider {
             case 'mock':
                 return new MockUserService();
             case 'real':
-                return new RealUserService(this.httpClient, this.cookieService);
+                return new RealUserService(this.httpClient, this.cookieService, this.gtag);
             default:
                 throw new Error(`Unknown UserService provider : ${providerName}`);
         }

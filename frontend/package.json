@@ -32,6 +32,7 @@
     "@ngx-translate/http-loader": "^6.0.0",
     "@sentry/angular": "^5.26.0",
     "@sentry/tracing": "^5.26.0",
+    "angular-gtag": "^1.0.4",
     "classlist.js": "^1.1.20150312",
     "core-js": "^3.7.0",
     "google-libphonenumber": "^3.2.14",

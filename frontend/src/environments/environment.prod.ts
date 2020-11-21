@@ -8,4 +8,5 @@ export const environment = {
   authCookieName: "access_token",
   userHashCookieName: "user_hash",
   userLocalStorageKey: "real_user",
+  gaTrackingID: undefined,
 };
