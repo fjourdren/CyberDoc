@@ -19,7 +19,7 @@ export class RealUserService implements UserService {
 
     constructor(private httpClient: HttpClient,
         private cookieService: CookieService,
-        private gtag: Gtag) {
+        private gtag: Gtag | undefined) {
     }
 
     getActiveUser(): User {
@@ -293,12 +293,12 @@ export class RealUserService implements UserService {
             this._userUpdated$.emit(user);
         }
 
-        if (environment.gaTrackingID && user && !oldUser) {
+        if (this.gtag && user && !oldUser) {
             this.gtag.event("user_login", {
                 userID: user._id,
                 userEmail: user.email
             });
-        } else if (environment.gaTrackingID && !user && oldUser) {
+        } else if (this.gtag && !user && oldUser) {
             this.gtag.event("user_logout", {
                 userID: oldUser._id,
                 userEmail: oldUser.email

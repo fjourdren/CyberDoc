@@ -97,7 +97,7 @@ import { TwoFactorGenerateRecoveryCodesDialogComponent } from './components/two-
 import { TwoFactorUseRecoveryCodeDialogComponent } from './components/two-factor/two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
 import { FilesOpenDialogComponent } from './components/files/files-open-dialog/files-open-dialog.component';
-import { GtagModule } from 'angular-gtag/src/gtag.module';
+import { GtagModule } from 'angular-gtag';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
