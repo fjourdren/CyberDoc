@@ -20,11 +20,22 @@ export class FilesUploadProgressSnackbarComponent {
     private translate: TranslateService
   ) {
     fsProvider.default().getCurrentFileUpload().subscribe(state => {
-      if (state) {
+      if (state && !state.error) {
         this.filename = state.filename;
         this.progressionPercent = Math.round(state.progress * 100);
         this.remainingTimeSeconds = Math.round(state.remainingSeconds / 10) * 10;
         this.currentlyUploading = true;
+      } else if (state && state.error) {
+        this.currentlyUploading = false;
+        if (state.error.message.includes("507")) {
+          this.translate.get("upload.insufficient_storage").toPromise().then(msg => {
+            this.snackBar.open(msg, null, {
+              duration: 5000,
+            });
+          })
+        } else {
+          throw state.error;
+        }
       } else if (this.currentlyUploading) { //don't show success msg if upload canceled
         if (this.filename) {
           this.translate.get("upload.success").toPromise().then(msg => {

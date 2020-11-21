@@ -393,7 +393,8 @@ export class MockFileSystem implements FileSystem {
             this._currentUpload$.emit({
                 filename: name,
                 progress: 1 - (remainingSize / size),
-                remainingSeconds: remainingTime
+                remainingSeconds: remainingTime,
+                error: undefined
             });
 
             remainingSize -= UPLOAD_SPEED;
