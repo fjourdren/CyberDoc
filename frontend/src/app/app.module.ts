@@ -97,6 +97,7 @@ import { TwoFactorGenerateRecoveryCodesDialogComponent } from './components/two-
 import { TwoFactorUseRecoveryCodeDialogComponent } from './components/two-factor/two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
 import { FilesOpenDialogComponent } from './components/files/files-open-dialog/files-open-dialog.component';
+import { GtagModule } from 'angular-gtag/src/gtag.module';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
@@ -155,6 +156,14 @@ if (environment.useSentry) {
     ERROR_HANDLER = SENTRY_ERROR_HANDLER;
 } else {
     ERROR_HANDLER = LOCAL_ERROR_HANDLER;
+}
+
+let ANALYTICS = [];
+if (environment.gaTrackingID) {
+    console.warn(`analytics ON, gaTrackingID=${environment.gaTrackingID}`);
+    ANALYTICS.push(GtagModule.forRoot({ trackingId: environment.gaTrackingID, trackPageviews: true }))
+} else {
+    console.warn("analytics OFF");
 }
 
 @NgModule({
@@ -233,6 +242,7 @@ if (environment.useSentry) {
         NgResizeObserverPonyfillModule,
         LayoutModule,
         MatRadioModule,
+        ...ANALYTICS,
         ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
     ],
     providers: [

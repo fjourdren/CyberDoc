@@ -10,13 +10,16 @@ import { CookieService } from 'ngx-cookie-service';
 import { environment } from "src/environments/environment";
 import { SHA3 } from 'sha3';
 import { Base64 } from 'js-base64';
+import { Gtag } from 'angular-gtag';
 
 export class RealUserService implements UserService {
 
     private _userUpdated$ = new EventEmitter<User>();
     private _jwtHelper = new JwtHelperService();
 
-    constructor(private httpClient: HttpClient, private cookieService: CookieService) {
+    constructor(private httpClient: HttpClient,
+        private cookieService: CookieService,
+        private gtag: Gtag) {
     }
 
     getActiveUser(): User {
@@ -137,7 +140,7 @@ export class RealUserService implements UserService {
     }
 
     updateTwoFactor(twoFactorApp: boolean, twoFactorSms: boolean, secret: string, phoneNumber: string,
-                    xAuthTokenArray: string[]): Observable<void> {
+        xAuthTokenArray: string[]): Observable<void> {
         const options = { withCredentials: true };
         if (xAuthTokenArray && xAuthTokenArray.length === 3) {
             options["headers"] = { 'x-auth-token': Base64.encode(xAuthTokenArray[0] + '\t' + xAuthTokenArray[1] + '\t' + xAuthTokenArray[2]) };
@@ -236,7 +239,7 @@ export class RealUserService implements UserService {
                 'x-auth-token': Base64.encode(xAuthTokenArray[0] + '\t' + xAuthTokenArray[1] + '\t' + xAuthTokenArray[2])
             },
             withCredentials: true
-        }).pipe(map(() => {}));
+        }).pipe(map(() => { }));
     }
 
     userUpdated(): Observable<User> {
@@ -284,9 +287,22 @@ export class RealUserService implements UserService {
     }
 
     private _setUser(user: User) {
+        const oldUser = this.getActiveUser();
         localStorage.setItem(environment.userLocalStorageKey, JSON.stringify(user));
         if (user) {
             this._userUpdated$.emit(user);
+        }
+
+        if (environment.gaTrackingID && user && !oldUser) {
+            this.gtag.event("user_login", {
+                userID: user._id,
+                userEmail: user.email
+            });
+        } else if (environment.gaTrackingID && !user && oldUser) {
+            this.gtag.event("user_logout", {
+                userID: oldUser._id,
+                userEmail: oldUser.email
+            });
         }
     }
 }
