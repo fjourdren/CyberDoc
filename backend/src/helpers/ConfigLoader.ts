@@ -33,6 +33,7 @@ declare global {
             APP_PORT: number;
             JWT_SECRET: string;
             ENCRYPTION_IV: string;
+            MAX_STORAGE_SPACE_PER_USER: number;
             MONGODB_URL: string;
             ENABLE_AUTH_API_SLOWDOWN: string;
             ETHERPAD_ROOT_URL: string;

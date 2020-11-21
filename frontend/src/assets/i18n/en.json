@@ -69,6 +69,7 @@
         "drop_div_text": "Drop a file to import",
         "success": "File successfully uploaded",
         "canceled": "Upload canceled",
+        "insufficient_storage": "ERROR : Insufficient Storage",
         "under_ten_seconds": "less than 10 seconds remaining",
         "finishing_upload": "Finishing upload..."
     },

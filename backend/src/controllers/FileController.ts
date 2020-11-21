@@ -44,6 +44,11 @@ class FileController {
                 fileToSave = await FileService.createDirectory(fileToSave);
             } else {
                 const fileContents = requireFile(req, "upfile");
+                const usedSpace = await FileService.getUsedSpace(currentUser);
+                if ((usedSpace + fileContents.buffer.length) > process.env.MAX_STORAGE_SPACE_PER_USER) {
+                    throw new HTTPError(HttpCodes.INSUFFICIENT_STORAGE, "Insufficient Storage");
+                }
+    
                 fileToSave = await FileService.createDocument(user_hash, fileToSave, fileToSave.name, mimetype, fileContents.buffer);
             }
 

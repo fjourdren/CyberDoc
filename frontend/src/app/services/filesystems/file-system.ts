@@ -5,6 +5,7 @@ export interface Upload {
     filename: string;
     progress: number;
     remainingSeconds: number;
+    error: Error;
 }
 
 export interface FileSystem {

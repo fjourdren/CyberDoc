@@ -692,6 +692,17 @@ class FileService {
         return requireNonNull(await File.updateOne({ _id: file._id }, {$set: {signs: file.signs}}).exec());
     }
 
+    public static async getUsedSpace(user: IUser) {
+        const files = await File.find({"owner_id": user._id, "type": FileType.DOCUMENT}).exec();
+        let totalSize = 0;
+        for (const file of files) {
+            console.warn(`${file.name} ${file.size}`);
+            totalSize += file.size;
+        }
+
+        return totalSize;
+    }
+
     private static async resolveUserIfNeeded(user: IUser | string) {
         if (typeof user === "string") {
             return requireNonNull(await User.findById(user), 404, "User not found");
