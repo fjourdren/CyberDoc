@@ -368,6 +368,11 @@ class FileController {
                 throw new HTTPError(HttpCodes.BAD_REQUEST, "Preview not allowed for this file");
             }
 
+            //FIXME 21-11-2020 cforgeard HOTFIX because actually the preview loads the entire file in memory, which cause ENOMEM errors
+            if (file.size > 5_000_000) { // 5 MO
+                throw new HTTPError(HttpCodes.BAD_REQUEST, "Preview not allowed for this file");
+            }
+
             const previewImg = await FileService.generatePreview(user_hash, user, file);
 
             res.set('Content-Type', 'image/png');
