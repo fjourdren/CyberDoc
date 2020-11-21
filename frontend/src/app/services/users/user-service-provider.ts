@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, Optional } from '@angular/core';
 import { MockUserService } from './mock-user-service';
 import { RealUserService } from './real-user-service';
 import { UserService } from './user-service';
@@ -13,7 +13,7 @@ import { Gtag } from 'angular-gtag';
 export class UserServiceProvider {
     private _instances = new Map<string, UserService>();
 
-    constructor(private httpClient: HttpClient, private cookieService: CookieService, private gtag: Gtag){}
+    constructor(private httpClient: HttpClient, private cookieService: CookieService, @Inject(undefined) @Optional() private gtag: Gtag | undefined){}
 
     default(): UserService {
         return this.get(environment.defaultUserServiceName);
