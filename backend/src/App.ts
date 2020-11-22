@@ -11,6 +11,8 @@ import {default as routers} from './routers/ApiRouter';
 import HttpCodes from './helpers/HttpCodes';
 import JWTTokenExtractMiddleware from './middlewares/JWTTokenExtractMiddleware';
 import ErrorCatcherMiddleware from './middlewares/ErrorCatcherMiddleware';
+import path from 'path';
+import { mkdirSync } from 'fs';
 
 class App {
 
@@ -48,7 +50,25 @@ class App {
         this.expressApp.use(bodyParser.urlencoded({ extended: true }));
 
         // parse multipart/form-data
-        const multerInstance = multer();
+        // https://www.npmjs.com/package/multer#diskstorage
+        // https://www.npmjs.com/package/multer#limits
+        mkdirSync(path.join("tmp", "my-uploads"), {recursive: true});
+        const storage = multer.diskStorage({
+            destination: function (req, file, cb) {
+              cb(null, path.join("tmp", "my-uploads"))
+            },
+            filename: function (req, file, cb) {
+              cb(null, file.fieldname + '-' + Date.now())
+            }
+        })
+          
+        const multerInstance = multer({ 
+            storage: storage,
+            limits: {
+                fileSize: process.env.MAX_STORAGE_SPACE_PER_USER,
+                files: 1
+            }
+        });
         this.expressApp.use(multerInstance.any()); 
 
         // cookies support
