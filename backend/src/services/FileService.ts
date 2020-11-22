@@ -18,13 +18,17 @@ import HttpCodes from '../helpers/HttpCodes';
 import HTTPError from '../helpers/HTTPError';
 import { anyToReadable, streamToBuffer } from '../helpers/Conversions';
 import CryptoHelper from '../helpers/CryptoHelper';
-import generatePreviewSync, { GeneratePreviewOptions } from '../helpers/filepreview';
+import generatePreview, { GeneratePreviewOptions } from '../helpers/filepreview';
 
 import { IUser, User } from "../models/User";
 import { IFile, File, FileType, ShareMode } from "../models/File";
 import IUserSign, { UserSign } from '../models/UserSign';
 import { FileEncryptionKeysSchema } from '../models/FileEncryptionKeys';
 import { EtherpadData } from '../models/EtherpadData';
+
+const unlink = promisify(fs.unlink);
+const readFile = promisify(fs.readFile);
+const writeFile = promisify(fs.writeFile);
 
 enum PreciseFileType {
     Folder = "Folder",
@@ -622,7 +626,7 @@ class FileService {
             contentOutputFile = buffer;
         } else {
             // save input file in temp file
-            fs.writeFileSync(tempInputFile, buffer);
+            await writeFile(tempInputFile, buffer);
 
             // generate image and save it in a temp directory
             const options: GeneratePreviewOptions = {
@@ -636,17 +640,17 @@ class FileService {
             else if (file.mimetype === "application/pdf") fileType = "pdf";
 
             try {
-                generatePreviewSync(tempInputFile, fileType, tempOutputImage, options);
+                await generatePreview(tempInputFile, fileType, tempOutputImage, options);
             } catch (e) {
                 throw new HTTPError(HttpCodes.INTERNAL_ERROR, `Cannot create this preview! ${e}`);
             }
 
-            contentOutputFile = fs.readFileSync(tempOutputImage);
+            contentOutputFile = await readFile(tempOutputImage);
             contentOutputFile = await sharp(contentOutputFile).resize({ width: 300, height: 200 }).png().toBuffer();
 
             // delete two temp files
-            try {fs.unlinkSync(tempInputFile);} catch (err) {}
-            try {fs.unlinkSync(tempOutputImage);} catch (err) {}
+            try {await unlink(tempInputFile);} catch (err) {}
+            try {await unlink(tempOutputImage);} catch (err) {}
         }
 
         // create readable
