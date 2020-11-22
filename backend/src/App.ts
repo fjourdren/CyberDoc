@@ -52,7 +52,8 @@ class App {
         // parse multipart/form-data
         // https://www.npmjs.com/package/multer#diskstorage
         // https://www.npmjs.com/package/multer#limits
-        mkdirSync(path.join("tmp", "my-uploads"), {recursive: true});
+        //TODO
+        /*mkdirSync(path.join("tmp", "my-uploads"), {recursive: true});
         const storage = multer.diskStorage({
             destination: function (req, file, cb) {
               cb(null, path.join("tmp", "my-uploads"))
@@ -61,9 +62,9 @@ class App {
               cb(null, file.fieldname + '-' + Date.now())
             }
         })
-          
+          */
         const multerInstance = multer({ 
-            storage: storage,
+            //storage: storage,
             limits: {
                 fileSize: process.env.MAX_STORAGE_SPACE_PER_USER,
                 files: 1
