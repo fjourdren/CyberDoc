@@ -3,12 +3,16 @@ import crypto from "crypto";
 import path from "path";
 import fs from "fs";
 import os from "os";
+import { promisify } from "util";
 
 const EXEC_TIMEOUT = 5000; //5 seconds
+const execFile = promisify(child_process.execFile);
+const unlink = promisify(fs.unlink);
+const lstat = promisify(fs.lstat);
 
-function ensureFileExists(path: string) {
+async function ensureFileExists(path: string) {
     try {
-        if (!fs.lstatSync(path).isFile()) { throw new Error("fs.lstatSync(path).isFile() == false") }
+        if (!(await lstat(path)).isFile()) { throw new Error("fs.lstat(path).isFile() == false") }
     } catch (err) {
         throw new Error(`File ${path} not exists (${err})`);
     }
@@ -23,10 +27,10 @@ export interface GeneratePreviewOptions {
     pagerange?: string
 }
 
-export default function generatePreviewSync(inputPath: string, fileType: "other" | "video" | "image" | "pdf", outputPath: string, options: GeneratePreviewOptions) {
+export default async function generatePreview(inputPath: string, fileType: "other" | "video" | "image" | "pdf", outputPath: string, options: GeneratePreviewOptions) {
 
     // Check for supported outputPath format
-    ensureFileExists(inputPath);
+    await ensureFileExists(inputPath);
     var extOutput = path.extname(outputPath).toLowerCase().replace('.', '');
     if (extOutput != 'gif' && extOutput != 'jpg' && extOutput != 'png') {
         return false;
@@ -38,7 +42,7 @@ export default function generatePreviewSync(inputPath: string, fileType: "other"
             if (options.width && options.height) {
                 ffmpegArgs.splice(4, 1, 'thumbnail,scale=' + options.width + ':' + options.height + (options.forceAspect ? ':force_original_aspect_ratio=decrease' : ''));
             }
-            child_process.execFileSync('ffmpeg', ffmpegArgs, {timeout: EXEC_TIMEOUT});
+            await execFile('ffmpeg', ffmpegArgs, {timeout: EXEC_TIMEOUT});
             break;
         }
 
@@ -56,7 +60,7 @@ export default function generatePreviewSync(inputPath: string, fileType: "other"
                 convertArgs.splice(0, 0, '-background', options.background);
                 convertArgs.splice(0, 0, '-flatten');
             }
-            child_process.execFileSync('convert', convertArgs, {timeout: EXEC_TIMEOUT});
+            await execFile('convert', convertArgs, {timeout: EXEC_TIMEOUT});
             break;
         }
 
@@ -78,7 +82,7 @@ export default function generatePreviewSync(inputPath: string, fileType: "other"
                 }
             }
 
-            child_process.execFileSync('unoconv', ['-e', 'PageRange=' + unoconv_pagerange, '-o', tempPDF, inputPath], {timeout: EXEC_TIMEOUT});
+            await execFile('unoconv', ['-e', 'PageRange=' + unoconv_pagerange, '-o', tempPDF, inputPath], {timeout: EXEC_TIMEOUT});
 
             if (unoconv_pagerange == '1') {
                 convertOtherArgs = [tempPDF + '[0]', outputPath];
@@ -88,7 +92,7 @@ export default function generatePreviewSync(inputPath: string, fileType: "other"
                 if (options.quality) {
                     convertOtherArgs.splice(0, 0, '-quality', options.quality.toString());
                 }
-                child_process.execFileSync('convert', convertOtherArgs, {timeout: EXEC_TIMEOUT});
+                await execFile('convert', convertOtherArgs, {timeout: EXEC_TIMEOUT});
             } else {
                 for (var x = 0; x < pagerange_stop; x++) {
                     var convertOtherArgs = [tempPDF + '[' + x + ']', x + '_' + outputPath];
@@ -98,11 +102,11 @@ export default function generatePreviewSync(inputPath: string, fileType: "other"
                     if (options.quality) {
                         convertOtherArgs.splice(0, 0, '-quality', options.quality.toString());
                     }
-                    child_process.execFileSync('convert', convertOtherArgs, {timeout: EXEC_TIMEOUT});
+                    await execFile('convert', convertOtherArgs, {timeout: EXEC_TIMEOUT});
                 }
             }
 
-            fs.unlinkSync(tempPDF);
+            await unlink(tempPDF);
             break;
         }
 
