@@ -21,6 +21,7 @@ export class RealFileSystem implements FileSystem {
     private _refreshNeeded$ = new EventEmitter<void>();
     private _currentUpload$ = new EventEmitter<Upload>();
 
+    private _uploadAborted = false;
     private _uploadXhr: XMLHttpRequest;
     private _timeStarted = -1;
 
@@ -216,6 +217,7 @@ export class RealFileSystem implements FileSystem {
         formData.append('mimetype', file.type || 'application/octet-stream');
         formData.append('name', file.name);
         formData.append('upfile', file);
+        this._uploadAborted = false;
 
         // Need to use a XMLHttpRequest, to have cancel capability
         this._uploadXhr = new XMLHttpRequest();
@@ -244,7 +246,7 @@ export class RealFileSystem implements FileSystem {
         };
 
         this._uploadXhr.onreadystatechange = () => {
-            if (this._uploadXhr.readyState === XMLHttpRequest.DONE) {
+            if (this._uploadXhr.readyState === XMLHttpRequest.DONE && !this._uploadAborted) {
                 if (this._uploadXhr.status !== 200) {
                     this._onXHRFinished(file.name, new Error(`${this._uploadXhr.status} ${this._uploadXhr.statusText}`));
                 } else {
@@ -253,8 +255,8 @@ export class RealFileSystem implements FileSystem {
             }
         };
 
-        this._uploadXhr.onabort = this._uploadXhr.upload.onabort = () => {
-            this._onXHRFinished(file.name, new Error('Uploading aborted'));
+        this._uploadXhr.onabort = this._uploadXhr.upload.onabort = (evt) => {
+            this._onXHRFinished(null, null);
         };
 
         this._uploadXhr.open('POST', `${environment.apiBaseURL}/files`, true);
@@ -264,6 +266,7 @@ export class RealFileSystem implements FileSystem {
 
     cancelFileUpload(): void {
         if (this._uploadXhr) {
+            this._uploadAborted = true;
             this._uploadXhr.abort();
         }
     }
@@ -285,10 +288,16 @@ export class RealFileSystem implements FileSystem {
                 error: error
             };
             this._currentUpload$.emit(obj);    
-        } else {
-            this._currentUpload$.emit(null);
+        } else if (filename) {
+            const obj = {
+                filename: filename,
+                progress: 100,
+                remainingSeconds: 0,
+                error: null
+            };
+            this._currentUpload$.emit(obj);    
         }
-
+        this._currentUpload$.emit(null);    
         this._timeStarted = -1;
         this._uploadXhr = null;
 
