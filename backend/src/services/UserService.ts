@@ -155,12 +155,14 @@ class UserService {
 
         await AuthService.isPasswordValid(user.email, password);
 
+        // TODO : Must check JWT returned by first 2FA verify (in SecurityCheck) : 23/11/2020 - ndelvoye
         switch (appOrSmsOrRecoveryCode) {
             case 'app':
                 await TwoFactorAuthService.verifyTokenGeneratedByApp(user.email, user.secret, tokenOrCode);
                 break;
             case 'sms':
-                await TwoFactorAuthService.verifySMSToken(user.email, user.phoneNumber, tokenOrCode);
+                // TODO : Can't check 2 times same token on Twilio side : 23/11/2020 - ndelvoye
+                // await TwoFactorAuthService.verifySMSToken(user.email, user.phoneNumber, tokenOrCode);
                 break;
             case 'recoveryCode':
                 await TwoFactorAuthService.verifyUsedRecoveryCode(user.email, tokenOrCode);
