@@ -91,7 +91,7 @@ describe('testing UserService', () => {
             let user_1 = D.requireNonNull(await U.User.findOne({email: mock_user_1.email}).exec());
             
             // update user 1
-            await UserService.updateProfile(undefined, undefined, user_id, undefined, firstname, lastname, email, password, phoneNumber, secret, twoFactorApp, twoFactorSms);
+            await UserService.updateProfile(undefined, undefined, undefined, user_id, undefined, firstname, lastname, email, password, phoneNumber, secret, twoFactorApp, twoFactorSms);
 
             // get user 1 after update
             const updated_user_1 = D.requireNonNull(await U.User.findOne({_id: user_1.id}).exec());
@@ -127,7 +127,7 @@ describe('testing UserService', () => {
 
             // try to update user 2 with user 1 email
             try{
-                D.requireNonNull(await UserService.updateProfile(undefined, undefined, user_2._id, undefined, undefined, mock_user_1.email, undefined, undefined, undefined, undefined, undefined, undefined));
+                D.requireNonNull(await UserService.updateProfile(undefined, undefined, undefined, user_2._id, undefined, undefined, mock_user_1.email, undefined, undefined, undefined, undefined, undefined, undefined));
             } catch (e) {
                 E = e;
             }

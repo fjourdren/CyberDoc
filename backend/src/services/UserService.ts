@@ -1,5 +1,6 @@
 import {IUser, Role, User} from '../models/User';
 import {File, IFile} from '../models/File';
+import { NextFunction, Request, Response } from 'express';
 
 import {requireNonNull} from '../helpers/DataValidation';
 
@@ -25,7 +26,7 @@ class UserService {
     }
 
     // profile update
-    public static async updateProfile(user_hash: string | undefined, new_user_hash: string | undefined, user_id: string | undefined, tokenBase64: string | undefined, firstname: string | undefined, lastname: string | undefined, email: string | undefined, password: string | undefined, phoneNumber: string | undefined, secret: string | undefined, twoFactorApp: boolean | undefined, twoFactorSms: boolean | undefined): Promise<Record<string, IUser | string>> {
+    public static async updateProfile(res: Response | undefined, user_hash: string | undefined, new_user_hash: string | undefined, user_id: string | undefined, tokenBase64: string | undefined, firstname: string | undefined, lastname: string | undefined, email: string | undefined, password: string | undefined, phoneNumber: string | undefined, secret: string | undefined, twoFactorApp: boolean | undefined, twoFactorSms: boolean | undefined): Promise<Record<string, IUser | string>> {
         let user = requireNonNull(await User.findById(user_id).exec());
 
         if ((twoFactorApp !== undefined || twoFactorSms !== undefined) && !twoFactorApp && !twoFactorSms) {
@@ -39,7 +40,7 @@ class UserService {
             || password != undefined
             || (twoFactorApp != undefined && twoFactorApp !== user.twoFactorApp)
             || (twoFactorSms != undefined && twoFactorSms !== user.twoFactorSms))
-            && !firstTimeTwoFactorRegistering) {
+            && !firstTimeTwoFactorRegistering && !res?.locals.APP_JWT_TOKEN.email) {
             if (!tokenBase64) {
                 throw new HTTPError(HttpCodes.UNAUTHORIZED, 'No X-Auth-Token : authorization denied');
             }
