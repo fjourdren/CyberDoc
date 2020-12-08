@@ -7,10 +7,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LocalStrategy } from './local/local.strategy';
 import { AuthController } from './auth.controller';
+import { CryptoModule } from 'src/crypto/crypto.module';
 
 @Module({
   imports: [
     UsersModule,
+    CryptoModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
