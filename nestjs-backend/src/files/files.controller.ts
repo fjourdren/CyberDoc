@@ -4,7 +4,7 @@ import { Request, Response } from 'express';
 import { UsersService } from 'src/users/users.service';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { FilesService } from './files.service';
-import { FILE, FOLDER } from './schemas/file.schema';
+import { FILE, FOLDER } from 'src/schemas/file.schema';
 import { EditFileMetadataDto } from './dto/edit-file-metadata.dto';
 import { CopyFileDto } from './dto/copy-file.dto';
 
