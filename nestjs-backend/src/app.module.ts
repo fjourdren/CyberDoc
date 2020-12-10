@@ -12,6 +12,7 @@ import { JwtAuthGuard } from './auth/jwt/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { FilesModule } from './files/files.module';
 import { CryptoModule } from './crypto/crypto.module';
+import { FileTagsModule } from './file-tags/file-tags.module';
 
 @Module({
   imports: [
@@ -34,7 +35,9 @@ import { CryptoModule } from './crypto/crypto.module';
     AuthModule,
     UsersModule,
     FilesModule,
-    CryptoModule],
+    CryptoModule,
+    FileTagsModule,
+  ],
   controllers: [AppController],
   providers: [
     AppService,

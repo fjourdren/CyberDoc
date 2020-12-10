@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AesService } from 'src/crypto/aes.service';
 import { RsaService } from 'src/crypto/rsa.service';
-import { User, UserDocument, UserFileKey } from './schemas/user.schema';
+import { User, UserDocument, UserFileKey } from 'src/schemas/user.schema';
 
 @Injectable()
 export class UsersService {

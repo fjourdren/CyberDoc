@@ -1,5 +1,6 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { FileTag } from './file-tag.schema';
 
 export type UserDocument = User & Document;
 
@@ -46,6 +47,9 @@ export class User {
 
     @Prop([UserFileKey])
     filesKeys: UserFileKey[]
+
+    @Prop([FileTag])
+    tags: FileTag[]
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
