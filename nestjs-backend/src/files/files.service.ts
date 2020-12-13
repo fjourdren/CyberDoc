@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Connection, Model } from 'mongoose';
+import { Connection, FilterQuery, Model } from 'mongoose';
 import { MongoGridFS } from 'mongo-gridfs';
 import { User } from 'src/schemas/user.schema';
 import { FILE, File, FileDocument, FOLDER, ShareMode } from '../schemas/file.schema';
@@ -11,9 +11,10 @@ import { Utils } from 'src/utils';
 const streamToPromise = require("stream-to-promise");
 const libre = require("libreoffice-convert");
 import { v4 as uuidv4 } from 'uuid';
-import { TEXT_MIMETYPES, DOCUMENT_MIMETYPES, SPREADSHEET_MIMETYPES, PRESENTATION_MIMETYPES, PDF_MIMETYPES } from 'src/file-types';
+import { TEXT_MIMETYPES, DOCUMENT_MIMETYPES, SPREADSHEET_MIMETYPES, PRESENTATION_MIMETYPES, PDF_MIMETYPES, FileType, DIRECTORY_MIMETYPE, ARCHIVE_MIMETYPES } from 'src/file-types';
 import { promisify } from 'util';
 import { PreviewGenerator } from './file-preview/preview-generator.service';
+import { FileSearchDto } from './dto/file-search.dto';
 
 @Injectable()
 export class FilesService {
@@ -46,6 +47,69 @@ export class FilesService {
         file.shareWithPending = [];
         file.tags = [];
         return await this.save(file);
+    }
+
+    async search(user: User, fileSearchDto: FileSearchDto): Promise<File[]> {
+        const { name, type, startLastModifiedDate, endLastModifiedDate, tagIDs } = fileSearchDto;
+        let query: FilterQuery<File> = { owner_id: user._id }; //TODO support shared files in search
+        if (name) query["name"] = name;
+
+        if (startLastModifiedDate && endLastModifiedDate) {
+            query["updated_at"] = { "$gt": startLastModifiedDate, "$lt": endLastModifiedDate };
+        } else if (startLastModifiedDate) {
+            query["updated_at"] = { "$gt": startLastModifiedDate };
+        } else if (endLastModifiedDate) {
+            query["updated_at"] = { "$lt": endLastModifiedDate };
+        }
+
+        if (tagIDs) {
+            query["tags"] = { $elemMatch: { "_id": { $in: tagIDs } } }
+        }
+
+        switch (type) {
+            case FileType.Folder: {
+                query["mimetype"] = DIRECTORY_MIMETYPE;
+                break;
+            }
+            case FileType.Audio: {
+                query["mimetype"] = { "$regex": '^audio/' };
+                break;
+            }
+            case FileType.Video: {
+                query["mimetype"] = { "$regex": '^video/' };
+                break;
+            }
+            case FileType.Image: {
+                query["mimetype"] = { "$regex": '^image/' };
+                break;
+            }
+            case FileType.PDF: {
+                query["mimetype"] = { "$in": PDF_MIMETYPES };
+                break;
+            }
+            case FileType.Text: {
+                query["mimetype"] = { "$in": TEXT_MIMETYPES };
+                break;
+            }
+            case FileType.Document: {
+                query["mimetype"] = { "$in": DOCUMENT_MIMETYPES };
+                break;
+            }
+            case FileType.Spreadsheet: {
+                query["mimetype"] = { "$in": SPREADSHEET_MIMETYPES };
+                break;
+            }
+            case FileType.Presentation: {
+                query["mimetype"] = { "$in": PRESENTATION_MIMETYPES };
+                break;
+            }
+            case FileType.Archive: {
+                query["mimetype"] = { "$in": ARCHIVE_MIMETYPES };
+                break;
+            }
+        }
+
+        return await this.fileModel.find(query).exec();
     }
 
     async getFolderContents(folderID: string): Promise<File[]> {

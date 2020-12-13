@@ -7,6 +7,7 @@ import { FilesService } from './files.service';
 import { FILE, FOLDER } from 'src/schemas/file.schema';
 import { EditFileMetadataDto } from './dto/edit-file-metadata.dto';
 import { CopyFileDto } from './dto/copy-file.dto';
+import { FileSearchDto } from './dto/file-search.dto';
 
 @Controller('files')
 export class FilesController {
@@ -35,6 +36,12 @@ export class FilesController {
         }
 
         return file;
+    }
+
+    @Post()
+    async search(@Req() req: Request, @Body() fileSearchDto: FileSearchDto) {
+        const user = await this.usersService.findOneByID((req.user as any).userID);
+        return this.filesService.search(user, fileSearchDto);
     }
 
     @Post()

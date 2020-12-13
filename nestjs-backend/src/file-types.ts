@@ -24,3 +24,29 @@ export const PRESENTATION_MIMETYPES = [
     "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
     "application/vnd.oasis.opendocument.presentation"
 ]
+
+export const ARCHIVE_MIMETYPES = [
+    "application/x-tar",
+    "application/vnd.rar",
+    "application/x-7z-compressed",
+    "application/x-gtar",
+    "application/zip",
+    "application/gzip",
+    "application/vnd.ms-cab-compressed",
+]
+
+export const DIRECTORY_MIMETYPE = "application/x-dir";
+
+export enum FileType {
+    Folder = "Folder",
+    Audio = "Audio",
+    Video = "Video",
+    Image = "Image",
+    PDF = "PDF",
+    Text = "Text",
+    Document = "Document",
+    Spreadsheet = "Spreadsheet",
+    Presentation = "Presentation",
+    Archive = "Archive",
+    Unknown = "Unknown"
+}
