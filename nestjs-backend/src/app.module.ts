@@ -15,6 +15,7 @@ import { CryptoModule } from './crypto/crypto.module';
 import { FileTagsModule } from './file-tags/file-tags.module';
 import { FileSharingModule } from './file-sharing/file-sharing.module';
 import { UtilsModule } from './utils/utils.module';
+import { FileSigningModule } from './file-signing/file-signing.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { UtilsModule } from './utils/utils.module';
     CryptoModule,
     FileTagsModule,
     UtilsModule,
+    FileSigningModule,
   ],
   controllers: [AppController],
   providers: [

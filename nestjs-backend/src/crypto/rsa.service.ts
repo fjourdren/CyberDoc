@@ -24,4 +24,10 @@ export class RsaService {
         return keyObject.decrypt(encrypted_content, 'binary');
     }
 
+    sign(privateKey: string, buffer: Buffer) {
+        const keyObject = new NodeRSA();
+        keyObject.importKey(privateKey, "private");
+        return keyObject.sign(buffer, "base64", "binary");
+    }
+
 }

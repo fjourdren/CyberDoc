@@ -21,6 +21,10 @@ export class UsersService {
         return this.userModel.findOne({ _id: id }).exec();
     }
 
+    async getUserPrivateKey(user: User, userHash: string) {
+        return this.aes.decrypt(userHash, user.userKeys.encrypted_private_key);
+    }
+
     getFileAESKey(user: User, userHash: string, fileID: string): string | undefined {
         const encryptedAESKey = user.filesKeys.find(item => item.file_id === fileID)?.encryption_file_key;
         if (!encryptedAESKey) return null;
