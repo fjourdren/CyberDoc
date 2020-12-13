@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { MongoGridFS } from 'mongo-gridfs';
@@ -9,7 +9,11 @@ import { AesService } from 'src/crypto/aes.service';
 import { Types } from 'mongoose';
 import { Utils } from 'src/utils';
 const streamToPromise = require("stream-to-promise");
+const libre = require("libreoffice-convert");
 import { v4 as uuidv4 } from 'uuid';
+import { TEXT_MIMETYPES, DOCUMENT_MIMETYPES, SPREADSHEET_MIMETYPES, PRESENTATION_MIMETYPES, PDF_MIMETYPES } from 'src/file-types';
+import { promisify } from 'util';
+import { PreviewGenerator } from './file-preview/preview-generator.service';
 
 @Injectable()
 export class FilesService {
@@ -19,7 +23,8 @@ export class FilesService {
         @InjectModel(File.name) private readonly fileModel: Model<FileDocument>,
         @InjectConnection() private readonly connection: Connection,
         private readonly usersService: UsersService,
-        private readonly aes: AesService
+        private readonly aes: AesService,
+        private readonly previewGenerator: PreviewGenerator
     ) {
         this.gridFSModel = new MongoGridFS(connection.db);
     }
@@ -27,7 +32,7 @@ export class FilesService {
     async findOne(fileID: string): Promise<File | undefined> {
         return this.fileModel.findOne({ _id: fileID }).exec();
     }
-    
+
     async create(user: User, name: string, mimetype: string, folderID: string) {
         let file = new File();
         file._id = uuidv4();
@@ -99,4 +104,35 @@ export class FilesService {
         }
         await (new this.fileModel(file).deleteOne())
     }
+
+    async generatePDF(user: User, userHash: string, file: File): Promise<Buffer> {
+        const validMimetypes = [
+            ...TEXT_MIMETYPES,
+            ...DOCUMENT_MIMETYPES,
+            ...SPREADSHEET_MIMETYPES,
+            ...PRESENTATION_MIMETYPES
+        ];
+
+        if (!validMimetypes.includes(file.mimetype)) throw new BadRequestException("PDF generation is not available for this file")
+        const convertPdfFn = promisify(libre.convert);
+        return await convertPdfFn(await this.getFileContent(user, userHash, file), "pdf", undefined);
+    }
+
+    async generatePngPreview(user: User, userHash: string, file: File): Promise<Buffer> {
+        const validOfficeMimetypes = [
+            ...TEXT_MIMETYPES,
+            ...PDF_MIMETYPES,
+            ...DOCUMENT_MIMETYPES,
+            ...SPREADSHEET_MIMETYPES,
+            ...PRESENTATION_MIMETYPES
+        ];
+
+        if (
+            !file.mimetype.startsWith("image/") &&
+            !file.mimetype.startsWith("video/") &&
+            !validOfficeMimetypes.includes(file.mimetype)
+        ) throw new BadRequestException("Preview is not available for this file")
+        return await this.previewGenerator.generatePngPreview(file, await this.getFileContent(user, userHash, file));
+    }
+
 }
