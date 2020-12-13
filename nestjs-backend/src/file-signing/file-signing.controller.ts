@@ -1,6 +1,8 @@
-import { BadRequestException, Controller, NotFoundException, Param, Post, Req } from '@nestjs/common';
-import { Request } from "express";
+import { BadRequestException, Controller, NotFoundException, Param, Post } from '@nestjs/common';
 import { FilesService } from 'src/files/files.service';
+import { LoggedUserHash } from 'src/logged-user-hash.decorator';
+import { LoggedUser } from 'src/logged-user.decorator';
+import { User } from 'src/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
 import { FileSigningService } from './file-signing.service';
 
@@ -14,13 +16,11 @@ export class FileSigningController {
     ) {}
 
     @Post(':fileID/sign')
-    async addSign(@Req() req: Request, @Param('fileID') fileID: string) {
-        const currentUser = await this.usersService.findOneByID((req.user as any).userID);
-        const currentUserHash = (req.user as any).userHash;
+    async addSign(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Param('fileID') fileID: string) {
         const file = await this.filesService.findOne(fileID);
         if (!file) throw new NotFoundException("File not found");
-        if (file.signs.find(item => item.user_email === currentUser.email)) throw new BadRequestException("You already signed that document");
-        await this.fileSigningService.addSign(currentUser, currentUserHash, file);
+        if (file.signs.find(item => item.user_email === user.email)) throw new BadRequestException("You already signed that document");
+        await this.fileSigningService.addSign(user, userHash, file);
         return { msg: "Success" };
     }
 }

@@ -1,6 +1,8 @@
-import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Post, Req } from '@nestjs/common';
-import { Request } from "express";
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Post } from '@nestjs/common';
 import { FilesService } from 'src/files/files.service';
+import { LoggedUserHash } from 'src/logged-user-hash.decorator';
+import { LoggedUser } from 'src/logged-user.decorator';
+import { User } from 'src/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
 import { FileSharingService } from './file-sharing.service';
 
@@ -13,8 +15,7 @@ export class FileSharingController {
     ) { }
 
     @Get('shared')
-    async getSharedFiles(@Req() req: Request) {
-        const currentUser = await this.usersService.findOneByID((req.user as any).userID);
+    async getSharedFiles(@LoggedUser() currentUser: User) {
         const sharedFiles = await this.fileSharingService.getSharedFiles(currentUser);
 
         const results = await Promise.all(sharedFiles.map(async value => {
@@ -25,8 +26,7 @@ export class FileSharingController {
     }
 
     @Get(':fileID/sharing')
-    async getSharingAccess(@Req() req: Request, @Param('fileID') fileID: string) {
-        const currentUser = await this.usersService.findOneByID((req.user as any).userID);
+    async getSharingAccess(@LoggedUser() currentUser: User, @Param('fileID') fileID: string) {
         const file = await this.filesService.findOne(fileID);
         if (!file) throw new NotFoundException("File not found");
 
@@ -51,9 +51,7 @@ export class FileSharingController {
     }
 
     @Post(':fileID/sharing')
-    async addSharingAccess(@Req() req: Request, @Param('fileID') fileID: string, @Body('email') email: string) {
-        const currentUser = await this.usersService.findOneByID((req.user as any).userID);
-        const currentUserHash = (req.user as any).userHash;
+    async addSharingAccess(@LoggedUser() currentUser: User, @LoggedUserHash() currentUserHash: string, @Param('fileID') fileID: string, @Body('email') email: string) {
         const file = await this.filesService.findOne(fileID);
         if (!file) throw new NotFoundException("File not found");
 
@@ -66,8 +64,7 @@ export class FileSharingController {
     }
 
     @Delete(':fileID/sharing/:email')
-    async removeSharingAccess(@Req() req: Request, @Param('fileID') fileID: string, @Param('email') email: string) {
-        const currentUser = await this.usersService.findOneByID((req.user as any).userID);
+    async removeSharingAccess(@LoggedUser() currentUser: User, @Param('fileID') fileID: string, @Param('email') email: string) {
         const file = await this.filesService.findOne(fileID);
         if (!file) throw new NotFoundException("File not found");
 

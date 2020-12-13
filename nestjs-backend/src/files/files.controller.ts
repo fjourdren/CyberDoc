@@ -1,6 +1,6 @@
-import { BadRequestException, Body, Controller, Delete, Get, InternalServerErrorException, NotFoundException, Param, Patch, Post, Put, Req, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Put, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express/multer/interceptors/files.interceptor';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { UsersService } from 'src/users/users.service';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { FilesService } from './files.service';
@@ -8,6 +8,9 @@ import { FILE, FOLDER } from 'src/schemas/file.schema';
 import { EditFileMetadataDto } from './dto/edit-file-metadata.dto';
 import { CopyFileDto } from './dto/copy-file.dto';
 import { FileSearchDto } from './dto/file-search.dto';
+import { User } from 'src/schemas/user.schema';
+import { LoggedUser } from 'src/logged-user.decorator';
+import { LoggedUserHash } from 'src/logged-user-hash.decorator';
 
 @Controller('files')
 export class FilesController {
@@ -15,7 +18,7 @@ export class FilesController {
         private readonly usersService: UsersService) { }
 
     @Get(':id')
-    async get(@Req() req: Request, @Param('id') id: string) {
+    async get(@LoggedUser() user: User, @Param('id') id: string) {
         let file = await this.filesService.findOne(id);
         if (!file) throw new NotFoundException();
 
@@ -29,7 +32,7 @@ export class FilesController {
             }));
 
             //Path
-            const path: Array<{id: string, name: string}> = [];
+            const path: Array<{ id: string, name: string }> = [];
             let aboveFile = file;
             while (aboveFile.parent_file_id != undefined) {
                 aboveFile = await this.filesService.findOne(aboveFile.parent_file_id);
@@ -43,8 +46,7 @@ export class FilesController {
     }
 
     @Post()
-    async search(@Req() req: Request, @Body() fileSearchDto: FileSearchDto) {
-        const user = await this.usersService.findOneByID((req.user as any).userID);
+    async search(@LoggedUser() user: User, @Body() fileSearchDto: FileSearchDto) {
         const files = await this.filesService.search(user, fileSearchDto);
 
         const results = await Promise.all(files.map(async item => {
@@ -56,9 +58,7 @@ export class FilesController {
 
     @Post()
     @UseInterceptors(FilesInterceptor('upfile', 1))
-    async create(@Req() req: Request, @UploadedFiles() files, @Body() uploadFileDto: UploadFileDto) {
-        const user = await this.usersService.findOneByID((req.user as any).userID);
-        const userHash = (req.user as any).userHash;
+    async create(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @UploadedFiles() files, @Body() uploadFileDto: UploadFileDto) {
         const newDirectoryMode = uploadFileDto.mimetype === "application/x-dir";
 
         let fileContent: Buffer | null = null;
@@ -80,9 +80,7 @@ export class FilesController {
 
     @Put(":id")
     @UseInterceptors(FilesInterceptor('upfile', 1))
-    async updateFileContent(@Req() req: Request, @UploadedFiles() files, @Param('id') id: string) {
-        const user = await this.usersService.findOneByID((req.user as any).userID);
-        const userHash = (req.user as any).userHash;
+    async updateFileContent(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @UploadedFiles() files, @Param('id') id: string) {
         const file = await this.filesService.findOne(id);
         if (!file) throw new NotFoundException();
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
@@ -94,27 +92,24 @@ export class FilesController {
             throw new BadRequestException("Missing file");
         }
 
-        return { msg: "File updated"};
+        return { msg: "File updated" };
     }
 
     @Patch(":id")
     @UseInterceptors(FilesInterceptor('upfile', 1))
-    async updateFileMetadata(@Req() req: Request, @Body() editFileMetadataDto: EditFileMetadataDto, @Param('id') id: string) {
-        const user = await this.usersService.findOneByID((req.user as any).userID);
+    async updateFileMetadata(@LoggedUser() user: User, @Body() editFileMetadataDto: EditFileMetadataDto, @Param('id') id: string) {
         const file = await this.filesService.findOne(id);
         if (!file) throw new NotFoundException();
 
         if (editFileMetadataDto.name) file.name = editFileMetadataDto.name;
         if (editFileMetadataDto.folderID) file.parent_file_id = editFileMetadataDto.folderID;
         await this.filesService.save(file);
-        return { msg: "File informations modified"};
+        return { msg: "File informations modified" };
     }
 
     @Post(":id/copy")
     @UseInterceptors(FilesInterceptor('upfile', 1))
-    async copy(@Req() req: Request, @Body() copyFileDto: CopyFileDto, @Param('id') id: string) {
-        const user = await this.usersService.findOneByID((req.user as any).userID);
-        const userHash = (req.user as any).userHash;
+    async copy(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Body() copyFileDto: CopyFileDto, @Param('id') id: string) {
         const file = await this.filesService.findOne(id);
         if (!file) throw new NotFoundException();
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
@@ -123,9 +118,7 @@ export class FilesController {
     }
 
     @Get(':id/download')
-    async download(@Req() req: Request, @Res() res: Response, @Param('id') id: string) {
-        const user = await this.usersService.findOneByID((req.user as any).userID);
-        const userHash = (req.user as any).userHash;
+    async download(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @Param('id') id: string) {
         const file = await this.filesService.findOne(id);
         if (!file) throw new NotFoundException();
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
@@ -134,9 +127,7 @@ export class FilesController {
     }
 
     @Get(':id/export')
-    async generatePDF(@Req() req: Request, @Res() res: Response, @Param('id') id: string) {
-        const user = await this.usersService.findOneByID((req.user as any).userID);
-        const userHash = (req.user as any).userHash;
+    async generatePDF(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @Param('id') id: string) {
         const file = await this.filesService.findOne(id);
         if (!file) throw new NotFoundException();
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
@@ -145,9 +136,7 @@ export class FilesController {
     }
 
     @Get(':id/preview')
-    async generatePngPreview(@Req() req: Request, @Res() res: Response, @Param('id') id: string) {
-        const user = await this.usersService.findOneByID((req.user as any).userID);
-        const userHash = (req.user as any).userHash;
+    async generatePngPreview(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @Param('id') id: string) {
         const file = await this.filesService.findOne(id);
         if (!file) throw new NotFoundException();
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
@@ -156,10 +145,10 @@ export class FilesController {
     }
 
     @Delete(':id')
-    async delete(@Req() req: Request, @Param('id') id: string) {
+    async delete(@LoggedUser() user: User, @Param('id') id: string) {
         const file = await this.filesService.findOne(id);
         if (!file) throw new NotFoundException();
         await this.filesService.delete(file);
-        return { msg: "File deleted"};
+        return { msg: "File deleted" };
     }
 }
