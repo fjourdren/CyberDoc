@@ -13,6 +13,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { FilesModule } from './files/files.module';
 import { CryptoModule } from './crypto/crypto.module';
 import { FileTagsModule } from './file-tags/file-tags.module';
+import { FileSharingModule } from './file-sharing/file-sharing.module';
+import { UtilsModule } from './utils/utils.module';
 
 @Module({
   imports: [
@@ -22,7 +24,14 @@ import { FileTagsModule } from './file-tags/file-tags.module';
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRES_IN: Joi.string().required(),
         MONGODB_URL: Joi.string().required(),
-        ENCRYPTION_IV: Joi.string().required()
+        ENCRYPTION_IV: Joi.string().required(),
+        SENDGRID_API_KEY: Joi.string().required(),
+        SENDGRID_MAIL_FROM: Joi.string().required(),
+        SENDGRID_MAIL_FROM_NAME: Joi.string().required(),
+        SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD: Joi.string().required(),
+        SENDGRID_TEMPLATE_REQUEST_CREATE_ACCOUNT: Joi.string().required(),
+        SENDGRID_TEMPLATE_SHARED_WITH_YOU: Joi.string().required(),
+        SENDGRID_TEMPLATE_2FA_TOKEN: Joi.string().required(),
       }),
     }),
     MongooseModule.forRootAsync({
@@ -34,9 +43,11 @@ import { FileTagsModule } from './file-tags/file-tags.module';
     }),
     AuthModule,
     UsersModule,
+    FileSharingModule,
     FilesModule,
     CryptoModule,
     FileTagsModule,
+    UtilsModule,
   ],
   controllers: [AppController],
   providers: [

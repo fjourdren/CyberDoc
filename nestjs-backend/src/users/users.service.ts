@@ -31,17 +31,24 @@ export class UsersService {
         return this.rsa.decrypt(userPrivateKey, encryptedAESKey);
     }
 
-    async createAndGetFileAESKey(user: User, userHash: string, fileID: string): Promise<string> {
-        if (this.getFileAESKey(user, userHash, fileID)) throw new InternalServerErrorException("File AES key already exists");
-        const aesKey = this.aes.generateKey();
-        const encryptedAESKey = this.rsa.encrypt(user.userKeys.public_key, aesKey);
-
+    async addFileAESKeyToUser(user: User, fileID: string, fileAESKey: string) {
+        const encryptedAESKey = this.rsa.encrypt(user.userKeys.public_key, fileAESKey);
         const fileKey = new UserFileKey();
         fileKey.file_id = fileID;
         fileKey.encryption_file_key = encryptedAESKey;
         user.filesKeys.push(fileKey);
-
         await new this.userModel(user).updateOne(user);
+    }
+
+    async removeFileAESKeyFromUser(user: User, fileID: string) {
+        user.filesKeys = user.filesKeys.filter(item => item.file_id !== fileID);
+        await new this.userModel(user).updateOne(user);
+    }
+
+    async createAndGetFileAESKey(user: User, userHash: string, fileID: string): Promise<string> {
+        if (this.getFileAESKey(user, userHash, fileID)) throw new InternalServerErrorException("File AES key already exists");
+        const aesKey = this.aes.generateKey();
+        await this.addFileAESKeyToUser(user, fileID, aesKey);
         return aesKey;
     }
 

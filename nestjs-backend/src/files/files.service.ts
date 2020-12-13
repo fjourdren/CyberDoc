@@ -3,7 +3,7 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { MongoGridFS } from 'mongo-gridfs';
 import { User } from 'src/schemas/user.schema';
-import { FILE, File, FileDocument, FOLDER } from '../schemas/file.schema';
+import { FILE, File, FileDocument, FOLDER, ShareMode } from '../schemas/file.schema';
 import { UsersService } from 'src/users/users.service';
 import { AesService } from 'src/crypto/aes.service';
 import { Types } from 'mongoose';
@@ -36,6 +36,10 @@ export class FilesService {
         file.mimetype = mimetype;
         file.parent_file_id = folderID;
         file.owner_id = user._id;
+        file.shareMode = ShareMode.READONLY;
+        file.sharedWith = [];
+        file.shareWithPending = [];
+        file.tags = [];
         return await this.save(file);
     }
 
