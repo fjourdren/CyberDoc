@@ -23,6 +23,7 @@ export class FilesTagsController {
 
         if (file.tags.find(tag => tag._id === tagID)) throw new BadRequestException("File already have this tag");
         await this.filesTagsService.addTagToFile(file, tag);
+        return { msg: "Tag added to the file" };
     }
 
     @Delete(':fileID/tags/:tagID')
@@ -34,6 +35,7 @@ export class FilesTagsController {
         const tag = user.tags.find(tag => tag._id === tagID);
         if (!file) throw new NotFoundException("Tag not found");
         await this.filesTagsService.removeTagFromFile(file, tag);
+        return { msg: "Tag removed from file" };
     }
 
 }

@@ -12,7 +12,7 @@ export class FileSigningController {
         private readonly filesService: FilesService,
         private readonly fileSigningService: FileSigningService
     ) {}
- 
+
     @Post(':fileID/sign')
     async addSign(@Req() req: Request, @Param('fileID') fileID: string) {
         const currentUser = await this.usersService.findOneByID((req.user as any).userID);
@@ -21,5 +21,6 @@ export class FileSigningController {
         if (!file) throw new NotFoundException("File not found");
         if (file.signs.find(item => item.user_email === currentUser.email)) throw new BadRequestException("You already signed that document");
         await this.fileSigningService.addSign(currentUser, currentUserHash, file);
+        return { msg: "Success" };
     }
 }

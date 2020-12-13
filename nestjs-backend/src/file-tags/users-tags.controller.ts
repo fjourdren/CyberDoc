@@ -15,19 +15,22 @@ export class UsersTagsController {
     @Post("tags")
     async createTag(@Req() req: Request, @Body() dto: CreateOrUpdateTagDto) {
         const user = await this.usersService.findOneByID((req.user as any).userID);
-        await this.usersTagsService.createTag(user, dto.name, dto.color);
+        const tag = await this.usersTagsService.createTag(user, dto.name, dto.color);
+        return { msg: "Tag created", tagID: tag._id };
     }
 
     @Put("tags/:tagID")
     async updateTag(@Req() req: Request, @Param('tagID') tagID: string, @Body() dto: CreateOrUpdateTagDto) {
         const user = await this.usersService.findOneByID((req.user as any).userID);
         await this.usersTagsService.updateTag(user, tagID, dto.name, dto.color);
+        return { msg: "Tag updated", tagID: tagID };
     }
 
     @Delete("tags/:tagID")
     async deleteTag(@Req() req: Request, @Param('tagID') tagID: string) {
         const user = await this.usersService.findOneByID((req.user as any).userID);
         await this.usersTagsService.deleteTag(user, tagID);
+        return { msg: "Tag deleted" };
     }
 
 }

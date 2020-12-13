@@ -16,6 +16,10 @@ import { promisify } from 'util';
 import { PreviewGenerator } from './file-preview/preview-generator.service';
 import { FileSearchDto } from './dto/file-search.dto';
 
+export const COLUMNS_TO_KEEP_FOR_FILE = ["_id", "name", "mimetype", "size", "updated_at", "created_at", "tags", "preview", "signs", "shareMode"];
+export const COLUMNS_TO_KEEP_FOR_FOLDER = ["_id", "name", "mimetype", "updated_at", "created_at", "tags", "preview"];
+
+
 @Injectable()
 export class FilesService {
     private readonly gridFSModel: MongoGridFS;
@@ -28,6 +32,19 @@ export class FilesService {
         private readonly previewGenerator: PreviewGenerator
     ) {
         this.gridFSModel = new MongoGridFS(connection.db);
+    }
+
+    async prepareFileForOutput(file: File) {
+        const columnsToKeep = (file.type === FOLDER) ? COLUMNS_TO_KEEP_FOR_FOLDER : COLUMNS_TO_KEEP_FOR_FILE;
+        const user = await this.usersService.findOneByID(file._id);
+        if (!user) throw new InternalServerErrorException();
+        const result = columnsToKeep.reduce((result, key) => {
+            if (file.hasOwnProperty(key)) result[key] = file[key];
+            return result;
+        }, {});
+
+        result["ownerName"] = `${user.firstname} ${user.lastname}`
+        return result;
     }
 
     async findOne(fileID: string): Promise<File | undefined> {
