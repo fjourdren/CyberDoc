@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { SharedWithPending } from './file-sharewith-pending.schema';
 import { FileTag } from './file-tag.schema';
+import { UserSign } from './user-sign.schema';
 
 export type FileDocument = File & Document;
 export const FOLDER = 0;
@@ -47,6 +48,9 @@ export class File {
 
     @Prop([SharedWithPending])
     shareWithPending: SharedWithPending[];
+
+    @Prop([UserSign])
+    signs: UserSign[];
 
     @Prop()
     parent_file_id: string;
