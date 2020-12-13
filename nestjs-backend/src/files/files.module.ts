@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { File, FileSchema } from '../schemas/file.schema';
 import { UsersModule } from 'src/users/users.module';
 import { CryptoModule } from 'src/crypto/crypto.module';
+import { PreviewGenerator } from './file-preview/preview-generator.service';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { CryptoModule } from 'src/crypto/crypto.module';
   exports: [
     FilesService
   ],
-  providers: [FilesService],
+  providers: [FilesService, PreviewGenerator],
   controllers: [FilesController]
 })
 export class FilesModule {}

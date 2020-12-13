@@ -112,6 +112,28 @@ export class FilesController {
         res.send(await this.filesService.getFileContent(user, userHash, file));
     }
 
+    @Get(':id/export')
+    async generatePDF(@Req() req: Request, @Res() res: Response, @Param('id') id: string) {
+        const user = await this.usersService.findOneByID((req.user as any).userID);
+        const userHash = (req.user as any).userHash;
+        const file = await this.filesService.findOne(id);
+        if (!file) throw new NotFoundException();
+        if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
+
+        res.send(await this.filesService.generatePDF(user, userHash, file));
+    }
+
+    @Get(':id/preview')
+    async generatePngPreview(@Req() req: Request, @Res() res: Response, @Param('id') id: string) {
+        const user = await this.usersService.findOneByID((req.user as any).userID);
+        const userHash = (req.user as any).userHash;
+        const file = await this.filesService.findOne(id);
+        if (!file) throw new NotFoundException();
+        if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
+
+        res.send(await this.filesService.generatePngPreview(user, userHash, file));
+    }
+
     @Delete(':id')
     async delete(@Req() req: Request, @Param('id') id: string) {
         const file = await this.filesService.findOne(id);
