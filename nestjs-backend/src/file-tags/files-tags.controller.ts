@@ -1,23 +1,20 @@
-import { BadRequestException, Body, Controller, Delete, NotFoundException, Param, Post} from '@nestjs/common';
-import { FilesService } from 'src/files/files.service';
+import { BadRequestException, Body, Controller, Delete, NotFoundException, Param, Post, UseGuards } from '@nestjs/common';
 import { LoggedUser } from 'src/logged-user.decorator';
 import { User } from 'src/schemas/user.schema';
-import { UsersService } from 'src/users/users.service';
 import { FilesTagsService } from './files-tags.service';
+import { File } from 'src/schemas/file.schema';
+import { CurrentFile, READ, WRITE, OWNER } from 'src/current-file.decorator';
+import { FileGuard } from 'src/file.guard';
 
 @Controller('files')
 export class FilesTagsController {
     constructor(
-        private readonly usersService: UsersService,
-        private readonly filesService: FilesService,
         private readonly filesTagsService: FilesTagsService
     ) { }
 
     @Post(':fileID/tags')
-    async addTag(@LoggedUser() user: User, @Param('fileID') fileID: string, @Body('tagId') tagID: string) {
-        const file = await this.filesService.findOne(fileID);
-        if (!file) throw new NotFoundException("File not found");
-
+    @UseGuards(FileGuard)
+    async addTag(@LoggedUser() user: User, @CurrentFile(OWNER) file: File, @Body('tagId') tagID: string) {
         const tag = user.tags.find(tag => tag._id === tagID);
         if (!file) throw new NotFoundException("Tag not found");
 
@@ -27,10 +24,8 @@ export class FilesTagsController {
     }
 
     @Delete(':fileID/tags/:tagID')
-    async removeTag(@LoggedUser() user: User, @Param('fileID') fileID: string, @Param('tagID') tagID: string) {
-        const file = await this.filesService.findOne(fileID);
-        if (!file) throw new NotFoundException();
-
+    @UseGuards(FileGuard)
+    async removeTag(@LoggedUser() user: User, @CurrentFile(OWNER) file: File, @Param('tagID') tagID: string) {
         const tag = user.tags.find(tag => tag._id === tagID);
         if (!file) throw new NotFoundException("Tag not found");
         await this.filesTagsService.removeTagFromFile(file, tag);

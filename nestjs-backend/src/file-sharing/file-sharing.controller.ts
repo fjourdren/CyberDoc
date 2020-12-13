@@ -1,10 +1,13 @@
-import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Post, UseGuards } from '@nestjs/common';
 import { FilesService } from 'src/files/files.service';
 import { LoggedUserHash } from 'src/logged-user-hash.decorator';
 import { LoggedUser } from 'src/logged-user.decorator';
 import { User } from 'src/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
 import { FileSharingService } from './file-sharing.service';
+import { File } from 'src/schemas/file.schema';
+import { CurrentFile, READ, OWNER } from 'src/current-file.decorator';
+import { FileGuard } from 'src/file.guard';
 
 @Controller('files')
 export class FileSharingController {
@@ -26,10 +29,8 @@ export class FileSharingController {
     }
 
     @Get(':fileID/sharing')
-    async getSharingAccess(@LoggedUser() currentUser: User, @Param('fileID') fileID: string) {
-        const file = await this.filesService.findOne(fileID);
-        if (!file) throw new NotFoundException("File not found");
-
+    @UseGuards(FileGuard)
+    async getSharingAccess(@LoggedUser() currentUser: User, @CurrentFile(READ) file: File) {
         if (currentUser._id !== file.owner_id && !file.sharedWith.find(item => item === currentUser._id)) {
             throw new NotFoundException("File not found")
         }
@@ -51,10 +52,8 @@ export class FileSharingController {
     }
 
     @Post(':fileID/sharing')
-    async addSharingAccess(@LoggedUser() currentUser: User, @LoggedUserHash() currentUserHash: string, @Param('fileID') fileID: string, @Body('email') email: string) {
-        const file = await this.filesService.findOne(fileID);
-        if (!file) throw new NotFoundException("File not found");
-
+    @UseGuards(FileGuard)
+    async addSharingAccess(@LoggedUser() currentUser: User, @LoggedUserHash() currentUserHash: string, @CurrentFile(OWNER) file: File, @Body('email') email: string) {
         if (currentUser.email === email) {
             throw new BadRequestException("You cannot share a file with yourself");
         }
@@ -64,10 +63,8 @@ export class FileSharingController {
     }
 
     @Delete(':fileID/sharing/:email')
-    async removeSharingAccess(@LoggedUser() currentUser: User, @Param('fileID') fileID: string, @Param('email') email: string) {
-        const file = await this.filesService.findOne(fileID);
-        if (!file) throw new NotFoundException("File not found");
-
+    @UseGuards(FileGuard)
+    async removeSharingAccess(@LoggedUser() currentUser: User, @CurrentFile(OWNER) file: File, @Param('email') email: string) {
         if (currentUser.email === email) {
             throw new BadRequestException("You cannot share a file with yourself");
         }
