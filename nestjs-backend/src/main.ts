@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { GenericResponseInterceptor } from './generic-response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,6 +18,7 @@ async function bootstrap() {
   //enable data validation in DTO classes
   app.useGlobalPipes(new ValidationPipe());
   
+  app.useGlobalInterceptors(new GenericResponseInterceptor());
   await app.listen(3200);
 }
 bootstrap();
