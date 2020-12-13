@@ -19,29 +19,39 @@ export class FilesController {
         let file = await this.filesService.findOne(id);
         if (!file) throw new NotFoundException();
 
-        const fileOwner = await this.usersService.findOneByID(file.owner_id);
-        if (!fileOwner) throw new InternalServerErrorException();
-
-        (file as any).ownerName = `${fileOwner.firstname} ${fileOwner.lastname}`;
-        delete file.parent_file_id;
-
+        let result = await this.filesService.prepareFileForOutput(file);
         if (file.type == FOLDER) {
             const folderContents = await this.filesService.getFolderContents(file._id);
-            (file as any).directoryContent = await Promise.all(folderContents.map(async item => {
-                const itemOwner = await this.usersService.findOneByID(item.owner_id);
-                if (!itemOwner) throw new InternalServerErrorException();
-                (item as any).ownerName = `${itemOwner.firstname} ${itemOwner.lastname}`;
-                return item;
+
+            //DirectoryContent
+            (result as any).directoryContent = await Promise.all(folderContents.map(async item => {
+                return await this.filesService.prepareFileForOutput(item);
             }));
+
+            //Path
+            const path: Array<{id: string, name: string}> = [];
+            let aboveFile = file;
+            while (aboveFile.parent_file_id != undefined) {
+                aboveFile = await this.filesService.findOne(aboveFile.parent_file_id);
+                path.push({ "id": aboveFile._id, "name": aboveFile.name });
+            }
+            path.reverse();
+            (result as any).path = path;
         }
 
-        return file;
+        return { msg: "File informations loaded", content: result };
     }
 
     @Post()
     async search(@Req() req: Request, @Body() fileSearchDto: FileSearchDto) {
         const user = await this.usersService.findOneByID((req.user as any).userID);
-        return this.filesService.search(user, fileSearchDto);
+        const files = await this.filesService.search(user, fileSearchDto);
+
+        const results = await Promise.all(files.map(async item => {
+            return await this.filesService.prepareFileForOutput(item);
+        }));
+
+        return { msg: "Done", results };
     }
 
     @Post()
@@ -65,7 +75,7 @@ export class FilesController {
             file = await this.filesService.setFileContent(user, userHash, file, fileContent);
         }
 
-        return file;
+        return { msg: "File created", fileID: file._id };
     }
 
     @Put(":id")
@@ -83,6 +93,8 @@ export class FilesController {
         } else {
             throw new BadRequestException("Missing file");
         }
+
+        return { msg: "File updated"};
     }
 
     @Patch(":id")
@@ -95,6 +107,7 @@ export class FilesController {
         if (editFileMetadataDto.name) file.name = editFileMetadataDto.name;
         if (editFileMetadataDto.folderID) file.parent_file_id = editFileMetadataDto.folderID;
         await this.filesService.save(file);
+        return { msg: "File informations modified"};
     }
 
     @Post(":id/copy")
@@ -105,7 +118,8 @@ export class FilesController {
         const file = await this.filesService.findOne(id);
         if (!file) throw new NotFoundException();
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
-        return await this.filesService.copyFile(user, userHash, file, copyFileDto.copyFileName, copyFileDto.destID);
+        const copy = await this.filesService.copyFile(user, userHash, file, copyFileDto.copyFileName, copyFileDto.destID);
+        return { msg: "File copied", fileID: copy._id };
     }
 
     @Get(':id/download')
@@ -146,5 +160,6 @@ export class FilesController {
         const file = await this.filesService.findOne(id);
         if (!file) throw new NotFoundException();
         await this.filesService.delete(file);
+        return { msg: "File deleted"};
     }
 }

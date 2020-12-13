@@ -15,16 +15,13 @@ export class FileSharingController {
     @Get('shared')
     async getSharedFiles(@Req() req: Request) {
         const currentUser = await this.usersService.findOneByID((req.user as any).userID);
-        let sharedFiles = await this.fileSharingService.getSharedFiles(currentUser);
-    
-        sharedFiles = await Promise.all(sharedFiles.map(async value => {
-            const fileOwner = await this.usersService.findOneByID(value.owner_id);
-            (value as any).ownerName = `${fileOwner.firstname} ${fileOwner.lastname}`;
-            delete value.parent_file_id;    
-            return value;
+        const sharedFiles = await this.fileSharingService.getSharedFiles(currentUser);
+
+        const results = await Promise.all(sharedFiles.map(async value => {
+            return await this.filesService.prepareFileForOutput(value);
         }));
 
-        return sharedFiles;
+        return { msg: "Success", results };
     }
 
     @Get(':fileID/sharing')
@@ -47,11 +44,12 @@ export class FileSharingController {
         }));
 
         return {
+            msg: "Success",
             shared_users: sharedUsers,
             shared_users_pending: sharedUsersPending
         }
     }
-    
+
     @Post(':fileID/sharing')
     async addSharingAccess(@Req() req: Request, @Param('fileID') fileID: string, @Body('email') email: string) {
         const currentUser = await this.usersService.findOneByID((req.user as any).userID);
@@ -64,6 +62,7 @@ export class FileSharingController {
         }
 
         await this.fileSharingService.addSharingAccess(currentUser, currentUserHash, email, file);
+        return { msg: "Success" };
     }
 
     @Delete(':fileID/sharing/:email')
@@ -77,6 +76,7 @@ export class FileSharingController {
         }
 
         await this.fileSharingService.removeSharingAccess(currentUser, email, file);
+        return { msg: "Success" };
     }
 
 }
