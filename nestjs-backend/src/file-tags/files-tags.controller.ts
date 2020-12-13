@@ -1,6 +1,7 @@
-import { BadRequestException, Body, Controller, Delete, NotFoundException, Param, Post, Req} from '@nestjs/common';
-import { Request } from "express";
+import { BadRequestException, Body, Controller, Delete, NotFoundException, Param, Post} from '@nestjs/common';
 import { FilesService } from 'src/files/files.service';
+import { LoggedUser } from 'src/logged-user.decorator';
+import { User } from 'src/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
 import { FilesTagsService } from './files-tags.service';
 
@@ -13,8 +14,7 @@ export class FilesTagsController {
     ) { }
 
     @Post(':fileID/tags')
-    async addTag(@Req() req: Request, @Param('fileID') fileID: string, @Body('tagId') tagID: string) {
-        const user = await this.usersService.findOneByID((req.user as any).userID);
+    async addTag(@LoggedUser() user: User, @Param('fileID') fileID: string, @Body('tagId') tagID: string) {
         const file = await this.filesService.findOne(fileID);
         if (!file) throw new NotFoundException("File not found");
 
@@ -27,8 +27,7 @@ export class FilesTagsController {
     }
 
     @Delete(':fileID/tags/:tagID')
-    async removeTag(@Req() req: Request, @Param('fileID') fileID: string, @Param('tagID') tagID: string) {
-        const user = await this.usersService.findOneByID((req.user as any).userID);
+    async removeTag(@LoggedUser() user: User, @Param('fileID') fileID: string, @Param('tagID') tagID: string) {
         const file = await this.filesService.findOne(fileID);
         if (!file) throw new NotFoundException();
 

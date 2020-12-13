@@ -36,11 +36,11 @@ export class FilesService {
 
     async prepareFileForOutput(file: File) {
         const columnsToKeep = (file.type === FOLDER) ? COLUMNS_TO_KEEP_FOR_FOLDER : COLUMNS_TO_KEEP_FOR_FILE;
-        const user = await this.usersService.findOneByID(file._id);
+        const user = await this.usersService.findOneByID(file.owner_id);
         if (!user) throw new InternalServerErrorException();
-        const result = columnsToKeep.reduce((result, key) => {
-            if (file.hasOwnProperty(key)) result[key] = file[key];
-            return result;
+        const result = columnsToKeep.reduce((r, key) => {
+            r[key] = file[key];
+            return r;
         }, {});
 
         result["ownerName"] = `${user.firstname} ${user.lastname}`
