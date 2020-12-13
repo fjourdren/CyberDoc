@@ -1,27 +1,25 @@
-import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Put, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Patch, Post, Put, Res, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express/multer/interceptors/files.interceptor';
 import { Response } from 'express';
-import { UsersService } from 'src/users/users.service';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { FilesService } from './files.service';
-import { FILE, FOLDER } from 'src/schemas/file.schema';
+import { File, FILE, FOLDER } from 'src/schemas/file.schema';
 import { EditFileMetadataDto } from './dto/edit-file-metadata.dto';
 import { CopyFileDto } from './dto/copy-file.dto';
 import { FileSearchDto } from './dto/file-search.dto';
 import { User } from 'src/schemas/user.schema';
 import { LoggedUser } from 'src/logged-user.decorator';
 import { LoggedUserHash } from 'src/logged-user-hash.decorator';
+import { FileGuard } from 'src/file.guard';
+import { CurrentFile, READ, WRITE, OWNER } from 'src/current-file.decorator';
 
 @Controller('files')
 export class FilesController {
-    constructor(private readonly filesService: FilesService,
-        private readonly usersService: UsersService) { }
+    constructor(private readonly filesService: FilesService) { }
 
-    @Get(':id')
-    async get(@LoggedUser() user: User, @Param('id') id: string) {
-        let file = await this.filesService.findOne(id);
-        if (!file) throw new NotFoundException();
-
+    @Get(':fileID')
+    @UseGuards(FileGuard)
+    async get(@LoggedUser() user: User, @CurrentFile(READ) file: File) {
         let result = await this.filesService.prepareFileForOutput(file);
         if (file.type == FOLDER) {
             const folderContents = await this.filesService.getFolderContents(file._id);
@@ -61,7 +59,7 @@ export class FilesController {
     async create(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @UploadedFiles() files, @Body() uploadFileDto: UploadFileDto) {
         const newDirectoryMode = uploadFileDto.mimetype === "application/x-dir";
 
-        let fileContent: Buffer | null = null;
+        let fileContent: Buffer;
         if (!newDirectoryMode) {
             if (files) {
                 fileContent = files[0].buffer;
@@ -78,11 +76,10 @@ export class FilesController {
         return { msg: "File created", fileID: file._id };
     }
 
-    @Put(":id")
+    @Put(":fileID")
+    @UseGuards(FileGuard)
     @UseInterceptors(FilesInterceptor('upfile', 1))
-    async updateFileContent(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @UploadedFiles() files, @Param('id') id: string) {
-        const file = await this.filesService.findOne(id);
-        if (!file) throw new NotFoundException();
+    async updateFileContent(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @UploadedFiles() files, @CurrentFile(WRITE) file: File) {
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
 
         if (files) {
@@ -95,59 +92,49 @@ export class FilesController {
         return { msg: "File updated" };
     }
 
-    @Patch(":id")
+    @Patch(":fileID")
+    @UseGuards(FileGuard)
     @UseInterceptors(FilesInterceptor('upfile', 1))
-    async updateFileMetadata(@LoggedUser() user: User, @Body() editFileMetadataDto: EditFileMetadataDto, @Param('id') id: string) {
-        const file = await this.filesService.findOne(id);
-        if (!file) throw new NotFoundException();
-
+    async updateFileMetadata(@LoggedUser() user: User, @Body() editFileMetadataDto: EditFileMetadataDto, @CurrentFile(WRITE) file: File) {
         if (editFileMetadataDto.name) file.name = editFileMetadataDto.name;
         if (editFileMetadataDto.folderID) file.parent_file_id = editFileMetadataDto.folderID;
         await this.filesService.save(file);
         return { msg: "File informations modified" };
     }
 
-    @Post(":id/copy")
+    @Post(":fileID/copy")
+    @UseGuards(FileGuard)
     @UseInterceptors(FilesInterceptor('upfile', 1))
-    async copy(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Body() copyFileDto: CopyFileDto, @Param('id') id: string) {
-        const file = await this.filesService.findOne(id);
-        if (!file) throw new NotFoundException();
+    async copy(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Body() copyFileDto: CopyFileDto, @CurrentFile(READ) file: File) {
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
         const copy = await this.filesService.copyFile(user, userHash, file, copyFileDto.copyFileName, copyFileDto.destID);
         return { msg: "File copied", fileID: copy._id };
     }
 
-    @Get(':id/download')
-    async download(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @Param('id') id: string) {
-        const file = await this.filesService.findOne(id);
-        if (!file) throw new NotFoundException();
+    @Get(':fileID/download')
+    @UseGuards(FileGuard)
+    async download(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @CurrentFile(READ) file: File) {
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
-
         res.send(await this.filesService.getFileContent(user, userHash, file));
     }
 
-    @Get(':id/export')
-    async generatePDF(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @Param('id') id: string) {
-        const file = await this.filesService.findOne(id);
-        if (!file) throw new NotFoundException();
+    @Get(':fileID/export')
+    @UseGuards(FileGuard)
+    async generatePDF(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @CurrentFile(READ) file: File) {
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
-
         res.send(await this.filesService.generatePDF(user, userHash, file));
     }
 
-    @Get(':id/preview')
-    async generatePngPreview(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @Param('id') id: string) {
-        const file = await this.filesService.findOne(id);
-        if (!file) throw new NotFoundException();
+    @Get(':fileID/preview')
+    @UseGuards(FileGuard)
+    async generatePngPreview(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @CurrentFile(READ) file: File) {
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
-
         res.send(await this.filesService.generatePngPreview(user, userHash, file));
     }
 
-    @Delete(':id')
-    async delete(@LoggedUser() user: User, @Param('id') id: string) {
-        const file = await this.filesService.findOne(id);
-        if (!file) throw new NotFoundException();
+    @Delete(':fileID')
+    @UseGuards(FileGuard)
+    async delete(@CurrentFile(OWNER) file: File) {
         await this.filesService.delete(file);
         return { msg: "File deleted" };
     }
