@@ -37,8 +37,8 @@ export class File {
     })
     type: number;
 
-    @Prop({ type: [FileTag], required: true })
-    tags: FileTag[]
+    @Prop([FileTag])
+    tags: FileTag[];
 
     @Prop({
         required: true,
@@ -46,13 +46,13 @@ export class File {
     })
     shareMode: string;
 
-    @Prop({ type: [String], required: true })
+    @Prop([String])
     sharedWith: string[];
 
-    @Prop({ type: [SharedWithPending], required: true })
+    @Prop([SharedWithPending])
     shareWithPending: SharedWithPending[];
 
-    @Prop({ type: [UserSign], required: true })
+    @Prop([UserSign])
     signs: UserSign[];
 
     @Prop({ required: true })

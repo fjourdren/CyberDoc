@@ -1,11 +1,11 @@
 import { Prop, Schema } from '@nestjs/mongoose';
 
-@Schema()
+@Schema({})
 export class FileTag {
     @Prop({ unique: true, required: true })
     _id: string;
 
-    @Prop({ unique: true, required: true })
+    @Prop({ required: true })
     name: string;
 
     @Prop({ required: true })
