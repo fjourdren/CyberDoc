@@ -26,7 +26,7 @@ export class FilesService {
 
     constructor(
         @InjectModel(File.name) private readonly fileModel: Model<FileDocument>,
-        @InjectConnection() private readonly connection: Connection,
+        @InjectConnection() readonly connection: Connection,
         private readonly usersService: UsersService,
         private readonly aes: AesService,
         private readonly previewGenerator: PreviewGenerator
@@ -52,24 +52,28 @@ export class FilesService {
     }
 
     async create(user: User, name: string, mimetype: string, folderID: string) {
+        const date = new Date();
         let file = new File();
         file._id = uuidv4();
         file.name = name
         file.type = mimetype === "application/x-dir" ? FOLDER : FILE;
         file.mimetype = mimetype;
+        file.preview = false;
         file.parent_file_id = folderID;
         file.owner_id = user._id;
         file.shareMode = ShareMode.READONLY;
         file.sharedWith = [];
         file.shareWithPending = [];
         file.tags = [];
+        file.created_at = date;
+        file.updated_at = date;
         return await this.save(file);
     }
 
     async search(user: User, fileSearchDto: FileSearchDto): Promise<File[]> {
         const { name, type, startLastModifiedDate, endLastModifiedDate, tagIDs } = fileSearchDto;
         let query: FilterQuery<File> = { owner_id: user._id }; //TODO support shared files in search
-        if (name) query["name"] = name;
+        if (name) query["name"] = { "$regex": name, "$options": "i" };
 
         if (startLastModifiedDate && endLastModifiedDate) {
             query["updated_at"] = { "$gt": startLastModifiedDate, "$lt": endLastModifiedDate };
@@ -167,7 +171,10 @@ export class FilesService {
 
     async copyFile(user: User, userHash: string, file: File, copyFilename: string, destFolderID: string) {
         if (file.type !== FILE) throw new InternalServerErrorException();
-        const copyFile = await this.create(user, copyFilename, file.mimetype, destFolderID);
+        let copyFile = await this.create(user, copyFilename, file.mimetype, destFolderID);
+        copyFile.tags = file.tags;
+        copyFile.preview = file.preview;
+        copyFile = await this.save(copyFile);
         await this.setFileContent(user, userHash, copyFile, await this.getFileContent(user, userHash, file));
         return copyFile;
     }
