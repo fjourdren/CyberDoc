@@ -2,12 +2,12 @@ import { Prop, Schema } from '@nestjs/mongoose';
 
 @Schema()
 export class FileTag {
-    @Prop()
+    @Prop({ unique: true, required: true })
     _id: string;
 
-    @Prop({unique: true})
+    @Prop({ unique: true, required: true })
     name: string;
 
-    @Prop()
+    @Prop({ required: true })
     hexColor: string;
 }
