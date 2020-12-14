@@ -1,54 +1,54 @@
-import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { FileTag } from './file-tag.schema';
 
 export type UserDocument = User & Document;
 
-@Schema()
+@Schema({ _id: false })
 export class UserFileKey {
-    @Prop()
+    @Prop({ unique: true, required: true })
     file_id: string;
 
-    @Prop()
+    @Prop({ required: true })
     encryption_file_key: string;
 }
 
-@Schema()
+@Schema({ _id: false })
 export class UserKeys {
-    @Prop()
+    @Prop({ unique: true, required: true })
     public_key: string;
 
-    @Prop()
+    @Prop({ required: true })
     encrypted_private_key: string;
 }
 
 @Schema({ collection: "User" })
 export class User {
-    @Prop()
+    @Prop({ unique: true, required: true })
     _id: string;
 
-    @Prop()
+    @Prop({ required: true })
     firstname: string;
 
-    @Prop()
+    @Prop({ required: true })
     lastname: string;
 
-    @Prop()
+    @Prop({ unique: true, required: true })
     email: string;
 
-    @Prop()
+    @Prop({ required: true })
     password: string;
 
-    @Prop()
+    @Prop({ required: true })
     directory_id: string;
 
-    @Prop(UserKeys)
+    @Prop({ type: UserKeys, required: true })
     userKeys: UserKeys;
 
-    @Prop([UserFileKey])
+    @Prop({ type: [UserFileKey], required: true })
     filesKeys: UserFileKey[]
 
-    @Prop([FileTag])
+    @Prop({ type: [FileTag], required: true })
     tags: FileTag[]
 }
 

@@ -16,17 +16,20 @@ export enum ShareMode {
 
 @Schema({ collection: "File" })
 export class File {
-    @Prop()
+    @Prop({ unique: true, required: true })
     _id: string;
 
-    @Prop()
+    @Prop({ required: true })
     name: string;
 
-    @Prop()
+    @Prop({ required: true })
     mimetype: string;
 
     @Prop()
     size: number;
+
+    @Prop({ required: true })
+    preview: boolean;
 
     @Prop({
         required: true,
@@ -34,7 +37,7 @@ export class File {
     })
     type: number;
 
-    @Prop([FileTag])
+    @Prop({ type: [FileTag], required: true })
     tags: FileTag[]
 
     @Prop({
@@ -43,23 +46,29 @@ export class File {
     })
     shareMode: string;
 
-    @Prop([String])
+    @Prop({ type: [String], required: true })
     sharedWith: string[];
 
-    @Prop([SharedWithPending])
+    @Prop({ type: [SharedWithPending], required: true })
     shareWithPending: SharedWithPending[];
 
-    @Prop([UserSign])
+    @Prop({ type: [UserSign], required: true })
     signs: UserSign[];
 
-    @Prop()
+    @Prop({ required: true })
     parent_file_id: string;
 
     @Prop()
     document_id: string;
 
-    @Prop()
+    @Prop({ required: true })
     owner_id: string;
+
+    @Prop({ required: true })
+    updated_at: Date;
+
+    @Prop({ required: true })
+    created_at: Date;
 }
 
 export const FileSchema = SchemaFactory.createForClass(File);
