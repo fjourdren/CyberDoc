@@ -19,7 +19,6 @@ import { FileSearchDto } from './dto/file-search.dto';
 export const COLUMNS_TO_KEEP_FOR_FILE = ["_id", "name", "mimetype", "size", "updated_at", "created_at", "tags", "preview", "signs", "shareMode"];
 export const COLUMNS_TO_KEEP_FOR_FOLDER = ["_id", "name", "mimetype", "updated_at", "created_at", "tags", "preview"];
 
-
 @Injectable()
 export class FilesService {
     private readonly gridFSModel: MongoGridFS;

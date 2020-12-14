@@ -1,6 +1,18 @@
 import { CallHandler, ExecutionContext, Injectable, InternalServerErrorException, NestInterceptor } from '@nestjs/common';
+import { ApiProperty } from '@nestjs/swagger';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+
+export class GenericResponse {
+  @ApiProperty({ description: "Message", example: "Success" })
+  msg: string;
+
+  @ApiProperty({ description: "HTTP status code", example: 200 })
+  statusCode: number;
+
+  @ApiProperty({ description: "Is request succesful or not", example: true })
+  success: boolean;
+}
 
 @Injectable()
 export class GenericResponseInterceptor implements NestInterceptor {

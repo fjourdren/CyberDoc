@@ -1,4 +1,4 @@
-import { createParamDecorator, ExecutionContext, InternalServerErrorException, SetMetadata, UnauthorizedException } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext, ForbiddenException, InternalServerErrorException } from '@nestjs/common';
 import { File, ShareMode } from './schemas/file.schema';
 import { User } from './schemas/user.schema';
 
@@ -21,7 +21,7 @@ export const CurrentFile = createParamDecorator(
         }
 
         if (requiredAccess > availableAccess) {
-            throw new UnauthorizedException();
+            throw new ForbiddenException();
         }
 
         return request.file;
