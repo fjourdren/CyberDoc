@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Patch, Post, Put, Res, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Patch, Post, Put, Res, UnauthorizedException, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express/multer/interceptors/files.interceptor';
 import { Response } from 'express';
 import { UploadFileDto } from './dto/upload-file.dto';
@@ -19,7 +19,7 @@ export class FilesController {
 
     @Get(':fileID')
     @UseGuards(FileGuard)
-    async get(@LoggedUser() user: User, @CurrentFile(READ) file: File) {
+    async get(@CurrentFile(READ) file: File) {
         let result = await this.filesService.prepareFileForOutput(file);
         if (file.type == FOLDER) {
             const folderContents = await this.filesService.getFolderContents(file._id);
@@ -96,8 +96,27 @@ export class FilesController {
     @UseGuards(FileGuard)
     @UseInterceptors(FilesInterceptor('upfile', 1))
     async updateFileMetadata(@LoggedUser() user: User, @Body() editFileMetadataDto: EditFileMetadataDto, @CurrentFile(WRITE) file: File) {
+        const userIsFileOwner = user._id === file.owner_id;
+        const requireIsFileOwner = () => { if (!userIsFileOwner) throw new UnauthorizedException() };
+
         if (editFileMetadataDto.name) file.name = editFileMetadataDto.name;
-        if (editFileMetadataDto.folderID) file.parent_file_id = editFileMetadataDto.folderID;
+
+        if (editFileMetadataDto.folderID) {
+            requireIsFileOwner();
+            file.parent_file_id = editFileMetadataDto.folderID;
+        }
+
+        if (editFileMetadataDto.preview) {
+            requireIsFileOwner();
+            if (editFileMetadataDto.preview && file.type === FILE) throw new BadRequestException("Preview is not available for folders");
+            file.preview = editFileMetadataDto.preview;
+        }
+
+        if (editFileMetadataDto.shareMode) {
+            requireIsFileOwner();
+            file.shareMode = editFileMetadataDto.shareMode;
+        }
+
         await this.filesService.save(file);
         return { msg: "File informations modified" };
     }
@@ -115,6 +134,8 @@ export class FilesController {
     @UseGuards(FileGuard)
     async download(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @CurrentFile(READ) file: File) {
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
+        res.set('Content-Type', file.mimetype);
+        res.set('Content-Disposition', `attachment; filename="${file.name}"`);
         res.send(await this.filesService.getFileContent(user, userHash, file));
     }
 
@@ -122,6 +143,15 @@ export class FilesController {
     @UseGuards(FileGuard)
     async generatePDF(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @CurrentFile(READ) file: File) {
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
+
+        let pdfFileName = file.name;
+        if (pdfFileName.indexOf(".") !== -1) {
+            pdfFileName = pdfFileName.substring(0, pdfFileName.lastIndexOf("."));
+        }
+        pdfFileName += ".pdf";
+
+        res.set('Content-Type', 'application/pdf');
+        res.set('Content-Disposition', `attachment; filename="${pdfFileName}"`);
         res.send(await this.filesService.generatePDF(user, userHash, file));
     }
 
@@ -129,6 +159,18 @@ export class FilesController {
     @UseGuards(FileGuard)
     async generatePngPreview(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @CurrentFile(READ) file: File) {
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
+        if (!file.preview) {
+            throw new BadRequestException("Preview is disabled for this file");
+        }
+
+        let pngFileName = file.name;
+        if (pngFileName.indexOf(".") !== -1) {
+            pngFileName = pngFileName.substring(0, pngFileName.lastIndexOf("."));
+        }
+        pngFileName += ".pdf";
+
+        res.set('Content-Type', 'image/png');
+        res.set('Content-Disposition', `attachment; filename="${pngFileName}"`);
         res.send(await this.filesService.generatePngPreview(user, userHash, file));
     }
 
