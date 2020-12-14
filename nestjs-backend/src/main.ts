@@ -3,6 +3,9 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GenericResponseInterceptor } from './generic-response.interceptor';
+import * as helmet from 'helmet';
+
+const FRONTEND_ORIGIN = "http://localhost:4200";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,8 +21,18 @@ async function bootstrap() {
 
   //enable data validation in DTO classes
   app.useGlobalPipes(new ValidationPipe());
-  
+
   app.useGlobalInterceptors(new GenericResponseInterceptor());
+
+  //Helmet helps you secure your Express apps by setting various HTTP headers
+  //https://github.com/helmetjs/helmet#how-it-works
+  app.use(helmet());
+
+  app.enableCors({
+    origin: FRONTEND_ORIGIN,
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204  
+  });
+
   await app.listen(3200);
 }
 bootstrap();
