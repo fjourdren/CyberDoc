@@ -45,11 +45,11 @@ export class User {
     @Prop({ type: UserKeys, required: true })
     userKeys: UserKeys;
 
-    @Prop({ type: [UserFileKey], required: true })
-    filesKeys: UserFileKey[]
+    @Prop([UserFileKey])
+    filesKeys: UserFileKey[];
 
-    @Prop({ type: [FileTag], required: true })
-    tags: FileTag[]
+    @Prop([FileTag])
+    tags: FileTag[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
