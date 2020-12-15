@@ -5,7 +5,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import * as Joi from '@hapi/joi';
 
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { JwtAuthGuard } from './auth/jwt/jwt-auth.guard';
@@ -22,6 +21,8 @@ import { FileSigningModule } from './file-signing/file-signing.module';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
+        APP_NAME: Joi.string().required(),
+        APP_VERSION: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRATION_TIME: Joi.number().required(),
         JWT_COOKIE_NAME: Joi.string().required(),
@@ -55,7 +56,6 @@ import { FileSigningModule } from './file-signing/file-signing.module';
   ],
   controllers: [AppController],
   providers: [
-    AppService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

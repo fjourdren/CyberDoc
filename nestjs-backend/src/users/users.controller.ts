@@ -13,7 +13,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { SkipJWTAuth } from 'src/auth/jwt/skip-jwt-auth.annotation';
 
 @ApiTags("users")
-@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
 
@@ -33,6 +32,7 @@ export class UsersController {
   }
 
   @Get('profile')
+  @ApiBearerAuth()
   @HttpCode(HttpStatusCode.OK)
   @ApiOperation({ summary: "Get current user", description: "Get current user" })
   @ApiOkResponse({ description: "Success", type: GetProfileResponse })
@@ -41,6 +41,7 @@ export class UsersController {
   }
 
   @Post('profile')
+  @ApiBearerAuth()
   @HttpCode(HttpStatusCode.OK)
   @ApiOperation({ summary: "Edit current user", description: "Edit current user" })
   @ApiOkResponse({ description: "Success", type: GenericResponse })
@@ -52,6 +53,7 @@ export class UsersController {
   }
 
   @Delete('profile')
+  @ApiBearerAuth()
   @HttpCode(HttpStatusCode.OK)
   @ApiOperation({ summary: "Delete current user", description: "Delete current user" })
   @ApiOkResponse({ description: "Success", type: GenericResponse })
@@ -62,6 +64,7 @@ export class UsersController {
   }
 
   @Get('exportData')
+  @ApiBearerAuth()
   @HttpCode(HttpStatusCode.OK)
   @ApiProduces("text/plain")
   @ApiOperation({ summary: "Export user data (without file content)", description: "Export user data (without file content)" })
