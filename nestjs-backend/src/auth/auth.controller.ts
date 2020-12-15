@@ -1,4 +1,5 @@
-import { Controller, Post, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, UseGuards, Req, Body } from '@nestjs/common';
+import { Request } from "express";
 import { SkipJWTAuth } from 'src/auth/jwt/skip-jwt-auth.annotation';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local/local-auth.guard';
@@ -10,7 +11,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @SkipJWTAuth()
   @Post('login')
-  async login(@Request() req) {
+  async login(@Req() req: Request) {
     const { access_token } = await this.authService.login(req.user);
     return { msg: "Authentication token generated", access_token };
   }

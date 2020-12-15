@@ -3,7 +3,6 @@ import { FilesService } from 'src/files/files.service';
 import { LoggedUserHash } from 'src/logged-user-hash.decorator';
 import { LoggedUser } from 'src/logged-user.decorator';
 import { User } from 'src/schemas/user.schema';
-import { UsersService } from 'src/users/users.service';
 import { FileSharingService } from './file-sharing.service';
 import { File } from 'src/schemas/file.schema';
 import { CurrentFile, READ, OWNER } from 'src/current-file.decorator';
@@ -18,7 +17,6 @@ import { HttpStatusCode } from 'src/utils/http-status-code';
 @Controller('files')
 export class FileSharingController {
     constructor(
-        private readonly usersService: UsersService,
         private readonly filesService: FilesService,
         private readonly fileSharingService: FileSharingService
     ) { }
@@ -48,15 +46,7 @@ export class FileSharingController {
             throw new NotFoundException("File not found")
         }
 
-        const sharedUsersPending = file.shareWithPending.map(item => item.email);
-        const sharedUsers = await Promise.all(file.sharedWith.map(async item => {
-            const user = await this.usersService.findOneByID(item)
-            return {
-                email: user.email,
-                name: `${user.firstname} ${user.lastname}`
-            }
-        }));
-
+        const { sharedUsers, sharedUsersPending } = await this.fileSharingService.getSharingAccesses(file);
         return {
             msg: "Success",
             shared_users: sharedUsers,

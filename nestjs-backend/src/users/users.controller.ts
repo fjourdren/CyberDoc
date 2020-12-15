@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, Post, Res } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiProduces, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConflictResponse, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiProduces, ApiTags } from '@nestjs/swagger';
 import { LoggedUser } from 'src/logged-user.decorator';
 import { User } from 'src/schemas/user.schema';
 import { HttpStatusCode } from 'src/utils/http-status-code';
@@ -9,6 +9,8 @@ import { Response } from "express";
 import { GenericResponse } from 'src/generic-response.interceptor';
 import { LoggedUserHash } from 'src/logged-user-hash.decorator';
 import { EditUserDto } from './dto/edit-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { SkipJWTAuth } from 'src/auth/jwt/skip-jwt-auth.annotation';
 
 @ApiTags("users")
 @ApiBearerAuth()
@@ -18,6 +20,17 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService
   ) { }
+
+  @Post()
+  @SkipJWTAuth()
+  @HttpCode(HttpStatusCode.CREATED)
+  @ApiOperation({ summary: "Create a new user", description: "Create a new user" })
+  @ApiCreatedResponse({ description: "Success", type: GenericResponse })
+  @ApiConflictResponse({ description: "Another user with the same email already exists", type: GenericResponse })
+  async createProfile(@Body() createUserDto: CreateUserDto) {
+    await this.usersService.createUser(createUserDto);
+    return { msg: "Success" };
+  }
 
   @Get('profile')
   @HttpCode(HttpStatusCode.OK)

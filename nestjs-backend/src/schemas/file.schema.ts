@@ -55,7 +55,7 @@ export class File {
     @Prop([UserSign])
     signs: UserSign[];
 
-    @Prop({ required: true })
+    @Prop()
     parent_file_id: string;
 
     @Prop()

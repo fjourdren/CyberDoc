@@ -5,8 +5,7 @@ import { Model } from 'mongoose';
 import { MailUtilsService } from 'src/utils/mail-utils.service';
 import { SharedWithPending } from 'src/schemas/file-sharewith-pending.schema';
 import { File, FileDocument } from 'src/schemas/file.schema';
-import { User } from 'src/schemas/user.schema';
-import { UsersService } from 'src/users/users.service';
+import { User, UserDocument } from 'src/schemas/user.schema';
 import { CryptoService } from 'src/crypto/crypto.service';
 
 @Injectable()
@@ -14,18 +13,43 @@ export class FileSharingService {
 
     constructor(
         @InjectModel(File.name) private readonly fileModel: Model<FileDocument>,
-        private readonly usersService: UsersService,
+        @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
         private readonly cryptoService: CryptoService,
         private readonly mailService: MailUtilsService,
         private readonly configService: ConfigService
     ) { }
 
     async getSharedFiles(user: User): Promise<File[]> {
-        return await this.fileModel.find({sharedWith: user._id}).exec();
+        return await this.fileModel.find({ sharedWith: user._id }).exec();
+    }
+
+    async getSharingAccesses(file: File) {
+        const sharedUsersPending = file.shareWithPending.map(item => item.email);
+        const sharedUsers = await Promise.all(file.sharedWith.map(async item => {
+            const user = await this.userModel.findOne({ _id: item });
+            return {
+                email: user.email,
+                name: `${user.firstname} ${user.lastname}`
+            }
+        }));
+
+        return { sharedUsersPending, sharedUsers }
+    }
+
+    async addAllPendingSharesForUser(user: User) {
+        const pendingShareFiles = await this.fileModel.find({ "sharedWithPending.email": user.email }).exec();
+        for (const pendingShareFile of pendingShareFiles) {
+            pendingShareFile.sharedWith.push(user._id);
+            const fileAESKey = pendingShareFile.shareWithPending.find(item => item.email === user.email)!!.file_aes_key;
+            await this.cryptoService.addFileAESKeyToUser(user, pendingShareFile._id, fileAESKey);
+
+            pendingShareFile.shareWithPending = pendingShareFile.shareWithPending.filter(item => item.email !== user.email);
+            await new this.fileModel(pendingShareFile).save();
+        }
     }
 
     async addSharingAccess(fileOwner: User, fileOwnerHash: string, email: string, file: File) {
-        const user = await this.usersService.findOneByEmail(email);
+        const user = await this.userModel.findOne({ email }).exec();
         const fileAESKey = this.cryptoService.getFileAESKey(fileOwner, fileOwnerHash, file._id);
 
         if (user) {
@@ -58,7 +82,7 @@ export class FileSharingService {
     }
 
     async removeSharingAccess(fileOwner: User, email: string, file: File) {
-        const user = await this.usersService.findOneByEmail(email);
+        const user = await this.userModel.findOne({ email }).exec();
         if (user) {
             file.sharedWith = file.sharedWith.filter(item => item !== user._id);
             await new this.fileModel(file).save();

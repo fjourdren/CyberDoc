@@ -5,11 +5,15 @@ export const RSA_KEY_LENGTH = 512;
 
 @Injectable()
 export class RsaService {
-    
-    constructor() {}
 
-    generateKeys(): NodeRSA {
-        return new NodeRSA({b: RSA_KEY_LENGTH});
+    constructor() { }
+
+    generateKeys() {
+        const keyObject = new NodeRSA({ b: RSA_KEY_LENGTH });
+        return {
+            rsaPublicKey: keyObject.exportKey("public"),
+            rsaPrivateKey: keyObject.exportKey("private")
+        }
     }
 
     encrypt(key: string, content: string | Buffer): string {
