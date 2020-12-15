@@ -24,6 +24,10 @@ export class AuthService {
         return null;
     }
 
+    async hashPassword(password: string) {
+        return await bcrypt.hash(password, 10);
+    }
+
     generateJWTToken(userID: string, userHash: string) {
         return this.jwtService.sign({ userID, userHash });
     }
