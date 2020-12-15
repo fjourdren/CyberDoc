@@ -5,8 +5,6 @@ import { RSA_KEY_LENGTH } from './rsa.service';
 
 @Injectable()
 export class UserHashService {
-  constructor() {}
-
   generateUserHash(email: string, password: string) {
     const hashObj = new SHA3(RSA_KEY_LENGTH);
     hashObj.update(`${email}${password}`);

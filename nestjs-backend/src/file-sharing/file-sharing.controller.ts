@@ -25,7 +25,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
 import { GenericResponse } from 'src/generic-response.interceptor';

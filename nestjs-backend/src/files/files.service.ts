@@ -17,6 +17,7 @@ import {
 import { AesService } from 'src/crypto/aes.service';
 import { Types } from 'mongoose';
 import { Utils } from 'src/utils';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const streamToPromise = require('stream-to-promise');
 import * as libreofficeConvert from 'libreoffice-convert';
 import { v4 as uuidv4 } from 'uuid';

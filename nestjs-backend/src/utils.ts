@@ -1,8 +1,6 @@
 import { Readable } from 'stream';
 
 export class Utils {
-  private constructor() {}
-
   static stringToReadable(str: string): Readable {
     const readable = new Readable();
     readable.push(str);
