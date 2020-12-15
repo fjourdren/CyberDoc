@@ -45,7 +45,7 @@ export class FileSharingService {
       pendingShareFile.sharedWith.push(user._id);
       const fileAESKey = pendingShareFile.shareWithPending.find(
         (item) => item.email === user.email,
-      )!.file_aes_key;
+      ).file_aes_key;
       await this.cryptoService.addFileAESKeyToUser(
         user,
         pendingShareFile._id,

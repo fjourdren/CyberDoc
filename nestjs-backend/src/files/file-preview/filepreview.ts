@@ -107,6 +107,7 @@ export async function generatePreview(
         const pagerange = options.pagerange.split('-');
         if (pagerange.length == 2) {
           unoconv_pagerange = options.pagerange;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           pagerange_start = parseInt(pagerange[0]);
           pagerange_stop = parseInt(pagerange[1]);
         }
@@ -118,6 +119,7 @@ export async function generatePreview(
         { timeout: EXEC_TIMEOUT },
       );
 
+      let convertOtherArgs = [];
       if (unoconv_pagerange == '1') {
         convertOtherArgs = [tempPDF + '[0]', outputPath];
         if (options.width && options.height) {
@@ -134,10 +136,7 @@ export async function generatePreview(
         await execFile('convert', convertOtherArgs, { timeout: EXEC_TIMEOUT });
       } else {
         for (let x = 0; x < pagerange_stop; x++) {
-          var convertOtherArgs = [
-            tempPDF + '[' + x + ']',
-            x + '_' + outputPath,
-          ];
+          convertOtherArgs = [tempPDF + '[' + x + ']', x + '_' + outputPath];
           if (options.width && options.height) {
             convertOtherArgs.splice(
               0,
