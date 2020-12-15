@@ -7,10 +7,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/schemas/user.schema';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    ],
-    providers: [AesService, RsaService, UserHashService, CryptoService],
-    exports: [AesService, RsaService, UserHashService, CryptoService]
+  imports: [
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+  ],
+  providers: [AesService, RsaService, UserHashService, CryptoService],
+  exports: [AesService, RsaService, UserHashService, CryptoService],
 })
-export class CryptoModule { }
+export class CryptoModule {}

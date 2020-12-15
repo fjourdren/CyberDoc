@@ -11,12 +11,10 @@ import { User, UserSchema } from 'src/schemas/user.schema';
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: File.name, schema: FileSchema }]),
-    CryptoModule
+    CryptoModule,
   ],
-  exports: [
-    FilesService
-  ],
+  exports: [FilesService],
   providers: [FilesService, PreviewGenerator],
-  controllers: [FilesController]
+  controllers: [FilesController],
 })
 export class FilesModule {}

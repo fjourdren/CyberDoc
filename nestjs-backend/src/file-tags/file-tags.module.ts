@@ -10,13 +10,14 @@ import { UsersTagsController } from './users-tags.controller';
 import { UsersTagsService } from './users-tags.service';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-        MongooseModule.forFeature([{ name: File.name, schema: FileSchema }]),
-        UsersModule,
-        FilesModule
-    ],
-    providers: [FilesTagsService, UsersTagsService],
-    exports: [FilesTagsService, UsersTagsService],
-    controllers: [FilesTagsController, UsersTagsController],
-}) export class FileTagsModule { }
+  imports: [
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: File.name, schema: FileSchema }]),
+    UsersModule,
+    FilesModule,
+  ],
+  providers: [FilesTagsService, UsersTagsService],
+  exports: [FilesTagsService, UsersTagsService],
+  controllers: [FilesTagsController, UsersTagsController],
+})
+export class FileTagsModule {}

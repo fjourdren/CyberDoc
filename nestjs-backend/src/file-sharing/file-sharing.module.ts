@@ -18,6 +18,6 @@ import { FileSharingService } from './file-sharing.service';
   ],
   controllers: [FileSharingController],
   providers: [FileSharingService],
-  exports: [FileSharingService]
+  exports: [FileSharingService],
 })
-export class FileSharingModule { }
+export class FileSharingModule {}
