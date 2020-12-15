@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiConflictResponse, ApiCreatedResponse, ApiOkResponse, 
 import { LoggedUser } from 'src/logged-user.decorator';
 import { User } from 'src/schemas/user.schema';
 import { HttpStatusCode } from 'src/utils/http-status-code';
-import { GetProfileResponse, SetProfileResponse } from './users.controller.types';
+import { GetProfileResponse } from './users.controller.types';
 import { UsersService } from './users.service';
 import { Response } from "express";
 import { GenericResponse } from 'src/generic-response.interceptor';
@@ -43,12 +43,12 @@ export class UsersController {
   @Post('profile')
   @HttpCode(HttpStatusCode.OK)
   @ApiOperation({ summary: "Edit current user", description: "Edit current user" })
-  @ApiOkResponse({ description: "Success", type: SetProfileResponse })
+  @ApiOkResponse({ description: "Success", type: GenericResponse })
   async setProfile(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Body() editUserDto: EditUserDto) {
     //TODO x-auth-token
     user = await this.usersService.editUserBasicMetadata(user, editUserDto.firstname, editUserDto.lastname);
-    const newUserAndAccessToken = await this.usersService.editUserEmailAndPassword(user, userHash, editUserDto.email, editUserDto.password);
-    return { msg: "Success", user: newUserAndAccessToken.user, accessToken: newUserAndAccessToken.newAccessToken };
+    user = await this.usersService.editUserEmailAndPassword(user, userHash, editUserDto.email, editUserDto.password);
+    return { msg: "Success" };
   }
 
   @Delete('profile')

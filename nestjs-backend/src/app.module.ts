@@ -23,7 +23,9 @@ import { FileSigningModule } from './file-signing/file-signing.module';
       isGlobal: true,
       validationSchema: Joi.object({
         JWT_SECRET: Joi.string().required(),
-        JWT_EXPIRES_IN: Joi.string().required(),
+        JWT_EXPIRATION_TIME: Joi.number().required(),
+        JWT_COOKIE_NAME: Joi.string().required(),
+        JWT_COOKIE_DOMAIN: Joi.string().required(),
         MONGODB_URL: Joi.string().required(),
         ENCRYPTION_IV: Joi.string().required(),
         SENDGRID_API_KEY: Joi.string().required(),

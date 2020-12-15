@@ -27,11 +27,3 @@ export class GetProfileResponse extends GenericResponse {
     @ApiProperty({ description: "Current user", type: UserInResponse })
     user: UserInResponse;
 }
-
-export class SetProfileResponse extends GenericResponse {
-    @ApiProperty({ description: "Current user", type: UserInResponse })
-    user: UserInResponse;
-
-    @ApiProperty({ description: "New accessToken" })
-    accessToken: string;
-}
