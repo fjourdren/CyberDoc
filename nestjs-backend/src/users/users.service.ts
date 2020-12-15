@@ -51,7 +51,6 @@ export class UsersService {
         const user = new User();
         const userHash = this.userHashService.generateUserHash(createUserDto.email, createUserDto.password);
         const userKeys = new UserKeys();
-        const currentDate = new Date();
 
         user._id = uuidv4();
         user.email = createUserDto.email;
@@ -62,8 +61,6 @@ export class UsersService {
         user.password = await this.authService.hashPassword(createUserDto.password);
         user.tags = [];
         user.userKeys = userKeys;
-        user.created_at = currentDate;
-        user.updated_at = currentDate;
 
         const { rsaPublicKey, rsaPrivateKey } = this.rsa.generateKeys();
         userKeys.public_key = rsaPublicKey;
