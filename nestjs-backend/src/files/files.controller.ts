@@ -74,7 +74,7 @@ export class FilesController {
     @ApiOperation({ summary: "Create a file", description: "Create a file" })
     @ApiBadRequestResponse({ description: "Trying to create a file without the `upfile` field", type: GenericResponse })
     @ApiCreatedResponse({ description: "File created", type: CreateFileResponse })
-    async create(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @UploadedFile("upfile") upfile: Express.Multer.File, @Body() uploadFileDto: UploadFileDto) {
+    async create(@LoggedUser({ requireOwner: true }) user: User, @LoggedUserHash() userHash: string, @UploadedFile("upfile") upfile: Express.Multer.File, @Body() uploadFileDto: UploadFileDto) {
         const newDirectoryMode = uploadFileDto.mimetype === "application/x-dir";
         const fileContent: Buffer = upfile?.buffer;
         if (!newDirectoryMode && !fileContent) {
@@ -163,7 +163,7 @@ export class FilesController {
     @ApiOperation({ summary: "Create a copy of a file", description: "Create a copy of a file" })
     @ApiCreatedResponse({ description: "File copied", type: CreateFileResponse })
     @ApiBadRequestResponse({ description: "Cannot copy a folder", type: GenericResponse })
-    async copy(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Body() copyFileDto: CopyFileDto, @CurrentFile(READ) file: File) {
+    async copy(@LoggedUser({ requireOwner: true }) user: User, @LoggedUserHash() userHash: string, @Body() copyFileDto: CopyFileDto, @CurrentFile(READ) file: File) {
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
         const copy = await this.filesService.copyFile(user, userHash, file, copyFileDto.copyFileName, copyFileDto.destID);
         return { msg: "File copied", fileID: copy._id };
@@ -175,7 +175,7 @@ export class FilesController {
     @ApiParam({ name: "fileID", description: "File ID", example: "f3f36d40-4785-198f-e4a6-2cef906c2aeb" })
     @ApiProduces("application/octet-stream")
     @ApiOperation({ summary: "Download a file", description: "Download a file" })
-    @ApiOkResponse({description: "Success"})
+    @ApiOkResponse({ description: "Success" })
     @ApiBadRequestResponse({ description: "Cannot download a folder", type: GenericResponse })
     async download(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @CurrentFile(READ) file: File) {
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
@@ -190,7 +190,7 @@ export class FilesController {
     @ApiParam({ name: "fileID", description: "File ID", example: "f3f36d40-4785-198f-e4a6-2cef906c2aeb" })
     @ApiProduces("application/pdf")
     @ApiOperation({ summary: "Export a file as PDF", description: "Export a file as PDF" })
-    @ApiOkResponse({description: "Success"})
+    @ApiOkResponse({ description: "Success" })
     @ApiBadRequestResponse({ description: "Cannot export a folder", type: GenericResponse })
     async generatePDF(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @CurrentFile(READ) file: File) {
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
@@ -212,7 +212,7 @@ export class FilesController {
     @ApiProduces("image/png")
     @ApiParam({ name: "fileID", description: "File ID", example: "f3f36d40-4785-198f-e4a6-2cef906c2aeb" })
     @ApiOperation({ summary: "Generate PNG preview of a file", description: "Generate PNG preview of a file" })
-    @ApiOkResponse({description: "Success"})
+    @ApiOkResponse({ description: "Success" })
     @ApiBadRequestResponse({ description: "Cannot generate a preview of a folder", type: GenericResponse })
     async generatePngPreview(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @CurrentFile(READ) file: File) {
         if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
