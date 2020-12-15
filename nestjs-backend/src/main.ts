@@ -4,6 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GenericResponseInterceptor } from './generic-response.interceptor';
 import * as helmet from 'helmet';
+import * as cookieParser from 'cookie-parser';
 
 const FRONTEND_ORIGIN = "http://localhost:4200";
 
@@ -27,6 +28,8 @@ async function bootstrap() {
   //Helmet helps you secure your Express apps by setting various HTTP headers
   //https://github.com/helmetjs/helmet#how-it-works
   app.use(helmet());
+
+  app.use(cookieParser());
 
   app.enableCors({
     origin: FRONTEND_ORIGIN,

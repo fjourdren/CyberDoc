@@ -72,7 +72,7 @@ export class UsersService {
         return await new this.userModel(user).save();
     }
 
-    async editUserEmailAndPassword(user: User, userHash: string, newEmail: string, newPassword: string): Promise<{ user: User, newAccessToken: string }> {
+    async editUserEmailAndPassword(user: User, userHash: string, newEmail: string, newPassword: string): Promise<User> {
         const newCryptedPassword = await this.authService.hashPassword(newPassword);
         const newUserHash = this.userHashService.generateUserHash(newEmail, newPassword);
         const userPrivateKey = await this.cryptoService.getUserPrivateKey(user, userHash);
@@ -80,11 +80,7 @@ export class UsersService {
         await this.cryptoService.setUserPrivateKey(user, newUserHash, userPrivateKey);
         user.email = newEmail;
         user.password = newCryptedPassword;
-
-        return {
-            user: await new this.userModel(user).save(),
-            newAccessToken: this.authService.generateJWTToken(user._id, newUserHash),
-        }
+        return await new this.userModel(user).save();
     }
 
     async editUserBasicMetadata(user: User, newFirstName: string, newLastName: string): Promise<User> {
