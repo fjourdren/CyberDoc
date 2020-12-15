@@ -10,7 +10,7 @@ import { Utils } from 'src/utils';
 const streamToPromise = require("stream-to-promise");
 const libre = require("libreoffice-convert");
 import { v4 as uuidv4 } from 'uuid';
-import { TEXT_MIMETYPES, DOCUMENT_MIMETYPES, SPREADSHEET_MIMETYPES, PRESENTATION_MIMETYPES, PDF_MIMETYPES, FileType, DIRECTORY_MIMETYPE, ARCHIVE_MIMETYPES } from 'src/file-types';
+import { TEXT_MIMETYPES, DOCUMENT_MIMETYPES, SPREADSHEET_MIMETYPES, PRESENTATION_MIMETYPES, PDF_MIMETYPES, FileType, DIRECTORY_MIMETYPE, ARCHIVE_MIMETYPES } from 'src/files/file-types';
 import { promisify } from 'util';
 import { PreviewGenerator } from './file-preview/preview-generator.service';
 import { FileSearchDto } from './dto/file-search.dto';

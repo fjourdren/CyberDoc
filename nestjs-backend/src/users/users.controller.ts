@@ -1,13 +1,13 @@
 import { Body, Controller, Delete, Get, HttpCode, Post, Res } from '@nestjs/common';
 import { ApiBearerAuth, ApiConflictResponse, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiProduces, ApiTags } from '@nestjs/swagger';
-import { LoggedUser } from 'src/logged-user.decorator';
+import { LoggedUser } from 'src/auth/logged-user.decorator';
 import { User } from 'src/schemas/user.schema';
 import { HttpStatusCode } from 'src/utils/http-status-code';
 import { GetProfileResponse } from './users.controller.types';
-import { UsersService } from './users.service';
+import { UsersService } from '../auth/users.service';
 import { Response } from "express";
 import { GenericResponse } from 'src/generic-response.interceptor';
-import { LoggedUserHash } from 'src/logged-user-hash.decorator';
+import { LoggedUserHash } from 'src/auth/logged-user-hash.decorator';
 import { EditUserDto } from './dto/edit-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SkipJWTAuth } from 'src/auth/jwt/skip-jwt-auth.annotation';

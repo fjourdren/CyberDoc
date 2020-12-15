@@ -1,6 +1,6 @@
 import { BadRequestException, CanActivate, ExecutionContext, Injectable, NotFoundException } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { FilesService } from './files/files.service';
+import { FilesService } from './files.service';
 
 @Injectable()
 export class FileGuard implements CanActivate {

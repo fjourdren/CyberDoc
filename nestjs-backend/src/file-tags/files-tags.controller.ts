@@ -1,10 +1,10 @@
 import { BadRequestException, Body, Controller, Delete, HttpCode, NotFoundException, Param, Post, UseGuards } from '@nestjs/common';
-import { LoggedUser } from 'src/logged-user.decorator';
+import { LoggedUser } from 'src/auth/logged-user.decorator';
 import { User } from 'src/schemas/user.schema';
 import { FilesTagsService } from './files-tags.service';
 import { File } from 'src/schemas/file.schema';
-import { CurrentFile, OWNER } from 'src/current-file.decorator';
-import { FileGuard } from 'src/file.guard';
+import { CurrentFile, OWNER } from 'src/files/current-file.decorator';
+import { FileGuard } from 'src/files/file.guard';
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { GenericResponse } from 'src/generic-response.interceptor';
 import { HttpStatusCode } from 'src/utils/http-status-code';

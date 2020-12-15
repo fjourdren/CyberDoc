@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext, ForbiddenException, InternalServerErrorException } from '@nestjs/common';
-import { File, ShareMode } from './schemas/file.schema';
-import { User } from './schemas/user.schema';
+import { File, ShareMode } from '../schemas/file.schema';
+import { User } from '../schemas/user.schema';
 
 export const READ = 1;
 export const WRITE = 2;

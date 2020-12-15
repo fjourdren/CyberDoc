@@ -1,11 +1,11 @@
 import { BadRequestException, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
-import { LoggedUserHash } from 'src/logged-user-hash.decorator';
-import { LoggedUser } from 'src/logged-user.decorator';
+import { LoggedUserHash } from 'src/auth/logged-user-hash.decorator';
+import { LoggedUser } from 'src/auth/logged-user.decorator';
 import { User } from 'src/schemas/user.schema';
 import { FileSigningService } from './file-signing.service';
 import { File } from 'src/schemas/file.schema';
-import { CurrentFile, READ } from 'src/current-file.decorator';
-import { FileGuard } from 'src/file.guard';
+import { CurrentFile, READ } from 'src/files/current-file.decorator';
+import { FileGuard } from 'src/files/file.guard';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { GenericResponse } from 'src/generic-response.interceptor';
 import { HttpStatusCode } from 'src/utils/http-status-code';

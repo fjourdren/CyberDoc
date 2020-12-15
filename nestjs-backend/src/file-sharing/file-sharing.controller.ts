@@ -1,12 +1,12 @@
 import { BadRequestException, Body, Controller, Delete, Get, HttpCode, NotFoundException, Param, Post, UseGuards } from '@nestjs/common';
 import { FilesService } from 'src/files/files.service';
-import { LoggedUserHash } from 'src/logged-user-hash.decorator';
-import { LoggedUser } from 'src/logged-user.decorator';
+import { LoggedUserHash } from 'src/auth/logged-user-hash.decorator';
+import { LoggedUser } from 'src/auth/logged-user.decorator';
 import { User } from 'src/schemas/user.schema';
 import { FileSharingService } from './file-sharing.service';
 import { File } from 'src/schemas/file.schema';
-import { CurrentFile, READ, OWNER } from 'src/current-file.decorator';
-import { FileGuard } from 'src/file.guard';
+import { CurrentFile, READ, OWNER } from 'src/files/current-file.decorator';
+import { FileGuard } from 'src/files/file.guard';
 import { ApiBadRequestResponse, ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { GenericResponse } from 'src/generic-response.interceptor';
 import { GetSharedFilesResponse, GetSharingAccessResponse } from './file-sharing.controller.types';

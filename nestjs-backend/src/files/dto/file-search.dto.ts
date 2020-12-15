@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { FileType } from "src/file-types";
+import { FileType } from "src/files/file-types";
 
 export class FileSearchDto {
 
