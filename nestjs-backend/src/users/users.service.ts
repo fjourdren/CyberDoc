@@ -5,10 +5,10 @@ import { UserHashService } from 'src/crypto/user-hash.service';
 import { FileInResponse } from 'src/files/files.controller.types';
 import { FilesService } from 'src/files/files.service';
 import { User, UserDocument, UserKeys } from 'src/schemas/user.schema';
-import { UserInResponse } from '../users/users.controller.types';
+import { UserInResponse } from './users.controller.types';
 import { CryptoService } from 'src/crypto/crypto.service';
 import { AuthService } from 'src/auth/auth.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { RsaService } from 'src/crypto/rsa.service';
 import { v4 as uuidv4 } from 'uuid';
 import { FileSharingService } from 'src/file-sharing/file-sharing.service';
@@ -51,15 +51,19 @@ export class UsersService {
         const user = new User();
         const userHash = this.userHashService.generateUserHash(createUserDto.email, createUserDto.password);
         const userKeys = new UserKeys();
+        const currentDate = new Date();
 
         user._id = uuidv4();
         user.email = createUserDto.email;
+        user.role = createUserDto.role;
         user.filesKeys = [];
         user.firstname = createUserDto.firstname;
         user.lastname = createUserDto.lastname;
         user.password = await this.authService.hashPassword(createUserDto.password);
         user.tags = [];
         user.userKeys = userKeys;
+        user.created_at = currentDate;
+        user.updated_at = currentDate;
 
         const { rsaPublicKey, rsaPrivateKey } = this.rsa.generateKeys();
         userKeys.public_key = rsaPublicKey;

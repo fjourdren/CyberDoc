@@ -4,6 +4,11 @@ import { FileTag } from './file-tag.schema';
 
 export type UserDocument = User & Document;
 
+export enum UserRole {
+    OWNER = 'owner',
+    COLLABORATOR = 'collaborator'
+}
+
 @Schema({ _id: false })
 export class UserFileKey {
     @Prop({ unique: true, required: true })
@@ -50,6 +55,18 @@ export class User {
 
     @Prop([FileTag])
     tags: FileTag[];
+
+    @Prop({
+        required: true,
+        enum: [UserRole.OWNER, UserRole.COLLABORATOR]
+    })
+    role: string;
+
+    @Prop({ required: true })
+    created_at: Date;
+
+    @Prop({ required: true })
+    updated_at: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

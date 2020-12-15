@@ -4,7 +4,7 @@ import { LoggedUser } from 'src/auth/logged-user.decorator';
 import { User } from 'src/schemas/user.schema';
 import { HttpStatusCode } from 'src/utils/http-status-code';
 import { GetProfileResponse } from './users.controller.types';
-import { UsersService } from '../auth/users.service';
+import { UsersService } from './users.service';
 import { Response } from "express";
 import { GenericResponse } from 'src/generic-response.interceptor';
 import { LoggedUserHash } from 'src/auth/logged-user-hash.decorator';

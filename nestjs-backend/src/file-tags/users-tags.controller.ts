@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, HttpCode, Param, Post, Put, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { Request } from "express";
-import { UsersService } from 'src/auth/users.service';
+import { UsersService } from 'src/users/users.service';
 import { CreateOrUpdateTagDto } from './dto/create-or-update-tag.dto';
 import { UsersTagsService } from './users-tags.service';
 import { GenericResponse } from 'src/generic-response.interceptor';
