@@ -7,6 +7,7 @@ import { SharedWithPending } from 'src/schemas/file-sharewith-pending.schema';
 import { File, FileDocument } from 'src/schemas/file.schema';
 import { User } from 'src/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
+import { CryptoService } from 'src/crypto/crypto.service';
 
 @Injectable()
 export class FileSharingService {
@@ -14,6 +15,7 @@ export class FileSharingService {
     constructor(
         @InjectModel(File.name) private readonly fileModel: Model<FileDocument>,
         private readonly usersService: UsersService,
+        private readonly cryptoService: CryptoService,
         private readonly mailService: MailUtilsService,
         private readonly configService: ConfigService
     ) { }
@@ -24,11 +26,11 @@ export class FileSharingService {
 
     async addSharingAccess(fileOwner: User, fileOwnerHash: string, email: string, file: File) {
         const user = await this.usersService.findOneByEmail(email);
-        const fileAESKey = this.usersService.getFileAESKey(fileOwner, fileOwnerHash, file._id);
+        const fileAESKey = this.cryptoService.getFileAESKey(fileOwner, fileOwnerHash, file._id);
 
         if (user) {
             if (file.sharedWith.find(item => item === email)) throw new BadRequestException("This user has already an access to this file");
-            await this.usersService.addFileAESKeyToUser(user, file._id, fileAESKey);
+            await this.cryptoService.addFileAESKeyToUser(user, file._id, fileAESKey);
 
             file.sharedWith.push(user._id);
             await new this.fileModel(file).save();
@@ -60,7 +62,7 @@ export class FileSharingService {
         if (user) {
             file.sharedWith = file.sharedWith.filter(item => item !== user._id);
             await new this.fileModel(file).save();
-            await this.usersService.removeFileAESKeyFromUser(user, file._id);
+            await this.cryptoService.removeFileAESKeyFromUser(user, file._id);
         } else {
 
         }
