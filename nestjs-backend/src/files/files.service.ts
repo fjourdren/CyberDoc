@@ -15,6 +15,7 @@ import { promisify } from 'util';
 import { PreviewGenerator } from './file-preview/preview-generator.service';
 import { FileSearchDto } from './dto/file-search.dto';
 import { CryptoService } from 'src/crypto/crypto.service';
+import { FileInResponse } from './files.controller.types';
 
 export const COLUMNS_TO_KEEP_FOR_FILE = ["_id", "name", "mimetype", "size", "updated_at", "created_at", "tags", "preview", "signs", "shareMode"];
 export const COLUMNS_TO_KEEP_FOR_FOLDER = ["_id", "name", "mimetype", "updated_at", "created_at", "tags", "preview"];
@@ -34,7 +35,7 @@ export class FilesService {
         this.gridFSModel = new MongoGridFS(connection.db);
     }
 
-    async prepareFileForOutput(file: File) {
+    async prepareFileForOutput(file: File): Promise<FileInResponse> {
         const columnsToKeep = (file.type === FOLDER) ? COLUMNS_TO_KEEP_FOR_FOLDER : COLUMNS_TO_KEEP_FOR_FILE;
         const user = await this.userModel.findOne({ _id: file.owner_id }).exec()
         if (!user) throw new InternalServerErrorException();
@@ -44,7 +45,7 @@ export class FilesService {
         }, {});
 
         result["ownerName"] = `${user.firstname} ${user.lastname}`
-        return result;
+        return result as FileInResponse;
     }
 
     async findOne(fileID: string): Promise<File | undefined> {
@@ -135,6 +136,10 @@ export class FilesService {
 
     async getFolderContents(folderID: string): Promise<File[]> {
         return this.fileModel.find({ parent_file_id: folderID }).exec();
+    }
+
+    async getAllFilesForUser(userID: string): Promise<File[]> {
+        return this.fileModel.find({ owner_id: userID }).exec();
     }
 
     async getFileContent(currentUser: User, userHash: string, file: File) {
