@@ -2,9 +2,8 @@ import { BadRequestException, Injectable, InternalServerErrorException } from '@
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, FilterQuery, Model } from 'mongoose';
 import { MongoGridFS } from 'mongo-gridfs';
-import { User } from 'src/schemas/user.schema';
+import { User, UserDocument } from 'src/schemas/user.schema';
 import { FILE, File, FileDocument, FOLDER, ShareMode } from '../schemas/file.schema';
-import { UsersService } from 'src/users/users.service';
 import { AesService } from 'src/crypto/aes.service';
 import { Types } from 'mongoose';
 import { Utils } from 'src/utils';
@@ -15,6 +14,7 @@ import { TEXT_MIMETYPES, DOCUMENT_MIMETYPES, SPREADSHEET_MIMETYPES, PRESENTATION
 import { promisify } from 'util';
 import { PreviewGenerator } from './file-preview/preview-generator.service';
 import { FileSearchDto } from './dto/file-search.dto';
+import { CryptoService } from 'src/crypto/crypto.service';
 
 export const COLUMNS_TO_KEEP_FOR_FILE = ["_id", "name", "mimetype", "size", "updated_at", "created_at", "tags", "preview", "signs", "shareMode"];
 export const COLUMNS_TO_KEEP_FOR_FOLDER = ["_id", "name", "mimetype", "updated_at", "created_at", "tags", "preview"];
@@ -24,9 +24,10 @@ export class FilesService {
     private readonly gridFSModel: MongoGridFS;
 
     constructor(
+        @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
         @InjectModel(File.name) private readonly fileModel: Model<FileDocument>,
         @InjectConnection() readonly connection: Connection,
-        private readonly usersService: UsersService,
+        private readonly cryptoService: CryptoService,
         private readonly aes: AesService,
         private readonly previewGenerator: PreviewGenerator
     ) {
@@ -35,7 +36,7 @@ export class FilesService {
 
     async prepareFileForOutput(file: File) {
         const columnsToKeep = (file.type === FOLDER) ? COLUMNS_TO_KEEP_FOR_FOLDER : COLUMNS_TO_KEEP_FOR_FILE;
-        const user = await this.usersService.findOneByID(file.owner_id);
+        const user = await this.userModel.findOne({ _id: file.owner_id }).exec()
         if (!user) throw new InternalServerErrorException();
         const result = columnsToKeep.reduce((r, key) => {
             r[key] = file[key];
@@ -138,14 +139,14 @@ export class FilesService {
 
     async getFileContent(currentUser: User, userHash: string, file: File) {
         const rawStream = this.gridFSModel.bucket.openDownloadStream(Types.ObjectId(file.document_id));
-        const aesKey = this.usersService.getFileAESKey(currentUser, userHash, file._id);
+        const aesKey = this.cryptoService.getFileAESKey(currentUser, userHash, file._id);
         return Buffer.from(this.aes.decrypt(aesKey, await Utils.readableToBuffer(rawStream)), "binary");
     }
 
     async setFileContent(currentUser: User, userHash: string, file: File, buffer: Buffer) {
-        let aesKey = this.usersService.getFileAESKey(currentUser, userHash, file._id);
+        let aesKey = this.cryptoService.getFileAESKey(currentUser, userHash, file._id);
         if (!aesKey) {
-            aesKey = await this.usersService.createAndGetFileAESKey(currentUser, userHash, file._id);
+            aesKey = await this.cryptoService.createAndGetFileAESKey(currentUser, userHash, file._id);
         }
 
         if (file.document_id) {
@@ -184,7 +185,7 @@ export class FilesService {
                 await this.delete(item);
             }
         } else {
-            await this.usersService.deleteAllAESKeysForFile(file._id);
+            await this.cryptoService.deleteAllAESKeysForFile(file._id);
             if (!(await this.gridFSModel.delete(file.document_id))) {
                 throw new InternalServerErrorException(`gridFSModel.delete failed`);
             }
