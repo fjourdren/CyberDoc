@@ -20,4 +20,4 @@ import { FileSharingModule } from 'src/file-sharing/file-sharing.module';
   exports: [UsersService],
   controllers: [UsersController],
 })
-export class UsersModule { }
+export class UsersModule {}

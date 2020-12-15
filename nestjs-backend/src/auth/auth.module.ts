@@ -18,8 +18,10 @@ import { User, UserSchema } from 'src/schemas/user.schema';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get("JWT_SECRET"),
-        signOptions: { expiresIn: `${configService.get("JWT_EXPIRATION_TIME")}s`}
+        secret: configService.get('JWT_SECRET'),
+        signOptions: {
+          expiresIn: `${configService.get('JWT_EXPIRATION_TIME')}s`,
+        },
       }),
       inject: [ConfigService],
     }),
@@ -28,5 +30,4 @@ import { User, UserSchema } from 'src/schemas/user.schema';
   exports: [AuthService],
   controllers: [AuthController],
 })
-export class AuthModule { }
-
+export class AuthModule {}

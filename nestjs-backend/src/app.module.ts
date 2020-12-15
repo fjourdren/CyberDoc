@@ -41,7 +41,7 @@ import { FileSigningModule } from './file-signing/file-signing.module';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get("MONGODB_URL")
+        uri: configService.get('MONGODB_URL'),
       }),
       inject: [ConfigService],
     }),
@@ -62,4 +62,4 @@ import { FileSigningModule } from './file-signing/file-signing.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

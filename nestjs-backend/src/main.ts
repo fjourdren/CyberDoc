@@ -6,7 +6,7 @@ import { GenericResponseInterceptor } from './generic-response.interceptor';
 import * as helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
 
-const FRONTEND_ORIGIN = "http://localhost:4200";
+const FRONTEND_ORIGIN = 'http://localhost:4200';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -33,7 +33,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: FRONTEND_ORIGIN,
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204  
+    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
   });
 
   await app.listen(3200);

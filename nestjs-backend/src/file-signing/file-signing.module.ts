@@ -13,6 +13,6 @@ import { FileSigningService } from './file-signing.service';
     MongooseModule.forFeature([{ name: File.name, schema: FileSchema }]),
   ],
   controllers: [FileSigningController],
-  providers: [FileSigningService]
+  providers: [FileSigningService],
 })
 export class FileSigningModule {}

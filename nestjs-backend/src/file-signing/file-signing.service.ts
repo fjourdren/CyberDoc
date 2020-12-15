@@ -10,26 +10,34 @@ import { User } from 'src/schemas/user.schema';
 
 @Injectable()
 export class FileSigningService {
+  constructor(
+    @InjectModel(File.name) private readonly fileModel: Model<FileDocument>,
+    private readonly cryptoService: CryptoService,
+    private readonly filesService: FilesService,
+    private readonly rsa: RsaService,
+  ) {}
 
-    constructor(
-        @InjectModel(File.name) private readonly fileModel: Model<FileDocument>,
-        private readonly cryptoService: CryptoService,
-        private readonly filesService: FilesService,
-        private readonly rsa: RsaService
-    ) {}
+  async addSign(user: User, userHash: string, file: File) {
+    const userPrivateKey = await this.cryptoService.getUserPrivateKey(
+      user,
+      userHash,
+    );
+    const fileContent = await this.filesService.getFileContent(
+      user,
+      userHash,
+      file,
+    );
 
-    async addSign(user: User, userHash: string, file: File) {
-        const userPrivateKey = await this.cryptoService.getUserPrivateKey(user, userHash);
-        const fileContent = await this.filesService.getFileContent(user, userHash, file);
+    const signObj = new UserSign();
+    signObj.user_email = user.email;
+    signObj.created_at = new Date(Date.now());
 
-        const signObj = new UserSign();
-        signObj.user_email = user.email;
-        signObj.created_at = new Date(Date.now());
+    const diggestBuffer = Buffer.from(
+      `${signObj.user_email}${signObj.created_at}${fileContent}`,
+    );
+    signObj.diggest = this.rsa.sign(userPrivateKey, diggestBuffer);
 
-        const diggestBuffer = Buffer.from(`${signObj.user_email}${signObj.created_at}${fileContent}`);
-        signObj.diggest = this.rsa.sign(userPrivateKey, diggestBuffer);
-
-        file.signs.push(signObj);
-        await new this.fileModel(signObj).save();
-    }
+    file.signs.push(signObj);
+    await new this.fileModel(signObj).save();
+  }
 }

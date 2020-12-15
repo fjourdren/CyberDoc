@@ -1,4 +1,18 @@
-import { BadRequestException, Body, Controller, Delete, ForbiddenException, Get, HttpCode, Patch, Post, Put, Res, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  HttpCode,
+  Patch,
+  Post,
+  Put,
+  Res,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express/multer/interceptors/files.interceptor';
 import { Response } from 'express';
 import { UploadFileDto } from './dto/upload-file.dto';
@@ -11,234 +25,399 @@ import { User } from 'src/schemas/user.schema';
 import { LoggedUser } from 'src/auth/logged-user.decorator';
 import { LoggedUserHash } from 'src/auth/logged-user-hash.decorator';
 import { FileGuard } from 'src/files/file.guard';
-import { CurrentFile, READ, WRITE, OWNER } from 'src/files/current-file.decorator';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiOperation, ApiParam, ApiProduces, ApiTags } from '@nestjs/swagger';
+import {
+  CurrentFile,
+  READ,
+  WRITE,
+  OWNER,
+} from 'src/files/current-file.decorator';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiProduces,
+  ApiTags,
+} from '@nestjs/swagger';
 import { GenericResponse } from 'src/generic-response.interceptor';
 import { HttpStatusCode } from 'src/utils/http-status-code';
 import { UploadedFile } from '@nestjs/common';
-import { SearchFilesResponse, GetResponse, CreateFileResponse } from './files.controller.types';
+import {
+  SearchFilesResponse,
+  GetResponse,
+  CreateFileResponse,
+} from './files.controller.types';
 
-@ApiTags("file")
+@ApiTags('file')
 @ApiBearerAuth()
 @Controller('files')
 export class FilesController {
-    constructor(private readonly filesService: FilesService) { }
+  constructor(private readonly filesService: FilesService) {}
 
-    @Post("search")
-    @HttpCode(HttpStatusCode.OK)
-    @ApiOperation({ summary: "Search files", description: "Search files" })
-    @ApiOkResponse({ description: "Done", type: SearchFilesResponse })
-    async search(@LoggedUser() user: User, @Body() fileSearchDto: FileSearchDto) {
-        const files = await this.filesService.search(user, fileSearchDto);
-        const results = await Promise.all(files.map(async item => {
-            return await this.filesService.prepareFileForOutput(item);
-        }));
+  @Post('search')
+  @HttpCode(HttpStatusCode.OK)
+  @ApiOperation({ summary: 'Search files', description: 'Search files' })
+  @ApiOkResponse({ description: 'Done', type: SearchFilesResponse })
+  async search(@LoggedUser() user: User, @Body() fileSearchDto: FileSearchDto) {
+    const files = await this.filesService.search(user, fileSearchDto);
+    const results = await Promise.all(
+      files.map(async (item) => {
+        return await this.filesService.prepareFileForOutput(item);
+      }),
+    );
 
-        return { msg: "Done", results };
+    return { msg: 'Done', results };
+  }
+
+  @Get(':fileID')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({ summary: 'Get a file', description: 'Get a file' })
+  @ApiOkResponse({ description: 'File informations loaded', type: GetResponse })
+  async get(@CurrentFile(READ) file: File) {
+    const result = await this.filesService.prepareFileForOutput(file);
+    if (file.type == FOLDER) {
+      const folderContents = await this.filesService.getFolderContents(
+        file._id,
+      );
+
+      //DirectoryContent
+      (result as any).directoryContent = await Promise.all(
+        folderContents.map(async (item) => {
+          return await this.filesService.prepareFileForOutput(item);
+        }),
+      );
+
+      //Path
+      const path: Array<{ id: string; name: string }> = [];
+      let aboveFile = file;
+      while (aboveFile.parent_file_id != undefined) {
+        aboveFile = await this.filesService.findOne(aboveFile.parent_file_id);
+        path.push({ id: aboveFile._id, name: aboveFile.name });
+      }
+      path.reverse();
+      (result as any).path = path;
     }
 
-    @Get(':fileID')
-    @UseGuards(FileGuard)
-    @HttpCode(HttpStatusCode.OK)
-    @ApiParam({ name: "fileID", description: "File ID", example: "f3f36d40-4785-198f-e4a6-2cef906c2aeb" })
-    @ApiOperation({ summary: "Get a file", description: "Get a file" })
-    @ApiOkResponse({ description: "File informations loaded", type: GetResponse })
-    async get(@CurrentFile(READ) file: File) {
-        let result = await this.filesService.prepareFileForOutput(file);
-        if (file.type == FOLDER) {
-            const folderContents = await this.filesService.getFolderContents(file._id);
+    return { msg: 'File informations loaded', content: result };
+  }
 
-            //DirectoryContent
-            (result as any).directoryContent = await Promise.all(folderContents.map(async item => {
-                return await this.filesService.prepareFileForOutput(item);
-            }));
-
-            //Path
-            const path: Array<{ id: string, name: string }> = [];
-            let aboveFile = file;
-            while (aboveFile.parent_file_id != undefined) {
-                aboveFile = await this.filesService.findOne(aboveFile.parent_file_id);
-                path.push({ "id": aboveFile._id, "name": aboveFile.name });
-            }
-            path.reverse();
-            (result as any).path = path;
-        }
-
-        return { msg: "File informations loaded", content: result };
+  @Post()
+  @UseInterceptors(FilesInterceptor('upfile', 1))
+  @HttpCode(HttpStatusCode.CREATED)
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Create a file', description: 'Create a file' })
+  @ApiBadRequestResponse({
+    description: 'Trying to create a file without the `upfile` field',
+    type: GenericResponse,
+  })
+  @ApiCreatedResponse({ description: 'File created', type: CreateFileResponse })
+  async create(
+    @LoggedUser({ requireOwner: true }) user: User,
+    @LoggedUserHash() userHash: string,
+    @UploadedFile('upfile') upfile: Express.Multer.File,
+    @Body() uploadFileDto: UploadFileDto,
+  ) {
+    const newDirectoryMode = uploadFileDto.mimetype === 'application/x-dir';
+    const fileContent: Buffer = upfile?.buffer;
+    if (!newDirectoryMode && !fileContent) {
+      throw new BadRequestException('Missing file');
     }
 
-    @Post()
-    @UseInterceptors(FilesInterceptor('upfile', 1))
-    @HttpCode(HttpStatusCode.CREATED)
-    @ApiConsumes('multipart/form-data')
-    @ApiOperation({ summary: "Create a file", description: "Create a file" })
-    @ApiBadRequestResponse({ description: "Trying to create a file without the `upfile` field", type: GenericResponse })
-    @ApiCreatedResponse({ description: "File created", type: CreateFileResponse })
-    async create(@LoggedUser({ requireOwner: true }) user: User, @LoggedUserHash() userHash: string, @UploadedFile("upfile") upfile: Express.Multer.File, @Body() uploadFileDto: UploadFileDto) {
-        const newDirectoryMode = uploadFileDto.mimetype === "application/x-dir";
-        const fileContent: Buffer = upfile?.buffer;
-        if (!newDirectoryMode && !fileContent) {
-            throw new BadRequestException("Missing file");
-        }
-
-        let file = await this.filesService.create(user, uploadFileDto.name, uploadFileDto.mimetype, uploadFileDto.folderID);
-        if (!newDirectoryMode) {
-            file = await this.filesService.setFileContent(user, userHash, file, fileContent);
-        }
-
-        return { msg: "File created", fileID: file._id };
+    let file = await this.filesService.create(
+      user,
+      uploadFileDto.name,
+      uploadFileDto.mimetype,
+      uploadFileDto.folderID,
+    );
+    if (!newDirectoryMode) {
+      file = await this.filesService.setFileContent(
+        user,
+        userHash,
+        file,
+        fileContent,
+      );
     }
 
-    @Put(":fileID")
-    @UseGuards(FileGuard)
-    @HttpCode(HttpStatusCode.OK)
-    @UseInterceptors(FilesInterceptor('upfile', 1))
-    @ApiBody({
-        schema: {
-            type: 'object',
-            properties: {
-                ["upfile"]: {
-                    type: 'string',
-                    format: 'binary',
-                },
-            },
-            required: ["upfile"]
-        }
-    })
-    @ApiConsumes('multipart/form-data')
-    @ApiParam({ name: "fileID", description: "File ID", example: "f3f36d40-4785-198f-e4a6-2cef906c2aeb" })
-    @ApiOperation({ summary: "Update file content", description: "Update file content" })
-    @ApiOkResponse({ description: "File updated", type: GenericResponse })
-    @ApiBadRequestResponse({ description: "`fileID` is a folder or `upfile` field is missing", type: GenericResponse })
-    async updateFileContent(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @UploadedFile("upfile") upfile: Express.Multer.File, @CurrentFile(WRITE) file: File) {
-        if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
+    return { msg: 'File created', fileID: file._id };
+  }
 
-        if (upfile) {
-            await this.filesService.setFileContent(user, userHash, file, upfile.buffer);
-        } else {
-            throw new BadRequestException("Missing file");
-        }
+  @Put(':fileID')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @UseInterceptors(FilesInterceptor('upfile', 1))
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        ['upfile']: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      required: ['upfile'],
+    },
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({
+    summary: 'Update file content',
+    description: 'Update file content',
+  })
+  @ApiOkResponse({ description: 'File updated', type: GenericResponse })
+  @ApiBadRequestResponse({
+    description: '`fileID` is a folder or `upfile` field is missing',
+    type: GenericResponse,
+  })
+  async updateFileContent(
+    @LoggedUser() user: User,
+    @LoggedUserHash() userHash: string,
+    @UploadedFile('upfile') upfile: Express.Multer.File,
+    @CurrentFile(WRITE) file: File,
+  ) {
+    if (file.type !== FILE)
+      throw new BadRequestException('This action is only available with files');
 
-        return { msg: "File updated" };
+    if (upfile) {
+      await this.filesService.setFileContent(
+        user,
+        userHash,
+        file,
+        upfile.buffer,
+      );
+    } else {
+      throw new BadRequestException('Missing file');
     }
 
-    @Patch(":fileID")
-    @UseGuards(FileGuard)
-    @HttpCode(HttpStatusCode.OK)
-    @ApiParam({ name: "fileID", description: "File ID", example: "f3f36d40-4785-198f-e4a6-2cef906c2aeb" })
-    @ApiOperation({ summary: "Update file metadata", description: "Update file metadata" })
-    @ApiOkResponse({ description: "File informations modified", type: GenericResponse })
-    @ApiBadRequestResponse({ description: "Cannot enable preview on folders", type: GenericResponse })
-    @ApiForbiddenResponse({ description: "The user have to be the owner of the file to edit `preview`, `folderID` and `shareMode` fields", type: GenericResponse })
-    async updateFileMetadata(@LoggedUser() user: User, @Body() editFileMetadataDto: EditFileMetadataDto, @CurrentFile(WRITE) file: File) {
-        const userIsFileOwner = user._id === file.owner_id;
-        const requireIsFileOwner = () => { if (!userIsFileOwner) throw new ForbiddenException() };
+    return { msg: 'File updated' };
+  }
 
-        if (editFileMetadataDto.name) file.name = editFileMetadataDto.name;
+  @Patch(':fileID')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({
+    summary: 'Update file metadata',
+    description: 'Update file metadata',
+  })
+  @ApiOkResponse({
+    description: 'File informations modified',
+    type: GenericResponse,
+  })
+  @ApiBadRequestResponse({
+    description: 'Cannot enable preview on folders',
+    type: GenericResponse,
+  })
+  @ApiForbiddenResponse({
+    description:
+      'The user have to be the owner of the file to edit `preview`, `folderID` and `shareMode` fields',
+    type: GenericResponse,
+  })
+  async updateFileMetadata(
+    @LoggedUser() user: User,
+    @Body() editFileMetadataDto: EditFileMetadataDto,
+    @CurrentFile(WRITE) file: File,
+  ) {
+    const userIsFileOwner = user._id === file.owner_id;
+    const requireIsFileOwner = () => {
+      if (!userIsFileOwner) throw new ForbiddenException();
+    };
 
-        if (editFileMetadataDto.folderID) {
-            requireIsFileOwner();
-            file.parent_file_id = editFileMetadataDto.folderID;
-        }
+    if (editFileMetadataDto.name) file.name = editFileMetadataDto.name;
 
-        if (editFileMetadataDto.preview) {
-            requireIsFileOwner();
-            if (editFileMetadataDto.preview && file.type === FILE) throw new BadRequestException("Preview is not available for folders");
-            file.preview = editFileMetadataDto.preview;
-        }
-
-        if (editFileMetadataDto.shareMode) {
-            requireIsFileOwner();
-            file.shareMode = editFileMetadataDto.shareMode;
-        }
-
-        await this.filesService.save(file);
-        return { msg: "File informations modified" };
+    if (editFileMetadataDto.folderID) {
+      requireIsFileOwner();
+      file.parent_file_id = editFileMetadataDto.folderID;
     }
 
-    @Post(":fileID/copy")
-    @UseGuards(FileGuard)
-    @HttpCode(HttpStatusCode.CREATED)
-    @ApiParam({ name: "fileID", description: "File ID", example: "f3f36d40-4785-198f-e4a6-2cef906c2aeb" })
-    @ApiOperation({ summary: "Create a copy of a file", description: "Create a copy of a file" })
-    @ApiCreatedResponse({ description: "File copied", type: CreateFileResponse })
-    @ApiBadRequestResponse({ description: "Cannot copy a folder", type: GenericResponse })
-    async copy(@LoggedUser({ requireOwner: true }) user: User, @LoggedUserHash() userHash: string, @Body() copyFileDto: CopyFileDto, @CurrentFile(READ) file: File) {
-        if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
-        const copy = await this.filesService.copyFile(user, userHash, file, copyFileDto.copyFileName, copyFileDto.destID);
-        return { msg: "File copied", fileID: copy._id };
+    if (editFileMetadataDto.preview) {
+      requireIsFileOwner();
+      if (editFileMetadataDto.preview && file.type === FILE)
+        throw new BadRequestException('Preview is not available for folders');
+      file.preview = editFileMetadataDto.preview;
     }
 
-    @Get(':fileID/download')
-    @UseGuards(FileGuard)
-    @HttpCode(HttpStatusCode.OK)
-    @ApiParam({ name: "fileID", description: "File ID", example: "f3f36d40-4785-198f-e4a6-2cef906c2aeb" })
-    @ApiProduces("application/octet-stream")
-    @ApiOperation({ summary: "Download a file", description: "Download a file" })
-    @ApiOkResponse({ description: "Success" })
-    @ApiBadRequestResponse({ description: "Cannot download a folder", type: GenericResponse })
-    async download(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @CurrentFile(READ) file: File) {
-        if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
-        res.set('Content-Type', file.mimetype);
-        res.set('Content-Disposition', `attachment; filename="${file.name}"`);
-        res.send(await this.filesService.getFileContent(user, userHash, file));
+    if (editFileMetadataDto.shareMode) {
+      requireIsFileOwner();
+      file.shareMode = editFileMetadataDto.shareMode;
     }
 
-    @Get(':fileID/export')
-    @UseGuards(FileGuard)
-    @HttpCode(HttpStatusCode.OK)
-    @ApiParam({ name: "fileID", description: "File ID", example: "f3f36d40-4785-198f-e4a6-2cef906c2aeb" })
-    @ApiProduces("application/pdf")
-    @ApiOperation({ summary: "Export a file as PDF", description: "Export a file as PDF" })
-    @ApiOkResponse({ description: "Success" })
-    @ApiBadRequestResponse({ description: "Cannot export a folder", type: GenericResponse })
-    async generatePDF(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @CurrentFile(READ) file: File) {
-        if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
+    await this.filesService.save(file);
+    return { msg: 'File informations modified' };
+  }
 
-        let pdfFileName = file.name;
-        if (pdfFileName.indexOf(".") !== -1) {
-            pdfFileName = pdfFileName.substring(0, pdfFileName.lastIndexOf("."));
-        }
-        pdfFileName += ".pdf";
+  @Post(':fileID/copy')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.CREATED)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({
+    summary: 'Create a copy of a file',
+    description: 'Create a copy of a file',
+  })
+  @ApiCreatedResponse({ description: 'File copied', type: CreateFileResponse })
+  @ApiBadRequestResponse({
+    description: 'Cannot copy a folder',
+    type: GenericResponse,
+  })
+  async copy(
+    @LoggedUser({ requireOwner: true }) user: User,
+    @LoggedUserHash() userHash: string,
+    @Body() copyFileDto: CopyFileDto,
+    @CurrentFile(READ) file: File,
+  ) {
+    if (file.type !== FILE)
+      throw new BadRequestException('This action is only available with files');
+    const copy = await this.filesService.copyFile(
+      user,
+      userHash,
+      file,
+      copyFileDto.copyFileName,
+      copyFileDto.destID,
+    );
+    return { msg: 'File copied', fileID: copy._id };
+  }
 
-        res.set('Content-Type', 'application/pdf');
-        res.set('Content-Disposition', `attachment; filename="${pdfFileName}"`);
-        res.send(await this.filesService.generatePDF(user, userHash, file));
+  @Get(':fileID/download')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiProduces('application/octet-stream')
+  @ApiOperation({ summary: 'Download a file', description: 'Download a file' })
+  @ApiOkResponse({ description: 'Success' })
+  @ApiBadRequestResponse({
+    description: 'Cannot download a folder',
+    type: GenericResponse,
+  })
+  async download(
+    @LoggedUser() user: User,
+    @LoggedUserHash() userHash: string,
+    @Res() res: Response,
+    @CurrentFile(READ) file: File,
+  ) {
+    if (file.type !== FILE)
+      throw new BadRequestException('This action is only available with files');
+    res.set('Content-Type', file.mimetype);
+    res.set('Content-Disposition', `attachment; filename="${file.name}"`);
+    res.send(await this.filesService.getFileContent(user, userHash, file));
+  }
+
+  @Get(':fileID/export')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiProduces('application/pdf')
+  @ApiOperation({
+    summary: 'Export a file as PDF',
+    description: 'Export a file as PDF',
+  })
+  @ApiOkResponse({ description: 'Success' })
+  @ApiBadRequestResponse({
+    description: 'Cannot export a folder',
+    type: GenericResponse,
+  })
+  async generatePDF(
+    @LoggedUser() user: User,
+    @LoggedUserHash() userHash: string,
+    @Res() res: Response,
+    @CurrentFile(READ) file: File,
+  ) {
+    if (file.type !== FILE)
+      throw new BadRequestException('This action is only available with files');
+
+    let pdfFileName = file.name;
+    if (pdfFileName.indexOf('.') !== -1) {
+      pdfFileName = pdfFileName.substring(0, pdfFileName.lastIndexOf('.'));
+    }
+    pdfFileName += '.pdf';
+
+    res.set('Content-Type', 'application/pdf');
+    res.set('Content-Disposition', `attachment; filename="${pdfFileName}"`);
+    res.send(await this.filesService.generatePDF(user, userHash, file));
+  }
+
+  @Get(':fileID/preview')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiProduces('image/png')
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({
+    summary: 'Generate PNG preview of a file',
+    description: 'Generate PNG preview of a file',
+  })
+  @ApiOkResponse({ description: 'Success' })
+  @ApiBadRequestResponse({
+    description: 'Cannot generate a preview of a folder',
+    type: GenericResponse,
+  })
+  async generatePngPreview(
+    @LoggedUser() user: User,
+    @LoggedUserHash() userHash: string,
+    @Res() res: Response,
+    @CurrentFile(READ) file: File,
+  ) {
+    if (file.type !== FILE)
+      throw new BadRequestException('This action is only available with files');
+    if (!file.preview) {
+      throw new BadRequestException('Preview is disabled for this file');
     }
 
-    @Get(':fileID/preview')
-    @UseGuards(FileGuard)
-    @HttpCode(HttpStatusCode.OK)
-    @ApiProduces("image/png")
-    @ApiParam({ name: "fileID", description: "File ID", example: "f3f36d40-4785-198f-e4a6-2cef906c2aeb" })
-    @ApiOperation({ summary: "Generate PNG preview of a file", description: "Generate PNG preview of a file" })
-    @ApiOkResponse({ description: "Success" })
-    @ApiBadRequestResponse({ description: "Cannot generate a preview of a folder", type: GenericResponse })
-    async generatePngPreview(@LoggedUser() user: User, @LoggedUserHash() userHash: string, @Res() res: Response, @CurrentFile(READ) file: File) {
-        if (file.type !== FILE) throw new BadRequestException("This action is only available with files");
-        if (!file.preview) {
-            throw new BadRequestException("Preview is disabled for this file");
-        }
-
-        let pngFileName = file.name;
-        if (pngFileName.indexOf(".") !== -1) {
-            pngFileName = pngFileName.substring(0, pngFileName.lastIndexOf("."));
-        }
-        pngFileName += ".pdf";
-
-        res.set('Content-Type', 'image/png');
-        res.set('Content-Disposition', `attachment; filename="${pngFileName}"`);
-        res.send(await this.filesService.generatePngPreview(user, userHash, file));
+    let pngFileName = file.name;
+    if (pngFileName.indexOf('.') !== -1) {
+      pngFileName = pngFileName.substring(0, pngFileName.lastIndexOf('.'));
     }
+    pngFileName += '.pdf';
 
-    @Delete(':fileID')
-    @UseGuards(FileGuard)
-    @HttpCode(HttpStatusCode.OK)
-    @ApiParam({ name: "fileID", description: "File ID", example: "f3f36d40-4785-198f-e4a6-2cef906c2aeb" })
-    @ApiOperation({ summary: "Delete a file", description: "Delete a file" })
-    @ApiOkResponse({ description: "File deleted", type: GenericResponse })
-    async delete(@CurrentFile(OWNER) file: File) {
-        await this.filesService.delete(file);
-        return { msg: "File deleted" };
-    }
+    res.set('Content-Type', 'image/png');
+    res.set('Content-Disposition', `attachment; filename="${pngFileName}"`);
+    res.send(await this.filesService.generatePngPreview(user, userHash, file));
+  }
+
+  @Delete(':fileID')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({ summary: 'Delete a file', description: 'Delete a file' })
+  @ApiOkResponse({ description: 'File deleted', type: GenericResponse })
+  async delete(@CurrentFile(OWNER) file: File) {
+    await this.filesService.delete(file);
+    return { msg: 'File deleted' };
+  }
 }
