@@ -4,7 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { request } from 'express';
 import { Observable, isObservable } from 'rxjs';
 import { SKIP_JWT_AUTH_KEY } from 'src/auth/jwt/skip-jwt-auth.annotation';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from 'src/auth/users.service';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
