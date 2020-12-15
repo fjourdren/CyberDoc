@@ -17,6 +17,10 @@ export class CryptoService {
         return this.aes.decrypt(userHash, user.userKeys.encrypted_private_key);
     }
 
+    async setUserPrivateKey(user: User, userHash: string, privateKey: string) {
+        user.userKeys.encrypted_private_key = this.aes.encrypt(userHash, privateKey);
+    }
+
     getFileAESKey(user: User, userHash: string, fileID: string): string | undefined {
         const encryptedAESKey = user.filesKeys.find(item => item.file_id === fileID)?.encryption_file_key;
         if (!encryptedAESKey) return null;
