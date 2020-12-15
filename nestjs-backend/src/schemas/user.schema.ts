@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { FileTag } from './file-tag.schema';
+import * as mongooseTimestamp from "mongoose-timestamp";
 
 export type UserDocument = User & Document;
 
@@ -62,11 +63,12 @@ export class User {
     })
     role: string;
 
-    @Prop({ required: true })
     created_at: Date;
-
-    @Prop({ required: true })
     updated_at: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+UserSchema.plugin(mongooseTimestamp, {
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'  
+})
