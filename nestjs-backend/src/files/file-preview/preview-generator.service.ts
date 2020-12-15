@@ -1,4 +1,4 @@
-const sharp = require("sharp");
+import * as sharp from "sharp";
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { File } from "src/schemas/file.schema";
 import { GeneratePreviewOptions, generatePreview } from "./filepreview";

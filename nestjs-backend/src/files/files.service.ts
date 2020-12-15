@@ -8,7 +8,7 @@ import { AesService } from 'src/crypto/aes.service';
 import { Types } from 'mongoose';
 import { Utils } from 'src/utils';
 const streamToPromise = require("stream-to-promise");
-const libre = require("libreoffice-convert");
+import * as libreofficeConvert from "libreoffice-convert";
 import { v4 as uuidv4 } from 'uuid';
 import { TEXT_MIMETYPES, DOCUMENT_MIMETYPES, SPREADSHEET_MIMETYPES, PRESENTATION_MIMETYPES, PDF_MIMETYPES, FileType, DIRECTORY_MIMETYPE, ARCHIVE_MIMETYPES } from 'src/files/file-types';
 import { promisify } from 'util';
@@ -207,7 +207,7 @@ export class FilesService {
         ];
 
         if (!validMimetypes.includes(file.mimetype)) throw new BadRequestException("PDF generation is not available for this file")
-        const convertPdfFn = promisify(libre.convert);
+        const convertPdfFn = promisify(libreofficeConvert.convert);
         return await convertPdfFn(await this.getFileContent(user, userHash, file), "pdf", undefined);
     }
 
