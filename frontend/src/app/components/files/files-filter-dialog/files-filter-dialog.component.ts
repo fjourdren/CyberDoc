@@ -12,7 +12,7 @@ import {
   FilesUtilsService,
   FileType,
 } from 'src/app/services/files-utils/files-utils.service';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
   selector: 'app-files-filter-dialog',
@@ -32,15 +32,12 @@ export class FilesFilterDialogComponent {
 
   constructor(
     private filesUtils: FilesUtilsService,
-    private userServiceProvider: UserServiceProvider,
+    private usersService: UsersService,
     public dialogRef: MatDialogRef<FilesFilterDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public searchParams: SearchParams,
   ) {
     this.refreshAllTags();
-    this.userServiceProvider
-      .default()
-      .userUpdated()
-      .subscribe(() => this.refreshAllTags());
+    this.usersService.userUpdated().subscribe(() => this.refreshAllTags());
 
     if (!this.searchParams) {
       this.searchParams = EMPTY_SEARCH_PARAMS;
@@ -56,7 +53,7 @@ export class FilesFilterDialogComponent {
   }
 
   refreshAllTags(): void {
-    this.allTags = this.userServiceProvider.default().getActiveUser().tags;
+    this.allTags = this.usersService.getActiveUser().tags;
   }
 
   updateForm(): void {

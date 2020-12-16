@@ -7,12 +7,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { MustMatch } from './_helpers/must-match.validator';
 import { SecurityCheckDialogComponent } from '../../security-check-dialog/security-check-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { SettingsRenameDeviceDialogComponent } from '../settings-rename-device-dialog/settings-rename-device-dialog.component';
+import { UsersService } from 'src/app/services/users/users.service';
 
 function passwordValidator(): ValidatorFn {
   return (control: AbstractControl): { [key: string]: any } | null => {
@@ -61,7 +61,7 @@ export class SettingsSecurityComponent {
   dataSource = new MatTableDataSource([]);
 
   constructor(
-    private userServiceProvider: UserServiceProvider,
+    private usersService: UsersService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
@@ -103,8 +103,7 @@ export class SettingsSecurityComponent {
             res.recoveryCodesLeft
           ) {
             // Used a recovery code
-            this.userServiceProvider
-              .default()
+            this.usersService
               .updatePassword(
                 this.passwordForm.get('newPassword').value,
                 res.xAuthTokenArray,
@@ -143,8 +142,7 @@ export class SettingsSecurityComponent {
   }
 
   refreshDevice(): void {
-    this.userServiceProvider
-      .default()
+    this.usersService
       .getUserDevices()
       .toPromise()
       .then((value) => {
@@ -154,8 +152,7 @@ export class SettingsSecurityComponent {
 
   downloadRecoveryKey(): void {
     this.loading = true;
-    this.userServiceProvider
-      .default()
+    this.usersService
       .exportRecoveryKey()
       .toPromise()
       .then((recoveryKey) => {
@@ -171,9 +168,9 @@ export class SettingsSecurityComponent {
   exportData(): void {
     const anchor = document.createElement('a');
     anchor.download = `${
-      this.userServiceProvider.default().getActiveUser().email
+      this.usersService.getActiveUser().email
     }-personal-data.txt`;
-    anchor.href = this.userServiceProvider.default().getDataExportURL();
+    anchor.href = this.usersService.getDataExportURL();
     anchor.click();
     anchor.remove();
   }

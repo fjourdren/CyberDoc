@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { UserServiceProvider } from '../../../services/users/user-service-provider';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
   selector: 'app-settings-menu',
@@ -8,7 +8,7 @@ import { UserServiceProvider } from '../../../services/users/user-service-provid
 })
 export class SettingsMenuComponent {
   role: string;
-  constructor(private userServiceProvider: UserServiceProvider) {
-    this.role = userServiceProvider.default().getActiveUser().role;
+  constructor(usersService: UsersService) {
+    this.role = usersService.getActiveUser().role;
   }
 }

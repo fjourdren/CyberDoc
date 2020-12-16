@@ -6,8 +6,6 @@ import {
   MatDialog,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { TwoFactorServiceProvider } from 'src/app/services/twofactor/twofactor-service-provider';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import {
   allCountries as __allCountries,
   PhoneNumberCountry,
@@ -17,6 +15,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { TwoFactorGenerateRecoveryCodesDialogComponent } from '../two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
+import { TwoFactorService } from 'src/app/services/twofactor/twofactor.service';
+import { UsersService } from 'src/app/services/users/users.service';
 
 const phoneNumberUtil = PhoneNumberUtil.getInstance();
 
@@ -58,8 +58,8 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
   constructor(
     private dialogRef: MatDialogRef<TwoFactorEditDialogComponent>,
     private dialog: MatDialog,
-    private twoFAServiceProvider: TwoFactorServiceProvider,
-    private userServiceProvider: UserServiceProvider,
+    private twoFactorService: TwoFactorService,
+    private usersService: UsersService,
     private sanitizer: DomSanitizer,
     private snackBar: MatSnackBar,
     private translateService: TranslateService,
@@ -191,8 +191,7 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
     }
 
     this._setLoading(true);
-    this.twoFAServiceProvider
-      .default()
+    this.twoFactorService
       .sendTokenBySms(phoneNumber)
       .toPromise()
       .then(() => {
@@ -214,9 +213,8 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
 
   private _generateQrCode(): void {
     this._setLoading(true);
-    const email = this.userServiceProvider.default().getActiveUser().email;
-    this.twoFAServiceProvider
-      .default()
+    const email = this.usersService.getActiveUser().email;
+    this.twoFactorService
       .generateSecretUriAndQr(email)
       .toPromise()
       .then((res) => {
@@ -256,14 +254,12 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
   }
 
   private async _update2FAWithApp(xAuthTokenArray: string[]): Promise<void> {
-    const currentUser = this.userServiceProvider.default().getActiveUser();
+    const currentUser = this.usersService.getActiveUser();
     const tokenForm = this.tokenForm.get('token').value;
-    await this.twoFAServiceProvider
-      .default()
+    await this.twoFactorService
       .verifyTokenByApp(this.qrSecret, tokenForm)
       .toPromise();
-    await this.userServiceProvider
-      .default()
+    await this.usersService
       .updateTwoFactor(
         true,
         currentUser.twoFactorSms,
@@ -284,14 +280,12 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
   }
 
   private async _update2FAWithSMS(xAuthTokenArray: string[]): Promise<void> {
-    const currentUser = this.userServiceProvider.default().getActiveUser();
+    const currentUser = this.usersService.getActiveUser();
     const tokenForm = this.tokenForm.get('token').value;
-    await this.twoFAServiceProvider
-      .default()
+    await this.twoFactorService
       .verifyTokenBySms(this.validPhoneNumber, tokenForm)
       .toPromise();
-    await this.userServiceProvider
-      .default()
+    await this.usersService
       .updateTwoFactor(
         currentUser.twoFactorApp,
         true,

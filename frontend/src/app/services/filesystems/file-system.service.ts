@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { EventEmitter } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
@@ -12,10 +12,19 @@ import {
   SearchParams,
 } from 'src/app/models/files-api-models';
 import { DIRECTORY_MIMETYPE } from '../files-utils/files-utils.service';
-import { FileSystem, Upload } from './file-system';
 import { environment } from 'src/environments/environment';
 
-export class RealFileSystem implements FileSystem {
+export interface Upload {
+  filename: string;
+  progress: number;
+  remainingSeconds: number;
+  error: Error;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class FileSystemService {
   private _refreshNeeded$ = new EventEmitter<void>();
   private _currentUpload$ = new EventEmitter<Upload>();
 

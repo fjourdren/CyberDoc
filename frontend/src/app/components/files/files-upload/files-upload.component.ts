@@ -8,9 +8,8 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CloudDirectory } from 'src/app/models/files-api-models';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { FilesNewFolderDialogComponent } from '../files-new-folder-dialog/files-new-folder-dialog.component';
-import { UserServiceProvider } from '../../../services/users/user-service-provider';
+import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
 
 @Component({
   selector: 'app-files-upload',
@@ -26,17 +25,10 @@ export class FilesUploadComponent implements AfterViewInit {
   setTimeoutID: number;
   currentlyUploading = false;
 
-  constructor(
-    private fsProvider: FileSystemProvider,
-    private userServiceProvider: UserServiceProvider,
-    private dialog: MatDialog,
-  ) {
-    fsProvider
-      .default()
-      .getCurrentFileUpload()
-      .subscribe((val) => {
-        this.currentlyUploading = val != undefined;
-      });
+  constructor(private fsService: FileSystemService, private dialog: MatDialog) {
+    fsService.getCurrentFileUpload().subscribe((val) => {
+      this.currentlyUploading = val != undefined;
+    });
   }
 
   @HostListener('document:dragover', ['$event'])
@@ -66,7 +58,7 @@ export class FilesUploadComponent implements AfterViewInit {
   }
 
   uploadSelectedFile(file: File) {
-    this.fsProvider.default().startFileUpload(file, this.currentDirectory);
+    this.fsService.startFileUpload(file, this.currentDirectory);
   }
 
   ngAfterViewInit(): void {

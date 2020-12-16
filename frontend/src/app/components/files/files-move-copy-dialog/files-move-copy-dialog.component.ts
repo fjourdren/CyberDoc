@@ -6,7 +6,7 @@ import {
   CloudFile,
   CloudNode,
 } from 'src/app/models/files-api-models';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
+import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
 import { FilesTableRestrictions } from '../files-generic-table/files-table-restrictions';
 import { MoveCopyDialogModel } from './move-copy-dialog-model';
 
@@ -24,7 +24,7 @@ export class FilesMoveCopyDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<FilesMoveCopyDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: MoveCopyDialogModel,
-    private fsProvider: FileSystemProvider,
+    private fsService: FileSystemService,
     private translate: TranslateService,
   ) {
     this.directoryID = data.initialDirID;
@@ -49,8 +49,7 @@ export class FilesMoveCopyDialogComponent {
     this._directoryID = val;
 
     this.loading = true;
-    this.fsProvider
-      .default()
+    this.fsService
       .get(val)
       .toPromise()
       .then((node) => {
@@ -77,8 +76,7 @@ export class FilesMoveCopyDialogComponent {
   openButtonClicked(node: CloudNode) {
     if (node.isDirectory) {
       this.loading = true;
-      this.fsProvider
-        .default()
+      this.fsService
         .get(node._id)
         .toPromise()
         .then((node) => {
@@ -108,8 +106,7 @@ export class FilesMoveCopyDialogComponent {
         .get('file.copy_new_name', { filename: this.data.node.name })
         .toPromise()
         .then((newName) => {
-          this.fsProvider
-            .default()
+          this.fsService
             .copy(this.data.node as CloudFile, newName, destination)
             .toPromise()
             .then(() => {
@@ -120,8 +117,7 @@ export class FilesMoveCopyDialogComponent {
             });
         });
     } else {
-      this.fsProvider
-        .default()
+      this.fsService
         .move(this.data.node, destination)
         .toPromise()
         .then(() => {

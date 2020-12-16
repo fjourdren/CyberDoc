@@ -5,7 +5,7 @@ import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA,
 } from '@angular/material/bottom-sheet';
-import { UserServiceProvider } from '../../../services/users/user-service-provider';
+import { UsersService } from 'src/app/services/users/users.service';
 
 export interface FilesGenericTableBottomsheetData {
   sharedWithMeMode: boolean;
@@ -27,7 +27,7 @@ export class FilesGenericTableBottomsheetComponent {
     @Inject(MAT_BOTTOM_SHEET_DATA)
     public data: FilesGenericTableBottomsheetData,
     private filesUtils: FilesUtilsService,
-    private userServiceProvider: UserServiceProvider,
+    private usersService: UsersService,
     private ngZone: NgZone,
   ) {
     this.bottomSheetRef
@@ -68,6 +68,6 @@ export class FilesGenericTableBottomsheetComponent {
   }
 
   isOwner(): boolean {
-    return this.userServiceProvider.default().getActiveUser().role === 'owner';
+    return this.usersService.getActiveUser().role === 'owner';
   }
 }

@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { UserService } from './user-service';
-
 import { Observable, of } from 'rxjs';
 import { Device, User } from 'src/app/models/users-api-models';
 import { delay, map } from 'rxjs/operators';
-import { EventEmitter } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { FileTag } from 'src/app/models/files-api-models';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -51,7 +49,10 @@ const USER: User = {
   twoFactorRecoveryCodes: [],
 };
 
-export class MockUserService implements UserService {
+@Injectable({
+  providedIn: 'root',
+})
+export class MockUsersService {
   private _users = new Map<string, User>(); // email -> user
   private _passwords = new Map<string, string>(); // email -> password
   private _userUpdated$ = new EventEmitter<User>();

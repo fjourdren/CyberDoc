@@ -1,7 +1,7 @@
 import { Component, HostListener, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FileTag } from 'src/app/models/files-api-models';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
   selector: 'app-settings-delete-tag-dialog',
@@ -15,7 +15,7 @@ export class SettingsDeleteTagDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<SettingsDeleteTagDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public tag: FileTag,
-    private userServiceProvider: UserServiceProvider,
+    private usersService: UsersService,
   ) {}
 
   @HostListener('keydown', ['$event'])
@@ -28,13 +28,11 @@ export class SettingsDeleteTagDialogComponent {
   onDeleteBtnClicked() {
     this.dialogRef.disableClose = true;
     this.loading = true;
-    this.userServiceProvider
-      .default()
+    this.usersService
       .removeTag(this.tag)
       .toPromise()
       .then(() => {
-        this.userServiceProvider
-          .default()
+        this.usersService
           .refreshActiveUser()
           .toPromise()
           .then(() => {

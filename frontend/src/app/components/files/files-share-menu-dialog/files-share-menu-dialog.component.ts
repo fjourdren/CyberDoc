@@ -4,8 +4,8 @@ import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { CloudFile } from 'src/app/models/files-api-models';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
   selector: 'app-files-share-menu-dialog',
@@ -26,24 +26,21 @@ export class FilesShareMenuDialogComponent {
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<FilesShareMenuDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public file: CloudFile,
-    private fsProvider: FileSystemProvider,
-    private userServiceProvider: UserServiceProvider,
+    private fsService: FileSystemService,
+    private usersService: UsersService,
   ) {
     this.update();
-    fsProvider
-      .default()
-      .refreshNeeded()
-      .subscribe(() => {
-        this.update();
-      });
+    fsService.refreshNeeded().subscribe(() => {
+      this.update();
+    });
   }
 
   update(): void {
     this._setIsLoading(true);
     Promise.all([
-      this.fsProvider.default().get(this.file._id).toPromise(),
-      this.fsProvider.default().getSharedWith(this.file._id).toPromise(),
-      this.fsProvider.default().getSharedWithPending(this.file._id).toPromise(),
+      this.fsService.get(this.file._id).toPromise(),
+      this.fsService.getSharedWith(this.file._id).toPromise(),
+      this.fsService.getSharedWithPending(this.file._id).toPromise(),
     ]).then((values) => {
       this._setIsLoading(false);
       if (!values[0].isDirectory) {
@@ -77,8 +74,7 @@ export class FilesShareMenuDialogComponent {
 
   deleteEntry(email: string): void {
     this._setIsLoading(true);
-    this.fsProvider
-      .default()
+    this.fsService
       .deleteShare(this.file._id, email)
       .toPromise()
       .then(() => {
@@ -102,8 +98,7 @@ export class FilesShareMenuDialogComponent {
 
     // If the email entered is the email of the current user, ignore it
     if (
-      this.userServiceProvider.default().getActiveUser().email ===
-      formField.value.toLowerCase()
+      this.usersService.getActiveUser().email === formField.value.toLowerCase()
     ) {
       return;
     }
@@ -116,8 +111,7 @@ export class FilesShareMenuDialogComponent {
     }
 
     this._setIsLoading(true);
-    this.fsProvider
-      .default()
+    this.fsService
       .share(this.file._id, formField.value.toLowerCase())
       .toPromise()
       .then(() => {
@@ -139,8 +133,7 @@ export class FilesShareMenuDialogComponent {
   updateFileShareMode(): void {
     const shareMode = this.shareModeForm.get('shareMode').value;
     this._setIsLoading(true);
-    this.fsProvider
-      .default()
+    this.fsService
       .setShareMode(this.file, shareMode)
       .toPromise()
       .then(() => {

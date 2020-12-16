@@ -8,9 +8,8 @@ describe('SettingsSecurityPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SettingsSecurityPageComponent ]
-    })
-    .compileComponents();
+      declarations: [SettingsSecurityPageComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

@@ -1,7 +1,7 @@
 import { Component, HostListener, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CloudNode } from 'src/app/models/files-api-models';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
+import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
 
 @Component({
   selector: 'app-files-delete-dialog',
@@ -15,7 +15,7 @@ export class FilesDeleteDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<FilesDeleteDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public node: CloudNode,
-    private fsProvider: FileSystemProvider,
+    private fsService: FileSystemService,
   ) {}
 
   @HostListener('keydown', ['$event'])
@@ -28,8 +28,7 @@ export class FilesDeleteDialogComponent {
   onDeleteBtnClicked() {
     this.dialogRef.disableClose = true;
     this.loading = true;
-    this.fsProvider
-      .default()
+    this.fsService
       .delete(this.node)
       .toPromise()
       .then(() => {

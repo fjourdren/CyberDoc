@@ -1,6 +1,5 @@
 import { Component, HostListener, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { UserServiceProvider } from '../../services/users/user-service-provider';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -9,6 +8,7 @@ import {
 import { TwoFactorCheckDialogComponent } from '../two-factor/two-factor-check-dialog/two-factor-check-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TwoFactorGenerateRecoveryCodesDialogComponent } from '../two-factor/two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
   selector: 'app-delete-account-password-dialog',
@@ -22,7 +22,7 @@ export class SecurityCheckDialogComponent implements OnInit {
   constructor(
     private snackBar: MatSnackBar,
     private fb: FormBuilder,
-    private userServiceProvider: UserServiceProvider,
+    private usersService: UsersService,
     private dialog: MatDialog,
     public verifyPasswordDialog: MatDialogRef<SecurityCheckDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data,
@@ -50,8 +50,7 @@ export class SecurityCheckDialogComponent implements OnInit {
       return;
     }
     const password: string = this.passwordForm.get('password').value;
-    this.userServiceProvider
-      .default()
+    this.usersService
       .validatePassword(password)
       .toPromise()
       .then((isPasswordVerified) => {

@@ -1,11 +1,11 @@
 import { Component, HostListener } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { TwoFactorServiceProvider } from '../../../services/twofactor/twofactor-service-provider';
-import { UserServiceProvider } from '../../../services/users/user-service-provider';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TwoFactorUseRecoveryCodeDialogComponent } from '../two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
+import { TwoFactorService } from 'src/app/services/twofactor/twofactor.service';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
   selector: 'app-two-factor-dialog',
@@ -24,13 +24,13 @@ export class TwoFactorCheckDialogComponent {
   constructor(
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
-    private twoFactorServiceProvider: TwoFactorServiceProvider,
-    private userServiceProvider: UserServiceProvider,
+    private twoFactorService: TwoFactorService,
+    private usersService: UsersService,
     public twoFactorDialog: MatDialogRef<TwoFactorCheckDialogComponent>,
     private dialog: MatDialog,
   ) {
     this.user = this.jwtHelper.decodeToken(
-      this.userServiceProvider.default().getJwtToken(),
+      this.usersService.getJwtToken(),
     ).user;
     if (this.user.twoFactorApp) {
       this.twoFactorType = 'app';
@@ -57,8 +57,7 @@ export class TwoFactorCheckDialogComponent {
     this.loading = true;
     switch (this.twoFactorType) {
       case 'app':
-        this.twoFactorServiceProvider
-          .default()
+        this.twoFactorService
           .verifyTokenByApp(undefined, this.twoFactorForm.get('token').value)
           .toPromise()
           .then(() => {
@@ -79,8 +78,7 @@ export class TwoFactorCheckDialogComponent {
           });
         break;
       case 'sms':
-        this.twoFactorServiceProvider
-          .default()
+        this.twoFactorService
           .verifyTokenBySms(undefined, this.twoFactorForm.get('token').value)
           .toPromise()
           .then(() => {
@@ -105,8 +103,7 @@ export class TwoFactorCheckDialogComponent {
 
   sendTokenBySms(): void {
     this.twoFactorType = 'sms';
-    this.twoFactorServiceProvider
-      .default()
+    this.twoFactorService
       .sendTokenBySms(undefined)
       .toPromise()
       .catch((err) =>

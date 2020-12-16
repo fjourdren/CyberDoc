@@ -7,14 +7,14 @@ import {
   UrlTree,
 } from '@angular/router';
 import { Observable } from 'rxjs';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TwoFactorGuard implements CanActivate {
   constructor(
-    private readonly userServiceProvider: UserServiceProvider,
+    private readonly usersService: UsersService,
     private readonly router: Router,
   ) {}
 
@@ -30,7 +30,7 @@ export class TwoFactorGuard implements CanActivate {
     | UrlTree {
     //TODO replace Promise.resolve
     const isTwoFactorAuthConfiguredPromise = Promise.resolve(
-      this.userServiceProvider.default().getActiveUser() != undefined,
+      this.usersService.getActiveUser() != undefined,
     );
     return isTwoFactorAuthConfiguredPromise.then(
       (isTwoFactorAuthConfigured) => {

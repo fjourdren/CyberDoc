@@ -2,7 +2,7 @@ import { Component, HostListener, Inject } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CloudDirectory } from 'src/app/models/files-api-models';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
+import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
 
 @Component({
   selector: 'app-files-new-folder-dialog',
@@ -16,7 +16,7 @@ export class FilesNewFolderDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<FilesNewFolderDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public parentFolder: CloudDirectory,
-    private fsProvider: FileSystemProvider,
+    private fsService: FileSystemService,
   ) {}
 
   @HostListener('keydown', ['$event'])
@@ -34,8 +34,7 @@ export class FilesNewFolderDialogComponent {
     this.loading = true;
     this.input.disable();
     this.dialogRef.disableClose = true;
-    this.fsProvider
-      .default()
+    this.fsService
       .createDirectory(this.input.value, this.parentFolder)
       .toPromise()
       .then(() => {

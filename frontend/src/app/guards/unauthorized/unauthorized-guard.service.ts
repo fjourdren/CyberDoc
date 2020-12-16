@@ -7,8 +7,8 @@ import {
   UrlTree,
 } from '@angular/router';
 import { Observable } from 'rxjs';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,10 +16,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 export class UnauthorizedGuard implements CanActivate {
   private jwtHelper = new JwtHelperService();
 
-  constructor(
-    private userServiceProvider: UserServiceProvider,
-    private router: Router,
-  ) {}
+  constructor(private usersService: UsersService, private router: Router) {}
 
   canActivate(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -32,10 +29,9 @@ export class UnauthorizedGuard implements CanActivate {
     | boolean
     | UrlTree {
     if (
-      this.userServiceProvider.default().getJwtToken() &&
-      this.jwtHelper.decodeToken(
-        this.userServiceProvider.default().getJwtToken(),
-      ).authorized === false
+      this.usersService.getJwtToken() &&
+      this.jwtHelper.decodeToken(this.usersService.getJwtToken()).authorized ===
+        false
     ) {
       return true;
     } else {

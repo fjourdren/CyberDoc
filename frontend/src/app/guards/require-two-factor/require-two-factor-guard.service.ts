@@ -7,16 +7,13 @@ import {
   UrlTree,
 } from '@angular/router';
 import { Observable } from 'rxjs';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RequireTwoFactorGuard implements CanActivate {
-  constructor(
-    private userServiceProvider: UserServiceProvider,
-    private router: Router,
-  ) {}
+  constructor(private usersService: UsersService, private router: Router) {}
 
   canActivate(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -29,11 +26,11 @@ export class RequireTwoFactorGuard implements CanActivate {
     | boolean
     | UrlTree {
     //TODO
-    if (!this.userServiceProvider.default().getActiveUser()) return false;
+    if (!this.usersService.getActiveUser()) return false;
 
     if (
-      !this.userServiceProvider.default().getActiveUser().twoFactorApp &&
-      !this.userServiceProvider.default().getActiveUser().twoFactorSms
+      !this.usersService.getActiveUser().twoFactorApp &&
+      !this.usersService.getActiveUser().twoFactorSms
     ) {
       return true;
     } else {

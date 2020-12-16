@@ -6,8 +6,8 @@ import {
 } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { CloudFile } from 'src/app/models/files-api-models';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
   selector: 'app-files-sign-dialog',
@@ -25,31 +25,24 @@ export class FilesSignDialogComponent {
     public dialogRef: MatDialogRef<FilesSignDialogComponent>,
     private dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public file: CloudFile,
-    private fsProvider: FileSystemProvider,
-    private userServiceProvider: UserServiceProvider,
+    private fsService: FileSystemService,
+    private usersService: UsersService,
   ) {
     this.update();
-    fsProvider
-      .default()
-      .refreshNeeded()
-      .subscribe(() => {
-        this.update();
-      });
+    fsService.refreshNeeded().subscribe(() => {
+      this.update();
+    });
   }
 
   update() {
-    this.fsProvider
-      .default()
+    this.fsService
       .listSignatories(this.file._id)
       .toPromise()
       .then((values) => {
         this.dataSource.data = values;
         for (const element of values) {
           element.created_at = new Date(element.created_at).toLocaleString();
-          if (
-            element.user_email ===
-            this.userServiceProvider.default().getActiveUser().email
-          ) {
+          if (element.user_email === this.usersService.getActiveUser().email) {
             this.hasAlreadySign = true;
           }
         }
@@ -80,7 +73,7 @@ export class FilesSignConfirmDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<FilesSignConfirmDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public file: CloudFile,
-    private fsProvider: FileSystemProvider,
+    private fsService: FileSystemService,
   ) {}
 
   @HostListener('keydown', ['$event'])
@@ -93,8 +86,7 @@ export class FilesSignConfirmDialogComponent {
   onSignBtnClicked() {
     this.dialogRef.disableClose = true;
     this.loading = true;
-    this.fsProvider
-      .default()
+    this.fsService
       .sign(this.file._id)
       .toPromise()
       .then(() => {

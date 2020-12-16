@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { EventEmitter } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 import {
@@ -17,7 +17,13 @@ import {
   FilesUtilsService,
   FileType,
 } from '../files-utils/files-utils.service';
-import { FileSystem, Upload } from './file-system';
+
+interface Upload {
+  filename: string;
+  progress: number;
+  remainingSeconds: number;
+  error: Error;
+}
 
 interface InternalFileElement {
   parentID?: string;
@@ -36,7 +42,10 @@ const UPLOAD_SPEED = 5000 * 1000; //5mo/s
 const DELAY = 500;
 const OWNER = 'John Doe';
 
-export class MockFileSystem implements FileSystem {
+@Injectable({
+  providedIn: 'root',
+})
+export class MockFileSystemService {
   private filesMap = new Map<string, InternalFileElement>();
   private _refreshNeeded$ = new EventEmitter<void>();
   private _currentUpload$ = new EventEmitter<Upload>();
