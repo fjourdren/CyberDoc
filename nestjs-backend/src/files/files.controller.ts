@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Res,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -46,7 +47,6 @@ import {
 } from '@nestjs/swagger';
 import { GenericResponse } from 'src/generic-response.interceptor';
 import { HttpStatusCode } from 'src/utils/http-status-code';
-import { UploadedFile } from '@nestjs/common';
 import {
   SearchFilesResponse,
   GetResponse,
@@ -125,12 +125,12 @@ export class FilesController {
   async create(
     @LoggedUser({ requireOwner: true }) user: User,
     @LoggedUserHash() userHash: string,
-    @UploadedFile('upfile') upfile: Express.Multer.File,
+    @UploadedFiles() files,
     @Body() uploadFileDto: UploadFileDto,
   ) {
     const newDirectoryMode = uploadFileDto.mimetype === 'application/x-dir';
-    const fileContent: Buffer = upfile?.buffer;
-    if (!newDirectoryMode && !fileContent) {
+    const fileIsPresent = files && files[0];
+    if (!newDirectoryMode && !fileIsPresent) {
       throw new BadRequestException('Missing file');
     }
 
@@ -145,7 +145,7 @@ export class FilesController {
         user,
         userHash,
         file,
-        fileContent,
+        files[0].buffer,
       );
     }
 
@@ -186,18 +186,18 @@ export class FilesController {
   async updateFileContent(
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
-    @UploadedFile('upfile') upfile: Express.Multer.File,
+    @UploadedFiles() files,
     @CurrentFile(WRITE) file: File,
   ) {
     if (file.type !== FILE)
       throw new BadRequestException('This action is only available with files');
 
-    if (upfile) {
+    if (files && files[0]) {
       await this.filesService.setFileContent(
         user,
         userHash,
         file,
-        upfile.buffer,
+        files[0].buffer,
       );
     } else {
       throw new BadRequestException('Missing file');
@@ -243,9 +243,9 @@ export class FilesController {
 
     if (editFileMetadataDto.name) file.name = editFileMetadataDto.name;
 
-    if (editFileMetadataDto.folderID) {
+    if (editFileMetadataDto.directoryID) {
       requireIsFileOwner();
-      file.parent_file_id = editFileMetadataDto.folderID;
+      file.parent_file_id = editFileMetadataDto.directoryID;
     }
 
     if (editFileMetadataDto.preview) {

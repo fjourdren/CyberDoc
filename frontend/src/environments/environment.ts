@@ -7,7 +7,7 @@ export const environment = {
   useSentry: false,
   defaultFSProviderName: "real",
   defaultUserServiceName: "real",
-  apiBaseURL: "http://localhost:3000/v1",
+  apiBaseURL: "http://localhost:3200",
   authCookieDomain: "localhost",
   authCookieName: "access_token",
   userHashCookieName: "user_hash",

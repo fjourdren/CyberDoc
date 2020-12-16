@@ -28,7 +28,7 @@ export class RealFileSystem implements FileSystem {
     constructor(private httpClient: HttpClient) { }
 
     share(fileID: string, email: string): Observable<void> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/files/${fileID}/sharing`, {
+        return this.httpClient.post<any>(`${environment.apiBaseURL}/file-sharing/${fileID}`, {
             email
         }, { withCredentials: true }).pipe(map(response => {
             this._refreshNeeded$.emit();
@@ -36,26 +36,26 @@ export class RealFileSystem implements FileSystem {
     }
 
     getSharedWith(fileID: string): Observable<RespondShare[]> {
-        return this.httpClient.get<any>(`${environment.apiBaseURL}/files/${fileID}/sharing`,
+        return this.httpClient.get<any>(`${environment.apiBaseURL}/file-sharing/${fileID}`,
             { withCredentials: true }).pipe(map(response => {
                 return response.shared_users as RespondShare[];
             }));
     }
 
     getSharedWithPending(fileID: string): Observable<string[]> {
-        return this.httpClient.get<any>(`${environment.apiBaseURL}/files/${fileID}/sharing`,
+        return this.httpClient.get<any>(`${environment.apiBaseURL}/file-sharing/${fileID}`,
             { withCredentials: true }).pipe(map(response => {
                 return response.shared_users_pending as string[];
             }));
     }
 
     deleteShare(fileID: string, email: string): Observable<void> {
-        return this.httpClient.delete<any>(`${environment.apiBaseURL}/files/${fileID}/sharing/${email}`,
+        return this.httpClient.delete<any>(`${environment.apiBaseURL}/file-sharing/${fileID}/${email}`,
             { withCredentials: true }).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     sign(fileID: string): Observable<void> {
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/files/${fileID}/sign`, {}, { withCredentials: true }).pipe(map(response => {
+        return this.httpClient.post<any>(`${environment.apiBaseURL}/file-signing/${fileID}/sign`, {}, { withCredentials: true }).pipe(map(response => {
             this._refreshNeeded$.emit();
         }, null));
     }
@@ -81,7 +81,7 @@ export class RealFileSystem implements FileSystem {
     }
 
     getSharedFiles(): Observable<CloudDirectory> {
-        return this.httpClient.get<any>(`${environment.apiBaseURL}/files/shared`, { withCredentials: true }).pipe(map(response => {
+        return this.httpClient.get<any>(`${environment.apiBaseURL}/file-sharing/shared-files`, { withCredentials: true }).pipe(map(response => {
             const folder = new CloudDirectory();
 
             folder.directoryContent = response.results;
@@ -131,7 +131,13 @@ export class RealFileSystem implements FileSystem {
         }, { withCredentials: true }).pipe(map(response => {
             const folder = new CloudDirectory();
 
-            folder.directoryContent = response.results;
+            const results: CloudNode[] = response.results;
+            const directoryContent = results.map(item => {
+                item.isDirectory = item.mimetype === DIRECTORY_MIMETYPE;
+                return item;
+            })
+
+            folder.directoryContent = directoryContent;
             folder._id = null;
             folder.name = null;
             folder.isDirectory = true;
@@ -183,13 +189,13 @@ export class RealFileSystem implements FileSystem {
 
     addTag(node: CloudNode, tag: FileTag): Observable<void> {
         console.warn(tag);
-        return this.httpClient.post<any>(`${environment.apiBaseURL}/files/${node._id}/tags`, {
+        return this.httpClient.post<any>(`${environment.apiBaseURL}/file-tags/${node._id}`, {
             tagId: tag._id
         }, { withCredentials: true }).pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
     removeTag(node: CloudNode, tag: FileTag): Observable<void> {
-        return this.httpClient.delete<any>(`${environment.apiBaseURL}/files/${node._id}/tags/${tag._id}`, { withCredentials: true })
+        return this.httpClient.delete<any>(`${environment.apiBaseURL}/file-tags/${node._id}/${tag._id}`, { withCredentials: true })
             .pipe(map(response => this._refreshNeeded$.emit(), null));
     }
 
@@ -247,7 +253,7 @@ export class RealFileSystem implements FileSystem {
 
         this._uploadXhr.onreadystatechange = () => {
             if (this._uploadXhr.readyState === XMLHttpRequest.DONE && !this._uploadAborted) {
-                if (this._uploadXhr.status !== 200) {
+                if (this._uploadXhr.status < 200 && this._uploadXhr.status > 299) {
                     this._onXHRFinished(file.name, new Error(`${this._uploadXhr.status} ${this._uploadXhr.statusText}`));
                 } else {
                     this._onXHRFinished(file.name, null);

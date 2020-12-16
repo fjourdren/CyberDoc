@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { GenericResponse } from 'src/generic-response.interceptor';
 import { FileTag } from 'src/schemas/file-tag.schema';
+import { UserRole } from 'src/schemas/user.schema';
 
 //see UserService -> COLUMNS_TO_KEEP_FOR_USER
 export class UserInResponse {
@@ -27,6 +28,13 @@ export class UserInResponse {
 
   @ApiProperty({ description: 'File mimetype', type: [FileTag] })
   tags: FileTag[];
+
+  @ApiProperty({
+    description: 'User role',
+    example: UserRole.OWNER,
+    enum: [UserRole.OWNER, UserRole.COLLABORATOR],
+  })
+  role: string;
 }
 
 export class GetProfileResponse extends GenericResponse {

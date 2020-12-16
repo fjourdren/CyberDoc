@@ -20,6 +20,7 @@ export const COLUMNS_TO_KEEP_FOR_USER = [
   'email',
   'directory_id',
   'tags',
+  'role',
 ];
 
 @Injectable()
