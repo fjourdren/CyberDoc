@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import {UserServiceProvider} from "../../../services/users/user-service-provider";
+import { UserServiceProvider } from '../../../services/users/user-service-provider';
 
 @Component({
   selector: 'app-settings-menu',
   templateUrl: './settings-menu.component.html',
-  styleUrls: ['./settings-menu.component.css']
+  styleUrls: ['./settings-menu.component.css'],
 })
 export class SettingsMenuComponent {
   role: string;

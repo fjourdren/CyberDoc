@@ -1,4 +1,5 @@
-<div style="height: 100%;" (contextmenu)="onContextMenu($event, undefined)" *ngIf="dataSource && dataSource.data.length !== 0">
+<div style="height: 100%;" (contextmenu)="onContextMenu($event, undefined)"
+    *ngIf="dataSource && dataSource.data.length !== 0">
     <table mat-table [dataSource]="dataSource" matSort>
 
         <ng-container matColumnDef="icon">
@@ -115,7 +116,8 @@
             <span>{{ 'fileaction.move' | translate }}</span>
         </button>
         <!-- We can always copy files as an Owner -->
-        <button *ngIf="!selectedNode.isDirectory && isOwner()" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('copy')">
+        <button *ngIf="!selectedNode.isDirectory && isOwner()" mat-menu-item
+            (click)="onContextMenuOrBottomSheetSelection('copy')">
             <mat-icon fontSet="fa" fontIcon="fa-copy"></mat-icon>
             <span>{{ 'fileaction.copy' | translate }}</span>
         </button>
@@ -125,8 +127,7 @@
             <span>{{ 'fileaction.rename' | translate }}</span>
         </button>
         <!-- We can't sign a directory -->
-        <button *ngIf="!selectedNode.isDirectory" mat-menu-item
-            (click)="onContextMenuOrBottomSheetSelection('sign')">
+        <button *ngIf="!selectedNode.isDirectory" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('sign')">
             <mat-icon fontSet="fa" fontIcon="fa-file-signature"></mat-icon>
             <span>{{ 'fileaction.sign' | translate }}</span>
         </button>
@@ -135,6 +136,6 @@
             <mat-icon fontSet="fa" fontIcon="fa-trash"></mat-icon>
             <span>{{ 'fileaction.delete' | translate }}</span>
         </button>
-        
+
     </ng-template>
 </mat-menu>

@@ -8,9 +8,8 @@ describe('SettingsTwofaConfigureDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TwoFactorEditDialogComponent ]
-    })
-    .compileComponents();
+      declarations: [TwoFactorEditDialogComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

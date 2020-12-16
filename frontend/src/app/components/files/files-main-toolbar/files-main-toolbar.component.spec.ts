@@ -8,9 +8,8 @@ describe('FilesMainToolbarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesMainToolbarComponent ]
-    })
-    .compileComponents();
+      declarations: [FilesMainToolbarComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

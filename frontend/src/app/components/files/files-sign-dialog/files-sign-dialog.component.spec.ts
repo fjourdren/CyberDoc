@@ -8,9 +8,8 @@ describe('FilesSignDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesSignDialogComponent ]
-    })
-    .compileComponents();
+      declarations: [FilesSignDialogComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

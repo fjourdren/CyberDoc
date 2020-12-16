@@ -5,21 +5,23 @@
     </div>
 
     <div *ngIf="node && isPreviewAvailable(node) && node.preview" id="filepreview">
-        <img [ngStyle]="{'display': previewLoaded ? 'initial': 'none'}" (error)="previewError = true" (load)="previewLoaded = true" [src]="getFilePreviewImageURL()">
+        <img [ngStyle]="{'display': previewLoaded ? 'initial': 'none'}" (error)="previewError = true"
+            (load)="previewLoaded = true" [src]="getFilePreviewImageURL()">
 
         <div id="filepreview-loading" *ngIf="!previewLoaded && !previewError">
             <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-            <div>{{ 'file.loading_preview' | translate }}</div>    
-        </div>    
+            <div>{{ 'file.loading_preview' | translate }}</div>
+        </div>
 
         <div id="filepreview-loading" *ngIf="!previewLoaded && previewError">
-            <div>{{ 'file.error_loading_preview' | translate }}</div>    
-        </div>    
+            <div>{{ 'file.error_loading_preview' | translate }}</div>
+        </div>
 
     </div>
 
-    <mat-slide-toggle *ngIf="node && isPreviewAvailable(node) && !sharedWithMeMode" (change)="onPreviewToggleChange($event)"
-                      [checked]="node.preview">{{ 'file.preview' | translate }}</mat-slide-toggle>
+    <mat-slide-toggle *ngIf="node && isPreviewAvailable(node) && !sharedWithMeMode"
+        (change)="onPreviewToggleChange($event)" [checked]="node.preview">{{ 'file.preview' | translate }}
+    </mat-slide-toggle>
 
     <table id="details-table">
         <tr *ngIf="!node.isDirectory">
@@ -49,7 +51,7 @@
     </div>
 
     <app-files-tags-input [allTags]="allTags" [selectedTags]="nodeTags" (tagAdded)="onTagAdded($event)"
-                          (tagRemoved)="onTagRemoved($event)" (newTagCreated)="createNewTag($event)" *ngIf="!sharedWithMeMode">
+        (tagRemoved)="onTagRemoved($event)" (newTagCreated)="createNewTag($event)" *ngIf="!sharedWithMeMode">
     </app-files-tags-input>
 
 </div>

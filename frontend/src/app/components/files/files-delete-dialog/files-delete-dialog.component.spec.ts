@@ -8,9 +8,8 @@ describe('FilesDeleteDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesDeleteDialogComponent ]
-    })
-    .compileComponents();
+      declarations: [FilesDeleteDialogComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

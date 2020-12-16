@@ -92,7 +92,10 @@ import { TwoFactorEditDialogComponent } from './components/two-factor/two-factor
 import { TwoFactorEditComponent } from './components/two-factor/two-factor-edit/two-factor-edit.component';
 import { DevicePageComponent } from './pages/device-page/device-page.component';
 import { SettingsRenameDeviceDialogComponent } from './components/settings/settings-rename-device-dialog/settings-rename-device-dialog.component';
-import { FilesSignDialogComponent, FilesSignConfirmDialogComponent } from './components/files/files-sign-dialog/files-sign-dialog.component';
+import {
+  FilesSignDialogComponent,
+  FilesSignConfirmDialogComponent,
+} from './components/files/files-sign-dialog/files-sign-dialog.component';
 import { TwoFactorGenerateRecoveryCodesDialogComponent } from './components/two-factor/two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
 import { TwoFactorUseRecoveryCodeDialogComponent } from './components/two-factor/two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
@@ -100,160 +103,167 @@ import { FilesOpenDialogComponent } from './components/files/files-open-dialog/f
 import { GtagModule } from 'angular-gtag';
 
 // AoT requires an exported function for factories
-export const HttpLoaderFactory = (httpClient: HttpClient) => new TranslateHttpLoader(httpClient);
+export const HttpLoaderFactory = (httpClient: HttpClient) =>
+  new TranslateHttpLoader(httpClient);
 
 const FILES_COMPONENTS = [
-    FilesDetailsPanelComponent,
-    FilesTreeviewComponent,
-    FilesMainToolbarComponent,
-    FilesUploadProgressSnackbarComponent,
-    FilesBreadcrumbComponent,
-    FilesMoveCopyDialogComponent,
-    FilesRenameDialogComponent,
-    FilesDeleteDialogComponent,
-    FilesNewFolderDialogComponent,
-    FilesUploadComponent,
-    FilesGenericTableComponent,
-    FilesGenericTableBottomsheetComponent,
-    FilesTagsInputComponent,
-    FilesFilterDialogComponent
+  FilesDetailsPanelComponent,
+  FilesTreeviewComponent,
+  FilesMainToolbarComponent,
+  FilesUploadProgressSnackbarComponent,
+  FilesBreadcrumbComponent,
+  FilesMoveCopyDialogComponent,
+  FilesRenameDialogComponent,
+  FilesDeleteDialogComponent,
+  FilesNewFolderDialogComponent,
+  FilesUploadComponent,
+  FilesGenericTableComponent,
+  FilesGenericTableBottomsheetComponent,
+  FilesTagsInputComponent,
+  FilesFilterDialogComponent,
 ];
 
 const SETTINGS_COMPONENTS = [
-    SettingsMenuComponent,
-    SettingsProfileComponent,
-    SettingsSecurityComponent,
-    SettingsMainToolbarComponent
+  SettingsMenuComponent,
+  SettingsProfileComponent,
+  SettingsSecurityComponent,
+  SettingsMainToolbarComponent,
 ];
 
 const LOCAL_ERROR_HANDLER = [
-    { provide: ErrorHandler, useClass: GlobalErrorHandler }
+  { provide: ErrorHandler, useClass: GlobalErrorHandler },
 ];
 
 const SENTRY_ERROR_HANDLER = [
-    { provide: ErrorHandler, useClass: GlobalErrorHandler },
-    {
-        provide: ErrorHandler,
-        useValue: Sentry.createErrorHandler({
-            showDialog: false,
-        }),
-    },
-    {
-        provide: Sentry.TraceService,
-        deps: [Router],
-    },
-    {
-        provide: APP_INITIALIZER,
-        useFactory: () => () => {
-        },
-        deps: [Sentry.TraceService],
-        multi: true,
-    },
+  { provide: ErrorHandler, useClass: GlobalErrorHandler },
+  {
+    provide: ErrorHandler,
+    useValue: Sentry.createErrorHandler({
+      showDialog: false,
+    }),
+  },
+  {
+    provide: Sentry.TraceService,
+    deps: [Router],
+  },
+  {
+    provide: APP_INITIALIZER,
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    useFactory: () => () => {},
+    deps: [Sentry.TraceService],
+    multi: true,
+  },
 ];
 
 let ERROR_HANDLER;
 
 if (environment.useSentry) {
-    ERROR_HANDLER = SENTRY_ERROR_HANDLER;
+  ERROR_HANDLER = SENTRY_ERROR_HANDLER;
 } else {
-    ERROR_HANDLER = LOCAL_ERROR_HANDLER;
+  ERROR_HANDLER = LOCAL_ERROR_HANDLER;
 }
 
-let ANALYTICS = [];
+const ANALYTICS = [];
 if (environment.gaTrackingID) {
-    console.warn(`analytics ON, gaTrackingID=${environment.gaTrackingID}`);
-    ANALYTICS.push(GtagModule.forRoot({ trackingId: environment.gaTrackingID, trackPageviews: true }))
+  console.warn(`analytics ON, gaTrackingID=${environment.gaTrackingID}`);
+  ANALYTICS.push(
+    GtagModule.forRoot({
+      trackingId: environment.gaTrackingID,
+      trackPageviews: true,
+    }),
+  );
 } else {
-    console.warn("analytics OFF");
+  console.warn('analytics OFF');
 }
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        ...FILES_COMPONENTS,
-        RemainingTimePipe,
-        FilesPageComponent,
-        NotFoundPageComponent,
-        RegisterPageComponent,
-        LoginPageComponent,
-        LogoutPageComponent,
-        ...SETTINGS_COMPONENTS,
-        SettingsProfilePageComponent,
-        SettingsSecurityPageComponent,
-        UnhandledErrorDialogComponent,
-        FilesFilterToolbarComponent,
-        FilesShareMenuDialogComponent,
-        PasswordRecoveryPageComponent,
-        ResetPasswordPageComponent,
-        TwoFactorLoginPageComponent,
-        TwoFactorRegisterPageComponent,
-        SettingsDeleteTagDialogComponent,
-        SettingsCreateEditTagDialogComponent,
-        SecurityCheckDialogComponent,
-        TwoFactorCheckDialogComponent,
-        TwoFactorEditDialogComponent,
-        TwoFactorEditComponent,
-        TwoFactorGenerateRecoveryCodesDialogComponent,
-        TwoFactorUseRecoveryCodeDialogComponent,
-        DevicePageComponent,
-        SettingsRenameDeviceDialogComponent,
-        FilesSignDialogComponent,
-        FilesSignConfirmDialogComponent,
-        ExportRecoveryKeyPageComponent,
-        FilesOpenDialogComponent,
-    ],
-    imports: [
-        BrowserModule,
-        HttpClientModule,
-        TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient]
-            }
-        }),
-        FormsModule,
-        ReactiveFormsModule,
-        AppRoutingModule,
-        BrowserAnimationsModule,
-        ClipboardModule,
-        MatSortModule,
-        MatTableModule,
-        MatIconModule,
-        MatToolbarModule,
-        MatButtonModule,
-        MatTreeModule,
-        MatSnackBarModule,
-        MatSidenavModule,
-        MatInputModule,
-        MatCardModule,
-        MatProgressBarModule,
-        MatListModule,
-        MatFormFieldModule,
-        MatMenuModule,
-        MatBottomSheetModule,
-        MatDialogModule,
-        MatSlideToggleModule,
-        MatProgressSpinnerModule,
-        MatChipsModule,
-        MatAutocompleteModule,
-        MatSelectModule,
-        MatExpansionModule,
-        NgxFilesizeModule,
-        NgResizeObserverPonyfillModule,
-        LayoutModule,
-        MatRadioModule,
-        ...ANALYTICS,
-        ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
-    ],
-    providers: [
-        ...ERROR_HANDLER,
-        CookieService,
-        FileSystemProvider,
-        UserServiceProvider,
-        FilesUtilsService
-    ],
-    bootstrap: [AppComponent]
+  declarations: [
+    AppComponent,
+    ...FILES_COMPONENTS,
+    RemainingTimePipe,
+    FilesPageComponent,
+    NotFoundPageComponent,
+    RegisterPageComponent,
+    LoginPageComponent,
+    LogoutPageComponent,
+    ...SETTINGS_COMPONENTS,
+    SettingsProfilePageComponent,
+    SettingsSecurityPageComponent,
+    UnhandledErrorDialogComponent,
+    FilesFilterToolbarComponent,
+    FilesShareMenuDialogComponent,
+    PasswordRecoveryPageComponent,
+    ResetPasswordPageComponent,
+    TwoFactorLoginPageComponent,
+    TwoFactorRegisterPageComponent,
+    SettingsDeleteTagDialogComponent,
+    SettingsCreateEditTagDialogComponent,
+    SecurityCheckDialogComponent,
+    TwoFactorCheckDialogComponent,
+    TwoFactorEditDialogComponent,
+    TwoFactorEditComponent,
+    TwoFactorGenerateRecoveryCodesDialogComponent,
+    TwoFactorUseRecoveryCodeDialogComponent,
+    DevicePageComponent,
+    SettingsRenameDeviceDialogComponent,
+    FilesSignDialogComponent,
+    FilesSignConfirmDialogComponent,
+    ExportRecoveryKeyPageComponent,
+    FilesOpenDialogComponent,
+  ],
+  imports: [
+    BrowserModule,
+    HttpClientModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient],
+      },
+    }),
+    FormsModule,
+    ReactiveFormsModule,
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    ClipboardModule,
+    MatSortModule,
+    MatTableModule,
+    MatIconModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatTreeModule,
+    MatSnackBarModule,
+    MatSidenavModule,
+    MatInputModule,
+    MatCardModule,
+    MatProgressBarModule,
+    MatListModule,
+    MatFormFieldModule,
+    MatMenuModule,
+    MatBottomSheetModule,
+    MatDialogModule,
+    MatSlideToggleModule,
+    MatProgressSpinnerModule,
+    MatChipsModule,
+    MatAutocompleteModule,
+    MatSelectModule,
+    MatExpansionModule,
+    NgxFilesizeModule,
+    NgResizeObserverPonyfillModule,
+    LayoutModule,
+    MatRadioModule,
+    ...ANALYTICS,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+    }),
+  ],
+  providers: [
+    ...ERROR_HANDLER,
+    CookieService,
+    FileSystemProvider,
+    UserServiceProvider,
+    FilesUtilsService,
+  ],
+  bootstrap: [AppComponent],
 })
-export class AppModule {
-}
+export class AppModule {}

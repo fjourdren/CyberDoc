@@ -1,77 +1,87 @@
-import {Component, Input} from '@angular/core';
-import {Router} from '@angular/router';
-import {FileTag, NO_DATEDIFF_DEFAULT, NO_TYPE_FILTER, SearchParams} from 'src/app/models/files-api-models';
-import {AppUtilsService} from 'src/app/services/app-utils/app-utils.service';
-import {FilesUtilsService, FileType} from 'src/app/services/files-utils/files-utils.service';
-import {UserServiceProvider} from 'src/app/services/users/user-service-provider';
+import { Component, Input } from '@angular/core';
+import { Router } from '@angular/router';
+import {
+  FileTag,
+  NO_DATEDIFF_DEFAULT,
+  NO_TYPE_FILTER,
+  SearchParams,
+} from 'src/app/models/files-api-models';
+import { AppUtilsService } from 'src/app/services/app-utils/app-utils.service';
+import {
+  FilesUtilsService,
+  FileType,
+} from 'src/app/services/files-utils/files-utils.service';
+import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 
 @Component({
-    selector: 'app-files-filter-toolbar',
-    templateUrl: './files-filter-toolbar.component.html',
-    styleUrls: ['./files-filter-toolbar.component.css']
+  selector: 'app-files-filter-toolbar',
+  templateUrl: './files-filter-toolbar.component.html',
+  styleUrls: ['./files-filter-toolbar.component.css'],
 })
 export class FilesFilterToolbarComponent {
+  private _searchParams: SearchParams;
+  tags: FileTag[] = [];
 
-    private _searchParams: SearchParams;
-    tags: FileTag[] = [];
+  get searchParams() {
+    return this._searchParams;
+  }
 
-    get searchParams() {
-        return this._searchParams;
+  @Input() set searchParams(val: SearchParams) {
+    this._searchParams = val;
+
+    this.tags = [];
+    for (const tag of this.userServiceProvider.default().getActiveUser().tags) {
+      if (val.tagIDs.indexOf(tag._id) !== -1) {
+        this.tags.push(tag);
+      }
     }
+  }
 
-    @Input() set searchParams(val: SearchParams) {
-        this._searchParams = val;
+  constructor(
+    private userServiceProvider: UserServiceProvider,
+    private appUtis: AppUtilsService,
+    private router: Router,
+    private filesUtils: FilesUtilsService,
+  ) {}
 
-        this.tags = [];
-        for (const tag of this.userServiceProvider.default().getActiveUser().tags) {
-            if (val.tagIDs.indexOf(tag._id) !== -1) {
-                this.tags.push(tag);
-            }
-        }
-    }
+  getIconForFileType(type: string): string {
+    return this.filesUtils.getFontAwesomeIcon(FileType[type]);
+  }
 
-    constructor(private userServiceProvider: UserServiceProvider,
-                private appUtis: AppUtilsService,
-                private router: Router,
-                private filesUtils: FilesUtilsService) {
-    }
+  getTranslationForFileType(type: string): string {
+    return this.filesUtils.fileTypeToString(FileType[type]);
+  }
 
-    getIconForFileType(type: string): string {
-        return this.filesUtils.getFontAwesomeIcon(FileType[type]);
-    }
+  getTranslationForDateDiff(dateDiff: number): string {
+    return `datediff.${dateDiff}`;
+  }
 
-    getTranslationForFileType(type: string): string {
-        return this.filesUtils.fileTypeToString(FileType[type]);
-    }
+  computeTextColor(hexColor: string): string {
+    return this.appUtis.computeTextColor(hexColor);
+  }
 
-    getTranslationForDateDiff(dateDiff: number): string {
-        return `datediff.${dateDiff}`;
-    }
+  isTypeFilterUsed(searchParams: SearchParams): boolean {
+    return searchParams.type !== NO_TYPE_FILTER;
+  }
 
-    computeTextColor(hexColor: string): string {
-        return this.appUtis.computeTextColor(hexColor);
-    }
+  isDateDiffFilterUser(searchParams: SearchParams): boolean {
+    return searchParams.dateDiff !== NO_DATEDIFF_DEFAULT;
+  }
 
-    isTypeFilterUsed(searchParams: SearchParams): boolean {
-        return searchParams.type !== NO_TYPE_FILTER;
-    }
+  removeTypeFilter(): void {
+    this.searchParams.type = NO_TYPE_FILTER;
+    this.router.navigate(['/files-search', JSON.stringify(this.searchParams)]);
+  }
 
-    isDateDiffFilterUser(searchParams: SearchParams): boolean {
-        return searchParams.dateDiff !== NO_DATEDIFF_DEFAULT;
-    }
+  removeDateDiffFilter(): void {
+    this.searchParams.dateDiff = NO_DATEDIFF_DEFAULT;
+    this.router.navigate(['/files-search', JSON.stringify(this.searchParams)]);
+  }
 
-    removeTypeFilter(): void {
-        this.searchParams.type = NO_TYPE_FILTER;
-        this.router.navigate(['/files-search', JSON.stringify(this.searchParams)]);
-    }
-
-    removeDateDiffFilter(): void {
-        this.searchParams.dateDiff = NO_DATEDIFF_DEFAULT;
-        this.router.navigate(['/files-search', JSON.stringify(this.searchParams)]);
-    }
-
-    removeTagFilter(tagID: string): void {
-        this.searchParams.tagIDs = this.searchParams.tagIDs.filter(val => val !== tagID);
-        this.router.navigate(['/files-search', JSON.stringify(this.searchParams)]);
-    }
+  removeTagFilter(tagID: string): void {
+    this.searchParams.tagIDs = this.searchParams.tagIDs.filter(
+      (val) => val !== tagID,
+    );
+    this.router.navigate(['/files-search', JSON.stringify(this.searchParams)]);
+  }
 }

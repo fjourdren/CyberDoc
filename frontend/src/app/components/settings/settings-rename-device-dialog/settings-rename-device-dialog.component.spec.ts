@@ -8,9 +8,8 @@ describe('SettingsRenameDeviceDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SettingsRenameDeviceDialogComponent ]
-    })
-    .compileComponents();
+      declarations: [SettingsRenameDeviceDialogComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

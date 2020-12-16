@@ -8,9 +8,8 @@ describe('TwoFactorEditComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TwoFactorEditComponent ]
-    })
-    .compileComponents();
+      declarations: [TwoFactorEditComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

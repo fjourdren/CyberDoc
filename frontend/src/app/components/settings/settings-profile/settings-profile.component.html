@@ -7,17 +7,20 @@
 	<mat-card-content>
 		<form [formGroup]="profileForm">
 			<mat-form-field>
-				<input type="text" matInput formControlName="firstName" placeholder="{{'accounts.first_name' | translate}}">
+				<input type="text" matInput formControlName="firstName"
+					placeholder="{{'accounts.first_name' | translate}}">
 			</mat-form-field>
 			<mat-form-field>
-				<input type="text" matInput formControlName="lastName" placeholder="{{'accounts.last_name' | translate}}">
+				<input type="text" matInput formControlName="lastName"
+					placeholder="{{'accounts.last_name' | translate}}">
 			</mat-form-field>
 			<mat-form-field>
 				<input type="email" matInput formControlName="newEmail" placeholder="{{'general.email' | translate}}">
 			</mat-form-field>
 		</form>
 		<button mat-flat-button color="primary" type="submit" (click)="updateProfile()"
-			[disabled]="profileForm.invalid || !(profileForm.controls['firstName'].dirty  || profileForm.controls['lastName'].dirty || profileForm.controls['newEmail'].dirty ) || loading">{{'general.update' | translate}}</button>
+			[disabled]="profileForm.invalid || !(profileForm.controls['firstName'].dirty  || profileForm.controls['lastName'].dirty || profileForm.controls['newEmail'].dirty ) || loading">{{'general.update'
+			| translate}}</button>
 	</mat-card-content>
 </mat-card>
 
@@ -81,10 +84,11 @@
 				<mat-icon mat-card-avatar>delete</mat-icon>
 				<mat-card-title>{{'settings.user_delete_card_title' | translate}}</mat-card-title>
 				<mat-card-subtitle>{{'settings.user_delete_card_subtitle' | translate}}</mat-card-subtitle>
-					</mat-card-header>
+			</mat-card-header>
 			<mat-card-content>
 				<button id="delete-account-btn" [disabled]="loading" (click)="deleteAccount()" mat-flat-button
-					color="warn">{{'settings.user_delete_card_title' | translate}}</button> </mat-card-content>
+					color="warn">{{'settings.user_delete_card_title' | translate}}</button>
+			</mat-card-content>
 		</mat-card>
 	</mat-expansion-panel>
 </mat-accordion>

@@ -8,33 +8,41 @@ import { environment } from '../../../environments/environment';
 import { Gtag } from 'angular-gtag';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserServiceProvider {
-    private _instances = new Map<string, UserService>();
+  private _instances = new Map<string, UserService>();
 
-    constructor(private httpClient: HttpClient, private cookieService: CookieService, @Inject(undefined) @Optional() private gtag: Gtag | undefined){}
+  constructor(
+    private httpClient: HttpClient,
+    private cookieService: CookieService,
+    @Inject(undefined) @Optional() private gtag: Gtag | undefined,
+  ) {}
 
-    default(): UserService {
-        return this.get(environment.defaultUserServiceName);
+  default(): UserService {
+    return this.get(environment.defaultUserServiceName);
+  }
+
+  get(providerName: string): UserService {
+    if (!this._instances.has(providerName)) {
+      this._instances.set(providerName, this._createInstance(providerName));
     }
+    return this._instances.get(providerName);
+  }
 
-    get(providerName: string): UserService {
-        if (!this._instances.has(providerName)){
-            this._instances.set(providerName, this._createInstance(providerName));
-        }
-        return this._instances.get(providerName);
+  private _createInstance(providerName: string) {
+    console.log(providerName);
+    switch (providerName) {
+      case 'mock':
+        return new MockUserService();
+      case 'real':
+        return new RealUserService(
+          this.httpClient,
+          this.cookieService,
+          this.gtag,
+        );
+      default:
+        throw new Error(`Unknown UserService provider : ${providerName}`);
     }
-
-    private _createInstance(providerName: string){
-        console.log(providerName);
-        switch (providerName){
-            case 'mock':
-                return new MockUserService();
-            case 'real':
-                return new RealUserService(this.httpClient, this.cookieService, this.gtag);
-            default:
-                throw new Error(`Unknown UserService provider : ${providerName}`);
-        }
-    }
+  }
 }
