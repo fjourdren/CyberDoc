@@ -36,14 +36,14 @@ import { HttpStatusCode } from 'src/utils/http-status-code';
 
 @ApiTags('file-sharing')
 @ApiBearerAuth()
-@Controller('files')
+@Controller('file-sharing')
 export class FileSharingController {
   constructor(
     private readonly filesService: FilesService,
     private readonly fileSharingService: FileSharingService,
   ) {}
 
-  @Get('shared')
+  @Get('shared-files')
   @HttpCode(HttpStatusCode.OK)
   @ApiOperation({
     summary: 'Get all files shared with the user',
@@ -64,7 +64,7 @@ export class FileSharingController {
     return { msg: 'Success', results };
   }
 
-  @Get(':fileID/sharing')
+  @Get(':fileID')
   @UseGuards(FileGuard)
   @HttpCode(HttpStatusCode.OK)
   @ApiParam({
@@ -99,7 +99,7 @@ export class FileSharingController {
     };
   }
 
-  @Post(':fileID/sharing')
+  @Post(':fileID')
   @UseGuards(FileGuard)
   @HttpCode(HttpStatusCode.CREATED)
   @ApiParam({
@@ -141,7 +141,7 @@ export class FileSharingController {
     return { msg: 'Success' };
   }
 
-  @Delete(':fileID/sharing/:email')
+  @Delete(':fileID/:email')
   @UseGuards(FileGuard)
   @HttpCode(HttpStatusCode.OK)
   @ApiParam({

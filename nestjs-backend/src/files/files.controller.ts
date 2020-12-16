@@ -53,7 +53,7 @@ import {
   CreateFileResponse,
 } from './files.controller.types';
 
-@ApiTags('file')
+@ApiTags('files')
 @ApiBearerAuth()
 @Controller('files')
 export class FilesController {

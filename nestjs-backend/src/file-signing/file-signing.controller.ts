@@ -25,7 +25,7 @@ import { HttpStatusCode } from 'src/utils/http-status-code';
 
 @ApiTags('file-signing')
 @ApiBearerAuth()
-@Controller('files')
+@Controller('file-signing')
 export class FileSigningController {
   constructor(private readonly fileSigningService: FileSigningService) {}
 
