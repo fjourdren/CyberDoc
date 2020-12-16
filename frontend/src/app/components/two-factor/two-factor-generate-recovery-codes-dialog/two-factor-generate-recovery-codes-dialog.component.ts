@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { TwoFactorServiceProvider } from '../../../services/twofactor/twofactor-service-provider';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { UserServiceProvider } from '../../../services/users/user-service-provider';
+import { TwoFactorService } from 'src/app/services/twofactor/twofactor.service';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
   selector: 'app-two-factor-dialog',
@@ -14,16 +14,15 @@ export class TwoFactorGenerateRecoveryCodesDialogComponent implements OnInit {
   loading: boolean;
 
   constructor(
-    private twoFactorServiceProvider: TwoFactorServiceProvider,
-    private userServiceProvider: UserServiceProvider,
+    private twoFactorService: TwoFactorService,
+    private usersService: UsersService,
     public dialogRef: MatDialogRef<TwoFactorGenerateRecoveryCodesDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data,
   ) {}
 
   ngOnInit(): void {
     // Generates 5 recovery codes
-    this.twoFactorServiceProvider
-      .default()
+    this.twoFactorService
       .generateRecoveryCodes()
       .toPromise()
       .then((codes) => {
@@ -43,7 +42,7 @@ export class TwoFactorGenerateRecoveryCodesDialogComponent implements OnInit {
     this.loading = false;
     const anchor = document.createElement('a');
     anchor.download = `${
-      this.userServiceProvider.default().getActiveUser().email
+      this.usersService.getActiveUser().email
     }-recovery-codes_${new Date().getTime()}.txt`;
     anchor.href = this.link;
     anchor.click();

@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { TwoFactorService } from './twofactor-service';
-
 import { Observable, of } from 'rxjs';
+import { Injectable } from '@angular/core';
 
-export class MockTwoFactorService implements TwoFactorService {
+@Injectable({
+  providedIn: 'root',
+})
+export class MockTwoFactorService {
   sendTokenBySms(phoneNumber: string): Observable<void> {
     return of(null);
   }

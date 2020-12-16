@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TwoFactorEditDialogComponent } from '../two-factor-edit-dialog/two-factor-edit-dialog.component';
-import { UserServiceProvider } from '../../../services/users/user-service-provider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TwoFactorGenerateRecoveryCodesDialogComponent } from '../two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
 import { SecurityCheckDialogComponent } from '../../security-check-dialog/security-check-dialog.component';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
   selector: 'app-two-factor-edit',
@@ -19,7 +19,7 @@ export class TwoFactorEditComponent {
   twoFactorSms: boolean;
 
   constructor(
-    private userServiceProvider: UserServiceProvider,
+    private usersService: UsersService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
   ) {
@@ -27,12 +27,8 @@ export class TwoFactorEditComponent {
   }
 
   refresh(): void {
-    this.twoFactorApp = this.userServiceProvider
-      .default()
-      .getActiveUser().twoFactorApp;
-    this.twoFactorSms = this.userServiceProvider
-      .default()
-      .getActiveUser().twoFactorSms;
+    this.twoFactorApp = this.usersService.getActiveUser().twoFactorApp;
+    this.twoFactorSms = this.usersService.getActiveUser().twoFactorSms;
     this.twoFactorAppEvent.emit(this.twoFactorApp);
     this.twoFactorSmsEvent.emit(this.twoFactorSms);
   }
@@ -55,21 +51,17 @@ export class TwoFactorEditComponent {
               if (res) {
                 if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) {
                   // password:appOrSms:2faToken
-                  this.userServiceProvider
-                    .default()
+                  this.usersService
                     .updateTwoFactor(
-                      !this.userServiceProvider.default().getActiveUser()
-                        .twoFactorApp,
-                      this.userServiceProvider.default().getActiveUser()
-                        .twoFactorSms,
+                      !this.usersService.getActiveUser().twoFactorApp,
+                      this.usersService.getActiveUser().twoFactorSms,
                       undefined,
                       undefined,
                       res.xAuthTokenArray,
                     )
                     .toPromise()
                     .then(() => {
-                      this.userServiceProvider
-                        .default()
+                      this.usersService
                         .refreshActiveUser()
                         .toPromise()
                         .then(() => {
@@ -118,8 +110,7 @@ export class TwoFactorEditComponent {
                 .toPromise()
                 .then((res) => {
                   if (res) {
-                    this.userServiceProvider
-                      .default()
+                    this.usersService
                       .refreshActiveUser()
                       .toPromise()
                       .then(() => {
@@ -175,21 +166,17 @@ export class TwoFactorEditComponent {
               if (res) {
                 if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) {
                   // password:2faType:2faToken
-                  this.userServiceProvider
-                    .default()
+                  this.usersService
                     .updateTwoFactor(
-                      this.userServiceProvider.default().getActiveUser()
-                        .twoFactorApp,
-                      !this.userServiceProvider.default().getActiveUser()
-                        .twoFactorSms,
+                      this.usersService.getActiveUser().twoFactorApp,
+                      !this.usersService.getActiveUser().twoFactorSms,
                       undefined,
                       undefined,
                       res.xAuthTokenArray,
                     )
                     .toPromise()
                     .then(() => {
-                      this.userServiceProvider
-                        .default()
+                      this.usersService
                         .refreshActiveUser()
                         .toPromise()
                         .then(() => {
@@ -238,8 +225,7 @@ export class TwoFactorEditComponent {
                 .toPromise()
                 .then((res) => {
                   if (res) {
-                    this.userServiceProvider
-                      .default()
+                    this.usersService
                       .refreshActiveUser()
                       .toPromise()
                       .then(() => {

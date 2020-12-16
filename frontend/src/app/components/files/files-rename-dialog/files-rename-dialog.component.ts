@@ -9,7 +9,7 @@ import {
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CloudNode } from 'src/app/models/files-api-models';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
+import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
 
 @Component({
   selector: 'app-files-rename-dialog',
@@ -24,7 +24,7 @@ export class FilesRenameDialogComponent implements AfterViewInit {
   constructor(
     public dialogRef: MatDialogRef<FilesRenameDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public node: CloudNode,
-    private fsProvider: FileSystemProvider,
+    private fsService: FileSystemService,
   ) {
     this.input.setValue(this.node.name);
   }
@@ -58,8 +58,7 @@ export class FilesRenameDialogComponent implements AfterViewInit {
     this.loading = true;
     this.input.disable();
     this.dialogRef.disableClose = true;
-    this.fsProvider
-      .default()
+    this.fsService
       .rename(this.node, this.input.value)
       .toPromise()
       .then(() => {

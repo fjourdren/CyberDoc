@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { FileTag } from 'src/app/models/files-api-models';
@@ -9,6 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SettingsCreateEditTagDialogComponent } from '../settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
 import { SecurityCheckDialogComponent } from '../../security-check-dialog/security-check-dialog.component';
 import { Router } from '@angular/router';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
   selector: 'app-settings-profile',
@@ -24,7 +24,7 @@ export class SettingsProfileComponent {
   dataSource = new MatTableDataSource<FileTag>([]);
 
   constructor(
-    private userServiceProvider: UserServiceProvider,
+    private usersService: UsersService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
@@ -37,14 +37,11 @@ export class SettingsProfileComponent {
     });
 
     this.refresh();
-    this.userServiceProvider
-      .default()
-      .userUpdated()
-      .subscribe(() => this.refresh());
+    this.usersService.userUpdated().subscribe(() => this.refresh());
   }
 
   refresh(): void {
-    const user = this.userServiceProvider.default().getActiveUser();
+    const user = this.usersService.getActiveUser();
     this.profileForm.get('firstName').setValue(user.firstname);
     this.profileForm.get('lastName').setValue(user.lastname);
     this.profileForm.get('newEmail').setValue(user.email);
@@ -55,7 +52,7 @@ export class SettingsProfileComponent {
     this.loading = true;
     if (
       this.profileForm.get('newEmail').value !==
-      this.userServiceProvider.default().getActiveUser().email
+      this.usersService.getActiveUser().email
     ) {
       // Changed email address
       this.dialog
@@ -70,8 +67,7 @@ export class SettingsProfileComponent {
           if (res) {
             if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) {
               // [password:smsOrApp:2faToken]
-              this.userServiceProvider
-                .default()
+              this.usersService
                 .updateProfile(
                   this.profileForm.get('firstName').value,
                   this.profileForm.get('lastName').value,
@@ -80,8 +76,7 @@ export class SettingsProfileComponent {
                 )
                 .toPromise()
                 .then(() => {
-                  this.userServiceProvider
-                    .default()
+                  this.usersService
                     .refreshActiveUser()
                     .toPromise()
                     .then(() => {
@@ -102,8 +97,7 @@ export class SettingsProfileComponent {
         });
     } else {
       // Same email address
-      this.userServiceProvider
-        .default()
+      this.usersService
         .updateProfile(
           this.profileForm.get('firstName').value,
           this.profileForm.get('lastName').value,
@@ -112,8 +106,7 @@ export class SettingsProfileComponent {
         )
         .toPromise()
         .then(() => {
-          this.userServiceProvider
-            .default()
+          this.usersService
             .refreshActiveUser()
             .toPromise()
             .then(() => {
@@ -139,8 +132,7 @@ export class SettingsProfileComponent {
         if (res) {
           if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) {
             // password:appOrSms:2faToken
-            this.userServiceProvider
-              .default()
+            this.usersService
               .deleteAccount(res.xAuthTokenArray)
               .toPromise()
               .then(() => {

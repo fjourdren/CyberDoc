@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CloudFile } from 'src/app/models/files-api-models';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
+import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
 
 @Component({
   selector: 'app-files-open-dialog',
@@ -13,11 +13,10 @@ export class FilesOpenDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<FilesOpenDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public file: CloudFile,
-    private fsProvider: FileSystemProvider,
+    private fsService: FileSystemService,
   ) {
     dialogRef.disableClose = true;
-    this.fsProvider
-      .default()
+    this.fsService
       .getEtherpadURL(file)
       .toPromise()
       .then((url) => location.replace(url))

@@ -65,9 +65,9 @@ import { FilesPageComponent } from './pages/files-page/files-page.component';
 
 import { UnhandledErrorDialogComponent } from './components/global/unhandled-error-dialog/unhandled-error-dialog.component';
 
-import { FileSystemProvider } from './services/filesystems/file-system-provider';
+import { FileSystemService } from './services/filesystems/file-system.service';
 import { FilesUtilsService } from './services/files-utils/files-utils.service';
-import { UserServiceProvider } from './services/users/user-service-provider';
+import { UsersService } from './services/users/users.service';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -101,6 +101,7 @@ import { TwoFactorUseRecoveryCodeDialogComponent } from './components/two-factor
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
 import { FilesOpenDialogComponent } from './components/files/files-open-dialog/files-open-dialog.component';
 import { GtagModule } from 'angular-gtag';
+import { TwoFactorService } from './services/twofactor/twofactor.service';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) =>
@@ -260,8 +261,9 @@ if (environment.gaTrackingID) {
   providers: [
     ...ERROR_HANDLER,
     CookieService,
-    FileSystemProvider,
-    UserServiceProvider,
+    FileSystemService,
+    TwoFactorService,
+    UsersService,
     FilesUtilsService,
   ],
   bootstrap: [AppComponent],

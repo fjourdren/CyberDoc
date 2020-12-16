@@ -1,8 +1,8 @@
 import { Component, HostListener } from '@angular/core';
-import { TwoFactorServiceProvider } from '../../../services/twofactor/twofactor-service-provider';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TwoFactorService } from 'src/app/services/twofactor/twofactor.service';
 
 @Component({
   selector: 'app-two-factor-dialog',
@@ -22,7 +22,7 @@ export class TwoFactorUseRecoveryCodeDialogComponent {
   loading = false;
 
   constructor(
-    private twoFactorServiceProvider: TwoFactorServiceProvider,
+    private twoFactorService: TwoFactorService,
     private snackBar: MatSnackBar,
     public recoverTwoFactorDialog: MatDialogRef<TwoFactorUseRecoveryCodeDialogComponent>,
   ) {}
@@ -42,8 +42,7 @@ export class TwoFactorUseRecoveryCodeDialogComponent {
     if (this.recoverTwoFactorForm.invalid) {
       return;
     }
-    this.twoFactorServiceProvider
-      .default()
+    this.twoFactorService
       .useRecoveryCode(this.recoverTwoFactorForm.get('code').value)
       .toPromise()
       .then((recoveryCodesLeft) => {

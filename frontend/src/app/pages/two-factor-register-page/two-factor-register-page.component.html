@@ -1,20 +1,22 @@
 <div id="root-div">
   <div id="form-container">
-      <mat-card id="card">
-        <button mat-icon-button [routerLink]="['/logout']" >
-          <mat-icon>keyboard_arrow_left</mat-icon> Go back to login page
-        </button>
-        <mat-card-header>
-          <mat-card-title>Two-Factor Register</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          You need to enable at least one 2FA Method to continue.
-          <app-two-factor-edit (twoFactorAppEvent)="updateTwoFactorApp($event)" (twoFactorSmsEvent)="updateTwoFactorSms($event)"></app-two-factor-edit>
-        </mat-card-content>
+    <mat-card id="card">
+      <button mat-icon-button [routerLink]="['/logout']">
+        <mat-icon>keyboard_arrow_left</mat-icon> Go back to login page
+      </button>
+      <mat-card-header>
+        <mat-card-title>Two-Factor Register</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        You need to enable at least one 2FA Method to continue.
+        <app-two-factor-edit (twoFactorAppEvent)="updateTwoFactorApp($event)"
+          (twoFactorSmsEvent)="updateTwoFactorSms($event)"></app-two-factor-edit>
+      </mat-card-content>
 
-        <div id="button-container">
-          <a [routerLink]="['/export-recovery-key']" [disabled]="(!this.twoFactorApp && !this.twoFactorSms)" mat-raised-button color="primary">Go to the app</a>
-        </div>
-      </mat-card>
+      <div id="button-container">
+        <a [routerLink]="['/export-recovery-key']" [disabled]="(!this.twoFactorApp && !this.twoFactorSms)"
+          mat-raised-button color="primary">Go to the app</a>
+      </div>
+    </mat-card>
   </div>
 </div>

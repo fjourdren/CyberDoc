@@ -1,25 +1,25 @@
 import { HttpClient } from '@angular/common/http';
-import { EventEmitter } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { FileTag } from 'src/app/models/files-api-models';
 import { User, Device } from 'src/app/models/users-api-models';
-import { UserService } from './user-service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { CookieService } from 'ngx-cookie-service';
 import { environment } from 'src/environments/environment';
 import { SHA3 } from 'sha3';
 import { Base64 } from 'js-base64';
-import { Gtag } from 'angular-gtag';
 
-export class RealUserService implements UserService {
+@Injectable({
+  providedIn: 'root',
+})
+export class UsersService {
   private _userUpdated$ = new EventEmitter<User>();
   private _jwtHelper = new JwtHelperService();
 
   constructor(
     private httpClient: HttpClient,
     private cookieService: CookieService,
-    private gtag: Gtag | undefined,
   ) {}
 
   getActiveUser(): User {
@@ -407,22 +407,9 @@ export class RealUserService implements UserService {
   }
 
   private _setUser(user: User) {
-    const oldUser = this.getActiveUser();
     localStorage.setItem(environment.userLocalStorageKey, JSON.stringify(user));
     if (user) {
       this._userUpdated$.emit(user);
-    }
-
-    if (this.gtag && user && !oldUser) {
-      this.gtag.event('user_login', {
-        userID: user._id,
-        userEmail: user.email,
-      });
-    } else if (this.gtag && !user && oldUser) {
-      this.gtag.event('user_logout', {
-        userID: oldUser._id,
-        userEmail: oldUser.email,
-      });
     }
   }
 }

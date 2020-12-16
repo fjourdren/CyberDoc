@@ -7,16 +7,13 @@ import {
   Router,
 } from '@angular/router';
 import { Observable } from 'rxjs';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoggedOutGuard implements CanActivate {
-  constructor(
-    private userServiceProvider: UserServiceProvider,
-    private router: Router,
-  ) {}
+  constructor(private usersService: UsersService, private router: Router) {}
 
   canActivate(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -28,7 +25,7 @@ export class LoggedOutGuard implements CanActivate {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    if (!this.userServiceProvider.default().getActiveUser()) {
+    if (!this.usersService.getActiveUser()) {
       return true;
     } else {
       return this.router.parseUrl('/files');

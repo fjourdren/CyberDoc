@@ -2,7 +2,7 @@ import { Component, HostListener, Inject } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FileTag } from 'src/app/models/files-api-models';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
   selector: 'app-settings-create-edit-tag-dialog',
@@ -20,7 +20,7 @@ export class SettingsCreateEditTagDialogComponent {
     public dialogRef: MatDialogRef<SettingsCreateEditTagDialogComponent>,
     @Inject(MAT_DIALOG_DATA)
     public tagOrNewTagName: FileTag | string | undefined,
-    private userServiceProvider: UserServiceProvider,
+    private usersService: UsersService,
   ) {
     if (tagOrNewTagName && typeof tagOrNewTagName === 'object') {
       this.name.setValue(tagOrNewTagName.name);
@@ -48,8 +48,7 @@ export class SettingsCreateEditTagDialogComponent {
     this.tagAlreadyExistsError = false;
 
     if (!this.tag || this.name.value !== this.tag.name) {
-      for (const tag of this.userServiceProvider.default().getActiveUser()
-        .tags) {
+      for (const tag of this.usersService.getActiveUser().tags) {
         if (tag.name === this.name.value) {
           this.tagAlreadyExistsError = true;
           return;
@@ -63,13 +62,11 @@ export class SettingsCreateEditTagDialogComponent {
       this.tag.hexColor = this.color.value;
       this.tag.name = this.name.value;
 
-      this.userServiceProvider
-        .default()
+      this.usersService
         .editTag(this.tag)
         .toPromise()
         .then(() => {
-          this.userServiceProvider
-            .default()
+          this.usersService
             .refreshActiveUser()
             .toPromise()
             .then(() => {
@@ -83,13 +80,11 @@ export class SettingsCreateEditTagDialogComponent {
       this.tag.hexColor = this.color.value;
       this.tag.name = this.name.value;
 
-      this.userServiceProvider
-        .default()
+      this.usersService
         .addTag(this.tag)
         .toPromise()
         .then(() => {
-          this.userServiceProvider
-            .default()
+          this.usersService
             .refreshActiveUser()
             .toPromise()
             .then(() => {

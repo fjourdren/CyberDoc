@@ -1,12 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { TwoFactorService } from './twofactor-service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { CookieService } from 'ngx-cookie-service';
 import { environment } from 'src/environments/environment';
+import { Injectable } from '@angular/core';
 
-export class RealTwoFactorService implements TwoFactorService {
+@Injectable({
+  providedIn: 'root',
+})
+export class TwoFactorService {
   private jwtHelper = new JwtHelperService();
 
   constructor(

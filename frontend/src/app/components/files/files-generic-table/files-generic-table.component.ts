@@ -40,11 +40,11 @@ import {
   FilesGenericTableBottomsheetData,
 } from '../files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 import { FilesRenameDialogComponent } from '../files-rename-dialog/files-rename-dialog.component';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { FilesShareMenuDialogComponent } from '../files-share-menu-dialog/files-share-menu-dialog.component';
 import { FilesNewFolderDialogComponent } from '../files-new-folder-dialog/files-new-folder-dialog.component';
 import { FilesSignDialogComponent } from '../files-sign-dialog/files-sign-dialog.component';
+import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
+import { UsersService } from 'src/app/services/users/users.service';
 
 export type FileAction =
   | 'open'
@@ -91,19 +91,16 @@ export class FilesGenericTableComponent implements AfterViewInit {
     private dialog: MatDialog,
     private ngZone: NgZone,
     private filesUtils: FilesUtilsService,
-    private resize: NgResizeObserver,
-    private fsProvider: FileSystemProvider,
-    private userServiceProvider: UserServiceProvider,
+    resize: NgResizeObserver,
+    private fsService: FileSystemService,
+    private usersService: UsersService,
   ) {
     resize
       .pipe(map((entry) => entry.contentRect.width))
       .subscribe(this.onTableWidthChanged.bind(this));
-    fsProvider
-      .default()
-      .getCurrentFileUpload()
-      .subscribe((val) => {
-        this.currentlyUploading = val != undefined;
-      });
+    fsService.getCurrentFileUpload().subscribe((val) => {
+      this.currentlyUploading = val != undefined;
+    });
   }
 
   private _selectedNode: CloudNode | null;
@@ -184,7 +181,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
     return (
       !node.isDirectory &&
       !this.isReadOnly(node as CloudFile) &&
-      this.userServiceProvider.default().getActiveUser().role === 'owner'
+      this.usersService.getActiveUser().role === 'owner'
     );
   }
 
@@ -198,7 +195,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   isOwner() {
-    return this.userServiceProvider.default().getActiveUser().role === 'owner';
+    return this.usersService.getActiveUser().role === 'owner';
   }
 
   getIconForMimetype(mimetype: string): string {
@@ -406,8 +403,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
 
   moveOrCopyNode(node: CloudNode, isCopy: boolean): void {
     const initialDirectoryID =
-      this.currentDirectoryID ||
-      this.userServiceProvider.default().getActiveUser().directory_id;
+      this.currentDirectoryID || this.usersService.getActiveUser().directory_id;
     this.dialog.open(FilesMoveCopyDialogComponent, {
       width: '400px',
       height: '400px',
@@ -418,7 +414,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   downloadFile(file: CloudFile): void {
     const anchor = document.createElement('a');
     anchor.download = file.name;
-    anchor.href = this.fsProvider.default().getDownloadURL(file);
+    anchor.href = this.fsService.getDownloadURL(file);
     anchor.click();
     anchor.remove();
   }
@@ -426,7 +422,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   exportFile(file: CloudFile): void {
     const anchor = document.createElement('a');
     anchor.download = file.name;
-    anchor.href = this.fsProvider.default().getExportURL(file);
+    anchor.href = this.fsService.getExportURL(file);
     anchor.click();
     anchor.remove();
   }
@@ -448,7 +444,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   uploadSelectedFile(file: File) {
-    this.fsProvider.default().startFileUpload(file, this.currentDirectory);
+    this.fsService.startFileUpload(file, this.currentDirectory);
   }
 
   uploadFile() {

@@ -11,7 +11,7 @@ import {
   FilesUtilsService,
   FileType,
 } from 'src/app/services/files-utils/files-utils.service';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
   selector: 'app-files-filter-toolbar',
@@ -30,7 +30,7 @@ export class FilesFilterToolbarComponent {
     this._searchParams = val;
 
     this.tags = [];
-    for (const tag of this.userServiceProvider.default().getActiveUser().tags) {
+    for (const tag of this.usersService.getActiveUser().tags) {
       if (val.tagIDs.indexOf(tag._id) !== -1) {
         this.tags.push(tag);
       }
@@ -38,7 +38,7 @@ export class FilesFilterToolbarComponent {
   }
 
   constructor(
-    private userServiceProvider: UserServiceProvider,
+    private usersService: UsersService,
     private appUtis: AppUtilsService,
     private router: Router,
     private filesUtils: FilesUtilsService,

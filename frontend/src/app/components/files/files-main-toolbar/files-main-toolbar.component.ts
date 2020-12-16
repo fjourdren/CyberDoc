@@ -5,7 +5,7 @@ import {
   EMPTY_SEARCH_PARAMS,
   SearchParams,
 } from 'src/app/models/files-api-models';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { UsersService } from 'src/app/services/users/users.service';
 import { FilesFilterDialogComponent } from '../files-filter-dialog/files-filter-dialog.component';
 
 @Component({
@@ -22,7 +22,7 @@ export class FilesMainToolbarComponent {
   searchInput = '';
 
   constructor(
-    private userServiceProvider: UserServiceProvider,
+    private usersService: UsersService,
     private dialog: MatDialog,
     private router: Router,
   ) {}
@@ -38,7 +38,7 @@ export class FilesMainToolbarComponent {
   }
 
   getCurrentUsername(): string {
-    const user = this.userServiceProvider.default().getActiveUser();
+    const user = this.usersService.getActiveUser();
     return `${user.firstname} ${user.lastname}`;
   }
 

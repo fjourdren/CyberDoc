@@ -1,15 +1,13 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { UserServiceProvider } from '../../services/users/user-service-provider'
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
   selector: 'app-password-recovery-page',
   templateUrl: './password-recovery-page.component.html',
-  styleUrls: ['./password-recovery-page.component.scss']
+  styleUrls: ['./password-recovery-page.component.scss'],
 })
-
 export class PasswordRecoveryPageComponent {
   recoverForm = this.fb.group({
     email: [null, [Validators.required, Validators.email]],
@@ -19,9 +17,7 @@ export class PasswordRecoveryPageComponent {
   wrongCredentialError = false;
   recovered = false;
 
-  constructor(private fb: FormBuilder,
-    private userServiceProvider: UserServiceProvider,
-    private router: Router) { }
+  constructor(private fb: FormBuilder, private usersService: UsersService) {}
 
   onSubmit() {
     if (this.recoverForm.invalid) {
@@ -31,20 +27,25 @@ export class PasswordRecoveryPageComponent {
     this.loading = true;
     this.wrongCredentialError = false;
     this.recovered = false;
-    this.recoverForm.get("email").disable();
+    this.recoverForm.get('email').disable();
 
-    this.userServiceProvider.default().recoverPassword(this.recoverForm.controls.email.value).toPromise().then(value => {
-      this.loading = false;
-      this.recovered = true;
-    }, error => {
-      this.loading = false;
-      this.recoverForm.get("email").enable();  
-      if (error instanceof HttpErrorResponse && error.status == 401) {
-        this.wrongCredentialError = true;
-      } else {
-        throw error;
-      }
-    });
+    this.usersService
+      .recoverPassword(this.recoverForm.controls.email.value)
+      .toPromise()
+      .then(
+        () => {
+          this.loading = false;
+          this.recovered = true;
+        },
+        (error) => {
+          this.loading = false;
+          this.recoverForm.get('email').enable();
+          if (error instanceof HttpErrorResponse && error.status == 401) {
+            this.wrongCredentialError = true;
+          } else {
+            throw error;
+          }
+        },
+      );
   }
 }
-

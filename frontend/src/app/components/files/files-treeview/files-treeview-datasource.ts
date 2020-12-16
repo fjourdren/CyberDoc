@@ -4,7 +4,7 @@ import { FlatTreeControl } from '@angular/cdk/tree';
 import { BehaviorSubject, merge, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CloudDirectory } from 'src/app/models/files-api-models';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
+import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
 import { FilesTreeviewNode } from './files-treeview-node';
 
 export class FilesTreeviewDataSource implements DataSource<FilesTreeviewNode> {
@@ -21,7 +21,7 @@ export class FilesTreeviewDataSource implements DataSource<FilesTreeviewNode> {
 
   constructor(
     private treeControl: FlatTreeControl<FilesTreeviewNode>,
-    private fsProvider: FileSystemProvider,
+    private fsService: FileSystemService,
   ) {}
 
   connect(collectionViewer: CollectionViewer): Observable<FilesTreeviewNode[]> {
@@ -60,8 +60,7 @@ export class FilesTreeviewDataSource implements DataSource<FilesTreeviewNode> {
 
     if (expand) {
       this.loading = true;
-      this.fsProvider
-        .default()
+      this.fsService
         .get(node.directory._id)
         .toPromise()
         .then((fileNode) => {

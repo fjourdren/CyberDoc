@@ -1,7 +1,7 @@
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { Component, Input } from '@angular/core';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
+import { UsersService } from 'src/app/services/users/users.service';
 import { FilesTreeviewDataSource } from './files-treeview-datasource';
 import { FilesTreeviewNode } from './files-treeview-node';
 
@@ -14,28 +14,22 @@ export class FilesTreeviewComponent {
   treeControl: FlatTreeControl<FilesTreeviewNode>;
   dataSource: FilesTreeviewDataSource;
 
-  constructor(
-    private fsProvider: FileSystemProvider,
-    private userServiceProvider: UserServiceProvider,
-  ) {
+  constructor(fsService: FileSystemService, usersService: UsersService) {
     this.treeControl = new FlatTreeControl<FilesTreeviewNode>(
       this.getLevel,
       this.isExpandable,
     );
-    this.dataSource = new FilesTreeviewDataSource(this.treeControl, fsProvider);
+    this.dataSource = new FilesTreeviewDataSource(this.treeControl, fsService);
     this._loading = true;
     const nodes: FilesTreeviewNode[] = [];
 
     Promise.all([
-      userServiceProvider.default().getActiveUser().directory_id
-        ? fsProvider
-            .default()
-            .get(userServiceProvider.default().getActiveUser().directory_id)
-            .toPromise()
+      usersService.getActiveUser().directory_id
+        ? fsService.get(usersService.getActiveUser().directory_id).toPromise()
         : null,
-      fsProvider.default().getSharedFiles().toPromise(),
+      fsService.getSharedFiles().toPromise(),
     ]).then((values) => {
-      if (userServiceProvider.default().getActiveUser().role === 'owner') {
+      if (usersService.getActiveUser().role === 'owner') {
         if (values[0].isDirectory) {
           nodes.push(new FilesTreeviewNode(values[0], 0, [], true, true));
         }
@@ -46,7 +40,7 @@ export class FilesTreeviewComponent {
           0,
           [],
           false,
-          userServiceProvider.default().getActiveUser().role !== 'owner',
+          usersService.getActiveUser().role !== 'owner',
         ),
       );
       this.dataSource.data = nodes;

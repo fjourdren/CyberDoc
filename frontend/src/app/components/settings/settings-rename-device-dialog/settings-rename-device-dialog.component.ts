@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { UsersService } from 'src/app/services/users/users.service';
 
 export interface DialogDevicesData {
   name: string;
@@ -29,7 +29,7 @@ export class SettingsRenameDeviceDialogComponent {
 
   constructor(
     public dialogRef: MatDialogRef<SettingsRenameDeviceDialogComponent>,
-    private UserProvider: UserServiceProvider,
+    private usersService: UsersService,
     @Inject(MAT_DIALOG_DATA) public data: DialogDevicesData,
   ) {
     this.input.setValue(this.data.name);
@@ -60,7 +60,7 @@ export class SettingsRenameDeviceDialogComponent {
     this.loading = true;
     this.input.disable();
     this.dialogRef.disableClose = true;
-    this.UserProvider.default()
+    this.usersService
       .renameUserDevice(this.data.name, this.input.value)
       .toPromise()
       .then(

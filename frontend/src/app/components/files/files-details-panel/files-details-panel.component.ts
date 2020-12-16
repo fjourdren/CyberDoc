@@ -1,14 +1,14 @@
 import { Component, Input } from '@angular/core';
 import { CloudFile, CloudNode, FileTag } from 'src/app/models/files-api-models';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import {
   FilesUtilsService,
   FileType,
 } from 'src/app/services/files-utils/files-utils.service';
 import { MatDialog } from '@angular/material/dialog';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { SettingsCreateEditTagDialogComponent } from '../../settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
+import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
   selector: 'app-files-details-panel',
@@ -25,15 +25,12 @@ export class FilesDetailsPanelComponent {
 
   constructor(
     private filesUtils: FilesUtilsService,
-    private fsProvider: FileSystemProvider,
-    private userServiceProvider: UserServiceProvider,
+    private fsService: FileSystemService,
+    private usersService: UsersService,
     private dialog: MatDialog,
   ) {
     this.refreshAllTags();
-    this.userServiceProvider
-      .default()
-      .userUpdated()
-      .subscribe(() => this.refreshAllTags());
+    this.usersService.userUpdated().subscribe(() => this.refreshAllTags());
   }
 
   private _node: CloudNode;
@@ -56,8 +53,7 @@ export class FilesDetailsPanelComponent {
 
   onTagAdded(tag: FileTag): void {
     this.loading = true;
-    this.fsProvider
-      .default()
+    this.fsService
       .addTag(this.node, tag)
       .toPromise()
       .then(() => {
@@ -67,8 +63,7 @@ export class FilesDetailsPanelComponent {
 
   onTagRemoved(tag: FileTag): void {
     this.loading = true;
-    this.fsProvider
-      .default()
+    this.fsService
       .removeTag(this.node, tag)
       .toPromise()
       .then(() => {
@@ -77,15 +72,15 @@ export class FilesDetailsPanelComponent {
   }
 
   refreshAllTags(): void {
-    if (this.userServiceProvider.default().getActiveUser()) {
-      this.allTags = this.userServiceProvider.default().getActiveUser().tags;
+    if (this.usersService.getActiveUser()) {
+      this.allTags = this.usersService.getActiveUser().tags;
     } else {
       this.allTags = [];
     }
   }
 
   getFilePreviewImageURL(): string {
-    return this.fsProvider.default().getFilePreviewImageURL(this.node);
+    return this.fsService.getFilePreviewImageURL(this.node);
   }
 
   getIconForMimetype(mimetype: string): any {
@@ -130,8 +125,7 @@ export class FilesDetailsPanelComponent {
 
   onPreviewToggleChange(evt: MatSlideToggleChange) {
     this.loading = true;
-    this.fsProvider
-      .default()
+    this.fsService
       .setPreviewEnabled(this.node as CloudFile, evt.checked)
       .toPromise()
       .then(() => {
