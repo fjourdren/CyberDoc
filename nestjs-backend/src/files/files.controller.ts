@@ -117,8 +117,13 @@ export class FilesController {
   @HttpCode(HttpStatusCode.CREATED)
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Create a file', description: 'Create a file' })
+  @ApiForbiddenResponse({
+    description: 'The user have to be the owner of parent folder',
+    type: GenericResponse,
+  })
   @ApiBadRequestResponse({
-    description: 'Trying to create a file without the `upfile` field',
+    description:
+      'Trying to create a file without the `upfile` field, or `folderID` is not a valid folder',
     type: GenericResponse,
   })
   @ApiCreatedResponse({ description: 'File created', type: CreateFileResponse })
@@ -228,7 +233,7 @@ export class FilesController {
   })
   @ApiForbiddenResponse({
     description:
-      'The user have to be the owner of the file to edit `preview`, `folderID` and `shareMode` fields',
+      'The user have to be the owner of the file to edit `preview`, `directoryID` and `shareMode` fields',
     type: GenericResponse,
   })
   async updateFileMetadata(
@@ -238,7 +243,10 @@ export class FilesController {
   ) {
     const userIsFileOwner = user._id === file.owner_id;
     const requireIsFileOwner = () => {
-      if (!userIsFileOwner) throw new ForbiddenException();
+      if (!userIsFileOwner)
+        throw new ForbiddenException(
+          'The user have to be the owner of the file to edit `preview`, `directoryID` and `shareMode`',
+        );
     };
 
     if (editFileMetadataDto.name) file.name = editFileMetadataDto.name;
@@ -277,8 +285,12 @@ export class FilesController {
     description: 'Create a copy of a file',
   })
   @ApiCreatedResponse({ description: 'File copied', type: CreateFileResponse })
+  @ApiForbiddenResponse({
+    description: 'The user have to be the owner of parent folder',
+    type: GenericResponse,
+  })
   @ApiBadRequestResponse({
-    description: 'Cannot copy a folder',
+    description: 'Cannot copy a folder, or `folderID` is not a valid folder',
     type: GenericResponse,
   })
   async copy(

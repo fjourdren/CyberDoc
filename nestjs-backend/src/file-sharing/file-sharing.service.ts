@@ -126,6 +126,10 @@ export class FileSharingService {
       await new this.fileModel(file).save();
       await this.cryptoService.removeFileAESKeyFromUser(user, file._id);
     } else {
+      file.shareWithPending = file.shareWithPending.filter(
+        (item) => item.email !== email,
+      );
+      await new this.fileModel(file).save();
     }
   }
 }

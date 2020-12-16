@@ -1,8 +1,18 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import {
+  createParamDecorator,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 
 export const LoggedUserHash = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
-    return request.user.userHash;
+    const userHash = request?.user?.userHash;
+
+    if (!userHash) {
+      throw new ForbiddenException('Missing userHash');
+    }
+
+    return userHash;
   },
 );

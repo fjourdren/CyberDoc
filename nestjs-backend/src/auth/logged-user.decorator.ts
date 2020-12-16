@@ -9,12 +9,16 @@ export const LoggedUser = createParamDecorator(
   (data: { requireOwner: boolean }, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     //This property is added in src\auth\jwt\jwt-auth.guard.ts
-    const user: User = request.user.user;
+    const user: User = request?.user?.user;
+
+    if (!user) {
+      throw new ForbiddenException('Missing auth');
+    }
 
     if (user.role !== UserRole.OWNER && data?.requireOwner) {
       throw new ForbiddenException('You have to be an owner for this action');
     }
 
-    return request.user.user;
+    return user;
   },
 );

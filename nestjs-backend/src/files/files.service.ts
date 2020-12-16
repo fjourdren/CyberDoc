@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -95,6 +96,14 @@ export class FilesService {
   }
 
   async create(user: User, name: string, mimetype: string, folderID: string) {
+    const parentFolder = await this.findOne(folderID);
+    if (!parentFolder || parentFolder.type !== FOLDER)
+      throw new BadRequestException('folderID is invalid');
+    if (parentFolder.owner_id !== user._id)
+      throw new ForbiddenException(
+        'The user have to be the owner of parent folder',
+      );
+
     const date = new Date();
     const file = new File();
     file._id = uuidv4();
