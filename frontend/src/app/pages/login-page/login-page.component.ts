@@ -40,16 +40,17 @@ export class LoginPageComponent {
         this.userServiceProvider.default().login(this.loginForm.controls.email.value, this.loginForm.controls.password.value)
             .toPromise().then(token => {
             this.loading = false;
-            if (!(this._jwtHelper.decodeToken(token).user).twoFactorApp
+            this.router.navigate(['/files']);
+
+            /*if (!(this._jwtHelper.decodeToken(token).user).twoFactorApp
                 && !(this._jwtHelper.decodeToken(token).user).twoFactorSms) {
                 // If no 2FA option is defined, force user to turn it on
                 this.router.navigate(['/two-factor-register']);
                
             } else {
                 // Else, verify it is the user
-                this.router.navigate(['/two-factor']);
-                
-            }
+                this.router.navigate(['/two-factor']); 
+            }*/
         }, error => {
             this.loading = false;
             this.loginForm.get('email').enable();

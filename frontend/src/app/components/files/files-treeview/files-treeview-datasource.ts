@@ -3,44 +3,54 @@ import { DataSource } from '@angular/cdk/table';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { BehaviorSubject, merge, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { CloudDirectory, PathItem } from 'src/app/models/files-api-models';
+import { CloudDirectory } from 'src/app/models/files-api-models';
 import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
 import { FilesTreeviewNode } from './files-treeview-node';
 
 export class FilesTreeviewDataSource implements DataSource<FilesTreeviewNode> {
-
   loading = false;
   dataChange = new BehaviorSubject<FilesTreeviewNode[]>([]);
 
-  get data(): FilesTreeviewNode[] { return this.dataChange.value; }
+  get data(): FilesTreeviewNode[] {
+    return this.dataChange.value;
+  }
   set data(value: FilesTreeviewNode[]) {
     this.treeControl.dataNodes = value;
     this.dataChange.next(value);
   }
 
-  constructor(private treeControl: FlatTreeControl<FilesTreeviewNode>,
-    private fsProvider: FileSystemProvider) { }
+  constructor(
+    private treeControl: FlatTreeControl<FilesTreeviewNode>,
+    private fsProvider: FileSystemProvider,
+  ) {}
 
   connect(collectionViewer: CollectionViewer): Observable<FilesTreeviewNode[]> {
-    this.treeControl.expansionModel.changed.subscribe(change => {
+    this.treeControl.expansionModel.changed.subscribe((change) => {
       if (this.loading) return;
       if (change.added || change.removed) {
         this.handleTreeControl(change);
       }
     });
 
-    return merge(collectionViewer.viewChange, this.dataChange).pipe(map(() => this.data));
+    return merge(collectionViewer.viewChange, this.dataChange).pipe(
+      map(() => this.data),
+    );
   }
 
-  disconnect(collectionViewer: CollectionViewer): void { }
+  disconnect(): void {
+    /*unused*/
+  }
 
   handleTreeControl(change: SelectionChange<FilesTreeviewNode>) {
     if (this.loading) return;
     if (change.added) {
-      change.added.forEach(node => this.toggleNode(node, true));
+      change.added.forEach((node) => this.toggleNode(node, true));
     }
     if (change.removed) {
-      change.removed.slice().reverse().forEach(node => this.toggleNode(node, false));
+      change.removed
+        .slice()
+        .reverse()
+        .forEach((node) => this.toggleNode(node, false));
     }
   }
 
@@ -50,19 +60,28 @@ export class FilesTreeviewDataSource implements DataSource<FilesTreeviewNode> {
 
     if (expand) {
       this.loading = true;
-      this.fsProvider.default().get(node.directory._id).toPromise().then(fileNode => {
-        if (fileNode.isDirectory) {
-          const folders = fileNode.directoryContent.filter(v => v.isDirectory) as CloudDirectory[];
-          const newNodes = folders.map(v => new FilesTreeviewNode(v, index + 1, [...node.parents, node]));
-          this.data.splice(index + 1, 0, ...newNodes);
-          this.dataChange.next(this.data);
-          this.loading = false;
-        }
-      });
+      this.fsProvider
+        .default()
+        .get(node.directory._id)
+        .toPromise()
+        .then((fileNode) => {
+          if (fileNode.isDirectory) {
+            const folders = fileNode.directoryContent.filter(
+              (v) => v.isDirectory,
+            ) as CloudDirectory[];
+            const newNodes = folders.map(
+              (v) =>
+                new FilesTreeviewNode(v, index + 1, [...node.parents, node]),
+            );
+            this.data.splice(index + 1, 0, ...newNodes);
+            this.dataChange.next(this.data);
+            this.loading = false;
+          }
+        });
     } else {
-      this.data = this.data.filter(item => {
-        return item.level <= node.level || item.parents.indexOf(node) === -1
-      })
+      this.data = this.data.filter((item) => {
+        return item.level <= node.level || item.parents.indexOf(node) === -1;
+      });
       this.dataChange.next(this.data);
     }
   }

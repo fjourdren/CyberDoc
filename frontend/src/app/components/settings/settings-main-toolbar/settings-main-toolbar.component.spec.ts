@@ -7,9 +7,8 @@ describe('SettingsMainToolbarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SettingsMainToolbarComponent ]
-    })
-    .compileComponents();
+      declarations: [SettingsMainToolbarComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

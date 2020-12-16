@@ -8,9 +8,8 @@ describe('FilesShareMenuDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesShareMenuDialogComponent ]
-    })
-    .compileComponents();
+      declarations: [FilesShareMenuDialogComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

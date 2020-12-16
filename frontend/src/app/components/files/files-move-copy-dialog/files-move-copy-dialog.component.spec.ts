@@ -8,9 +8,8 @@ describe('FilesMoveCopyDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesMoveCopyDialogComponent ]
-    })
-    .compileComponents();
+      declarations: [FilesMoveCopyDialogComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

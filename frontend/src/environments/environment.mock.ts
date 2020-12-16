@@ -5,13 +5,13 @@
 export const environment = {
   production: false,
   useSentry: false,
-  defaultFSProviderName: "mock",
-  defaultUserServiceName: "mock",
-  apiBaseURL: "<unused>",
-  authCookieDomain: "<unused>",
-  authCookieName: "access_token",
-  userHashCookieName: "user_hash",
-  userLocalStorageKey: "real_user",
+  defaultFSProviderName: 'mock',
+  defaultUserServiceName: 'mock',
+  apiBaseURL: '<unused>',
+  authCookieDomain: '<unused>',
+  authCookieName: 'access_token',
+  userHashCookieName: 'user_hash',
+  userLocalStorageKey: 'real_user',
   gaTrackingID: undefined,
 };
 

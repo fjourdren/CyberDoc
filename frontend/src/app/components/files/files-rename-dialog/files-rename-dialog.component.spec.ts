@@ -8,9 +8,8 @@ describe('FilesRenameDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesRenameDialogComponent ]
-    })
-    .compileComponents();
+      declarations: [FilesRenameDialogComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

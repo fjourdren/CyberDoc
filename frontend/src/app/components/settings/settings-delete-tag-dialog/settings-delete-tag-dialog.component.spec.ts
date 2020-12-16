@@ -8,9 +8,8 @@ describe('SettingsDeleteTagDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SettingsDeleteTagDialogComponent ]
-    })
-    .compileComponents();
+      declarations: [SettingsDeleteTagDialogComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

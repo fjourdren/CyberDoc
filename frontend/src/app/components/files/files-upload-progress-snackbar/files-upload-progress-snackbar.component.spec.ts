@@ -8,9 +8,8 @@ describe('FilesUploadOverlayComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesUploadProgressSnackbarComponent ]
-    })
-    .compileComponents();
+      declarations: [FilesUploadProgressSnackbarComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {
