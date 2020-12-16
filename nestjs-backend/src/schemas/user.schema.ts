@@ -12,7 +12,7 @@ export enum UserRole {
 
 @Schema({ _id: false })
 export class UserFileKey {
-  @Prop({ unique: true, required: true })
+  @Prop({ required: true })
   file_id: string;
 
   @Prop({ required: true })

@@ -9,7 +9,7 @@ export class EditFileMetadataDto {
     description: 'Directory ID which contains the file',
     example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
   })
-  folderID: string;
+  directoryID: string;
 
   @ApiProperty({ description: 'Is file preview enabled', example: true })
   preview: boolean;

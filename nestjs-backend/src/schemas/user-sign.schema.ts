@@ -2,7 +2,7 @@ import { Prop, Schema } from '@nestjs/mongoose';
 
 @Schema({ _id: false })
 export class UserSign {
-  @Prop({ unique: true, required: true })
+  @Prop({ required: true })
   user_email: string;
 
   @Prop({ required: true })
