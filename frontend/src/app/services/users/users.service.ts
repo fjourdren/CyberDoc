@@ -4,8 +4,6 @@ import { Observable, of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { FileTag } from 'src/app/models/files-api-models';
 import { User, Device } from 'src/app/models/users-api-models';
-import { JwtHelperService } from '@auth0/angular-jwt';
-import { CookieService } from 'ngx-cookie-service';
 import { environment } from 'src/environments/environment';
 import { SHA3 } from 'sha3';
 import { Base64 } from 'js-base64';
@@ -15,81 +13,54 @@ import { Base64 } from 'js-base64';
 })
 export class UsersService {
   private _userUpdated$ = new EventEmitter<User>();
-  private _jwtHelper = new JwtHelperService();
 
-  constructor(
-    private httpClient: HttpClient,
-    private cookieService: CookieService,
-  ) {}
+  constructor(private httpClient: HttpClient) {}
 
-  getActiveUser(): User {
+  getActiveUser() {
     return JSON.parse(
       localStorage.getItem(environment.userLocalStorageKey),
     ) as User;
   }
 
-  getJwtToken(): string {
-    if (this.getActiveUser()) return 'fake';
-    else return undefined;
-    //throw new Error("NOPE");
-    //return this.cookieService.get(environment.authCookieName);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  register(user: User, password: string, fileId: string): Observable<any> {
-    return this.httpClient.post<any>(`${environment.apiBaseURL}/users`, {
-      email: user.email,
-      firstname: user.firstname,
-      lastname: user.lastname,
-      role: user.role,
+  register(userObj: User, password: string) {
+    return this.httpClient.post<void>(`${environment.apiBaseURL}/users`, {
+      email: userObj.email,
+      firstname: userObj.firstname,
+      lastname: userObj.lastname,
+      role: userObj.role,
       password,
     });
   }
 
-  addTag(tag: FileTag): Observable<void> {
-    return this.httpClient
-      .post<any>(
-        `${environment.apiBaseURL}/user-tags`,
-        {
-          name: tag.name,
-          color: tag.hexColor,
-        },
-        { withCredentials: true },
-      )
-      .pipe(
-        map(() => {
-          return null;
-        }),
-      );
+  addTag(tag: FileTag) {
+    return this.httpClient.post<void>(
+      `${environment.apiBaseURL}/user-tags`,
+      {
+        name: tag.name,
+        color: tag.hexColor,
+      },
+      { withCredentials: true },
+    );
   }
 
-  editTag(tag: FileTag): Observable<void> {
-    return this.httpClient
-      .patch<any>(
-        `${environment.apiBaseURL}/user-tags/${tag._id}`,
-        {
-          name: tag.name,
-          color: tag.hexColor,
-        },
-        { withCredentials: true },
-      )
-      .pipe(
-        map(() => {
-          return null;
-        }),
-      );
+  editTag(tag: FileTag) {
+    return this.httpClient.patch<void>(
+      `${environment.apiBaseURL}/user-tags/${tag._id}`,
+      {
+        name: tag.name,
+        color: tag.hexColor,
+      },
+      { withCredentials: true },
+    );
   }
 
-  removeTag(tag: FileTag): Observable<void> {
-    return this.httpClient
-      .delete<any>(`${environment.apiBaseURL}/user-tags/${tag._id}`, {
+  removeTag(tag: FileTag) {
+    return this.httpClient.delete<void>(
+      `${environment.apiBaseURL}/user-tags/${tag._id}`,
+      {
         withCredentials: true,
-      })
-      .pipe(
-        map(() => {
-          return null;
-        }),
-      );
+      },
+    );
   }
 
   refreshActiveUser(): Observable<User> {
@@ -124,28 +95,15 @@ export class UsersService {
       };
     }
 
-    return this.httpClient
-      .post<any>(
-        `${environment.apiBaseURL}/users/profile`,
-        {
-          email: newEmail,
-          firstname: firstName,
-          lastname: lastName,
-        },
-        options,
-      )
-      .pipe(
-        map((response) => {
-          this.cookieService.set(
-            environment.authCookieName,
-            response.token,
-            this._jwtHelper.getTokenExpirationDate(response.token),
-            '/',
-            environment.authCookieDomain,
-          );
-          this._setUser(this._jwtHelper.decodeToken(response.token).user);
-        }),
-      );
+    return this.httpClient.post<any>(
+      `${environment.apiBaseURL}/users/profile`,
+      {
+        email: newEmail,
+        firstname: firstName,
+        lastname: lastName,
+      },
+      options,
+    );
   }
 
   updatePassword(
@@ -165,26 +123,13 @@ export class UsersService {
       },
     };
 
-    return this.httpClient
-      .post<any>(
-        `${environment.apiBaseURL}/users/profile`,
-        {
-          password,
-        },
-        options,
-      )
-      .pipe(
-        map((response) => {
-          this.cookieService.set(
-            environment.authCookieName,
-            response.token,
-            this._jwtHelper.getTokenExpirationDate(response.token),
-            '/',
-            environment.authCookieDomain,
-          );
-          this._setUser(this._jwtHelper.decodeToken(response.token).user);
-        }),
-      );
+    return this.httpClient.post<any>(
+      `${environment.apiBaseURL}/users/profile`,
+      {
+        password,
+      },
+      options,
+    );
   }
 
   updateTwoFactor(
@@ -210,29 +155,16 @@ export class UsersService {
         'x-auth-token': Base64.encode(xAuthTokenArray[0]),
       };
     }
-    return this.httpClient
-      .post<any>(
-        `${environment.apiBaseURL}/users/profile`,
-        {
-          twoFactorApp,
-          twoFactorSms,
-          secret,
-          phoneNumber,
-        },
-        options,
-      )
-      .pipe(
-        map((response) => {
-          this.cookieService.set(
-            environment.authCookieName,
-            response.token,
-            this._jwtHelper.getTokenExpirationDate(response.token),
-            '/',
-            environment.authCookieDomain,
-          );
-          this._setUser(this._jwtHelper.decodeToken(response.token).user);
-        }),
-      );
+    return this.httpClient.post<any>(
+      `${environment.apiBaseURL}/users/profile`,
+      {
+        twoFactorApp,
+        twoFactorSms,
+        secret,
+        phoneNumber,
+      },
+      options,
+    );
   }
 
   login(email: string, password: string) {
@@ -278,25 +210,18 @@ export class UsersService {
     password: string,
   ): Observable<void> {
     console.warn('Authorization', `Bearer ${resetPasswordJWTToken}`);
-    return this.httpClient
-      .post<any>(
-        `${environment.apiBaseURL}/users/profile`,
-        {
-          password,
+    return this.httpClient.post<any>(
+      `${environment.apiBaseURL}/users/profile`,
+      {
+        password,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${resetPasswordJWTToken}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${resetPasswordJWTToken}`,
-          },
-          withCredentials: true,
-        },
-      )
-      .pipe(
-        map(() => {
-          this.cookieService.delete(environment.authCookieName);
-          this.cookieService.delete(environment.userHashCookieName);
-        }),
-      );
+        withCredentials: true,
+      },
+    );
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -307,8 +232,6 @@ export class UsersService {
   logout(): Observable<void> {
     return of(null).pipe(
       map(() => {
-        this.cookieService.delete(environment.authCookieName);
-        this.cookieService.delete(environment.userHashCookieName);
         this._setUser(null);
       }),
     );
@@ -380,26 +303,23 @@ export class UsersService {
     password: string,
     file: File,
     resetPasswordJWTToken: string,
-  ): Observable<void> {
+  ) {
     const hash = new SHA3(512); //FIXME constant keySize
     hash.update(email + password);
 
     const formData = new FormData();
     formData.set('upfile', file);
     formData.set('user_hash', hash.digest('hex').substring(0, 32));
-    return this.httpClient
-      .post(`${environment.apiBaseURL}/users/keys`, formData, {
+    return this.httpClient.post<void>(
+      `${environment.apiBaseURL}/users/keys`,
+      formData,
+      {
         headers: {
           Authorization: `Bearer ${resetPasswordJWTToken}`,
         },
         withCredentials: true,
-      })
-      .pipe(
-        map(() => {
-          this.cookieService.delete(environment.authCookieName);
-          this.cookieService.delete(environment.userHashCookieName);
-        }),
-      );
+      },
+    );
   }
 
   getDataExportURL(): string {
