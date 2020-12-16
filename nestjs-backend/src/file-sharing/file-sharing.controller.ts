@@ -33,6 +33,7 @@ import {
   GetSharingAccessResponse,
 } from './file-sharing.controller.types';
 import { HttpStatusCode } from 'src/utils/http-status-code';
+import { AddOrRemoveSharingAccessDto } from './dto/add-or-remove-sharing-access.dto';
 
 @ApiTags('file-sharing')
 @ApiBearerAuth()
@@ -107,11 +108,6 @@ export class FileSharingController {
     description: 'File ID',
     example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
   })
-  @ApiParam({
-    name: 'email',
-    description: 'User email',
-    example: 'email@example.com',
-  })
   @ApiOperation({
     summary: 'Add sharing access for a user and a file',
     description: 'Add sharing access for a user and a file',
@@ -126,16 +122,16 @@ export class FileSharingController {
     @LoggedUser() currentUser: User,
     @LoggedUserHash() currentUserHash: string,
     @CurrentFile(OWNER) file: File,
-    @Body('email') email: string,
+    @Body() dto: AddOrRemoveSharingAccessDto,
   ) {
-    if (currentUser.email === email) {
+    if (currentUser.email === dto.email) {
       throw new BadRequestException('You cannot share a file with yourself');
     }
 
     await this.fileSharingService.addSharingAccess(
       currentUser,
       currentUserHash,
-      email,
+      dto.email,
       file,
     );
     return { msg: 'Success' };
@@ -148,11 +144,6 @@ export class FileSharingController {
     name: 'fileID',
     description: 'File ID',
     example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
-  })
-  @ApiParam({
-    name: 'email',
-    description: 'User email',
-    example: 'email@example.com',
   })
   @ApiOperation({
     summary: 'Remove sharing access for a user and a file',
@@ -167,13 +158,17 @@ export class FileSharingController {
   async removeSharingAccess(
     @LoggedUser() currentUser: User,
     @CurrentFile(OWNER) file: File,
-    @Param('email') email: string,
+    @Param() dto: AddOrRemoveSharingAccessDto,
   ) {
-    if (currentUser.email === email) {
+    if (currentUser.email === dto.email) {
       throw new BadRequestException('You cannot share a file with yourself');
     }
 
-    await this.fileSharingService.removeSharingAccess(currentUser, email, file);
+    await this.fileSharingService.removeSharingAccess(
+      currentUser,
+      dto.email,
+      file,
+    );
     return { msg: 'Success' };
   }
 }

@@ -11,6 +11,7 @@ import {
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -64,6 +65,7 @@ export class UsersTagsController {
   })
   @ApiOperation({ summary: 'Update a tag', description: 'Update a tag' })
   @ApiOkResponse({ description: 'Tag updated', type: UserTagResponse })
+  @ApiNotFoundResponse({ description: 'Unknown tag', type: GenericResponse })
   async updateTag(
     @Req() req: Request,
     @Param('tagID') tagID: string,
@@ -83,6 +85,7 @@ export class UsersTagsController {
   })
   @ApiOperation({ summary: 'Delete a tag', description: 'Delete a tag' })
   @ApiOkResponse({ description: 'Tag deleted', type: GenericResponse })
+  @ApiNotFoundResponse({ description: 'Unknown tag', type: GenericResponse })
   async deleteTag(@Req() req: Request, @Param('tagID') tagID: string) {
     const user = await this.usersService.findOneByID((req.user as any).userID);
     await this.usersTagsService.deleteTag(user, tagID);

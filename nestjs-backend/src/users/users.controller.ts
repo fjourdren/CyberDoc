@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,6 +9,7 @@ import {
   Res,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
@@ -73,23 +75,41 @@ export class UsersController {
     description: 'Edit current user',
   })
   @ApiOkResponse({ description: 'Success', type: GenericResponse })
+  @ApiBadRequestResponse({
+    description:
+      'You have to specify both `email` and `password` if you want to change one of these properties',
+    type: GenericResponse,
+  })
   async setProfile(
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
     @Body() editUserDto: EditUserDto,
   ) {
     //TODO x-auth-token
-    user = await this.usersService.editUserBasicMetadata(
-      user,
-      editUserDto.firstname,
-      editUserDto.lastname,
-    );
-    user = await this.usersService.editUserEmailAndPassword(
-      user,
-      userHash,
-      editUserDto.email,
-      editUserDto.password,
-    );
+
+    if (editUserDto.firstname || editUserDto.lastname) {
+      user = await this.usersService.editUserBasicMetadata(
+        user,
+        editUserDto.firstname || user.firstname,
+        editUserDto.lastname || user.lastname,
+      );
+    }
+
+    if (editUserDto.email || editUserDto.password) {
+      if (!(editUserDto.email && editUserDto.password)) {
+        throw new BadRequestException(
+          'You have to specify both `email` and `password` if you want to change one of these properties',
+        );
+      }
+
+      user = await this.usersService.editUserEmailAndPassword(
+        user,
+        userHash,
+        editUserDto.email,
+        editUserDto.password,
+      );
+    }
+
     return { msg: 'Success' };
   }
 
