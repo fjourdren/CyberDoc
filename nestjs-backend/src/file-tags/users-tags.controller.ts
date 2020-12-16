@@ -34,14 +34,14 @@ class UserTagResponse extends GenericResponse {
 
 @ApiTags('user-tags')
 @ApiBearerAuth()
-@Controller('users')
+@Controller('user-tags')
 export class UsersTagsController {
   constructor(
     private readonly usersService: UsersService,
     private readonly usersTagsService: UsersTagsService,
   ) {}
 
-  @Post('tags')
+  @Post()
   @HttpCode(HttpStatusCode.CREATED)
   @ApiOperation({ summary: 'Create a tag', description: 'Create a tag' })
   @ApiCreatedResponse({ description: 'Tag created', type: UserTagResponse })
@@ -55,7 +55,7 @@ export class UsersTagsController {
     return { msg: 'Tag created', tagID: tag._id };
   }
 
-  @Put('tags/:tagID')
+  @Put(':tagID')
   @HttpCode(HttpStatusCode.OK)
   @ApiParam({
     name: 'tagID',
@@ -74,7 +74,7 @@ export class UsersTagsController {
     return { msg: 'Tag updated', tagID: tagID };
   }
 
-  @Delete('tags/:tagID')
+  @Delete(':tagID')
   @HttpCode(HttpStatusCode.OK)
   @ApiParam({
     name: 'tagID',

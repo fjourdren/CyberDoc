@@ -28,11 +28,11 @@ import { HttpStatusCode } from 'src/utils/http-status-code';
 
 @ApiTags('file-tags')
 @ApiBearerAuth()
-@Controller('files')
+@Controller('file-tags')
 export class FilesTagsController {
   constructor(private readonly filesTagsService: FilesTagsService) {}
 
-  @Post(':fileID/tags')
+  @Post(':fileID')
   @UseGuards(FileGuard)
   @HttpCode(HttpStatusCode.OK)
   @ApiParam({
@@ -63,7 +63,7 @@ export class FilesTagsController {
     return { msg: 'Tag added to the file' };
   }
 
-  @Delete(':fileID/tags/:tagID')
+  @Delete(':fileID/:tagID')
   @UseGuards(FileGuard)
   @HttpCode(HttpStatusCode.OK)
   @ApiParam({

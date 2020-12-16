@@ -52,12 +52,19 @@ export class AuthController {
   @ApiOkResponse({ description: 'Success', type: GenericResponse })
   async login(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const { access_token } = await this.authService.login(req.user);
+    const expirationDate = new Date();
+    expirationDate.setSeconds(
+      expirationDate.getSeconds() +
+        this.configService.get<number>('JWT_EXPIRATION_TIME'),
+    );
+
     res.cookie(
       this.configService.get<string>('JWT_COOKIE_NAME'),
       access_token,
       {
         path: '/',
         httpOnly: true,
+        expires: expirationDate,
         domain: this.configService.get<string>('JWT_COOKIE_DOMAIN'),
       },
     );
