@@ -28,4 +28,4 @@ echo "[skip] BUILDING"
 # npm run build
 echo "STARTING BACKEND"
 npm install -g @nestjs/cli
-nest start
+nest start --tsc
