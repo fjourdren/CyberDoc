@@ -18,6 +18,8 @@
 #echo "STARTING BACKEND"
 #npm run start
 
+pwd
+ls
 
 
 echo "INSTALLING"
@@ -25,4 +27,5 @@ npm install
 echo "[skip] BUILDING"
 # npm run build
 echo "STARTING BACKEND"
-npm run start
+npm install -g @nestjs/cli
+nest start
