@@ -3,7 +3,6 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   HttpCode,
   Patch,
@@ -52,6 +51,8 @@ import {
   GetResponse,
   CreateFileResponse,
 } from './files.controller.types';
+import { MongoSession } from 'src/mongo-session.decorator';
+import { ClientSession } from 'mongoose';
 
 @ApiTags('files')
 @ApiBearerAuth()
@@ -128,6 +129,7 @@ export class FilesController {
   })
   @ApiCreatedResponse({ description: 'File created', type: CreateFileResponse })
   async create(
+    @MongoSession() mongoSession: ClientSession,
     @LoggedUser({ requireOwner: true }) user: User,
     @LoggedUserHash() userHash: string,
     @UploadedFiles() files,
@@ -140,6 +142,7 @@ export class FilesController {
     }
 
     let file = await this.filesService.create(
+      mongoSession,
       user,
       uploadFileDto.name,
       uploadFileDto.mimetype,
@@ -147,6 +150,7 @@ export class FilesController {
     );
     if (!newDirectoryMode) {
       file = await this.filesService.setFileContent(
+        mongoSession,
         user,
         userHash,
         file,
@@ -189,6 +193,7 @@ export class FilesController {
     type: GenericResponse,
   })
   async updateFileContent(
+    @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
     @UploadedFiles() files,
@@ -199,6 +204,7 @@ export class FilesController {
 
     if (files && files[0]) {
       await this.filesService.setFileContent(
+        mongoSession,
         user,
         userHash,
         file,
@@ -237,38 +243,18 @@ export class FilesController {
     type: GenericResponse,
   })
   async updateFileMetadata(
+    @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @Body() editFileMetadataDto: EditFileMetadataDto,
     @CurrentFile(WRITE) file: File,
   ) {
-    const userIsFileOwner = user._id === file.owner_id;
-    const requireIsFileOwner = () => {
-      if (!userIsFileOwner)
-        throw new ForbiddenException(
-          'The user have to be the owner of the file to edit `preview`, `directoryID` and `shareMode`',
-        );
-    };
+    await this.filesService.setFileMetadata(
+      mongoSession,
+      user,
+      file,
+      editFileMetadataDto,
+    );
 
-    if (editFileMetadataDto.name) file.name = editFileMetadataDto.name;
-
-    if (editFileMetadataDto.directoryID) {
-      requireIsFileOwner();
-      file.parent_file_id = editFileMetadataDto.directoryID;
-    }
-
-    if (editFileMetadataDto.preview) {
-      requireIsFileOwner();
-      if (editFileMetadataDto.preview && file.type === FILE)
-        throw new BadRequestException('Preview is not available for folders');
-      file.preview = editFileMetadataDto.preview;
-    }
-
-    if (editFileMetadataDto.shareMode) {
-      requireIsFileOwner();
-      file.shareMode = editFileMetadataDto.shareMode;
-    }
-
-    await this.filesService.save(file);
     return { msg: 'File informations modified' };
   }
 
@@ -294,6 +280,7 @@ export class FilesController {
     type: GenericResponse,
   })
   async copy(
+    @MongoSession() mongoSession: ClientSession,
     @LoggedUser({ requireOwner: true }) user: User,
     @LoggedUserHash() userHash: string,
     @Body() copyFileDto: CopyFileDto,
@@ -302,6 +289,7 @@ export class FilesController {
     if (file.type !== FILE)
       throw new BadRequestException('This action is only available with files');
     const copy = await this.filesService.copyFile(
+      mongoSession,
       user,
       userHash,
       file,

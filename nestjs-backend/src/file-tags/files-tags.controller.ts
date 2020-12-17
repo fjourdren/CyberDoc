@@ -25,6 +25,8 @@ import {
 } from '@nestjs/swagger';
 import { GenericResponse } from 'src/generic-response.interceptor';
 import { HttpStatusCode } from 'src/utils/http-status-code';
+import { MongoSession } from 'src/mongo-session.decorator';
+import { ClientSession } from 'mongoose';
 
 @ApiTags('file-tags')
 @ApiBearerAuth()
@@ -50,6 +52,7 @@ export class FilesTagsController {
   })
   @ApiNotFoundResponse({ description: 'Tag not found', type: GenericResponse })
   async addTag(
+    @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @CurrentFile(OWNER) file: File,
     @Body('tagId') tagID: string,
@@ -59,7 +62,7 @@ export class FilesTagsController {
 
     if (file.tags.find((tag) => tag._id === tagID))
       throw new BadRequestException('File already have this tag');
-    await this.filesTagsService.addTagToFile(file, tag);
+    await this.filesTagsService.addTagToFile(mongoSession, file, tag);
     return { msg: 'Tag added to the file' };
   }
 
@@ -86,13 +89,14 @@ export class FilesTagsController {
   })
   @ApiNotFoundResponse({ description: 'Tag not found', type: GenericResponse })
   async removeTag(
+    @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @CurrentFile(OWNER) file: File,
     @Param('tagID') tagID: string,
   ) {
     const tag = user.tags.find((tag) => tag._id === tagID);
     if (!file) throw new NotFoundException('Tag not found');
-    await this.filesTagsService.removeTagFromFile(file, tag);
+    await this.filesTagsService.removeTagFromFile(mongoSession, file, tag);
     return { msg: 'Tag removed from file' };
   }
 }

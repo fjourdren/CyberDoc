@@ -34,6 +34,8 @@ import {
 } from './file-sharing.controller.types';
 import { HttpStatusCode } from 'src/utils/http-status-code';
 import { AddOrRemoveSharingAccessDto } from './dto/add-or-remove-sharing-access.dto';
+import { MongoSession } from 'src/mongo-session.decorator';
+import { ClientSession } from 'mongoose';
 
 @ApiTags('file-sharing')
 @ApiBearerAuth()
@@ -119,6 +121,7 @@ export class FileSharingController {
     type: GenericResponse,
   })
   async addSharingAccess(
+    @MongoSession() mongoSession: ClientSession,
     @LoggedUser() currentUser: User,
     @LoggedUserHash() currentUserHash: string,
     @CurrentFile(OWNER) file: File,
@@ -129,6 +132,7 @@ export class FileSharingController {
     }
 
     await this.fileSharingService.addSharingAccess(
+      mongoSession,
       currentUser,
       currentUserHash,
       dto.email,
@@ -156,6 +160,7 @@ export class FileSharingController {
     type: GenericResponse,
   })
   async removeSharingAccess(
+    @MongoSession() mongoSession: ClientSession,
     @LoggedUser() currentUser: User,
     @CurrentFile(OWNER) file: File,
     @Param() dto: AddOrRemoveSharingAccessDto,
@@ -165,7 +170,7 @@ export class FileSharingController {
     }
 
     await this.fileSharingService.removeSharingAccess(
-      currentUser,
+      mongoSession,
       dto.email,
       file,
     );

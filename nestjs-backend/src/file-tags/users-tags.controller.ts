@@ -24,6 +24,8 @@ import { CreateOrUpdateTagDto } from './dto/create-or-update-tag.dto';
 import { UsersTagsService } from './users-tags.service';
 import { GenericResponse } from 'src/generic-response.interceptor';
 import { HttpStatusCode } from 'src/utils/http-status-code';
+import { MongoSession } from 'src/mongo-session.decorator';
+import { ClientSession } from 'mongoose';
 
 class UserTagResponse extends GenericResponse {
   @ApiProperty({
@@ -46,9 +48,14 @@ export class UsersTagsController {
   @HttpCode(HttpStatusCode.CREATED)
   @ApiOperation({ summary: 'Create a tag', description: 'Create a tag' })
   @ApiCreatedResponse({ description: 'Tag created', type: UserTagResponse })
-  async createTag(@Req() req: Request, @Body() dto: CreateOrUpdateTagDto) {
+  async createTag(
+    @MongoSession() mongoSession: ClientSession,
+    @Req() req: Request,
+    @Body() dto: CreateOrUpdateTagDto,
+  ) {
     const user = await this.usersService.findOneByID((req.user as any).userID);
     const tag = await this.usersTagsService.createTag(
+      mongoSession,
       user,
       dto.name,
       dto.color,
@@ -67,12 +74,19 @@ export class UsersTagsController {
   @ApiOkResponse({ description: 'Tag updated', type: UserTagResponse })
   @ApiNotFoundResponse({ description: 'Unknown tag', type: GenericResponse })
   async updateTag(
+    @MongoSession() mongoSession: ClientSession,
     @Req() req: Request,
     @Param('tagID') tagID: string,
     @Body() dto: CreateOrUpdateTagDto,
   ) {
     const user = await this.usersService.findOneByID((req.user as any).userID);
-    await this.usersTagsService.updateTag(user, tagID, dto.name, dto.color);
+    await this.usersTagsService.updateTag(
+      mongoSession,
+      user,
+      tagID,
+      dto.name,
+      dto.color,
+    );
     return { msg: 'Tag updated', tagID: tagID };
   }
 
@@ -86,9 +100,13 @@ export class UsersTagsController {
   @ApiOperation({ summary: 'Delete a tag', description: 'Delete a tag' })
   @ApiOkResponse({ description: 'Tag deleted', type: GenericResponse })
   @ApiNotFoundResponse({ description: 'Unknown tag', type: GenericResponse })
-  async deleteTag(@Req() req: Request, @Param('tagID') tagID: string) {
+  async deleteTag(
+    @MongoSession() mongoSession: ClientSession,
+    @Req() req: Request,
+    @Param('tagID') tagID: string,
+  ) {
     const user = await this.usersService.findOneByID((req.user as any).userID);
-    await this.usersTagsService.deleteTag(user, tagID);
+    await this.usersTagsService.deleteTag(mongoSession, user, tagID);
     return { msg: 'Tag deleted' };
   }
 }

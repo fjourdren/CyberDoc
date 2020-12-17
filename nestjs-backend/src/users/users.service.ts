@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { UserHashService } from 'src/crypto/user-hash.service';
 import { FileInResponse } from 'src/files/files.controller.types';
 import { FilesService } from 'src/files/files.service';
@@ -51,7 +51,10 @@ export class UsersService {
     return this.userModel.findOne({ _id: id }).exec();
   }
 
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
+  async createUser(
+    mongoSession: ClientSession,
+    createUserDto: CreateUserDto,
+  ): Promise<User> {
     if (await this.findOneByEmail(createUserDto.email)) {
       throw new ConflictException(
         'Another account with this mail already exists',
@@ -80,18 +83,24 @@ export class UsersService {
     await this.cryptoService.setUserPrivateKey(user, userHash, rsaPrivateKey);
 
     const rootFolder = await this.filesService.create(
+      mongoSession,
       user,
       'My safebox',
       'application/x-dir',
       null,
+      true /* __allowNullFolderID */,
     );
     user.directory_id = rootFolder._id;
 
-    await this.fileSharingService.addAllPendingSharesForUser(user);
-    return await new this.userModel(user).save();
+    await this.fileSharingService.addAllPendingSharesForUser(
+      mongoSession,
+      user,
+    );
+    return await new this.userModel(user).save({ session: mongoSession });
   }
 
   async editUserEmailAndPassword(
+    mongoSession: ClientSession,
     user: User,
     userHash: string,
     newEmail: string,
@@ -114,22 +123,25 @@ export class UsersService {
     );
     user.email = newEmail;
     user.password = newCryptedPassword;
-    return await new this.userModel(user).save();
+    return await new this.userModel(user).save({ session: mongoSession });
   }
 
   async editUserBasicMetadata(
+    mongoSession: ClientSession,
     user: User,
     newFirstName: string,
     newLastName: string,
   ): Promise<User> {
     user.firstname = newFirstName;
     user.lastname = newLastName;
-    return await new this.userModel(user).save();
+    return await new this.userModel(user).save({ session: mongoSession });
   }
 
   async deleteUser(user: User): Promise<void> {
     const rootFolder = await this.filesService.findOne(user.directory_id);
     await this.filesService.delete(rootFolder);
+
+    //cforgeard 17/12/20 deleteOne don't support sessions...
     await new this.userModel(user).deleteOne();
   }
 

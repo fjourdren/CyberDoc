@@ -8,13 +8,14 @@ import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { JwtAuthGuard } from './auth/jwt/jwt-auth.guard';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { FilesModule } from './files/files.module';
 import { CryptoModule } from './crypto/crypto.module';
 import { FileTagsModule } from './file-tags/file-tags.module';
 import { FileSharingModule } from './file-sharing/file-sharing.module';
 import { UtilsModule } from './utils/utils.module';
 import { FileSigningModule } from './file-signing/file-signing.module';
+import { MongoSessionInterceptor } from './mongo-session.interceptor';
 
 @Module({
   imports: [
@@ -59,6 +60,10 @@ import { FileSigningModule } from './file-signing/file-signing.module';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: MongoSessionInterceptor,
     },
   ],
 })

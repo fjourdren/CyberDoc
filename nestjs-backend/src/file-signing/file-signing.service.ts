@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { CryptoService } from 'src/crypto/crypto.service';
 import { RsaService } from 'src/crypto/rsa.service';
 import { FilesService } from 'src/files/files.service';
@@ -17,7 +17,12 @@ export class FileSigningService {
     private readonly rsa: RsaService,
   ) {}
 
-  async addSign(user: User, userHash: string, file: File) {
+  async addSign(
+    mongoSession: ClientSession,
+    user: User,
+    userHash: string,
+    file: File,
+  ) {
     const userPrivateKey = await this.cryptoService.getUserPrivateKey(
       user,
       userHash,
@@ -38,6 +43,6 @@ export class FileSigningService {
     signObj.diggest = this.rsa.sign(userPrivateKey, diggestBuffer);
 
     file.signs.push(signObj);
-    await new this.fileModel(signObj).save();
+    await new this.fileModel(signObj).save({ session: mongoSession });
   }
 }
