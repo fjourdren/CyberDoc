@@ -22,8 +22,8 @@
 
 echo "INSTALLING"
 npm install
-echo "BUILDING"
-npm run build
+echo "[skip] BUILDING"
+# npm run build
 echo "DELETED USELESS FILES"
 rm -rf src/
 rm -rf test/
@@ -37,4 +37,4 @@ rm package.json
 rm tsconfig.build.json
 rm tsconfig.json
 echo "STARTING BACKEND"
-npm run start:prod
+npm run start
