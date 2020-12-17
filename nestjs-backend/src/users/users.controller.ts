@@ -29,6 +29,8 @@ import { LoggedUserHash } from 'src/auth/logged-user-hash.decorator';
 import { EditUserDto } from './dto/edit-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SkipJWTAuth } from 'src/auth/jwt/skip-jwt-auth.annotation';
+import { MongoSession } from 'src/mongo-session.decorator';
+import { ClientSession } from 'mongoose';
 
 @ApiTags('users')
 @Controller('users')
@@ -47,8 +49,11 @@ export class UsersController {
     description: 'Another user with the same email already exists',
     type: GenericResponse,
   })
-  async createProfile(@Body() createUserDto: CreateUserDto) {
-    await this.usersService.createUser(createUserDto);
+  async createProfile(
+    @MongoSession() mongoSession: ClientSession,
+    @Body() createUserDto: CreateUserDto,
+  ) {
+    await this.usersService.createUser(mongoSession, createUserDto);
     return { msg: 'Success' };
   }
 
@@ -81,6 +86,7 @@ export class UsersController {
     type: GenericResponse,
   })
   async setProfile(
+    @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
     @Body() editUserDto: EditUserDto,
@@ -89,6 +95,7 @@ export class UsersController {
 
     if (editUserDto.firstname || editUserDto.lastname) {
       user = await this.usersService.editUserBasicMetadata(
+        mongoSession,
         user,
         editUserDto.firstname || user.firstname,
         editUserDto.lastname || user.lastname,
@@ -103,6 +110,7 @@ export class UsersController {
       }
 
       user = await this.usersService.editUserEmailAndPassword(
+        mongoSession,
         user,
         userHash,
         editUserDto.email,

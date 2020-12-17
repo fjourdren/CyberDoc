@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { Connection, FilterQuery, Model } from 'mongoose';
+import { ClientSession, Connection, FilterQuery, Model } from 'mongoose';
 import { MongoGridFS } from 'mongo-gridfs';
 import { User, UserDocument } from 'src/schemas/user.schema';
 import {
@@ -37,6 +37,7 @@ import { PreviewGenerator } from './file-preview/preview-generator.service';
 import { FileSearchDto } from './dto/file-search.dto';
 import { CryptoService } from 'src/crypto/crypto.service';
 import { FileInResponse } from './files.controller.types';
+import { EditFileMetadataDto } from './dto/edit-file-metadata.dto';
 
 export const COLUMNS_TO_KEEP_FOR_FILE = [
   '_id',
@@ -95,14 +96,26 @@ export class FilesService {
     return this.fileModel.findOne({ _id: fileID }).exec();
   }
 
-  async create(user: User, name: string, mimetype: string, folderID: string) {
+  async create(
+    mongoSession: ClientSession,
+    user: User,
+    name: string,
+    mimetype: string,
+    folderID: string,
+    __allowNullFolderID = false,
+  ) {
     const parentFolder = await this.findOne(folderID);
-    if (!parentFolder || parentFolder.type !== FOLDER)
-      throw new BadRequestException('folderID is invalid');
-    if (parentFolder.owner_id !== user._id)
-      throw new ForbiddenException(
-        'The user have to be the owner of parent folder',
-      );
+    if (parentFolder) {
+      if (parentFolder.type !== FOLDER)
+        throw new BadRequestException('folderID is not a folder');
+
+      if (parentFolder.owner_id !== user._id)
+        throw new ForbiddenException(
+          'The user have to be the owner of parent folder',
+        );
+    } else if (!__allowNullFolderID) {
+      throw new BadRequestException('folderID is missing');
+    }
 
     const date = new Date();
     const file = new File();
@@ -119,7 +132,8 @@ export class FilesService {
     file.tags = [];
     file.created_at = date;
     file.updated_at = date;
-    return await this.save(file);
+
+    return await new this.fileModel(file).save({ session: mongoSession });
   }
 
   async search(user: User, fileSearchDto: FileSearchDto): Promise<File[]> {
@@ -218,6 +232,7 @@ export class FilesService {
   }
 
   async setFileContent(
+    mongoSession: ClientSession,
     currentUser: User,
     userHash: string,
     file: File,
@@ -254,14 +269,47 @@ export class FilesService {
     file.document_id = uploadStream.id.toString();
     file.size = buffer.length;
 
-    return await new this.fileModel(file).save();
+    return await new this.fileModel(file).save({ session: mongoSession });
   }
 
-  async save(file: File) {
-    return await new this.fileModel(file).save();
+  async setFileMetadata(
+    mongoSession: ClientSession,
+    user: User,
+    file: File,
+    editFileMetadataDto: EditFileMetadataDto,
+  ) {
+    const userIsFileOwner = user._id === file.owner_id;
+    const requireIsFileOwner = () => {
+      if (!userIsFileOwner)
+        throw new ForbiddenException(
+          'The user have to be the owner of the file to edit `preview`, `directoryID` and `shareMode`',
+        );
+    };
+
+    if (editFileMetadataDto.name) file.name = editFileMetadataDto.name;
+
+    if (editFileMetadataDto.directoryID) {
+      requireIsFileOwner();
+      file.parent_file_id = editFileMetadataDto.directoryID;
+    }
+
+    if (editFileMetadataDto.preview) {
+      requireIsFileOwner();
+      if (editFileMetadataDto.preview && file.type === FILE)
+        throw new BadRequestException('Preview is not available for folders');
+      file.preview = editFileMetadataDto.preview;
+    }
+
+    if (editFileMetadataDto.shareMode) {
+      requireIsFileOwner();
+      file.shareMode = editFileMetadataDto.shareMode;
+    }
+
+    return await new this.fileModel(file).save({ session: mongoSession });
   }
 
   async copyFile(
+    mongoSession: ClientSession,
     user: User,
     userHash: string,
     file: File,
@@ -270,6 +318,7 @@ export class FilesService {
   ) {
     if (file.type !== FILE) throw new InternalServerErrorException();
     let copyFile = await this.create(
+      mongoSession,
       user,
       copyFilename,
       file.mimetype,
@@ -277,8 +326,11 @@ export class FilesService {
     );
     copyFile.tags = file.tags;
     copyFile.preview = file.preview;
-    copyFile = await this.save(copyFile);
+    copyFile = await new this.fileModel(copyFile).save({
+      session: mongoSession,
+    });
     await this.setFileContent(
+      mongoSession,
       user,
       userHash,
       copyFile,
@@ -298,6 +350,8 @@ export class FilesService {
         throw new InternalServerErrorException(`gridFSModel.delete failed`);
       }
     }
+
+    //cforgeard 17/12/20 deleteOne don't support sessions...
     await new this.fileModel(file).deleteOne();
   }
 

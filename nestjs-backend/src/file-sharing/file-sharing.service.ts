@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { MailUtilsService } from 'src/utils/mail-utils.service';
 import { SharedWithPending } from 'src/schemas/file-sharewith-pending.schema';
 import { File, FileDocument } from 'src/schemas/file.schema';
@@ -37,7 +37,7 @@ export class FileSharingService {
     return { sharedUsersPending, sharedUsers };
   }
 
-  async addAllPendingSharesForUser(user: User) {
+  async addAllPendingSharesForUser(mongoSession: ClientSession, user: User) {
     const pendingShareFiles = await this.fileModel
       .find({ 'sharedWithPending.email': user.email })
       .exec();
@@ -55,11 +55,14 @@ export class FileSharingService {
       pendingShareFile.shareWithPending = pendingShareFile.shareWithPending.filter(
         (item) => item.email !== user.email,
       );
-      await new this.fileModel(pendingShareFile).save();
+      await new this.fileModel(pendingShareFile).save({
+        session: mongoSession,
+      });
     }
   }
 
   async addSharingAccess(
+    mongoSession: ClientSession,
     fileOwner: User,
     fileOwnerHash: string,
     email: string,
@@ -80,7 +83,7 @@ export class FileSharingService {
       await this.cryptoService.addFileAESKeyToUser(user, file._id, fileAESKey);
 
       file.sharedWith.push(user._id);
-      await new this.fileModel(file).save();
+      await new this.fileModel(file).save({ session: mongoSession });
 
       await this.mailService.send(
         email,
@@ -103,7 +106,7 @@ export class FileSharingService {
       obj.email = email;
       obj.file_aes_key = fileAESKey;
       file.shareWithPending.push(obj);
-      await new this.fileModel(file).save();
+      await new this.fileModel(file).save({ session: mongoSession });
 
       await this.mailService.send(
         email,
@@ -119,17 +122,21 @@ export class FileSharingService {
     }
   }
 
-  async removeSharingAccess(fileOwner: User, email: string, file: File) {
+  async removeSharingAccess(
+    mongoSession: ClientSession,
+    email: string,
+    file: File,
+  ) {
     const user = await this.userModel.findOne({ email }).exec();
     if (user) {
       file.sharedWith = file.sharedWith.filter((item) => item !== user._id);
-      await new this.fileModel(file).save();
+      await new this.fileModel(file).save({ session: mongoSession });
       await this.cryptoService.removeFileAESKeyFromUser(user, file._id);
     } else {
       file.shareWithPending = file.shareWithPending.filter(
         (item) => item.email !== email,
       );
-      await new this.fileModel(file).save();
+      await new this.fileModel(file).save({ session: mongoSession });
     }
   }
 }

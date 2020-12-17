@@ -22,6 +22,8 @@ import {
 } from '@nestjs/swagger';
 import { GenericResponse } from 'src/generic-response.interceptor';
 import { HttpStatusCode } from 'src/utils/http-status-code';
+import { MongoSession } from 'src/mongo-session.decorator';
+import { ClientSession } from 'mongoose';
 
 @ApiTags('file-signing')
 @ApiBearerAuth()
@@ -44,13 +46,14 @@ export class FileSigningController {
     type: GenericResponse,
   })
   async addSign(
+    @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
     @CurrentFile(READ) file: File,
   ) {
     if (file.signs.find((item) => item.user_email === user.email))
       throw new BadRequestException('You already signed that document');
-    await this.fileSigningService.addSign(user, userHash, file);
+    await this.fileSigningService.addSign(mongoSession, user, userHash, file);
     return { msg: 'Success' };
   }
 }
