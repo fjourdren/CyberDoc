@@ -25,6 +25,8 @@ export class GenericResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map((data) => {
+        //Exit if the current endpoint doesn't return JSON data
+        if (!data) return undefined;
         const msg = data.msg;
         if (!msg)
           throw new InternalServerErrorException(
