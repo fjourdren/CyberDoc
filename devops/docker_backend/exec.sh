@@ -37,4 +37,4 @@ rm package.json
 rm tsconfig.build.json
 rm tsconfig.json
 echo "STARTING BACKEND"
-npm run start
+npm run start:prod
