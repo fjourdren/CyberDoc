@@ -23,7 +23,9 @@ import { MongoSessionInterceptor } from './mongo-session.interceptor';
       isGlobal: true,
       validationSchema: Joi.object({
         APP_NAME: Joi.string().required(),
+        APP_PORT: Joi.number().required(),
         APP_VERSION: Joi.string().required(),
+        CORS_ORIGIN: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRATION_TIME: Joi.number().required(),
         JWT_COOKIE_NAME: Joi.string().required(),

@@ -5,16 +5,16 @@ import { AppModule } from './app.module';
 import { GenericResponseInterceptor } from './generic-response.interceptor';
 import * as helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
-
-const FRONTEND_ORIGIN = 'http://localhost:4200';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const config = new ConfigService();
 
   const options = new DocumentBuilder()
-    .setTitle('CyberDoc API')
-    .setDescription('CyberDoc API')
-    .setVersion('1.0')
+    .setTitle(config.get<string>('APP_NAME'))
+    .setDescription(config.get<string>('APP_NAME'))
+    .setVersion(config.get<string>('APP_VERSION'))
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, options);
@@ -32,11 +32,11 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: FRONTEND_ORIGIN,
+    origin: config.get<string>('CORS_ORIGIN'),
     credentials: true,
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
   });
 
-  await app.listen(3000);
+  await app.listen(config.get<number>('APP_PORT'));
 }
 bootstrap();
