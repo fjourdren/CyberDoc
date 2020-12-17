@@ -24,17 +24,5 @@ echo "INSTALLING"
 npm install
 echo "[skip] BUILDING"
 # npm run build
-echo "DELETED USELESS FILES"
-rm -rf src/
-rm -rf test/
-rm .eslintrc.js
-rm .gitignore
-rm .prettierrc
-rm README.md
-rm nest-cli.json
-rm package-lock.json
-rm package.json
-rm tsconfig.build.json
-rm tsconfig.json
 echo "STARTING BACKEND"
 npm run start
