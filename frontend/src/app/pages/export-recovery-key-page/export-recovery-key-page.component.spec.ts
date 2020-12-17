@@ -8,9 +8,8 @@ describe('ExportRecoveryKeyPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ExportRecoveryKeyPageComponent ]
-    })
-    .compileComponents();
+      declarations: [ExportRecoveryKeyPageComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

@@ -8,9 +8,8 @@ describe('FilesOpenDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesOpenDialogComponent ]
-    })
-    .compileComponents();
+      declarations: [FilesOpenDialogComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

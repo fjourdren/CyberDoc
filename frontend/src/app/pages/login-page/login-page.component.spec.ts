@@ -53,7 +53,7 @@ describe('LoginPageComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LoginPageComponent ],
+      declarations: [LoginPageComponent],
       imports: [
         NoopAnimationsModule,
         ReactiveFormsModule,
@@ -100,8 +100,8 @@ describe('LoginPageComponent', () => {
         MatTreeModule,
         OverlayModule,
         PortalModule,
-        ScrollingModule
-      ]
+        ScrollingModule,
+      ],
     }).compileComponents();
   }));
 

@@ -1,8 +1,11 @@
 import { CloudNode } from 'src/app/models/files-api-models';
 import { FilesUtilsService } from 'src/app/services/files-utils/files-utils.service';
 import { Component, Inject, NgZone } from '@angular/core';
-import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
-import { UserServiceProvider } from "../../../services/users/user-service-provider";
+import {
+  MatBottomSheetRef,
+  MAT_BOTTOM_SHEET_DATA,
+} from '@angular/material/bottom-sheet';
+import { UsersService } from 'src/app/services/users/users.service';
 
 export interface FilesGenericTableBottomsheetData {
   sharedWithMeMode: boolean;
@@ -16,16 +19,21 @@ export interface FilesGenericTableBottomsheetData {
 @Component({
   selector: 'app-files-generic-table-bottomsheet',
   templateUrl: './files-generic-table-bottomsheet.component.html',
-  styleUrls: ['./files-generic-table-bottomsheet.component.css']
+  styleUrls: ['./files-generic-table-bottomsheet.component.css'],
 })
 export class FilesGenericTableBottomsheetComponent {
-  constructor(private bottomSheetRef: MatBottomSheetRef<FilesGenericTableBottomsheetComponent>,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: FilesGenericTableBottomsheetData,
+  constructor(
+    private bottomSheetRef: MatBottomSheetRef<FilesGenericTableBottomsheetComponent>,
+    @Inject(MAT_BOTTOM_SHEET_DATA)
+    public data: FilesGenericTableBottomsheetData,
     private filesUtils: FilesUtilsService,
-    private userServiceProvider: UserServiceProvider,
-    private ngZone: NgZone) {
-
-    this.bottomSheetRef.afterDismissed().toPromise().then(() => this.data.onBottomSheetClose());
+    private usersService: UsersService,
+    private ngZone: NgZone,
+  ) {
+    this.bottomSheetRef
+      .afterDismissed()
+      .toPromise()
+      .then(() => this.data.onBottomSheetClose());
   }
 
   node: CloudNode;
@@ -40,7 +48,9 @@ export class FilesGenericTableBottomsheetComponent {
   }
 
   canBeOpened(node: CloudNode): boolean {
-    return this.filesUtils.canBeOpenedInApp(this.filesUtils.getFileTypeForMimetype(node.mimetype));
+    return this.filesUtils.canBeOpenedInApp(
+      this.filesUtils.getFileTypeForMimetype(node.mimetype),
+    );
   }
 
   isPDFExportAvailable(node: CloudNode): boolean {
@@ -54,10 +64,10 @@ export class FilesGenericTableBottomsheetComponent {
     this.ngZone.run(() => {
       this.data.callback(action);
       this.data.onBottomSheetClose();
-    })
+    });
   }
 
   isOwner(): boolean {
-    return this.userServiceProvider.default().getActiveUser().role === "owner";
+    return this.usersService.getActiveUser().role === 'owner';
   }
 }

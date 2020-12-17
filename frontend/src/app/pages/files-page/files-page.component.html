@@ -1,12 +1,12 @@
 <div id="filepage">
     <div *ngIf="fileDetailDrawerLocked">
         <app-files-main-toolbar [routeSearchParams]="routeSearchParams" [hideAppName]="smallScreen"
-                                [hideMenuButton]="treeviewDrawerLocked" (menuButtonClicked)="treeviewDrawer.toggle()">
+            [hideMenuButton]="treeviewDrawerLocked" (menuButtonClicked)="treeviewDrawer.toggle()">
         </app-files-main-toolbar>
 
         <div *ngIf="!searchMode" class="app-files-breadcrumb-container">
-            <app-files-breadcrumb [currentDirectory]="currentDirectory"
-                                  [sharedWithMeMode]="sharedWithMeMode"></app-files-breadcrumb>
+            <app-files-breadcrumb [currentDirectory]="currentDirectory" [sharedWithMeMode]="sharedWithMeMode">
+            </app-files-breadcrumb>
         </div>
 
         <div *ngIf="searchMode" class="app-files-filter-dialog-container">
@@ -16,7 +16,7 @@
     <mat-drawer-container autosize>
 
         <mat-drawer [opened]="treeviewDrawerLocked" [mode]="treeviewDrawerLocked ? 'side' : 'over'" #treeviewDrawer
-                    id="treeview-drawer">
+            id="treeview-drawer">
 
             <mat-toolbar *ngIf="!fileDetailDrawerLocked">
                 {{ 'general.appname' | translate }}
@@ -26,18 +26,18 @@
                 </button>
             </mat-toolbar>
 
-            <app-files-treeview *ngIf="!searchMode"
-                                [currentDirectoryID]="currentDirectory && currentDirectory._id"
-                                [sharedWithMeMode]="sharedWithMeMode"></app-files-treeview>
+            <app-files-treeview *ngIf="!searchMode" [currentDirectoryID]="currentDirectory && currentDirectory._id"
+                [sharedWithMeMode]="sharedWithMeMode"></app-files-treeview>
         </mat-drawer>
 
         <div *ngIf="!fileDetailDrawerLocked">
             <app-files-main-toolbar [hideAppName]="smallScreen" [hideMenuButton]="treeviewDrawerLocked"
-                                    (menuButtonClicked)="treeviewDrawer.toggle()">
+                (menuButtonClicked)="treeviewDrawer.toggle()">
             </app-files-main-toolbar>
 
             <div *ngIf="!searchMode" class="app-files-breadcrumb-container">
-                <app-files-breadcrumb [sharedWithMeMode]="sharedWithMeMode" [currentDirectory]="currentDirectory"></app-files-breadcrumb>
+                <app-files-breadcrumb [sharedWithMeMode]="sharedWithMeMode" [currentDirectory]="currentDirectory">
+                </app-files-breadcrumb>
             </div>
 
             <div *ngIf="searchMode" class="app-files-filter-dialog-container">
@@ -48,17 +48,14 @@
         <mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
 
         <app-files-generic-table *ngIf="!loading" [showDetailsButton]="!fileDetailDrawerLocked"
-                                 [sharedWithMeMode]="sharedWithMeMode"
-                                 [currentDirectoryID]="currentDirectory && currentDirectory._id"
-                                 [currentDirectory]="!searchMode && !sharedWithMeMode && currentDirectory"
-                                 [items]="currentDirectory && currentDirectory.directoryContent"
-                                 [(selectedNode)]="selectedNode"
-                                 (openButtonClicked)="openButtonClicked($event)"
-                                 (detailsButtonClicked)="fileDetailDrawer.open()">
+            [sharedWithMeMode]="sharedWithMeMode" [currentDirectoryID]="currentDirectory && currentDirectory._id"
+            [currentDirectory]="!searchMode && !sharedWithMeMode && currentDirectory"
+            [items]="currentDirectory && currentDirectory.directoryContent" [(selectedNode)]="selectedNode"
+            (openButtonClicked)="openButtonClicked($event)" (detailsButtonClicked)="fileDetailDrawer.open()">
         </app-files-generic-table>
 
         <mat-drawer #fileDetailDrawer [opened]="fileDetailDrawerLocked"
-                    [mode]="fileDetailDrawerLocked ? 'side' : 'over'" position="end" id="file-detail-drawer">
+            [mode]="fileDetailDrawerLocked ? 'side' : 'over'" position="end" id="file-detail-drawer">
             <mat-toolbar *ngIf="!fileDetailDrawerLocked">
                 <button id="close-file-detail-drawer-btn" (click)="fileDetailDrawer.close()" mat-icon-button>
                     <mat-icon>close</mat-icon>
@@ -67,7 +64,7 @@
                 <div class="take-remaining-space"></div>
             </mat-toolbar>
             <app-files-details-panel [loading]="loading" [sharedWithMeMode]="sharedWithMeMode"
-                                     [node]="selectedNode || (currentDirectory && currentDirectory.path.length === 0 ? null : currentDirectory)">
+                [node]="selectedNode || (currentDirectory && currentDirectory.path.length === 0 ? null : currentDirectory)">
             </app-files-details-panel>
         </mat-drawer>
 

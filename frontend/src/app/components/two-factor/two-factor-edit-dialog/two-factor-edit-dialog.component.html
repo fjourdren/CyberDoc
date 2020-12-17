@@ -27,20 +27,21 @@
     <mat-divider></mat-divider>
 
     <div *ngIf="data.twoFactorMode == 'app'" id="configure-via-app-container"
-         [ngClass]="{'isSmartphoneOrTablet': isSmartphoneOrTablet}">
+        [ngClass]="{'isSmartphoneOrTablet': isSmartphoneOrTablet}">
         <div *ngIf="!isSmartphoneOrTablet" id="qr-container">
             <img width="166" height="166" [alt]="qrSecret" [src]="qrURL">
         </div>
         <div id="secret-code-container">
             <div *ngIf="isSmartphoneOrTablet">
-                <a [href]="qrProtocolURL" [disabled]="loading" mat-raised-button color="primary">{{'twofactor.twofactor_add_to_app' | translate}}</a>
+                <a [href]="qrProtocolURL" [disabled]="loading" mat-raised-button
+                    color="primary">{{'twofactor.twofactor_add_to_app' | translate}}</a>
             </div>
 
             <div class="margin-top-bottom">{{'twofactor.twofactor_enter_code' | translate}}</div>
             <div class="secret-code">{{formattedQrSecretLineOne}}</div>
             <div class="secret-code">{{formattedQrSecretLineTwo}}</div>
-            <button class="margin-top-bottom" (click)="onCopyBtnClick()" ngxClipboard [cbContent]="qrSecret" mat-raised-button
-                color="accent">{{'fileaction.copy' | translate}}</button>
+            <button class="margin-top-bottom" (click)="onCopyBtnClick()" ngxClipboard [cbContent]="qrSecret"
+                mat-raised-button color="accent">{{'fileaction.copy' | translate}}</button>
         </div>
     </div>
 
@@ -50,27 +51,29 @@
         <div class="bold" *ngIf="smsSent">{{'twofactor.sms_sent' | translate}}</div>
         <br>
         <form id="configure-via-sms-field" [formGroup]="phoneNumberForm">
-                <mat-form-field appearance="fill">
-                    <mat-label>{{'twofactor.country' | translate}}</mat-label>
-                    <mat-select required formControlName="countryCode">
-                        <mat-option [value]="item" *ngFor="let item of allCountries">{{item.name}}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-    
-                <mat-form-field appearance="fill">
-                    <!-- https://gist.github.com/niksumeiko/360164708c3b326bd1c8#gistcomment-2367048 -->
-                    <mat-label>{{'twofactor.phone_number' | translate}}</mat-label>
-                    <input autocomplete="autocomplete_off_hack_xfr4!k" matInput required formControlName="phoneNumber">
-                </mat-form-field>    
+            <mat-form-field appearance="fill">
+                <mat-label>{{'twofactor.country' | translate}}</mat-label>
+                <mat-select required formControlName="countryCode">
+                    <mat-option [value]="item" *ngFor="let item of allCountries">{{item.name}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="fill">
+                <!-- https://gist.github.com/niksumeiko/360164708c3b326bd1c8#gistcomment-2367048 -->
+                <mat-label>{{'twofactor.phone_number' | translate}}</mat-label>
+                <input autocomplete="autocomplete_off_hack_xfr4!k" matInput required formControlName="phoneNumber">
+            </mat-form-field>
         </form>
-        <button [disabled]="loading" mat-raised-button color="accent" (click)="onSendSMSBtnClick()">{{'twofactor.send_code' | translate}}</button>
+        <button [disabled]="loading" mat-raised-button color="accent"
+            (click)="onSendSMSBtnClick()">{{'twofactor.send_code' | translate}}</button>
 
     </div>
 
     <mat-divider></mat-divider>
 
     <div class="error-txt" *ngIf="invalidTokenError">{{'twofactor.invalid_token' | translate}}</div>
-    <div class="error-txt" *ngIf="tooManyInvalidCodesError">{{'twofactor.two_many_invalid_codes_error' | translate}}</div>
+    <div class="error-txt" *ngIf="tooManyInvalidCodesError">{{'twofactor.two_many_invalid_codes_error' | translate}}
+    </div>
     <span class="bold">{{'twofactor.enter_code' | translate}}</span>
     <form [formGroup]="tokenForm" id="token-form">
         <mat-form-field id="token-input">
@@ -84,6 +87,6 @@
 <mat-dialog-actions align="end">
     <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
     <button [disabled]="loading" mat-button (click)="onCancelBtnClick()">{{'general.cancel' | translate}}</button>
-    <button [disabled]="loading || !this.tokenForm.valid || (this.data.twoFactorMode == 'sms' && !validPhoneNumber) " mat-button (click)="onOKBtnClick()" mat-raised-button
-            color="primary">{{'general.ok' | translate}}</button>
+    <button [disabled]="loading || !this.tokenForm.valid || (this.data.twoFactorMode == 'sms' && !validPhoneNumber) "
+        mat-button (click)="onOKBtnClick()" mat-raised-button color="primary">{{'general.ok' | translate}}</button>
 </mat-dialog-actions>

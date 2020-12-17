@@ -47,8 +47,6 @@ import { OverlayModule } from '@angular/cdk/overlay';
 
 import { RegisterPageComponent } from './register-page.component';
 
-
-
 describe('RegisterPageComponent', () => {
   let component: RegisterPageComponent;
   let fixture: ComponentFixture<RegisterPageComponent>;
@@ -102,8 +100,8 @@ describe('RegisterPageComponent', () => {
         MatTreeModule,
         OverlayModule,
         PortalModule,
-        ScrollingModule
-      ]
+        ScrollingModule,
+      ],
     }).compileComponents();
   }));
 

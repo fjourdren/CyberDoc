@@ -8,9 +8,8 @@ describe('FilesTagsInputComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesTagsInputComponent ]
-    })
-    .compileComponents();
+      declarations: [FilesTagsInputComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

@@ -53,7 +53,7 @@ describe('TwoFactorPageComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ TwoFactorLoginPageComponent ],
+      declarations: [TwoFactorLoginPageComponent],
       imports: [
         NoopAnimationsModule,
         ReactiveFormsModule,
@@ -100,8 +100,8 @@ describe('TwoFactorPageComponent', () => {
         MatTreeModule,
         OverlayModule,
         PortalModule,
-        ScrollingModule
-      ]
+        ScrollingModule,
+      ],
     }).compileComponents();
   }));
 

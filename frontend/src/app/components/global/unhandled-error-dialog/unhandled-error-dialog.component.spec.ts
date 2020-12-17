@@ -8,9 +8,8 @@ describe('UnhandledErrorDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ UnhandledErrorDialogComponent ]
-    })
-    .compileComponents();
+      declarations: [UnhandledErrorDialogComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

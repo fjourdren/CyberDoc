@@ -4,7 +4,7 @@
         <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ 'general.password' | translate }}</mat-label>
             <input autocomplete="current-password" required matInput [type]="hidePassword ? 'password' : 'text'"
-                   formControlName="password">
+                formControlName="password">
             <button type="button" mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
                 <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
             </button>
@@ -15,6 +15,7 @@
     </form>
 </div>
 <div mat-dialog-actions align="end">
-    <button mat-flat-button color="primary" (click)="onSubmitPassword()" [disabled]="passwordForm.invalid">{{ 'general.confirm' | translate }}</button>
+    <button mat-flat-button color="primary" (click)="onSubmitPassword()" [disabled]="passwordForm.invalid">{{
+        'general.confirm' | translate }}</button>
     <button mat-button color="warn" matDialogClose>{{ 'general.cancel' | translate }}</button>
 </div>

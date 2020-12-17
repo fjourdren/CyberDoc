@@ -9,7 +9,8 @@
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Recovery code</mat-label>
                 <input matInput formControlName="code" required maxlength="36">
-                <mat-error *ngIf="recoverTwoFactorForm.controls['code'].invalid && !recoverTwoFactorForm.controls['code'].hasError('required')">
+                <mat-error
+                    *ngIf="recoverTwoFactorForm.controls['code'].invalid && !recoverTwoFactorForm.controls['code'].hasError('required')">
                     Recovery code is <strong>invalid.</strong>
                 </mat-error>
                 <mat-error *ngIf="recoverTwoFactorForm.controls['code'].hasError('required')">
@@ -21,6 +22,7 @@
 </div>
 
 <div mat-dialog-actions align="end">
-    <button mat-raised-button color="primary" (click)="onSubmit()"  [disabled]="loading || recoverTwoFactorForm.invalid">{{ 'general.confirm' | translate }}</button>
+    <button mat-raised-button color="primary" (click)="onSubmit()"
+        [disabled]="loading || recoverTwoFactorForm.invalid">{{ 'general.confirm' | translate }}</button>
     <button mat-button color="warn" matDialogClose>{{ 'general.cancel' | translate }}</button>
 </div>

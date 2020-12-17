@@ -8,9 +8,8 @@ describe('FilesCreateFabComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesUploadComponent ]
-    })
-    .compileComponents();
+      declarations: [FilesUploadComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

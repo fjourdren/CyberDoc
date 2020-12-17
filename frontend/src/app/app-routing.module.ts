@@ -19,51 +19,123 @@ import { TwoFactorGuard } from './guards/two-factor/two-factor-guard.service';
 import { UnauthorizedGuard } from './guards/unauthorized/unauthorized-guard.service';
 import { RequireTwoFactorGuard } from './guards/require-two-factor/require-two-factor-guard.service';
 import { DevicePageComponent } from './pages/device-page/device-page.component';
-import { DeviceGuard } from './guards/device/device.guard';
-import { DeviceCheckGuard } from './guards/device-check/device-check.guard';
+// import { DeviceGuard } from './guards/device/device.guard';
+// import { DeviceCheckGuard } from './guards/device-check/device-check.guard';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
 
-
 const routes: Routes = [
-
   { path: '', redirectTo: 'files', pathMatch: 'full' },
   {
     path: 'files-search/:searchParams',
     component: FilesPageComponent,
-    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/]
+    canActivate: [
+      LoggedInGuard,
+      AuthorizedGuard,
+      TwoFactorGuard /*, DeviceCheckGuard*/,
+    ],
   },
-  { path: 'files/:dirID', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/] },
-  { path: 'files', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/] },
-  { path: 'shared-with-me', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/] },
-  { path: 'generateRecoveryCodes', component: FilesPageComponent, canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/] },
+  {
+    path: 'files/:dirID',
+    component: FilesPageComponent,
+    canActivate: [
+      LoggedInGuard,
+      AuthorizedGuard,
+      TwoFactorGuard /*, DeviceCheckGuard*/,
+    ],
+  },
+  {
+    path: 'files',
+    component: FilesPageComponent,
+    canActivate: [
+      LoggedInGuard,
+      AuthorizedGuard,
+      TwoFactorGuard /*, DeviceCheckGuard*/,
+    ],
+  },
+  {
+    path: 'shared-with-me',
+    component: FilesPageComponent,
+    canActivate: [
+      LoggedInGuard,
+      AuthorizedGuard,
+      TwoFactorGuard /*, DeviceCheckGuard*/,
+    ],
+  },
+  {
+    path: 'generateRecoveryCodes',
+    component: FilesPageComponent,
+    canActivate: [
+      LoggedInGuard,
+      AuthorizedGuard,
+      TwoFactorGuard /*, DeviceCheckGuard*/,
+    ],
+  },
 
-  { path: 'logout', component: LogoutPageComponent, canActivate: [LoggedInGuard] },
-  { path: 'login', component: LoginPageComponent, canActivate: [LoggedOutGuard] },
-  { path: 'register', component: RegisterPageComponent, canActivate: [LoggedOutGuard] },
-  { path: 'forgottenpassword', component: PasswordRecoveryPageComponent, canActivate: [LoggedOutGuard] },
-  { path: 'passwordReset', component: ResetPasswordPageComponent, canActivate: [LoggedOutGuard] },
-  { path: 'export-recovery-key', component: ExportRecoveryKeyPageComponent, canActivate: [/*LoggedInGuard, AuthorizedGuard, TwoFactorGuard*/] },
-  { path: 'device', component: DevicePageComponent, canActivate: [LoggedInGuard, TwoFactorGuard/*, DeviceGuard*/] },
+  {
+    path: 'logout',
+    component: LogoutPageComponent,
+    canActivate: [LoggedInGuard],
+  },
+  {
+    path: 'login',
+    component: LoginPageComponent,
+    canActivate: [LoggedOutGuard],
+  },
+  {
+    path: 'register',
+    component: RegisterPageComponent,
+    canActivate: [LoggedOutGuard],
+  },
+  {
+    path: 'forgottenpassword',
+    component: PasswordRecoveryPageComponent,
+    canActivate: [LoggedOutGuard],
+  },
+  {
+    path: 'passwordReset',
+    component: ResetPasswordPageComponent,
+    canActivate: [LoggedOutGuard],
+  },
+  {
+    path: 'export-recovery-key',
+    component: ExportRecoveryKeyPageComponent,
+    canActivate: [
+      /*LoggedInGuard, AuthorizedGuard, TwoFactorGuard*/
+    ],
+  },
+  {
+    path: 'device',
+    component: DevicePageComponent,
+    canActivate: [LoggedInGuard, TwoFactorGuard /*, DeviceGuard*/],
+  },
   {
     path: 'two-factor-register',
     component: TwoFactorRegisterPageComponent,
-    canActivate: [LoggedInGuard, RequireTwoFactorGuard]
+    canActivate: [LoggedInGuard, RequireTwoFactorGuard],
   },
   {
     path: 'two-factor',
     component: TwoFactorLoginPageComponent,
-    canActivate: [LoggedInGuard, TwoFactorGuard, UnauthorizedGuard]
+    canActivate: [LoggedInGuard, TwoFactorGuard, UnauthorizedGuard],
   },
   { path: 'settings', redirectTo: 'settings/profile', pathMatch: 'full' },
   {
     path: 'settings/profile',
     component: SettingsProfilePageComponent,
-    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/]
+    canActivate: [
+      LoggedInGuard,
+      AuthorizedGuard,
+      TwoFactorGuard /*, DeviceCheckGuard*/,
+    ],
   },
   {
     path: 'settings/security',
     component: SettingsSecurityPageComponent,
-    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard/*, DeviceCheckGuard*/]
+    canActivate: [
+      LoggedInGuard,
+      AuthorizedGuard,
+      TwoFactorGuard /*, DeviceCheckGuard*/,
+    ],
   },
 
   { path: '**', component: NotFoundPageComponent },
@@ -71,7 +143,6 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule {
-}
+export class AppRoutingModule {}

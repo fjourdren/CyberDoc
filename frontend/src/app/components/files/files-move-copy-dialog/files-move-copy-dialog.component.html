@@ -18,6 +18,6 @@
 <div mat-dialog-actions align="end">
     <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
     <button [disabled]="loading" mat-button (click)="onCancelBtnClicked()">{{'general.cancel' | translate}}</button>
-    <button [disabled]="loading" mat-raised-button color="primary"
-        (click)="onMoveOrCopyBtnClicked()">{{data.copy ? ('fileaction.copy' | translate) : ('fileaction.move' | translate)}}</button>
+    <button [disabled]="loading" mat-raised-button color="primary" (click)="onMoveOrCopyBtnClicked()">{{data.copy ?
+        ('fileaction.copy' | translate) : ('fileaction.move' | translate)}}</button>
 </div>
