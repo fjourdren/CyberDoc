@@ -28,4 +28,4 @@ echo "[skip] BUILDING"
 # npm run build
 echo "STARTING BACKEND"
 npm install -g @nestjs/cli
-node --max_old_space_size=8000 .\node_modules\@nestjs\cli\bin\nest
+node --max_old_space_size=8000 ./node_modules/@nestjs/cli/bin/nest
