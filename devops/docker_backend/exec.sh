@@ -18,14 +18,9 @@
 #echo "STARTING BACKEND"
 #npm run start
 
-pwd
-ls
-
-
 echo "INSTALLING"
 npm install
 echo "[skip] BUILDING"
-# npm run build
+npm run build
 echo "STARTING BACKEND"
-npm install -g @nestjs/cli
-node --max_old_space_size=8000 ./node_modules/@nestjs/cli/bin/nest start
+npm run start:prod
