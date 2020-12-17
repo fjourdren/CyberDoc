@@ -28,7 +28,7 @@ export class UserKeys {
   encrypted_private_key: string;
 }
 
-@Schema({ collection: 'User' })
+@Schema({ collection: 'User', autoCreate: true, autoIndex: true })
 export class User {
   @Prop({ unique: true, required: true })
   _id: string;
