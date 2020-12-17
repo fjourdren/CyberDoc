@@ -14,7 +14,7 @@ export enum ShareMode {
   READWRITE = 'readwrite',
 }
 
-@Schema({ collection: 'File' })
+@Schema({ collection: 'File', autoCreate: true, autoIndex: true })
 export class File {
   @Prop({ unique: true, required: true })
   _id: string;
