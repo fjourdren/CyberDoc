@@ -28,7 +28,9 @@ export class UnauthorizedGuard implements CanActivate {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    if (
+    //TODO
+    return true;
+    /*if (
       this.usersService.getJwtToken() &&
       this.jwtHelper.decodeToken(this.usersService.getJwtToken()).authorized ===
         false
@@ -36,6 +38,6 @@ export class UnauthorizedGuard implements CanActivate {
       return true;
     } else {
       return this.router.parseUrl('/files');
-    }
+    }*/
   }
 }
