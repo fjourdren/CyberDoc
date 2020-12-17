@@ -37,6 +37,6 @@ async function bootstrap() {
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
   });
 
-  await app.listen(3200);
+  await app.listen(3000);
 }
 bootstrap();
