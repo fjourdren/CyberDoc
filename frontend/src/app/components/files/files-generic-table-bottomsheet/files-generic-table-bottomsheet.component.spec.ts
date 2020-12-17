@@ -8,9 +8,8 @@ describe('FilesGenericTableBottomsheetComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesGenericTableBottomsheetComponent ]
-    })
-    .compileComponents();
+      declarations: [FilesGenericTableBottomsheetComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

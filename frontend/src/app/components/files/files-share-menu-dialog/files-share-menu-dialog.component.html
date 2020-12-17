@@ -8,7 +8,8 @@
   <button [disabled]="loading" matSuffix mat-icon-button (click)="addEntry()">
     <mat-icon>add</mat-icon>
   </button>
-  <mat-error *ngIf="newShareForm.controls['email'].hasError('invalid')">{{'sharing.invalid_or_unknown_email' | translate}}</mat-error>
+  <mat-error *ngIf="newShareForm.controls['email'].hasError('invalid')">{{'sharing.invalid_or_unknown_email' |
+    translate}}</mat-error>
 </mat-form-field>
 
 <div id="table-container">
@@ -43,6 +44,6 @@
   </mat-form-field>
   <div class="fill"></div>
   <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
-  <button [disabled]="loading" mat-raised-button color="primary"
-    (click)="onCloseBtnClicked()">{{'general.close' | translate}}</button>
+  <button [disabled]="loading" mat-raised-button color="primary" (click)="onCloseBtnClicked()">{{'general.close' |
+    translate}}</button>
 </div>

@@ -1,6 +1,16 @@
-import { Component, DefaultIterableDiffer, ElementRef, EventEmitter, Input, Output, SimpleChanges, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import {
+  MatAutocomplete,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
 import { Observable } from 'rxjs';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { map } from 'rxjs/operators';
@@ -11,10 +21,9 @@ import { FileTag } from 'src/app/models/files-api-models';
 @Component({
   selector: 'app-files-tags-input',
   templateUrl: './files-tags-input.component.html',
-  styleUrls: ['./files-tags-input.component.css']
+  styleUrls: ['./files-tags-input.component.css'],
 })
 export class FilesTagsInputComponent {
-
   private _allTags: FileTag[] = [];
   private _selectedTags: FileTag[] = [];
 
@@ -36,7 +45,7 @@ export class FilesTagsInputComponent {
   @Input()
   set selectedTags(val: FileTag[]) {
     this._selectedTags = val || [];
-    this._filter("");
+    this._filter('');
   }
 
   get allTags() {
@@ -46,13 +55,15 @@ export class FilesTagsInputComponent {
   @Input()
   set allTags(val: FileTag[]) {
     this._allTags = val || [];
-    this._filter("");
+    this._filter('');
   }
 
   constructor(private appUtils: AppUtilsService) {
-    this.filteredTags$ = this.tagsCtrl.valueChanges.pipe(map((tag: string | null) => {
-      return tag ? this._filter(tag) : this._filter("");
-    }));
+    this.filteredTags$ = this.tagsCtrl.valueChanges.pipe(
+      map((tag: string | null) => {
+        return tag ? this._filter(tag) : this._filter('');
+      }),
+    );
   }
 
   add(event: MatChipInputEvent): void {
@@ -67,7 +78,7 @@ export class FilesTagsInputComponent {
       this.tagRemoved.emit(tag);
       this._selectedTags.splice(index, 1);
     }
-    this._filter("");
+    this._filter('');
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {
@@ -76,29 +87,35 @@ export class FilesTagsInputComponent {
     this._selectedTags.push(tag);
     this.tagInput.nativeElement.value = '';
     this.tagsCtrl.setValue(null);
-    this._filter("");  
+    this._filter('');
   }
 
   private _filter(value: string | FileTag): FileTag[] {
     if (this._allTags == undefined || this._allTags.length === 0) return [];
 
     let filterValue: string;
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       filterValue = value.toLowerCase();
     } else {
       filterValue = value.name.toLowerCase();
     }
 
     if (this._selectedTags == undefined || this._selectedTags.length === 0) {
-      return this.allTags.filter(tag => tag.name.toLowerCase().indexOf(filterValue) === 0);
+      return this.allTags.filter(
+        (tag) => tag.name.toLowerCase().indexOf(filterValue) === 0,
+      );
     } else {
-      const tags = this.allTags.filter(tag => this.selectedTags.find(item => {
-        return item._id === tag._id
-      }) == null);
+      const tags = this.allTags.filter(
+        (tag) =>
+          this.selectedTags.find((item) => {
+            return item._id === tag._id;
+          }) == null,
+      );
 
-      return tags.filter(tag => tag.name.toLowerCase().indexOf(filterValue) === 0);
+      return tags.filter(
+        (tag) => tag.name.toLowerCase().indexOf(filterValue) === 0,
+      );
     }
-
   }
 
   private _findTag(tagName: string) {

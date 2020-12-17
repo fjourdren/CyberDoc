@@ -27,7 +27,7 @@
         </span>
     </a>
     <a href="#" *ngIf="!data.node.isDirectory && !data.sharedWithMeMode" mat-list-item
-       (click)="onBottomSheetSelection($event,'share')">
+        (click)="onBottomSheetSelection($event,'share')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>
             {{ 'fileaction.share' | translate }}
@@ -40,14 +40,16 @@
         </span>
     </a>
     <!-- We can move every files that are in "My safebox" as an Owner -->
-    <a href="#" *ngIf="isOwner() && !data.sharedWithMeMode" mat-list-item (click)="onBottomSheetSelection($event,'move')">
+    <a href="#" *ngIf="isOwner() && !data.sharedWithMeMode" mat-list-item
+        (click)="onBottomSheetSelection($event,'move')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-file-export"></mat-icon>
             {{ 'fileaction.move' | translate }}
         </span>
     </a>
     <!-- We can always copy files as an Owner -->
-    <a href="#" *ngIf="!data.node.isDirectory && isOwner()" mat-list-item (click)="onBottomSheetSelection($event,'copy')">
+    <a href="#" *ngIf="!data.node.isDirectory && isOwner()" mat-list-item
+        (click)="onBottomSheetSelection($event,'copy')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-copy"></mat-icon>
             {{ 'fileaction.copy' | translate }}
@@ -74,6 +76,6 @@
             {{ 'fileaction.delete' | translate }}
         </span>
     </a>
-    
-    
+
+
 </mat-nav-list>

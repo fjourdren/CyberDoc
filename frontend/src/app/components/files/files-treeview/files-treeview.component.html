@@ -6,11 +6,13 @@
         <button mat-icon-button disabled></button>
         <a mat-button [routerLink]="['/shared-with-me']" class="tree-node-div">
             <mat-icon>folder_shared</mat-icon>
-            {{ 'sharing.folderName' | translate }}</a>
+            {{ 'sharing.folderName' | translate }}
+        </a>
     </mat-tree-node>
 
     <!-- This is the tree node template for expandable nodes -->
-    <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding [ngClass]="{'selected': !_sharedWithMeMode && node.selected}">
+    <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding
+        [ngClass]="{'selected': !_sharedWithMeMode && node.selected}">
         <button mat-icon-button matTreeNodeToggle>
             <mat-icon class="mat-icon-rtl-mirror">
                 {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
@@ -18,8 +20,7 @@
         </button>
         <a mat-button [routerLink]="['/files', node.directory._id]" class="tree-node-div">
             <mat-icon>folder</mat-icon>
-            {{node.directory.name}}</a>
+            {{node.directory.name}}
+        </a>
     </mat-tree-node>
 </mat-tree>
-
-

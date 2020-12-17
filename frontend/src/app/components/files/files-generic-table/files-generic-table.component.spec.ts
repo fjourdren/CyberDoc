@@ -8,9 +8,8 @@ describe('FilesGenericTableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesGenericTableComponent ]
-    })
-    .compileComponents();
+      declarations: [FilesGenericTableComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

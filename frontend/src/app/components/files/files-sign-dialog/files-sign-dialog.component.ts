@@ -1,51 +1,58 @@
 import { Component, HostListener, Inject } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MatDialog,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { CloudFile } from 'src/app/models/files-api-models';
-import { FileSystemProvider } from 'src/app/services/filesystems/file-system-provider';
-import { UserServiceProvider } from 'src/app/services/users/user-service-provider';
+import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
+import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
   selector: 'app-files-sign-dialog',
   templateUrl: './files-sign-dialog.component.html',
-  styleUrls: ['./files-sign-dialog.component.scss']
+  styleUrls: ['./files-sign-dialog.component.scss'],
 })
 export class FilesSignDialogComponent {
-
   loading = false;
   hasAlreadySign = false;
   isEmpty = false;
   displayedColumns = ['user_email', 'created_at'];
   dataSource = new MatTableDataSource([]);
 
-  constructor(public dialogRef: MatDialogRef<FilesSignDialogComponent>,
+  constructor(
+    public dialogRef: MatDialogRef<FilesSignDialogComponent>,
     private dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public file: CloudFile,
-    private fsProvider: FileSystemProvider,
-    private userServiceProvider: UserServiceProvider) {
-
+    private fsService: FileSystemService,
+    private usersService: UsersService,
+  ) {
     this.update();
-    fsProvider.default().refreshNeeded().subscribe(() => {
+    fsService.refreshNeeded().subscribe(() => {
       this.update();
     });
   }
 
   update() {
-    this.fsProvider.default().listSignatories(this.file._id).toPromise().then(values => {
-      this.dataSource.data = values;
-      for (const element of values) {
-        element.created_at = new Date(element.created_at).toLocaleString();
-        if (element.user_email === this.userServiceProvider.default().getActiveUser().email) {
-          this.hasAlreadySign = true;
+    this.fsService
+      .listSignatories(this.file._id)
+      .toPromise()
+      .then((values) => {
+        this.dataSource.data = values;
+        for (const element of values) {
+          element.created_at = new Date(element.created_at).toLocaleString();
+          if (element.user_email === this.usersService.getActiveUser().email) {
+            this.hasAlreadySign = true;
+          }
         }
-      }
-    })
+      });
   }
 
   addSignature() {
     this.dialog.open(FilesSignConfirmDialogComponent, {
       maxWidth: '400px',
-      data: this.file
+      data: this.file,
     });
   }
 
@@ -57,21 +64,21 @@ export class FilesSignDialogComponent {
 @Component({
   selector: 'app-files-sign-confirm-dialog',
   templateUrl: './files-sign-confirm-dialog.component.html',
-  styleUrls: ['./files-sign-dialog.component.scss']
+  styleUrls: ['./files-sign-dialog.component.scss'],
 })
 export class FilesSignConfirmDialogComponent {
-
   loading = false;
   translateParams = { name: this.file.name };
 
-  constructor(public dialogRef: MatDialogRef<FilesSignConfirmDialogComponent>,
+  constructor(
+    public dialogRef: MatDialogRef<FilesSignConfirmDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public file: CloudFile,
-    private fsProvider: FileSystemProvider) {
-  }
+    private fsService: FileSystemService,
+  ) {}
 
-  @HostListener("keydown", ['$event'])
+  @HostListener('keydown', ['$event'])
   onKeyDown(evt: KeyboardEvent) {
-    if (evt.key === "Enter") {
+    if (evt.key === 'Enter') {
       this.onSignBtnClicked();
     }
   }
@@ -79,15 +86,17 @@ export class FilesSignConfirmDialogComponent {
   onSignBtnClicked() {
     this.dialogRef.disableClose = true;
     this.loading = true;
-    this.fsProvider.default().sign(this.file._id).toPromise().then(() => {
-      this.dialogRef.disableClose = false;
-      this.loading = false;
-      this.dialogRef.close(true);
-    })
+    this.fsService
+      .sign(this.file._id)
+      .toPromise()
+      .then(() => {
+        this.dialogRef.disableClose = false;
+        this.loading = false;
+        this.dialogRef.close(true);
+      });
   }
 
   onCancelBtnClicked() {
     this.dialogRef.close(false);
   }
-
 }

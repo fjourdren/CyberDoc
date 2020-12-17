@@ -9,11 +9,11 @@
         </h1>
 
         <div class="error-txt">
-          WARNING : This is a development (unstable) platform ! 
-          <br> 
-          All your data might be deleted without any notice. 
-          <br> 
-          An account has a maximum storage limit of 100 MB.  
+          WARNING : This is a development (unstable) platform !
+          <br>
+          All your data might be deleted without any notice.
+          <br>
+          An account has a maximum storage limit of 100 MB.
         </div>
 
         <mat-card-header>
@@ -46,7 +46,8 @@
         </mat-card-content>
 
         <div id="button-container">
-          <button [disabled]="loading" mat-raised-button color="primary" type="submit">{{ 'general.login' | translate }}</button>
+          <button [disabled]="loading" mat-raised-button color="primary" type="submit">{{ 'general.login' | translate
+            }}</button>
           <br>
           <a routerLink="/register" mat-stroked-button color="primary">{{ 'accounts.create_account' | translate }}</a>
         </div>

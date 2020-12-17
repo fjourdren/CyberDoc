@@ -9,6 +9,6 @@
 <div mat-dialog-actions align="end">
     <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
     <button [disabled]="loading" mat-button (click)="onCancelBtnClicked()">{{'general.cancel' | translate}}</button>
-    <button [disabled]="loading" mat-raised-button color="warn"
-        (click)="onDeleteBtnClicked()">{{'fileaction.delete' | translate}}</button>
+    <button [disabled]="loading" mat-raised-button color="warn" (click)="onDeleteBtnClicked()">{{'fileaction.delete' |
+        translate}}</button>
 </div>

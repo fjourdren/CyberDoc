@@ -8,9 +8,8 @@ describe('FilesTreeviewComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FilesTreeviewComponent ]
-    })
-    .compileComponents();
+      declarations: [FilesTreeviewComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {
