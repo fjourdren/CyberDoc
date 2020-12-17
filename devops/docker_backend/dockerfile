@@ -3,8 +3,14 @@ FROM ubuntu:20.04
 # disable linux interactive requests
 ENV DEBIAN_FRONTEND=noninteractive
 
+RUN apt-get update 
+
 # install node
-RUN apt-get update && apt-get -y install nodejs npm
+
+RUN wget -qO- https://deb.nodesource.com/setup_14.x | sudo -E bash -
+RUN apt-get -y install nodejs
+
+#RUN apt-get update && apt-get -y install nodejs npm
 
 # install libreoffice
 RUN apt-get update && apt-get install -y libreoffice
