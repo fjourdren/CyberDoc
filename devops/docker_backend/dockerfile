@@ -7,7 +7,7 @@ RUN apt-get update
 
 # install node
 RUN apt-get -y install wget
-RUN wget -qO- https://deb.nodesource.com/setup_14.x | sudo -E bash -
+RUN wget -qO- https://deb.nodesource.com/setup_14.x | bash -
 RUN apt-get -y install nodejs
 
 #RUN apt-get update && apt-get -y install nodejs npm
