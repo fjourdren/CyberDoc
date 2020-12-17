@@ -36,9 +36,7 @@ export class TwoFactorLoginPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.user = this.jwtHelper.decodeToken(
-      this.usersService.getJwtToken(),
-    ).user;
+    this.user = this.usersService.getActiveUser();
     if (this.user.twoFactorApp) {
       this.twoFactorType = 'app';
     } else if (this.user.twoFactorSms) {

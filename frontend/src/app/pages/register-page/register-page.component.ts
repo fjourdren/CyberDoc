@@ -100,7 +100,7 @@ export class RegisterPageComponent {
     } as User;
 
     this.usersService
-      .register(user, this.registerForm.controls.password.value, this.fileId)
+      .register(user, this.registerForm.controls.password.value)
       .toPromise()
       .then(
         () => {
