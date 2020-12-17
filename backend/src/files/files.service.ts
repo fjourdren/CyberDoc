@@ -295,7 +295,7 @@ export class FilesService {
 
     if (editFileMetadataDto.preview) {
       requireIsFileOwner();
-      if (editFileMetadataDto.preview && file.type === FILE)
+      if (editFileMetadataDto.preview && file.type !== FILE)
         throw new BadRequestException('Preview is not available for folders');
       file.preview = editFileMetadataDto.preview;
     }
