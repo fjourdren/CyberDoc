@@ -19,8 +19,9 @@ export class MongoSessionInterceptor implements NestInterceptor {
     session.startTransaction();
 
     try {
-      await next.handle().toPromise();
+      const result = await next.handle().toPromise();
       await session.commitTransaction();
+      return result;
     } catch (err) {
       await session.abortTransaction();
       throw err;
