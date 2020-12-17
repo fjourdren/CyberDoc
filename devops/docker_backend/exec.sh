@@ -18,10 +18,6 @@
 #echo "STARTING BACKEND"
 #npm run start
 
-pwd
-ls
-
-
 echo "INSTALLING"
 npm install
 echo "[skip] BUILDING"
