@@ -43,6 +43,6 @@ export class FileSigningService {
     signObj.diggest = this.rsa.sign(userPrivateKey, diggestBuffer);
 
     file.signs.push(signObj);
-    await new this.fileModel(signObj).save({ session: mongoSession });
+    await new this.fileModel(file).save({ session: mongoSession });
   }
 }
