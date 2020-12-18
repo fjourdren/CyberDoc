@@ -7,15 +7,12 @@ import {
   UrlTree,
 } from '@angular/router';
 import { Observable } from 'rxjs';
-import { JwtHelperService } from '@auth0/angular-jwt';
 import { UsersService } from 'src/app/services/users/users.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UnauthorizedGuard implements CanActivate {
-  private jwtHelper = new JwtHelperService();
-
   constructor(private usersService: UsersService, private router: Router) {}
 
   canActivate(

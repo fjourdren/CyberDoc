@@ -5,14 +5,10 @@
 export const environment = {
   production: false,
   useSentry: true,
-  defaultFSProviderName: 'real',
-  defaultUserServiceName: 'real',
   apiBaseURL: 'https://api.cyberdoc.fulgen.fr',
   authCookieDomain: 'cyberdoc.fulgen.fr',
   authCookieName: 'access_token',
-  userHashCookieName: 'user_hash',
   userLocalStorageKey: 'real_user',
-  gaTrackingID: 'G-H1M51NJEP5',
 };
 
 /*

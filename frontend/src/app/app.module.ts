@@ -34,7 +34,6 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { NgResizeObserverPonyfillModule } from 'ng-resize-observer';
 import { LayoutModule } from '@angular/cdk/layout';
 import { NgxFilesizeModule } from 'ngx-filesize';
-import { CookieService } from 'ngx-cookie-service';
 import * as Sentry from '@sentry/angular';
 import { ClipboardModule } from 'ngx-clipboard';
 
@@ -100,7 +99,6 @@ import { TwoFactorGenerateRecoveryCodesDialogComponent } from './components/two-
 import { TwoFactorUseRecoveryCodeDialogComponent } from './components/two-factor/two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
 import { FilesOpenDialogComponent } from './components/files/files-open-dialog/files-open-dialog.component';
-import { GtagModule } from 'angular-gtag';
 import { TwoFactorService } from './services/twofactor/twofactor.service';
 
 // AoT requires an exported function for factories
@@ -162,19 +160,6 @@ if (environment.useSentry) {
   ERROR_HANDLER = SENTRY_ERROR_HANDLER;
 } else {
   ERROR_HANDLER = LOCAL_ERROR_HANDLER;
-}
-
-const ANALYTICS = [];
-if (environment.gaTrackingID) {
-  console.warn(`analytics ON, gaTrackingID=${environment.gaTrackingID}`);
-  ANALYTICS.push(
-    GtagModule.forRoot({
-      trackingId: environment.gaTrackingID,
-      trackPageviews: true,
-    }),
-  );
-} else {
-  console.warn('analytics OFF');
 }
 
 @NgModule({
@@ -253,14 +238,12 @@ if (environment.gaTrackingID) {
     NgResizeObserverPonyfillModule,
     LayoutModule,
     MatRadioModule,
-    ...ANALYTICS,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
     }),
   ],
   providers: [
     ...ERROR_HANDLER,
-    CookieService,
     FileSystemService,
     TwoFactorService,
     UsersService,
