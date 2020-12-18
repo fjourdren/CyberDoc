@@ -5,7 +5,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
 } from 'class-validator';
 import { ShareMode } from 'src/schemas/file.schema';
 
@@ -21,7 +20,7 @@ export class EditFileMetadataDto {
     example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
   })
   @IsOptional()
-  @IsUUID('4')
+  @IsString()
   directoryID: string;
 
   @ApiProperty({ description: 'Is file preview enabled', example: true })
