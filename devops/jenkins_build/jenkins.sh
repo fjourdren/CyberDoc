@@ -6,9 +6,9 @@ frontendDist="/home/centos/workspace/cyberdoc/frontend/dist/cyberdoc"
 etherpad="/home/centos/workspace/cyberdoc/cyberdoc-etherpad"
 etherpadDir="/home/centos/workspace/cyberdoc/devops/docker_etherpad"
 
-docsDir="/home/centos/workspace/cyberdoc/docs"
-redocDir="/home/centos/workspace/cyberdoc/devops/docker_redoc"
-swaggerDir="/home/centos/workspace/cyberdoc/devops/docker_swagger"
+#docsDir="/home/centos/workspace/cyberdoc/docs"
+#redocDir="/home/centos/workspace/cyberdoc/devops/docker_redoc"
+#swaggerDir="/home/centos/workspace/cyberdoc/devops/docker_swagger"
 
 pwd
 
@@ -58,22 +58,22 @@ sudo docker stop backend || true && sudo docker rm backend || true
 sudo docker build --file $backendDir/dockerfile --tag backend .
 
 ### env.prod with credentials here
-sudo cat /dev/null > $backend/.env.prod
+sudo cat /dev/null > $backend/.env
 
-sudo cp $backend/.env.prod $backend/dist/.env.prod 
-sudo cat $backend/dist/.env.prod
+sudo cp $backend/.env $backend/dist/.env 
+sudo cat $backend/dist/.env
 
 sudo docker run -d --restart always --name backend -v $backend:/app -v $backendDir:/devops --label-file $backendDir/labels backend /devops/exec.sh
  
 ## redoc
 
-sudo docker stop redoc || true && sudo docker rm redoc || true
-sudo cp $docsDir/swagger/swagger.yml $redocDir/swagger.yml
-sudo docker build --file $redocDir/dockerfile --tag redoc $redocDir
-sudo docker run -d --restart always --name redoc --label-file $redocDir/labels redoc
+#sudo docker stop redoc || true && sudo docker rm redoc || true
+#sudo cp $docsDir/swagger/swagger.yml $redocDir/swagger.yml
+#sudo docker build --file $redocDir/dockerfile --tag redoc $redocDir
+#sudo docker run -d --restart always --name redoc --label-file $redocDir/labels redoc
 
 ## swagger
 
-sudo docker stop swagger || true && sudo docker rm swagger || true
-sudo docker run -d --restart always --name swagger -e SWAGGER_JSON=/foo/swagger.yml -v $docsDir/swagger:/foo --label-file $swaggerDir/labels swaggerapi/swagger-ui
+#sudo docker stop swagger || true && sudo docker rm swagger || true
+#sudo docker run -d --restart always --name swagger -e SWAGGER_JSON=/foo/swagger.yml -v $docsDir/swagger:/foo --label-file $swaggerDir/labels swaggerapi/swagger-ui
 
