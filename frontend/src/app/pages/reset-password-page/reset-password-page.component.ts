@@ -7,7 +7,6 @@ import {
 } from '@angular/forms';
 import { MustMatch } from 'src/app/components/settings/settings-security/_helpers/must-match.validator';
 import { ActivatedRoute, Router } from '@angular/router';
-import { JwtHelperService } from '@auth0/angular-jwt';
 import { HttpErrorResponse } from '@angular/common/http';
 import { UsersService } from 'src/app/services/users/users.service';
 
@@ -35,8 +34,6 @@ function passwordValidator(): ValidatorFn {
   styleUrls: ['./reset-password-page.component.scss'],
 })
 export class ResetPasswordPageComponent implements AfterViewInit {
-  private jwtHelper = new JwtHelperService();
-
   resetForm = this.fb.group(
     {
       password: [null, [Validators.required, passwordValidator()]],
@@ -67,17 +64,15 @@ export class ResetPasswordPageComponent implements AfterViewInit {
   ) {
     this.route.queryParams.subscribe((params) => {
       this.token = params['token'];
-      const decodedToken = this.jwtHelper.decodeToken(this.token);
-      console.warn(decodedToken);
-      if (
-        decodedToken &&
-        !this.jwtHelper.isTokenExpired(this.token) &&
-        decodedToken.email
-      ) {
-        this.email = decodedToken.email;
+      //TODO get email
+      alert('Sorry, this function is temporary disabled');
+      throw new Error('TODO !');
+
+      /*if (email) {
+        this.email = email;
       } else {
         this.router.navigate(['/']);
-      }
+      }*/
     });
   }
 

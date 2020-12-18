@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
-import { JwtHelperService } from '@auth0/angular-jwt';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TwoFactorUseRecoveryCodeDialogComponent } from '../../components/two-factor/two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
@@ -20,7 +19,6 @@ export class TwoFactorLoginPageComponent implements OnInit {
     token: [null, Validators.required],
   });
   loading = false;
-  private jwtHelper = new JwtHelperService();
 
   constructor(
     private fb: FormBuilder,

@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { JwtHelperService } from '@auth0/angular-jwt';
 import { UsersService } from 'src/app/services/users/users.service';
 
 @Component({
@@ -19,7 +18,6 @@ export class LoginPageComponent {
   hidePassword = true;
   loading = false;
   wrongCredentialError = false;
-  private _jwtHelper = new JwtHelperService();
 
   constructor(
     private fb: FormBuilder,

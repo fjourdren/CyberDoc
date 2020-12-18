@@ -1,6 +1,5 @@
 import { Component, HostListener } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { JwtHelperService } from '@auth0/angular-jwt';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TwoFactorUseRecoveryCodeDialogComponent } from '../two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
@@ -19,7 +18,6 @@ export class TwoFactorCheckDialogComponent {
     token: [null, [Validators.required, Validators.pattern('^[0-9]{6}$')]],
   });
   loading = false;
-  private jwtHelper = new JwtHelperService();
 
   constructor(
     private fb: FormBuilder,

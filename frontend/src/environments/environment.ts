@@ -5,14 +5,10 @@
 export const environment = {
   production: false,
   useSentry: false,
-  defaultFSProviderName: 'real',
-  defaultUserServiceName: 'real',
   apiBaseURL: 'http://localhost:3000',
   authCookieDomain: 'localhost',
   authCookieName: 'access_token',
-  userHashCookieName: 'user_hash',
   userLocalStorageKey: 'real_user',
-  gaTrackingID: undefined,
 };
 
 /*

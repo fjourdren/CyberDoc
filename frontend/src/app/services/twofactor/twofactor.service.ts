@@ -1,8 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { JwtHelperService } from '@auth0/angular-jwt';
-import { CookieService } from 'ngx-cookie-service';
 import { environment } from 'src/environments/environment';
 import { Injectable } from '@angular/core';
 
@@ -10,12 +8,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class TwoFactorService {
-  private jwtHelper = new JwtHelperService();
-
-  constructor(
-    private httpClient: HttpClient,
-    private cookieService: CookieService,
-  ) {}
+  constructor(private httpClient: HttpClient) {}
 
   sendTokenBySms(phoneNumber: string | undefined): Observable<any> {
     return this.httpClient
@@ -47,8 +40,9 @@ export class TwoFactorService {
         { withCredentials: true },
       )
       .pipe(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         map((response) => {
-          if (response.success) {
+          /*if (response.success) {
             this.cookieService.set(
               environment.authCookieName,
               response.token,
@@ -61,7 +55,9 @@ export class TwoFactorService {
               JSON.stringify(this.jwtHelper.decodeToken(response.token).user),
             );
           }
-          return response.success;
+          return response.success;*/
+          //TODO
+          return false;
         }),
       );
   }
@@ -80,8 +76,9 @@ export class TwoFactorService {
         { withCredentials: true },
       )
       .pipe(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         map((response) => {
-          if (response.success) {
+          /*if (response.success) {
             this.cookieService.set(
               environment.authCookieName,
               response.token,
@@ -94,7 +91,9 @@ export class TwoFactorService {
               JSON.stringify(this.jwtHelper.decodeToken(response.token).user),
             );
           }
-          return response.success;
+          return response.success;*/
+          //TODO
+          return false;
         }),
       );
   }
@@ -123,8 +122,9 @@ export class TwoFactorService {
         { withCredentials: true },
       )
       .pipe(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         map((response) => {
-          if (response) {
+          /*if (response) {
             this.cookieService.set(
               environment.authCookieName,
               response.token,
@@ -137,7 +137,9 @@ export class TwoFactorService {
               JSON.stringify(this.jwtHelper.decodeToken(response.token).user),
             );
             return response.recoveryCodesLeft;
-          }
+          }*/
+          //TODO
+          return false;
         }),
       );
   }
