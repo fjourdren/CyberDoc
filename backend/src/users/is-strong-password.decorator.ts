@@ -21,7 +21,7 @@ export function IsStrongPassword(
       validator: {
         validate: (value): boolean => isStrongPassword(value),
         defaultMessage: buildMessage(
-          (eachPrefix) => eachPrefix + '$property must be a port',
+          (eachPrefix) => eachPrefix + '$property must be a strong password',
           validationOptions,
         ),
       },

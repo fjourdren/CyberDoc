@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model } from 'mongoose';
 import { UserHashService } from 'src/crypto/user-hash.service';
@@ -12,6 +16,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { RsaService } from 'src/crypto/rsa.service';
 import { v4 as uuidv4 } from 'uuid';
 import { FileSharingService } from 'src/file-sharing/file-sharing.service';
+import { EditUserDto } from './dto/edit-user.dto';
 
 export const COLUMNS_TO_KEEP_FOR_USER = [
   '_id',
@@ -99,41 +104,29 @@ export class UsersService {
     return await new this.userModel(user).save({ session: mongoSession });
   }
 
-  async editUserEmailAndPassword(
+  async editProfile(
     mongoSession: ClientSession,
     user: User,
-    userHash: string,
-    newEmail: string,
-    newPassword: string,
-  ): Promise<User> {
-    const newCryptedPassword = await this.authService.hashPassword(newPassword);
-    const newUserHash = this.userHashService.generateUserHash(
-      newEmail,
-      newPassword,
-    );
-    const userPrivateKey = await this.cryptoService.getUserPrivateKey(
-      user,
-      userHash,
-    );
+    editUserDto: EditUserDto,
+  ) {
+    user.firstname = editUserDto.firstname || user.firstname;
+    user.lastname = editUserDto.lastname || user.lastname;
 
-    await this.cryptoService.setUserPrivateKey(
-      user,
-      newUserHash,
-      userPrivateKey,
-    );
-    user.email = newEmail;
-    user.password = newCryptedPassword;
-    return await new this.userModel(user).save({ session: mongoSession });
-  }
+    const emailChanged = editUserDto.email && editUserDto.email !== user.email;
+    if (emailChanged) {
+      if (
+        !(await this.authService.isValidPassword(
+          user,
+          editUserDto.currentPassword,
+        ))
+      ) {
+        throw new ForbiddenException(
+          'Missing or wrong password, required to change account email',
+        );
+      }
+      user.email = editUserDto.email;
+    }
 
-  async editUserBasicMetadata(
-    mongoSession: ClientSession,
-    user: User,
-    newFirstName: string,
-    newLastName: string,
-  ): Promise<User> {
-    user.firstname = newFirstName;
-    user.lastname = newLastName;
     return await new this.userModel(user).save({ session: mongoSession });
   }
 
