@@ -9,6 +9,9 @@ import { SettingsCreateEditTagDialogComponent } from '../settings-create-edit-ta
 import { SecurityCheckDialogComponent } from '../../security-check-dialog/security-check-dialog.component';
 import { Router } from '@angular/router';
 import { UsersService } from 'src/app/services/users/users.service';
+import { SettingsAskCurrentPasswordDialogComponent } from '../settings-ask-current-password-dialog/settings-ask-current-password-dialog.component';
+import { User } from 'src/app/models/users-api-models';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-settings-profile',
@@ -48,75 +51,65 @@ export class SettingsProfileComponent {
     this.dataSource.data = user.tags;
   }
 
-  updateProfile(): void {
-    this.loading = true;
-    if (
+  updateProfile() {
+    this._setIsLoading(true);
+    const emailChanged =
       this.profileForm.get('newEmail').value !==
-      this.usersService.getActiveUser().email
-    ) {
-      // Changed email address
+      this.usersService.getActiveUser().email;
+
+    let promise: Promise<User>;
+
+    if (emailChanged) {
       this.dialog
-        .open(SecurityCheckDialogComponent, {
+        .open(SettingsAskCurrentPasswordDialogComponent, {
           maxWidth: '500px',
-          data: {
-            checkTwoFactor: true,
-          },
         })
         .afterClosed()
-        .subscribe((res) => {
-          if (res) {
-            if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) {
-              // [password:smsOrApp:2faToken]
-              this.usersService
-                .updateProfile(
-                  this.profileForm.get('firstName').value,
-                  this.profileForm.get('lastName').value,
-                  this.profileForm.get('newEmail').value,
-                  res.xAuthTokenArray,
-                )
-                .toPromise()
-                .then(() => {
-                  this.usersService
-                    .refreshActiveUser()
-                    .toPromise()
-                    .then(() => {
-                      this.loading = false;
-                      this.profileForm.enable();
-                      this.snackBar.dismiss();
-                      this.snackBar.open('Profile updated', null, {
-                        duration: 1500,
-                      });
-                    });
-                });
-            } else {
-              this.loading = false;
-            }
+        .toPromise()
+        .then((currentPassword) => {
+          if (currentPassword) {
+            promise = this.usersService
+              .updateProfile(
+                this.profileForm.get('firstName').value,
+                this.profileForm.get('lastName').value,
+                this.profileForm.get('newEmail').value,
+                currentPassword,
+              )
+              .toPromise();
+            this._handleUpdateProfilePromise(promise);
           } else {
-            this.loading = false;
+            this._setIsLoading(false);
           }
         });
     } else {
-      // Same email address
-      this.usersService
+      promise = this.usersService
         .updateProfile(
           this.profileForm.get('firstName').value,
           this.profileForm.get('lastName').value,
           this.profileForm.get('newEmail').value,
-          null,
+          undefined,
         )
-        .toPromise()
-        .then(() => {
-          this.usersService
-            .refreshActiveUser()
-            .toPromise()
-            .then(() => {
-              this.loading = false;
-              this.profileForm.enable();
-              this.snackBar.dismiss();
-              this.snackBar.open('Profile updated', null, { duration: 1500 });
-            });
-        });
+        .toPromise();
+      this._handleUpdateProfilePromise(promise);
     }
+  }
+
+  private _handleUpdateProfilePromise(promise: Promise<User>) {
+    promise
+      .then(() => {
+        this._setIsLoading(false);
+        this.snackBar.open('Profile updated', null, { duration: 5000 });
+      })
+      .catch((err) => {
+        if (err instanceof HttpErrorResponse && err.status === 403) {
+          this._setIsLoading(false);
+          this.snackBar.open('[ERROR] Wrong password', null, {
+            duration: 5000,
+          });
+        } else {
+          throw err;
+        }
+      });
   }
 
   deleteAccount(): void {
@@ -161,5 +154,15 @@ export class SettingsProfileComponent {
       maxWidth: '400px',
       data: tag,
     });
+  }
+
+  private _setIsLoading(isLoading: boolean) {
+    this.loading = isLoading;
+    if (this.loading) {
+      this.profileForm.disable();
+    } else {
+      this.profileForm.enable();
+      this.refresh();
+    }
   }
 }

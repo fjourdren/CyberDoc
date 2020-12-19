@@ -16,13 +16,17 @@ export class AuthService {
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.userModel.findOne({ email });
-    if (user && (await bcrypt.compare(pass, user.password))) {
+    if (user && (await this.isValidPassword(user, pass))) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
       (result as any).hash = this.userHashService.generateUserHash(email, pass);
       return result;
     }
     return null;
+  }
+
+  async isValidPassword(user: User, password: string): Promise<boolean> {
+    return await bcrypt.compare(password, user.password);
   }
 
   async hashPassword(password: string) {

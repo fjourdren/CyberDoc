@@ -6,7 +6,6 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { IsStrongPassword } from '../is-strong-password.decorator';
 
 export class EditUserDto {
   @ApiProperty({ description: 'User first name', example: 'John' })
@@ -32,6 +31,5 @@ export class EditUserDto {
   @IsOptional()
   @IsNotEmpty()
   @IsString()
-  @IsStrongPassword()
-  password: string;
+  currentPassword: string;
 }

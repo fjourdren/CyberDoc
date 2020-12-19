@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -25,7 +24,6 @@ import { GetProfileResponse } from './users.controller.types';
 import { UsersService } from './users.service';
 import { Response } from 'express';
 import { GenericResponse } from 'src/generic-response.interceptor';
-import { LoggedUserHash } from 'src/auth/logged-user-hash.decorator';
 import { EditUserDto } from './dto/edit-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SkipJWTAuth } from 'src/auth/jwt/skip-jwt-auth.annotation';
@@ -88,36 +86,9 @@ export class UsersController {
   async setProfile(
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
-    @LoggedUserHash() userHash: string,
     @Body() editUserDto: EditUserDto,
   ) {
-    //TODO x-auth-token
-
-    if (editUserDto.firstname || editUserDto.lastname) {
-      user = await this.usersService.editUserBasicMetadata(
-        mongoSession,
-        user,
-        editUserDto.firstname || user.firstname,
-        editUserDto.lastname || user.lastname,
-      );
-    }
-
-    if (editUserDto.email || editUserDto.password) {
-      if (!(editUserDto.email && editUserDto.password)) {
-        throw new BadRequestException(
-          'You have to specify both `email` and `password` if you want to change one of these properties',
-        );
-      }
-
-      user = await this.usersService.editUserEmailAndPassword(
-        mongoSession,
-        user,
-        userHash,
-        editUserDto.email,
-        editUserDto.password,
-      );
-    }
-
+    await this.usersService.editProfile(mongoSession, user, editUserDto);
     return { msg: 'Success' };
   }
 

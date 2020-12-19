@@ -80,30 +80,20 @@ export class UsersService {
     firstName: string,
     lastName: string,
     newEmail: string,
-    xAuthTokenArray: string[],
-  ): Observable<void> {
-    const options = { withCredentials: true };
-    if (xAuthTokenArray) {
-      options['headers'] = {
-        'x-auth-token': Base64.encode(
-          xAuthTokenArray[0] +
-            '\t' +
-            xAuthTokenArray[1] +
-            '\t' +
-            xAuthTokenArray[2],
-        ),
-      };
-    }
-
-    return this.httpClient.post<any>(
-      `${environment.apiBaseURL}/users/profile`,
-      {
-        email: newEmail,
-        firstname: firstName,
-        lastname: lastName,
-      },
-      options,
-    );
+    currentPassword: string | undefined /*required only if email is changed*/,
+  ) {
+    return this.httpClient
+      .post<any>(
+        `${environment.apiBaseURL}/users/profile`,
+        {
+          email: newEmail,
+          firstname: firstName,
+          lastname: lastName,
+          currentPassword,
+        },
+        { withCredentials: true },
+      )
+      .pipe(mergeMap(() => this.refreshActiveUser()));
   }
 
   updatePassword(
