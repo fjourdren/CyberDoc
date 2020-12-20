@@ -5,7 +5,7 @@ import {
   HttpCode,
   Param,
   Post,
-  Put,
+  Patch,
   Req,
 } from '@nestjs/common';
 import {
@@ -63,7 +63,7 @@ export class UsersTagsController {
     return { msg: 'Tag created', tagID: tag._id };
   }
 
-  @Put(':tagID')
+  @Patch(':tagID')
   @HttpCode(HttpStatusCode.OK)
   @ApiParam({
     name: 'tagID',
