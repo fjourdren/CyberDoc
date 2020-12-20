@@ -18,6 +18,7 @@ export class User {
   public directory_id: string;
   public tags: FileTag[];
   public twoFactorRecoveryCodes: TwoFactorRecoveryCode[];
+  public theme: string;
 }
 
 export class Device {

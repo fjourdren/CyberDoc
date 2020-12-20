@@ -1,5 +1,3 @@
-@import '../../../../theme.scss';
-
 #search-field {
     flex: 1 1 auto;
 }
@@ -40,6 +38,6 @@ mat-form-field {
 }
 
 a {
-    color: $text;
+    color: inherit;
     text-decoration: unset;
 }

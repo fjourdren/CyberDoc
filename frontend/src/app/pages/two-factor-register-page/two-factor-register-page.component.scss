@@ -1,5 +1,3 @@
-@import "../../../theme.scss";
-
 .full-width {
   width: 100%;
 }
@@ -24,7 +22,6 @@ form {
 }
 
 #root-div {
-  background-color: mat-color($primary);
   height: 100vh;
 }
 

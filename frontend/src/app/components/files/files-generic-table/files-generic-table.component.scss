@@ -1,9 +1,7 @@
-@import '../../../../theme.scss';
 
 table {
     width: 100%;
     user-select: none;
-    
 }
 
 td {
@@ -12,10 +10,6 @@ td {
   
 .mat-form-field-infix{
   width: auto !important;
-}
-
-.selected, .selected > * {
-  background: $selected;
 }
 
 th.mat-sort-header-sorted {
