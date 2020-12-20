@@ -1,11 +1,5 @@
-@import '../../../../theme.scss';
-
 mat-tree {
     user-select: none;
-}
-
-.selected {
-    background: $selected;
 }
 
 .tree-node-div {

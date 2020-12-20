@@ -128,19 +128,17 @@
         "passwords_must_match": "Passwords must match",
         "password_restrictions": "Use at least eight characters with uppercase and lowercase letters, numbers and symbols."
     },
-    "settings":{
+    "settings": {
         "user_info_card_title": "General",
         "user_info_card_subtitle": "Manage user information",
         "user_tags_card_title": "Tags",
         "user_tags_card_subtitle": "Manage tags",
         "user_delete_card_title": "Delete your account",
         "user_delete_card_subtitle": "WARNING : You will lose all your files stored on CyberDoc !",
-
         "user_devices_card_title": "Registered devices",
         "user_devices_card_subtitle": "View and rename all devices used by your account",
         "browser": "Browser",
         "device": "Device",
-
         "password_card_title": "Password",
         "password_card_subtitle": "Set a unique password to protect your personal CyberDoc account.",
         "current_password": "Current password",
@@ -178,6 +176,13 @@
         "noSign": "Nobody has sign this file yet",
         "signAreYouSure": "Are you sure you want to sign ? You won't be able to modifiy the file afterward.",
         "error": "You have already signed this file."
+    },
+    "themes": {
+        "theme": "Theme",
+        "deeppurple-amber": "Deep Purle & Amber",
+        "indigo-pink": "Indigo & Pink",
+        "pink-bluegrey": "Pink & Blue-Grey",
+        "purple-green": "Purple & Green"
     },
     "general": {
         "generic_error": "Error. Please wait some time then retry",
@@ -220,7 +225,7 @@
         "back_to_app": "Back to the application",
         "share_error": "User does not exist",
         "share_error_already_logged": "You cannot share a file with yourself",
-        "password_recovery_mail": "Please indicate your account email so that we can send you a link to recover your password :", 
+        "password_recovery_mail": "Please indicate your account email so that we can send you a link to recover your password :",
         "back_login": "Going back to login",
         "confirm_recover": "Send email",
         "email_sended": "If an account exist with this adress, it will receive shortly a mail with all indication on how to recover your password.",

@@ -1,14 +1,9 @@
-@import "../../../../theme.scss";
-
 table {
     width: 100%;
     overflow-x: scroll;
-    
 }
 
 .error-txt {
-  color: $warn;
-  font-weight: bold;
   padding-bottom: 12px;
   align-items: center;
 }
