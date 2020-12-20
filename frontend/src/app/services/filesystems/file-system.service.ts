@@ -167,6 +167,24 @@ export class FileSystemService {
       .pipe(map(() => this._refreshNeeded$.emit(), null));
   }
 
+  createFileFromTemplate(
+    name: string,
+    parentFolder: CloudDirectory,
+    templateID: string,
+  ) {
+    return this.httpClient
+      .post<any>(
+        `${environment.apiBaseURL}/files/create-from-template`,
+        {
+          folderID: parentFolder._id,
+          name,
+          templateID,
+        },
+        { withCredentials: true },
+      )
+      .pipe(map(() => this._refreshNeeded$.emit(), null));
+  }
+
   search(searchParams: SearchParams): Observable<CloudDirectory> {
     const currentDate = new Date();
     let startDate: Date;
