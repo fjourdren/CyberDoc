@@ -63,6 +63,9 @@ export class User {
   })
   role: string;
 
+  @Prop({ required: true })
+  theme: string;
+
   created_at: Date;
   updated_at: Date;
 }
