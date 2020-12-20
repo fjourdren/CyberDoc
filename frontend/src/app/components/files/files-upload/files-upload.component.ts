@@ -10,6 +10,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { CloudDirectory } from 'src/app/models/files-api-models';
 import { FilesNewFolderDialogComponent } from '../files-new-folder-dialog/files-new-folder-dialog.component';
 import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
+import { TranslateService } from '@ngx-translate/core';
+import { LoadingDialogComponent } from '../../global/loading-dialog/loading-dialog.component';
 
 @Component({
   selector: 'app-files-upload',
@@ -25,7 +27,11 @@ export class FilesUploadComponent implements AfterViewInit {
   setTimeoutID: number;
   currentlyUploading = false;
 
-  constructor(private fsService: FileSystemService, private dialog: MatDialog) {
+  constructor(
+    private fsService: FileSystemService,
+    private dialog: MatDialog,
+    private translateService: TranslateService,
+  ) {
     fsService.getCurrentFileUpload().subscribe((val) => {
       this.currentlyUploading = val != undefined;
     });
@@ -71,6 +77,24 @@ export class FilesUploadComponent implements AfterViewInit {
 
   uploadFile() {
     this.input.nativeElement.click();
+  }
+
+  createFileFromTemplate(templateID: string, extension: string) {
+    const dialogRef = this.dialog.open(LoadingDialogComponent, {
+      width: '96px',
+      height: '96px',
+    });
+
+    this.translateService
+      .get('upload.new_file_name')
+      .toPromise()
+      .then((filename) => {
+        filename = `${filename}.${extension}`;
+        this.fsService
+          .createFileFromTemplate(filename, this.currentDirectory, templateID)
+          .toPromise()
+          .finally(() => dialogRef.close());
+      });
   }
 
   createFolder() {
