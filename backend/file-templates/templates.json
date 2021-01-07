@@ -1,0 +1,22 @@
+[
+    {
+        "id": "empty_doc",
+        "filename": "empty.doc",
+        "mimetype": "application/msword"
+    },
+    {
+        "id": "empty_docx",
+        "filename": "empty.docx",
+        "mimetype": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    },
+    {
+        "id": "empty_odt",
+        "filename": "empty.odt",
+        "mimetype": "application/vnd.oasis.opendocument.text"
+    },
+    {
+        "id": "empty_txt",
+        "filename": "empty.txt",
+        "mimetype": "text/plain"
+    }
+]

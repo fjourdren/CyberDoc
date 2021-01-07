@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Connection, FilterQuery, Model } from 'mongoose';
@@ -38,6 +39,10 @@ import { FileSearchDto } from './dto/file-search.dto';
 import { CryptoService } from 'src/crypto/crypto.service';
 import { FileInResponse } from './files.controller.types';
 import { EditFileMetadataDto } from './dto/edit-file-metadata.dto';
+import { readFile as _readFile } from 'fs';
+import { join } from 'path';
+
+const readFile = promisify(_readFile);
 
 export const COLUMNS_TO_KEEP_FOR_FILE = [
   '_id',
@@ -134,6 +139,46 @@ export class FilesService {
     file.updated_at = date;
 
     return await new this.fileModel(file).save({ session: mongoSession });
+  }
+
+  async createFromTemplate(
+    mongoSession: ClientSession,
+    user: User,
+    userHash: string,
+    fileName: string,
+    folderID: string,
+    templateID: string,
+  ) {
+    const templates = JSON.parse(
+      (
+        await readFile(join(__dirname, '../../file-templates/templates.json'))
+      ).toString(),
+    );
+    const template = templates.find((item) => item.id === templateID);
+    if (!template) {
+      throw new NotFoundException('Template not found');
+    }
+
+    let file = await this.create(
+      mongoSession,
+      user,
+      fileName,
+      template.mimetype,
+      folderID,
+    );
+
+    const templateFileContent = await readFile(
+      join(__dirname, `../../file-templates/${template.filename}`),
+    );
+    file = await this.setFileContent(
+      mongoSession,
+      user,
+      userHash,
+      file,
+      templateFileContent,
+    );
+
+    return file;
   }
 
   async search(user: User, fileSearchDto: FileSearchDto): Promise<File[]> {

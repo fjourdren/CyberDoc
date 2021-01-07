@@ -45,6 +45,8 @@ import { FilesNewFolderDialogComponent } from '../files-new-folder-dialog/files-
 import { FilesSignDialogComponent } from '../files-sign-dialog/files-sign-dialog.component';
 import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
 import { UsersService } from 'src/app/services/users/users.service';
+import { LoadingDialogComponent } from '../../global/loading-dialog/loading-dialog.component';
+import { TranslateService } from '@ngx-translate/core';
 
 export type FileAction =
   | 'open'
@@ -94,6 +96,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
     resize: NgResizeObserver,
     private fsService: FileSystemService,
     private usersService: UsersService,
+    private translateService: TranslateService,
   ) {
     resize
       .pipe(map((entry) => entry.contentRect.width))
@@ -385,6 +388,24 @@ export class FilesGenericTableComponent implements AfterViewInit {
         break;
       }
     }
+  }
+
+  createFileFromTemplate(templateID: string, extension: string) {
+    const dialogRef = this.dialog.open(LoadingDialogComponent, {
+      width: '96px',
+      height: '96px',
+    });
+
+    this.translateService
+      .get('upload.new_file_name')
+      .toPromise()
+      .then((filename) => {
+        filename = `${filename}.${extension}`;
+        this.fsService
+          .createFileFromTemplate(filename, this.currentDirectory, templateID)
+          .toPromise()
+          .finally(() => dialogRef.close());
+      });
   }
 
   deleteNode(node: CloudNode): void {
