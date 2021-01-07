@@ -39,6 +39,9 @@ import { MongoSessionInterceptor } from './mongo-session.interceptor';
         SENDGRID_TEMPLATE_REQUEST_CREATE_ACCOUNT: Joi.string().required(),
         SENDGRID_TEMPLATE_SHARED_WITH_YOU: Joi.string().required(),
         SENDGRID_TEMPLATE_2FA_TOKEN: Joi.string().required(),
+        ETHERPAD_ROOT_URL: Joi.string().required(),
+        ETHERPAD_ROOT_API_URL: Joi.string().required(),
+        ETHERPAD_API_KEY: Joi.string().required(),
       }),
     }),
     MongooseModule.forRootAsync({

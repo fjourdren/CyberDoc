@@ -27,9 +27,9 @@ import { LoggedUserHash } from 'src/auth/logged-user-hash.decorator';
 import { FileGuard } from 'src/files/file.guard';
 import {
   CurrentFile,
+  OWNER,
   READ,
   WRITE,
-  OWNER,
 } from 'src/files/current-file.decorator';
 import {
   ApiBadRequestResponse,
@@ -47,18 +47,22 @@ import {
 import { GenericResponse } from 'src/generic-response.interceptor';
 import { HttpStatusCode } from 'src/utils/http-status-code';
 import {
-  SearchFilesResponse,
-  GetResponse,
   CreateFileResponse,
+  GetResponse,
+  SearchFilesResponse,
 } from './files.controller.types';
 import { MongoSession } from 'src/mongo-session.decorator';
 import { ClientSession } from 'mongoose';
+import { EtherpadIntegration } from './etherpad/etherpad-integration';
 
 @ApiTags('files')
 @ApiBearerAuth()
 @Controller('files')
 export class FilesController {
-  constructor(private readonly filesService: FilesService) {}
+  constructor(
+    private readonly filesService: FilesService,
+    private readonly etherpadIntegration: EtherpadIntegration,
+  ) {}
 
   @Post('search')
   @HttpCode(HttpStatusCode.OK)
@@ -419,5 +423,33 @@ export class FilesController {
   async delete(@CurrentFile(OWNER) file: File) {
     await this.filesService.delete(file);
     return { msg: 'File deleted' };
+  }
+
+  @Get(':fileID/prepare-file-for-etherpad')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({
+    summary: 'Prepare file for Etherpad',
+    description: 'Prepare file for Etherpad',
+  })
+  @ApiOkResponse({ description: 'OK', type: GenericResponse })
+  async prepareFileForEtherpad(
+    @MongoSession() mongoSession: ClientSession,
+    @LoggedUser() user: User,
+    @LoggedUserHash() userHash: string,
+    @CurrentFile(OWNER) file: File,
+  ) {
+    const fileID = await this.etherpadIntegration.prepareFileForEtherpad(
+      mongoSession,
+      user,
+      userHash,
+      file,
+    );
+    return { msg: `${fileID}` };
   }
 }
