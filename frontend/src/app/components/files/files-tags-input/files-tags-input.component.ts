@@ -17,6 +17,8 @@ import { map } from 'rxjs/operators';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { AppUtilsService } from 'src/app/services/app-utils/app-utils.service';
 import { FileTag } from 'src/app/models/files-api-models';
+import { SettingsCreateEditTagDialogComponent } from '../../settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-files-tags-input',
@@ -58,7 +60,7 @@ export class FilesTagsInputComponent {
     this._filter('');
   }
 
-  constructor(private appUtils: AppUtilsService) {
+  constructor(private appUtils: AppUtilsService, private dialog: MatDialog) {
     this.filteredTags$ = this.tagsCtrl.valueChanges.pipe(
       map((tag: string | null) => {
         return tag ? this._filter(tag) : this._filter('');
@@ -70,6 +72,14 @@ export class FilesTagsInputComponent {
     this.newTagCreated.emit(event.value);
     this.tagInput.nativeElement.value = '';
     this.tagsCtrl.setValue(null);
+  }
+
+  edit(tag: FileTag) {
+    this.dialog.open(SettingsCreateEditTagDialogComponent, {
+      minWidth: '300px',
+      maxWidth: '500px',
+      data: tag,
+    });
   }
 
   remove(tag: FileTag): void {

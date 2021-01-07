@@ -1,7 +1,7 @@
 <mat-form-field appearance="fill">
     <mat-label>{{'tags.tags' | translate}}</mat-label>
     <mat-chip-list #chipList>
-        <mat-chip disableRipple [style.background]="tag.hexColor" [style.color]="computeTextColor(tag.hexColor)"
+        <mat-chip disableRipple (click)="edit(tag)" [style.background]="tag.hexColor" [style.color]="computeTextColor(tag.hexColor)"
             *ngFor="let tag of selectedTags" selectable removable (removed)="remove(tag)">
             {{tag.name}}
             <mat-icon matChipRemove>cancel</mat-icon>
