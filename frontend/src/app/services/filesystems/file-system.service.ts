@@ -7,8 +7,8 @@ import {
   CloudFile,
   CloudNode,
   FileTag,
-  RespondShare,
   RespondAnswerSign,
+  RespondShare,
   SearchParams,
 } from 'src/app/models/files-api-models';
 import { DIRECTORY_MIMETYPE } from '../files-utils/files-utils.service';
@@ -220,12 +220,10 @@ export class FileSystemService {
           const folder = new CloudDirectory();
 
           const results: CloudNode[] = response.results;
-          const directoryContent = results.map((item) => {
+          folder.directoryContent = results.map((item) => {
             item.isDirectory = item.mimetype === DIRECTORY_MIMETYPE;
             return item;
           });
-
-          folder.directoryContent = directoryContent;
           folder._id = null;
           folder.name = null;
           folder.isDirectory = true;
@@ -366,7 +364,7 @@ export class FileSystemService {
     this._uploadXhr = new XMLHttpRequest();
     this._uploadXhr.upload.onprogress = (evt) => {
       // https://stackoverflow.com/questions/21162749/how-do-i-calculate-the-time-remaining-for-my-upload
-      let timeElasped = 0;
+      let timeElasped: number;
       if (this._timeStarted === -1) {
         this._timeStarted = Date.now();
         timeElasped = 1;
@@ -431,6 +429,10 @@ export class FileSystemService {
 
   refreshNeeded(): Observable<void> {
     return this._refreshNeeded$.asObservable();
+  }
+
+  triggerRefreshNeededEvent() {
+    this._refreshNeeded$.emit();
   }
 
   private _onXHRFinished(filename: string, error: Error) {
