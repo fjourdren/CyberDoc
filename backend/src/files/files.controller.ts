@@ -38,6 +38,7 @@ import {
   ApiConsumes,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -53,6 +54,7 @@ import {
 } from './files.controller.types';
 import { MongoSession } from 'src/mongo-session.decorator';
 import { ClientSession } from 'mongoose';
+import { CreateFileFromTemplateDto } from './dto/create-file-from-template.dto';
 
 @ApiTags('files')
 @ApiBearerAuth()
@@ -158,6 +160,42 @@ export class FilesController {
       );
     }
 
+    return { msg: 'File created', fileID: file._id };
+  }
+
+  @Post('create-from-template')
+  @HttpCode(HttpStatusCode.CREATED)
+  @ApiOperation({
+    summary: 'Create a file from a template',
+    description: 'Create a file from a template',
+  })
+  @ApiForbiddenResponse({
+    description: 'The user have to be the owner of parent folder',
+    type: GenericResponse,
+  })
+  @ApiBadRequestResponse({
+    description: '`folderID` is not a valid folder',
+    type: GenericResponse,
+  })
+  @ApiNotFoundResponse({
+    description: 'Template not found',
+    type: GenericResponse,
+  })
+  @ApiCreatedResponse({ description: 'File created', type: CreateFileResponse })
+  async createFromTemplate(
+    @MongoSession() mongoSession: ClientSession,
+    @LoggedUser({ requireOwner: true }) user: User,
+    @LoggedUserHash() userHash: string,
+    @Body() createFileFromTemplateDto: CreateFileFromTemplateDto,
+  ) {
+    const file = await this.filesService.createFromTemplate(
+      mongoSession,
+      user,
+      userHash,
+      createFileFromTemplateDto.name,
+      createFileFromTemplateDto.folderID,
+      createFileFromTemplateDto.templateID,
+    );
     return { msg: 'File created', fileID: file._id };
   }
 

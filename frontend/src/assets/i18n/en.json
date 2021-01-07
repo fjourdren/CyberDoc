@@ -66,6 +66,11 @@
     "upload": {
         "import_file": "Import file",
         "new_directory": "New directory",
+        "new_docx_file": "New .docx file",
+        "new_doc_file": "New .doc file",
+        "new_odt_file": "New .odt file",
+        "new_txt_file": "New .txt file",
+        "new_file_name": "New file",
         "drop_div_text": "Drop a file to import",
         "success": "File successfully uploaded",
         "canceled": "Upload canceled",
