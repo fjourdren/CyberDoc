@@ -13,6 +13,24 @@
 
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#1976d2">
+  <script>
+    var theme = localStorage.getItem("theme");
+    var themeURL = "assets/themes/indigo-pink.css";
+    switch(theme){
+      case "deeppurple-amber": 
+      case "indigo-pink": 
+      case "pink-bluegrey": 
+      case "purple-green": {
+        themeURL = "assets/themes/" + theme + ".css";
+        break;
+      }
+    }
+
+    var themeAssetLink = document.createElement("link");
+    themeAssetLink.rel = "stylesheet";
+    themeAssetLink.href = themeURL;
+    document.head.appendChild(themeAssetLink);
+  </script>
 </head>
 
 <body class="mat-typography">
