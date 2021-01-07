@@ -6,6 +6,19 @@
 </mat-card>
 
 <mat-menu #menu="matMenu">
+    <button mat-menu-item (click)="createFileFromTemplate('empty_docx', 'docx')">
+        <mat-icon fontSet="fa" fontIcon="fa-file-word"></mat-icon>{{ 'upload.new_docx_file' | translate }}
+    </button>
+    <button mat-menu-item (click)="createFileFromTemplate('empty_doc', 'doc')">
+        <mat-icon fontSet="fa" fontIcon="fa-file-word"></mat-icon>{{ 'upload.new_doc_file' | translate }}
+    </button>
+    <button mat-menu-item (click)="createFileFromTemplate('empty_odt', 'odt')">
+        <mat-icon fontSet="fa" fontIcon="fa-file-alt"></mat-icon>{{ 'upload.new_odt_file' | translate }}
+    </button>
+    <button mat-menu-item (click)="createFileFromTemplate('empty_txt', 'txt')">
+        <mat-icon fontSet="fa" fontIcon="fa-file"></mat-icon>{{ 'upload.new_txt_file' | translate }}
+    </button>
+    <div style="margin-top: 4px; margin-bottom: 4px; width: 100%; height: 2px; background: lightgray;"></div>
     <button mat-menu-item (click)="uploadFile()">
         <mat-icon>publish</mat-icon>{{ 'upload.import_file' | translate }}
     </button>
