@@ -15,6 +15,7 @@ export type CloudNode = CloudFile | CloudDirectory;
 
 export class CloudFile {
   public _id: string;
+  public owner_id: string;
   public ownerName: string;
   public name: string;
   public mimetype: Exclude<string, 'application/x-dir'>;
@@ -28,6 +29,7 @@ export class CloudFile {
 
 export class CloudDirectory {
   public _id: string;
+  public owner_id: string;
   public ownerName: string;
   public name: string;
   public mimetype: 'application/x-dir';

@@ -41,6 +41,7 @@ import {
   Etherpad,
 } from './etherpad/etherpad';
 import { ConfigService } from '@nestjs/config';
+import { FileAcl } from './file-acl';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const streamToPromise = require('stream-to-promise');
 
@@ -55,6 +56,7 @@ export const COLUMNS_TO_KEEP_FOR_FILE = [
   'preview',
   'signs',
   'shareMode',
+  'owner_id',
 ];
 export const COLUMNS_TO_KEEP_FOR_FOLDER = [
   '_id',
@@ -64,6 +66,7 @@ export const COLUMNS_TO_KEEP_FOR_FOLDER = [
   'created_at',
   'tags',
   'preview',
+  'owner_id',
 ];
 
 @Injectable()
@@ -465,9 +468,14 @@ export class FilesService {
       await this.etherpad.syncPadFromCyberDoc(user, userHash, file, file._id);
     }
 
-    return `${this.configService.get<string>('ETHERPAD_ROOT_URL')}/p/${
-      file._id
-    }`;
+    let padID: string;
+    if (FileAcl.getAvailableAccess(file, user) >= FileAcl.WRITE) {
+      padID = file._id;
+    } else {
+      padID = await this.etherpad.getReadOnlyPadID(file._id);
+    }
+
+    return `${this.configService.get<string>('ETHERPAD_ROOT_URL')}/p/${padID}`;
   }
 
   async convertFileToEtherPadFormat(

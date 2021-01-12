@@ -1,13 +1,13 @@
 import {
   Controller,
+  HttpCode,
   Post,
-  UseGuards,
   Req,
   Res,
-  HttpCode,
+  UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiOperation, ApiOkResponse, ApiTags, ApiBody } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { SkipJWTAuth } from 'src/auth/jwt/skip-jwt-auth.annotation';
 import { GenericResponse } from 'src/generic-response.interceptor';

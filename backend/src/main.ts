@@ -39,4 +39,5 @@ async function bootstrap() {
 
   await app.listen(config.get<number>('APP_PORT'));
 }
+// noinspection JSIgnoredPromiseFromCall
 bootstrap();

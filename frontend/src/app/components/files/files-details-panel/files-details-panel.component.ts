@@ -118,9 +118,9 @@ export class FilesDetailsPanelComponent {
       this.filesUtils.getFileTypeForMimetype(node.mimetype) == FileType.Unknown
     )
       return false;
-    if (this.filesUtils.getFileTypeForMimetype(node.mimetype) == FileType.Audio)
-      return false;
-    return true;
+    return (
+      this.filesUtils.getFileTypeForMimetype(node.mimetype) != FileType.Audio
+    );
   }
 
   onPreviewToggleChange(evt: MatSlideToggleChange) {
