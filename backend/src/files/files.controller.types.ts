@@ -76,6 +76,14 @@ export class GetResponse extends GenericResponse {
   content: DirectoryProperties;
 }
 
+export class EtherpadURLResponse extends GenericResponse {
+  @ApiProperty({
+    description: 'Etherpad URL',
+    example: 'http://localhost:9001/p/M-Kp5kCe2EbqQtbNDe1C',
+  })
+  url: string;
+}
+
 export class SearchFilesResponse extends GenericResponse {
   @ApiProperty({ description: 'Files', type: [FileInResponse] })
   results: FileInResponse[];

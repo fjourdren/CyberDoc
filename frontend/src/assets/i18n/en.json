@@ -17,7 +17,8 @@
         "document": "Document",
         "spreadsheet": "Spreadsheet",
         "presentation": "Presentation",
-        "folder": "Folder"
+        "folder": "Folder",
+        "etherpad": "CyberDoc document"
     },
     "datediff": {
         "-1": "Any time",
@@ -41,7 +42,11 @@
         "share": "Share",
         "export": "PDF export",
         "delete_confirm": "Are you sure you want to delete '{{name}}' ?",
-        "sign": "Sign document"
+        "sign": "Sign document",
+        "convert": "Convert",
+        "download_as_doc": "Download as .doc",
+        "download_as_odt": "Download as .odt",
+        "download_as_txt": "Download as .txt"
     },
     "file": {
         "preview": "Preview",
@@ -178,6 +183,12 @@
         "noSign": "Nobody has sign this file yet",
         "signAreYouSure": "Are you sure you want to sign ? You won't be able to modifiy the file afterward.",
         "error": "You have already signed this file."
+    },
+    "convert": {
+        "dialog_title": "Convert file for editing",
+        "dialog_content1": "To edit this file, CyberDoc have to convert your file with its own format.",
+        "dialog_content2": "During this process, some complex formatting will be lost.",
+        "dialog_content3": "If your document is complex, please create a copy of your file before."
     },
     "general": {
         "generic_error": "Error. Please wait some time then retry",

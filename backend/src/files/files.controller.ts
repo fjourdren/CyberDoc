@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
   Res,
   UploadedFiles,
   UseGuards,
@@ -42,27 +43,31 @@ import {
   ApiOperation,
   ApiParam,
   ApiProduces,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { GenericResponse } from 'src/generic-response.interceptor';
 import { HttpStatusCode } from 'src/utils/http-status-code';
 import {
   CreateFileResponse,
+  EtherpadURLResponse,
   GetResponse,
   SearchFilesResponse,
 } from './files.controller.types';
 import { MongoSession } from 'src/mongo-session.decorator';
-import { ClientSession } from 'mongoose';
-import { EtherpadIntegration } from './etherpad/etherpad-integration';
+import { ClientSession, mongo } from 'mongoose';
+import {
+  ETHERPAD_MIMETYPE,
+  EtherpadExportFormat,
+  getMimetypeForEtherpadExportFormat,
+} from './etherpad/etherpad';
+import { Utils } from '../utils';
 
 @ApiTags('files')
 @ApiBearerAuth()
 @Controller('files')
 export class FilesController {
-  constructor(
-    private readonly filesService: FilesService,
-    private readonly etherpadIntegration: EtherpadIntegration,
-  ) {}
+  constructor(private readonly filesService: FilesService) {}
 
   @Post('search')
   @HttpCode(HttpStatusCode.OK)
@@ -311,6 +316,14 @@ export class FilesController {
     description: 'File ID',
     example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
   })
+  @ApiQuery({
+    name: 'etherpad_export_format',
+    description:
+      'When the user download an etherpad file, specify the format to use for export (required). For other files this field must be `null`',
+    example: '',
+    enum: EtherpadExportFormat,
+    required: false,
+  })
   @ApiProduces('application/octet-stream')
   @ApiOperation({ summary: 'Download a file', description: 'Download a file' })
   @ApiOkResponse({ description: 'Success' })
@@ -323,12 +336,47 @@ export class FilesController {
     @LoggedUserHash() userHash: string,
     @Res() res: Response,
     @CurrentFile(READ) file: File,
+    @Query('etherpad_export_format')
+    etherpadExportFormat: EtherpadExportFormat = null,
   ) {
     if (file.type !== FILE)
       throw new BadRequestException('This action is only available with files');
-    res.set('Content-Type', file.mimetype);
-    res.set('Content-Disposition', `attachment; filename="${file.name}"`);
-    res.send(await this.filesService.getFileContent(user, userHash, file));
+
+    const isEtherpadFile = file.mimetype === ETHERPAD_MIMETYPE;
+    if (!isEtherpadFile && etherpadExportFormat != null) {
+      throw new BadRequestException(
+        '`etherpad_export_format` query param have to be empty for non-etherpad files',
+      );
+    } else if (isEtherpadFile && etherpadExportFormat == null) {
+      throw new BadRequestException(
+        '`etherpad_export_format` query param is required for etherpad files',
+      );
+    }
+
+    if (isEtherpadFile) {
+      // this function throws BadRequestException if etherpadExportFormat is invalid
+      const filename = Utils.replaceFileExtension(
+        file.name,
+        etherpadExportFormat,
+      );
+      const content = this.filesService.exportEtherpadPadAssociatedWithFile(
+        user,
+        userHash,
+        file,
+        etherpadExportFormat,
+      );
+      res.set(
+        'Content-Type',
+        getMimetypeForEtherpadExportFormat(etherpadExportFormat),
+      );
+      res.set('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(await content);
+    } else {
+      const content = this.filesService.getFileContent(user, userHash, file);
+      res.set('Content-Type', file.mimetype);
+      res.set('Content-Disposition', `attachment; filename="${file.name}"`);
+      res.send(await content);
+    }
   }
 
   @Get(':fileID/export')
@@ -358,12 +406,7 @@ export class FilesController {
     if (file.type !== FILE)
       throw new BadRequestException('This action is only available with files');
 
-    let pdfFileName = file.name;
-    if (pdfFileName.indexOf('.') !== -1) {
-      pdfFileName = pdfFileName.substring(0, pdfFileName.lastIndexOf('.'));
-    }
-    pdfFileName += '.pdf';
-
+    let pdfFileName = Utils.replaceFileExtension(file.name, 'pdf');
     res.set('Content-Type', 'application/pdf');
     res.set('Content-Disposition', `attachment; filename="${pdfFileName}"`);
     res.send(await this.filesService.generatePDF(user, userHash, file));
@@ -425,7 +468,7 @@ export class FilesController {
     return { msg: 'File deleted' };
   }
 
-  @Get(':fileID/prepare-file-for-etherpad')
+  @Get(':fileID/etherpad-url')
   @UseGuards(FileGuard)
   @HttpCode(HttpStatusCode.OK)
   @ApiParam({
@@ -434,22 +477,88 @@ export class FilesController {
     example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
   })
   @ApiOperation({
-    summary: 'Prepare file for Etherpad',
-    description: 'Prepare file for Etherpad',
+    summary: 'Get URL to open .etherpad file with Etherpad',
+    description: 'Get URL to open .etherpad file with Etherpad',
   })
-  @ApiOkResponse({ description: 'OK', type: GenericResponse })
-  async prepareFileForEtherpad(
+  @ApiOkResponse({ description: 'OK', type: EtherpadURLResponse })
+  async getURLToOpenFileWithEtherpad(
+    @LoggedUser() user: User,
+    @LoggedUserHash() userHash: string,
+    @CurrentFile(OWNER) file: File,
+  ) {
+    if (file.mimetype !== ETHERPAD_MIMETYPE) {
+      throw new BadRequestException(
+        'This action is only available for etherpad files',
+      );
+    }
+
+    const url = await this.filesService.getURLToOpenFileWithEtherpad(
+      user,
+      userHash,
+      file,
+    );
+    return { msg: 'OK', url };
+  }
+
+  @Post(':fileID/convert-to-etherpad')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({
+    summary: 'Convert a office file to a .etherpad file',
+    description: 'Convert a office file to a .etherpad file',
+  })
+  @ApiOkResponse({ description: 'OK', type: EtherpadURLResponse })
+  async convertFileToEtherPadFormat(
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
     @CurrentFile(OWNER) file: File,
   ) {
-    const fileID = await this.etherpadIntegration.prepareFileForEtherpad(
+    const url = await this.filesService.convertFileToEtherPadFormat(
       mongoSession,
       user,
       userHash,
       file,
     );
-    return { msg: `${fileID}` };
+    return { msg: 'OK', url };
+  }
+
+  @Get(':fileID/on-all-users-leave-etherpad-pad')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({
+    summary: 'Called by Etherpad when all users leave a pad',
+    description: 'Called by Etherpad when all users leave a pad',
+  })
+  @ApiOkResponse({ description: 'OK', type: GenericResponse })
+  async onAllUsersLeaveEtherpadPad(
+    @MongoSession() mongoSession: ClientSession,
+    @LoggedUser() user: User,
+    @LoggedUserHash() userHash: string,
+    @CurrentFile(OWNER) file: File,
+  ) {
+    if (file.mimetype !== ETHERPAD_MIMETYPE) {
+      throw new BadRequestException(
+        'This action is only available for etherpad files',
+      );
+    }
+
+    await this.filesService.onAllUsersLeaveEtherpadPad(
+      mongoSession,
+      user,
+      userHash,
+      file,
+    );
+    return { msg: 'OK' };
   }
 }

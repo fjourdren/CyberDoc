@@ -34,7 +34,10 @@ import {
 import { FilesDeleteDialogComponent } from '../files-delete-dialog/files-delete-dialog.component';
 import { FilesMoveCopyDialogComponent } from '../files-move-copy-dialog/files-move-copy-dialog.component';
 import { MoveCopyDialogModel } from '../files-move-copy-dialog/move-copy-dialog-model';
-import { FilesUtilsService } from 'src/app/services/files-utils/files-utils.service';
+import {
+  FilesUtilsService,
+  FileType,
+} from 'src/app/services/files-utils/files-utils.service';
 import {
   FilesGenericTableBottomsheetComponent,
   FilesGenericTableBottomsheetData,
@@ -65,7 +68,7 @@ export type FileAction =
   providers: [...ngResizeObserverProviders],
 })
 export class FilesGenericTableComponent implements AfterViewInit {
-  isTouchScreen = 'ontouchstart' in window;
+  isTouchScreen = window.ontouchstart != undefined;
   bottomSheetIsOpened = false;
   unselectAfterContextMenuOrBottomSheet = false;
   displayedColumns = ['icon', 'name', 'type', 'size', 'date', 'menubutton'];
@@ -218,6 +221,13 @@ export class FilesGenericTableComponent implements AfterViewInit {
     );
   }
 
+  isEtherPadFile(node: CloudNode): boolean {
+    return (
+      this.filesUtils.getFileTypeForMimetype(node.mimetype) ===
+      FileType.EtherPad
+    );
+  }
+
   onContextMenu(event: MouseEvent, node: CloudNode): void {
     if (node && this._restrictions.isContextAndBottomSheetDisabled(node)) {
       return;
@@ -270,9 +280,12 @@ export class FilesGenericTableComponent implements AfterViewInit {
       });
   }
 
-  onContextMenuOrBottomSheetSelection(action: FileAction): void {
+  onContextMenuOrBottomSheetSelection(
+    action: FileAction,
+    extra?: string,
+  ): void {
     this.ngZone.run(() => {
-      this.execActionOnSelectedNode(action);
+      this.execActionOnSelectedNode(action, extra);
     });
   }
 
@@ -316,8 +329,6 @@ export class FilesGenericTableComponent implements AfterViewInit {
         )
       ) {
         this.execActionOnSelectedNode('open');
-      } else {
-        this.execActionOnSelectedNode('download');
       }
     });
   }
@@ -341,14 +352,14 @@ export class FilesGenericTableComponent implements AfterViewInit {
     }
   }
 
-  execActionOnSelectedNode(action: FileAction): void {
+  execActionOnSelectedNode(action: FileAction, extra?: string): void {
     switch (action) {
       case 'open': {
         this.openButtonClicked.emit(this.selectedNode);
         break;
       }
       case 'download': {
-        this.downloadFile(this.selectedNode as CloudFile);
+        this.downloadFile(this.selectedNode as CloudFile, extra);
         break;
       }
       case 'export': {
@@ -411,10 +422,10 @@ export class FilesGenericTableComponent implements AfterViewInit {
     });
   }
 
-  downloadFile(file: CloudFile): void {
+  downloadFile(file: CloudFile, etherpadExportFormat?: string): void {
     const anchor = document.createElement('a');
     anchor.download = file.name;
-    anchor.href = this.fsService.getDownloadURL(file);
+    anchor.href = this.fsService.getDownloadURL(file, etherpadExportFormat);
     anchor.click();
     anchor.remove();
   }
