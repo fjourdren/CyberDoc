@@ -26,12 +26,7 @@ import { User } from 'src/schemas/user.schema';
 import { LoggedUser } from 'src/auth/logged-user.decorator';
 import { LoggedUserHash } from 'src/auth/logged-user-hash.decorator';
 import { FileGuard } from 'src/files/file.guard';
-import {
-  CurrentFile,
-  OWNER,
-  READ,
-  WRITE,
-} from 'src/files/current-file.decorator';
+import { CurrentFile } from 'src/files/current-file.decorator';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -55,13 +50,14 @@ import {
   SearchFilesResponse,
 } from './files.controller.types';
 import { MongoSession } from 'src/mongo-session.decorator';
-import { ClientSession, mongo } from 'mongoose';
+import { ClientSession } from 'mongoose';
 import {
   ETHERPAD_MIMETYPE,
   EtherpadExportFormat,
   getMimetypeForEtherpadExportFormat,
 } from './etherpad/etherpad';
 import { Utils } from '../utils';
+import { FileAcl } from './file-acl';
 
 @ApiTags('files')
 @ApiBearerAuth()
@@ -94,7 +90,7 @@ export class FilesController {
   })
   @ApiOperation({ summary: 'Get a file', description: 'Get a file' })
   @ApiOkResponse({ description: 'File informations loaded', type: GetResponse })
-  async get(@CurrentFile(READ) file: File) {
+  async get(@CurrentFile(FileAcl.READ) file: File) {
     const result = await this.filesService.prepareFileForOutput(file);
     if (file.type == FOLDER) {
       const folderContents = await this.filesService.getFolderContents(
@@ -206,7 +202,7 @@ export class FilesController {
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
     @UploadedFiles() files,
-    @CurrentFile(WRITE) file: File,
+    @CurrentFile(FileAcl.WRITE) file: File,
   ) {
     if (file.type !== FILE)
       throw new BadRequestException('This action is only available with files');
@@ -255,7 +251,7 @@ export class FilesController {
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @Body() editFileMetadataDto: EditFileMetadataDto,
-    @CurrentFile(WRITE) file: File,
+    @CurrentFile(FileAcl.WRITE) file: File,
   ) {
     await this.filesService.setFileMetadata(
       mongoSession,
@@ -293,7 +289,7 @@ export class FilesController {
     @LoggedUser({ requireOwner: true }) user: User,
     @LoggedUserHash() userHash: string,
     @Body() copyFileDto: CopyFileDto,
-    @CurrentFile(READ) file: File,
+    @CurrentFile(FileAcl.READ) file: File,
   ) {
     if (file.type !== FILE)
       throw new BadRequestException('This action is only available with files');
@@ -335,7 +331,7 @@ export class FilesController {
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
     @Res() res: Response,
-    @CurrentFile(READ) file: File,
+    @CurrentFile(FileAcl.READ) file: File,
     @Query('etherpad_export_format')
     etherpadExportFormat: EtherpadExportFormat = null,
   ) {
@@ -401,7 +397,7 @@ export class FilesController {
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
     @Res() res: Response,
-    @CurrentFile(READ) file: File,
+    @CurrentFile(FileAcl.READ) file: File,
   ) {
     if (file.type !== FILE)
       throw new BadRequestException('This action is only available with files');
@@ -434,7 +430,7 @@ export class FilesController {
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
     @Res() res: Response,
-    @CurrentFile(READ) file: File,
+    @CurrentFile(FileAcl.READ) file: File,
   ) {
     if (file.type !== FILE)
       throw new BadRequestException('This action is only available with files');
@@ -463,7 +459,7 @@ export class FilesController {
   })
   @ApiOperation({ summary: 'Delete a file', description: 'Delete a file' })
   @ApiOkResponse({ description: 'File deleted', type: GenericResponse })
-  async delete(@CurrentFile(OWNER) file: File) {
+  async delete(@CurrentFile(FileAcl.OWNER) file: File) {
     await this.filesService.delete(file);
     return { msg: 'File deleted' };
   }
@@ -484,7 +480,7 @@ export class FilesController {
   async getURLToOpenFileWithEtherpad(
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
-    @CurrentFile(OWNER) file: File,
+    @CurrentFile(FileAcl.READ) file: File,
   ) {
     if (file.mimetype !== ETHERPAD_MIMETYPE) {
       throw new BadRequestException(
@@ -517,7 +513,7 @@ export class FilesController {
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
-    @CurrentFile(OWNER) file: File,
+    @CurrentFile(FileAcl.OWNER) file: File,
   ) {
     const url = await this.filesService.convertFileToEtherPadFormat(
       mongoSession,
@@ -545,7 +541,7 @@ export class FilesController {
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
-    @CurrentFile(OWNER) file: File,
+    @CurrentFile(FileAcl.OWNER) file: File,
   ) {
     if (file.mimetype !== ETHERPAD_MIMETYPE) {
       throw new BadRequestException(

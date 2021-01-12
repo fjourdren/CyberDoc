@@ -16,7 +16,7 @@ import { LoggedUser } from 'src/auth/logged-user.decorator';
 import { User } from 'src/schemas/user.schema';
 import { FileSharingService } from './file-sharing.service';
 import { File } from 'src/schemas/file.schema';
-import { CurrentFile, READ, OWNER } from 'src/files/current-file.decorator';
+import { CurrentFile } from 'src/files/current-file.decorator';
 import { FileGuard } from 'src/files/file.guard';
 import {
   ApiBadRequestResponse,
@@ -36,6 +36,7 @@ import { HttpStatusCode } from 'src/utils/http-status-code';
 import { AddOrRemoveSharingAccessDto } from './dto/add-or-remove-sharing-access.dto';
 import { MongoSession } from 'src/mongo-session.decorator';
 import { ClientSession } from 'mongoose';
+import { FileAcl } from '../files/file-acl';
 
 @ApiTags('file-sharing')
 @ApiBearerAuth()
@@ -82,7 +83,7 @@ export class FileSharingController {
   @ApiOkResponse({ description: 'Success', type: GetSharingAccessResponse })
   async getSharingAccess(
     @LoggedUser() currentUser: User,
-    @CurrentFile(READ) file: File,
+    @CurrentFile(FileAcl.READ) file: File,
   ) {
     if (
       currentUser._id !== file.owner_id &&
@@ -124,7 +125,7 @@ export class FileSharingController {
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() currentUser: User,
     @LoggedUserHash() currentUserHash: string,
-    @CurrentFile(OWNER) file: File,
+    @CurrentFile(FileAcl.OWNER) file: File,
     @Body() dto: AddOrRemoveSharingAccessDto,
   ) {
     if (currentUser.email === dto.email) {
@@ -162,7 +163,7 @@ export class FileSharingController {
   async removeSharingAccess(
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() currentUser: User,
-    @CurrentFile(OWNER) file: File,
+    @CurrentFile(FileAcl.OWNER) file: File,
     @Param() dto: AddOrRemoveSharingAccessDto,
   ) {
     if (currentUser.email === dto.email) {

@@ -173,6 +173,32 @@ export class Etherpad {
     return padUsersCountResponse.data.data.padUsersCount;
   }
 
+  async getReadOnlyPadID(padID: string): Promise<string> {
+    const getReadOnlyIDResponse = await axios.get<EtherpadApiResponse>(
+      `${this.configService.get<string>(
+        'ETHERPAD_ROOT_API_URL',
+      )}/getReadOnlyID`,
+      {
+        params: {
+          padID: padID,
+          apikey: this.configService.get<string>('ETHERPAD_API_KEY'),
+        },
+      },
+    );
+
+    if (getReadOnlyIDResponse.data.code !== ETHERPAD_API_RESPONSE_CODE_OK) {
+      if (getReadOnlyIDResponse.data.message === 'padID does not exist') {
+        throw new NotFoundException(`pad ${padID} doesn't exist`);
+      } else {
+        throw new InternalServerErrorException(
+          `etherpad getReadOnlyID API failed ${getReadOnlyIDResponse.data.message}`,
+        );
+      }
+    }
+
+    return getReadOnlyIDResponse.data.data.readOnlyID;
+  }
+
   async syncPadToCyberDoc(
     mongoSession: ClientSession,
     user: User,

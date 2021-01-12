@@ -188,7 +188,8 @@
         "dialog_title": "Convert file for editing",
         "dialog_content1": "To edit this file, CyberDoc have to convert your file with its own format.",
         "dialog_content2": "During this process, some complex formatting will be lost.",
-        "dialog_content3": "If your document is complex, please create a copy of your file before."
+        "dialog_content3": "If your document is complex, please create a copy of your file before.",
+        "dialog_content4": "This action can only be done by the owner of the file."
     },
     "general": {
         "generic_error": "Error. Please wait some time then retry",

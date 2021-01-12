@@ -7,8 +7,8 @@ import {
   CloudFile,
   CloudNode,
   FileTag,
-  RespondShare,
   RespondAnswerSign,
+  RespondShare,
   SearchParams,
 } from 'src/app/models/files-api-models';
 import { DIRECTORY_MIMETYPE } from '../files-utils/files-utils.service';
@@ -202,12 +202,10 @@ export class FileSystemService {
           const folder = new CloudDirectory();
 
           const results: CloudNode[] = response.results;
-          const directoryContent = results.map((item) => {
+          folder.directoryContent = results.map((item) => {
             item.isDirectory = item.mimetype === DIRECTORY_MIMETYPE;
             return item;
           });
-
-          folder.directoryContent = directoryContent;
           folder._id = null;
           folder.name = null;
           folder.isDirectory = true;
