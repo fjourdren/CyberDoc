@@ -1,5 +1,8 @@
 import { CloudNode } from 'src/app/models/files-api-models';
-import { FilesUtilsService } from 'src/app/services/files-utils/files-utils.service';
+import {
+  FilesUtilsService,
+  FileType,
+} from 'src/app/services/files-utils/files-utils.service';
 import { Component, Inject, NgZone } from '@angular/core';
 import {
   MatBottomSheetRef,
@@ -9,7 +12,7 @@ import { UsersService } from 'src/app/services/users/users.service';
 
 export interface FilesGenericTableBottomsheetData {
   sharedWithMeMode: boolean;
-  callback: (action: string) => void;
+  callback: (action: string, extra?: string) => void;
   showDetailsEntry: boolean;
   readonlyMode: boolean;
   node: CloudNode;
@@ -58,11 +61,18 @@ export class FilesGenericTableBottomsheetComponent {
     return this.filesUtils.isPDFExportAvailable(fileType);
   }
 
-  onBottomSheetSelection(event: Event, action: string) {
+  isEtherPadFile(node: CloudNode): boolean {
+    return (
+      this.filesUtils.getFileTypeForMimetype(node.mimetype) ===
+      FileType.EtherPad
+    );
+  }
+
+  onBottomSheetSelection(event: Event, action: string, extra?: string) {
     event.preventDefault();
     this.bottomSheetRef.dismiss();
     this.ngZone.run(() => {
-      this.data.callback(action);
+      this.data.callback(action, extra);
       this.data.onBottomSheetClose();
     });
   }

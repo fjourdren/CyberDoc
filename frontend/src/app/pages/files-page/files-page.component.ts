@@ -4,7 +4,6 @@ import { AfterViewInit, Component, NgZone, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDrawer } from '@angular/material/sidenav';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FilesOpenDialogComponent } from 'src/app/components/files/files-open-dialog/files-open-dialog.component';
 import { TwoFactorGenerateRecoveryCodesDialogComponent } from 'src/app/components/two-factor/two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
 import {
   CloudDirectory,
@@ -14,6 +13,12 @@ import {
 } from 'src/app/models/files-api-models';
 import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
 import { UsersService } from 'src/app/services/users/users.service';
+import {
+  FilesUtilsService,
+  FileType,
+} from '../../services/files-utils/files-utils.service';
+import { FilesConvertToEtherpadDialogComponent } from '../../components/files/files-convert-to-etherpad-dialog/files-convert-to-etherpad-dialog.component';
+import { FilesOpenInEtherpadDialogComponent } from '../../components/files/files-open-in-etherpad-dialog/files-open-in-etherpad-dialog.component';
 
 @Component({
   selector: 'app-files-page',
@@ -42,6 +47,7 @@ export class FilesPageComponent implements AfterViewInit {
     private ngZone: NgZone,
     private fsService: FileSystemService,
     private usersService: UsersService,
+    private filesUtils: FilesUtilsService,
   ) {
     this.fsService.refreshNeeded().subscribe(() => this.refresh());
     this.breakpointObserver
@@ -182,10 +188,21 @@ export class FilesPageComponent implements AfterViewInit {
   openButtonClicked(node: CloudNode) {
     if (node.isDirectory) {
       this.router.navigate(['/files', node._id]);
-    } else {
-      this.dialog.open(FilesOpenDialogComponent, {
+    } else if (
+      this.filesUtils.getFileTypeForMimetype(node.mimetype) ===
+      FileType.EtherPad
+    ) {
+      this.dialog.open(FilesOpenInEtherpadDialogComponent, {
         width: '96px',
         height: '96px',
+        data: node,
+      });
+    } else if (
+      this.filesUtils.canBeOpenedInApp(
+        this.filesUtils.getFileTypeForMimetype(node.mimetype),
+      )
+    ) {
+      this.dialog.open(FilesConvertToEtherpadDialogComponent, {
         data: node,
       });
     }

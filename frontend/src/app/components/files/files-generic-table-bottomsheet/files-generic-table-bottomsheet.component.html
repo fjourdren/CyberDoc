@@ -12,13 +12,35 @@
             {{ 'fileaction.open' | translate }}
         </span>
     </a>
+
     <!-- We can download every files -->
-    <a href="#" *ngIf="!data.node.isDirectory" mat-list-item (click)="onBottomSheetSelection($event,'download')">
+    <!-- Etherpad files have their own download logic -->
+    <a href="#" *ngIf="!data.node.isDirectory && !isEtherPadFile(data.node)" mat-list-item (click)="onBottomSheetSelection($event,'download')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-file-download"></mat-icon>
             {{ 'fileaction.download' | translate }}
         </span>
     </a>
+    <a href="#" *ngIf="isEtherPadFile(data.node)" mat-list-item (click)="onBottomSheetSelection($event,'download', 'doc')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-file-word"></mat-icon>
+            {{ 'fileaction.download_as_doc' | translate }}
+        </span>
+    </a>
+    <a href="#" *ngIf="isEtherPadFile(data.node)" mat-list-item (click)="onBottomSheetSelection($event,'download', 'odt')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-file-invoice"></mat-icon>
+            {{ 'fileaction.download_as_odt' | translate }}
+        </span>
+    </a>
+    <a href="#" *ngIf="isEtherPadFile(data.node)" mat-list-item (click)="onBottomSheetSelection($event,'download', 'txt')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-file-alt"></mat-icon>
+            {{ 'fileaction.download_as_txt' | translate }}
+        </span>
+    </a>
+
+
     <!-- We can export PDF when it is available -->
     <a href="#" *ngIf="isPDFExportAvailable(data.node)" mat-list-item (click)="onBottomSheetSelection($event,'export')">
         <span>

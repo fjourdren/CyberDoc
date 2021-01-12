@@ -6,7 +6,6 @@ import { File, FileSchema } from '../schemas/file.schema';
 import { CryptoModule } from 'src/crypto/crypto.module';
 import { PreviewGenerator } from './file-preview/preview-generator.service';
 import { User, UserSchema } from 'src/schemas/user.schema';
-import { EtherpadIntegration } from './etherpad/etherpad-integration';
 
 @Module({
   imports: [
@@ -15,7 +14,7 @@ import { EtherpadIntegration } from './etherpad/etherpad-integration';
     CryptoModule,
   ],
   exports: [FilesService],
-  providers: [FilesService, PreviewGenerator, EtherpadIntegration],
+  providers: [FilesService, PreviewGenerator],
   controllers: [FilesController],
 })
 export class FilesModule {}
