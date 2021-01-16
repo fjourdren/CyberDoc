@@ -32,6 +32,13 @@ export class FileInResponse {
   preview: boolean;
 
   @ApiProperty({
+    description: 'Available rights for current user',
+    enum: ['none', 'read', 'write', 'owner'],
+    enumName: 'FileAcl',
+  })
+  access: string;
+
+  @ApiProperty({
     description: 'Email of users who have signed this file',
     type: [String],
     example: ['email@example.com'],

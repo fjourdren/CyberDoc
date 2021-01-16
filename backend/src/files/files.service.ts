@@ -56,7 +56,6 @@ export const COLUMNS_TO_KEEP_FOR_FILE = [
   'preview',
   'signs',
   'shareMode',
-  'owner_id',
 ];
 export const COLUMNS_TO_KEEP_FOR_FOLDER = [
   '_id',
@@ -100,6 +99,23 @@ export class FilesService {
     }, {});
 
     result['ownerName'] = `${user.firstname} ${user.lastname}`;
+    switch (FileAcl.getAvailableAccess(file, user)) {
+      case FileAcl.NONE:
+        result['access'] = 'none';
+        break;
+      case FileAcl.READ:
+        result['access'] = 'read';
+        break;
+      case FileAcl.WRITE:
+        result['access'] = 'write';
+        break;
+      case FileAcl.OWNER:
+        result['access'] = 'owner';
+        break;
+      default:
+        throw new InternalServerErrorException(`Invalid file acl`);
+    }
+
     return result as FileInResponse;
   }
 
@@ -289,11 +305,15 @@ export class FilesService {
     file: File,
     exportFormat: EtherpadExportFormat,
   ) {
-    const padWasCreated = await this.etherpad.createEmptyPad(file._id, true);
-
-    if (padWasCreated) {
-      //le pad n'existait pas et a été créé (il est donc vide)
+    try {
+      await this.etherpad.createEmptyPad(file._id);
       await this.etherpad.syncPadFromCyberDoc(user, userHash, file, file._id);
+    } catch (e) {
+      if (e instanceof BadRequestException) {
+        //le pad existe déjà
+      } else {
+        throw e;
+      }
     }
 
     const data = await this.etherpad.exportPad(file._id, exportFormat);
@@ -463,9 +483,15 @@ export class FilesService {
   }
 
   async getURLToOpenFileWithEtherpad(user: User, userHash: string, file: File) {
-    if (await this.etherpad.createEmptyPad(file._id, true)) {
-      //le pad n'existait pas et a été créé (il est donc vide)
+    try {
+      await this.etherpad.createEmptyPad(file._id);
       await this.etherpad.syncPadFromCyberDoc(user, userHash, file, file._id);
+    } catch (e) {
+      if (e instanceof BadRequestException) {
+        //le pad existe déjà
+      } else {
+        throw e;
+      }
     }
 
     let padID: string;
@@ -484,13 +510,6 @@ export class FilesService {
     userHash: string,
     file: File,
   ) {
-    const validExtensions = ['txt', 'doc', 'docx', 'odt'];
-
-    if (!validExtensions.includes(Utils.getFileExtension(file.name))) {
-      throw new BadRequestException(
-        `Invalid file extensions. validExtensions=${validExtensions}`,
-      );
-    }
     await this.etherpad.createEmptyPad(file._id);
     await this.etherpad.importCyberDocFileToPad(user, userHash, file, file._id);
 

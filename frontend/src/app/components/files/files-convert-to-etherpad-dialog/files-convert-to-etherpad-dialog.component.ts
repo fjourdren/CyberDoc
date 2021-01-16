@@ -2,7 +2,6 @@ import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CloudFile } from 'src/app/models/files-api-models';
 import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
-import { UsersService } from '../../../services/users/users.service';
 
 @Component({
   selector: 'app-files-convert-to-etherpad-dialog',
@@ -17,9 +16,8 @@ export class FilesConvertToEtherpadDialogComponent {
     public dialogRef: MatDialogRef<FilesConvertToEtherpadDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public file: CloudFile,
     private fsService: FileSystemService,
-    private usersService: UsersService,
   ) {
-    this.canConvert = file.owner_id === usersService.getActiveUser()._id;
+    this.canConvert = file.access === 'owner';
   }
 
   onConvertBtnClicked() {
