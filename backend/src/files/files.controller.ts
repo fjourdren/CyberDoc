@@ -58,6 +58,10 @@ import {
 } from './etherpad/etherpad';
 import { Utils } from '../utils';
 import { FileAcl } from './file-acl';
+import {
+  DOCUMENT_MIMETYPES,
+  TEXT_MIMETYPES,
+} from './file-types';
 
 @ApiTags('files')
 @ApiBearerAuth()
@@ -89,7 +93,7 @@ export class FilesController {
     example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
   })
   @ApiOperation({ summary: 'Get a file', description: 'Get a file' })
-  @ApiOkResponse({ description: 'File informations loaded', type: GetResponse })
+  @ApiOkResponse({ description: 'File information loaded', type: GetResponse })
   async get(@CurrentFile(FileAcl.READ) file: File) {
     const result = await this.filesService.prepareFileForOutput(file);
     if (file.type == FOLDER) {
@@ -477,6 +481,10 @@ export class FilesController {
     description: 'Get URL to open .etherpad file with Etherpad',
   })
   @ApiOkResponse({ description: 'OK', type: EtherpadURLResponse })
+  @ApiBadRequestResponse({
+    description: 'This action is only available for etherpad files',
+    type: GenericResponse,
+  })
   async getURLToOpenFileWithEtherpad(
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
@@ -509,12 +517,24 @@ export class FilesController {
     description: 'Convert a office file to a .etherpad file',
   })
   @ApiOkResponse({ description: 'OK', type: EtherpadURLResponse })
+  @ApiBadRequestResponse({
+    description:
+      'This action is only available for files which can converted in etherpad format ',
+    type: GenericResponse,
+  })
   async convertFileToEtherPadFormat(
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
     @CurrentFile(FileAcl.OWNER) file: File,
   ) {
+    const validMimetypes = [...TEXT_MIMETYPES, ...DOCUMENT_MIMETYPES];
+
+    if (!validMimetypes.includes(file.mimetype))
+      throw new BadRequestException(
+        'Etherpad conversion is not available for this file',
+      );
+
     const url = await this.filesService.convertFileToEtherPadFormat(
       mongoSession,
       user,
@@ -533,15 +553,19 @@ export class FilesController {
     example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
   })
   @ApiOperation({
-    summary: 'Called by Etherpad when all users leave a pad',
-    description: 'Called by Etherpad when all users leave a pad',
+    summary: 'Called by Etherpad when all users have leave a pad',
+    description: 'Called by Etherpad when all users have leave a pad',
   })
   @ApiOkResponse({ description: 'OK', type: GenericResponse })
+  @ApiBadRequestResponse({
+    description: 'This action is only available for etherpad files',
+    type: GenericResponse,
+  })
   async onAllUsersLeaveEtherpadPad(
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
-    @CurrentFile(FileAcl.OWNER) file: File,
+    @CurrentFile(FileAcl.READ) file: File,
   ) {
     if (file.mimetype !== ETHERPAD_MIMETYPE) {
       throw new BadRequestException(

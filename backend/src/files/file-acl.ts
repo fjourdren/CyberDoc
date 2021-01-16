@@ -8,7 +8,7 @@ export class FileAcl {
   static OWNER = 3;
 
   static getAvailableAccess(file: File, user: User) {
-    let availableAccess = 0;
+    let availableAccess = FileAcl.NONE;
     if (file.owner_id === user._id) {
       availableAccess = FileAcl.OWNER;
     } else if (file.sharedWith.includes(user._id)) {
