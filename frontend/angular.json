@@ -22,8 +22,8 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/manifest.webmanifest"
-            ],
+              "src/manifest.webmanifest",
+              { "glob": "**/*", "input": "node_modules/ng2-pdfjs-viewer/pdfjs", "output": "/assets/pdfjs" }],
             "styles": [
               "src/styles.scss",
               "./node_modules/@fortawesome/fontawesome-free/css/all.css"

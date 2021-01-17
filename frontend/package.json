@@ -36,6 +36,7 @@
     "google-libphonenumber": "^3.2.14",
     "js-base64": "^3.6.0",
     "ng-resize-observer": "^1.0.1",
+    "ng2-pdfjs-viewer": "^5.0.7",
     "ngx-clipboard": "^14.0.1",
     "ngx-filesize": "^2.0.16",
     "rxjs": "~6.6.0",
