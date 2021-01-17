@@ -13,12 +13,12 @@ import {
 } from 'src/app/models/files-api-models';
 import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
 import { UsersService } from 'src/app/services/users/users.service';
+import { environment } from 'src/environments/environment';
 import {
   FilesUtilsService,
   FileType,
 } from '../../services/files-utils/files-utils.service';
 import { FilesConvertToEtherpadDialogComponent } from '../../components/files/files-convert-to-etherpad-dialog/files-convert-to-etherpad-dialog.component';
-import { FilesOpenInEtherpadDialogComponent } from '../../components/files/files-open-in-etherpad-dialog/files-open-in-etherpad-dialog.component';
 
 @Component({
   selector: 'app-files-page',
@@ -192,19 +192,23 @@ export class FilesPageComponent implements AfterViewInit {
       this.filesUtils.getFileTypeForMimetype(node.mimetype) ===
       FileType.EtherPad
     ) {
-      this.dialog.open(FilesOpenInEtherpadDialogComponent, {
-        width: '96px',
-        height: '96px',
-        data: node,
-      });
+      location.replace(`${environment.etherpadBaseUrl}/p/${node._id}`);
     } else if (
       this.filesUtils.canBeOpenedInApp(
         this.filesUtils.getFileTypeForMimetype(node.mimetype),
       )
     ) {
-      this.dialog.open(FilesConvertToEtherpadDialogComponent, {
-        data: node,
-      });
+      this.dialog
+        .open(FilesConvertToEtherpadDialogComponent, {
+          data: node,
+        })
+        .afterClosed()
+        .toPromise()
+        .then((result) => {
+          if (result) {
+            location.replace(`${environment.etherpadBaseUrl}/p/${node._id}`);
+          }
+        });
     }
   }
 

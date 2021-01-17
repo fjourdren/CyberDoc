@@ -27,7 +27,7 @@ export class FilesConvertToEtherpadDialogComponent {
       .convertFileToEtherpadFormat(this.file)
       .toPromise()
       .then((url) => {
-        location.replace(url);
+        this.dialogRef.close(true);
       });
   }
 

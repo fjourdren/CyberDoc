@@ -107,7 +107,13 @@ export class Etherpad {
   }
 
   async deletePad(padID: string) {
-    await this._callEtherpadApiFunction('deletePad', padID);
+    try {
+      await this._callEtherpadApiFunction('deletePad', padID);
+    } catch (e) {
+      if (!(e instanceof NotFoundException)) {
+        throw e;
+      }
+    }
   }
 
   async clearPadContent(padID: string) {
@@ -122,14 +128,6 @@ export class Etherpad {
       padID,
     );
     return parseInt(apiResponse.data.padUsersCount, 10);
-  }
-
-  async getReadOnlyPadID(padID: string): Promise<string> {
-    const apiResponse = await this._callEtherpadApiFunction(
-      'getReadOnlyID',
-      padID,
-    );
-    return apiResponse.data.readOnlyID;
   }
 
   async syncPadToCyberDoc(

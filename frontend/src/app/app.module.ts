@@ -101,7 +101,6 @@ import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page
 import { FilesConvertToEtherpadDialogComponent } from './components/files/files-convert-to-etherpad-dialog/files-convert-to-etherpad-dialog.component';
 import { TwoFactorService } from './services/twofactor/twofactor.service';
 import { SettingsAskCurrentPasswordDialogComponent } from './components/settings/settings-ask-current-password-dialog/settings-ask-current-password-dialog.component';
-import { FilesOpenInEtherpadDialogComponent } from './components/files/files-open-in-etherpad-dialog/files-open-in-etherpad-dialog.component';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) =>
@@ -199,7 +198,6 @@ if (environment.useSentry) {
     ExportRecoveryKeyPageComponent,
     FilesConvertToEtherpadDialogComponent,
     SettingsAskCurrentPasswordDialogComponent,
-    FilesOpenInEtherpadDialogComponent,
   ],
   imports: [
     BrowserModule,
