@@ -12,6 +12,8 @@ import { UsersService } from 'src/app/services/users/users.service';
 import { SettingsAskCurrentPasswordDialogComponent } from '../settings-ask-current-password-dialog/settings-ask-current-password-dialog.component';
 import { User } from 'src/app/models/users-api-models';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-settings-profile',
@@ -19,6 +21,13 @@ import { HttpErrorResponse } from '@angular/common/http';
   styleUrls: ['./settings-profile.component.scss'],
 })
 export class SettingsProfileComponent {
+  VALID_THEMES = [
+    'deeppurple-amber',
+    'indigo-pink',
+    'pink-bluegrey',
+    'purple-green',
+  ];
+
   profileForm: FormGroup;
   loading = false;
 
@@ -32,11 +41,23 @@ export class SettingsProfileComponent {
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private router: Router,
+    iconRegistry: MatIconRegistry,
+    sanitizer: DomSanitizer,
   ) {
+    for (const theme of this.VALID_THEMES) {
+      iconRegistry.addSvgIcon(
+        theme,
+        sanitizer.bypassSecurityTrustResourceUrl(
+          `assets/theme-icons/${theme}.svg`,
+        ),
+      );
+    }
+
     this.profileForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       newEmail: ['', [Validators.required, Validators.email]],
+      theme: ['', [Validators.required]],
     });
 
     this.refresh();
@@ -48,6 +69,7 @@ export class SettingsProfileComponent {
     this.profileForm.get('firstName').setValue(user.firstname);
     this.profileForm.get('lastName').setValue(user.lastname);
     this.profileForm.get('newEmail').setValue(user.email);
+    this.profileForm.get('theme').setValue(user.theme);
     this.dataSource.data = user.tags;
   }
 
@@ -73,6 +95,7 @@ export class SettingsProfileComponent {
                 this.profileForm.get('firstName').value,
                 this.profileForm.get('lastName').value,
                 this.profileForm.get('newEmail').value,
+                this.profileForm.get('theme').value,
                 currentPassword,
               )
               .toPromise();
@@ -87,6 +110,7 @@ export class SettingsProfileComponent {
           this.profileForm.get('firstName').value,
           this.profileForm.get('lastName').value,
           this.profileForm.get('newEmail').value,
+          this.profileForm.get('theme').value,
           undefined,
         )
         .toPromise();
@@ -110,6 +134,10 @@ export class SettingsProfileComponent {
           throw err;
         }
       });
+  }
+
+  getThemeText(themeName: string) {
+    return `themes.${themeName}`;
   }
 
   deleteAccount(): void {

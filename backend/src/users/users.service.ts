@@ -26,6 +26,7 @@ export const COLUMNS_TO_KEEP_FOR_USER = [
   'directory_id',
   'tags',
   'role',
+  'theme',
 ];
 
 @Injectable()
@@ -82,6 +83,7 @@ export class UsersService {
     user.password = await this.authService.hashPassword(createUserDto.password);
     user.tags = [];
     user.userKeys = userKeys;
+    user.theme = 'indigo-pink';
 
     const { rsaPublicKey, rsaPrivateKey } = this.rsa.generateKeys();
     userKeys.public_key = rsaPublicKey;
@@ -111,6 +113,7 @@ export class UsersService {
   ) {
     user.firstname = editUserDto.firstname || user.firstname;
     user.lastname = editUserDto.lastname || user.lastname;
+    user.theme = editUserDto.theme || user.theme;
 
     const emailChanged = editUserDto.email && editUserDto.email !== user.email;
     if (emailChanged) {
