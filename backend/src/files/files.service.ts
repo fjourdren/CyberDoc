@@ -47,6 +47,7 @@ const streamToPromise = require('stream-to-promise');
 
 export const COLUMNS_TO_KEEP_FOR_FILE = [
   '_id',
+  'parent_file_id',
   'name',
   'mimetype',
   'size',
@@ -59,6 +60,7 @@ export const COLUMNS_TO_KEEP_FOR_FILE = [
 ];
 export const COLUMNS_TO_KEEP_FOR_FOLDER = [
   '_id',
+  'parent_file_id',
   'name',
   'mimetype',
   'updated_at',
@@ -482,26 +484,23 @@ export class FilesService {
     }
   }
 
-  async getURLToOpenFileWithEtherpad(user: User, userHash: string, file: File) {
+  async syncFileWithEtherpadAndGetInfo(
+    user: User,
+    userHash: string,
+    file: File,
+  ) {
     try {
       await this.etherpad.createEmptyPad(file._id);
       await this.etherpad.syncPadFromCyberDoc(user, userHash, file, file._id);
     } catch (e) {
       if (e instanceof BadRequestException) {
-        //le pad existe déjà
+        //pad already exists
       } else {
         throw e;
       }
     }
 
-    let padID: string;
-    if (FileAcl.getAvailableAccess(file, user) >= FileAcl.WRITE) {
-      padID = file._id;
-    } else {
-      padID = await this.etherpad.getReadOnlyPadID(file._id);
-    }
-
-    return `${this.configService.get<string>('ETHERPAD_ROOT_URL')}/p/${padID}`;
+    return this.prepareFileForOutput(file);
   }
 
   async convertFileToEtherPadFormat(
@@ -524,10 +523,6 @@ export class FilesService {
       file,
       file._id,
     );
-
-    return `${this.configService.get<string>('ETHERPAD_ROOT_URL')}/p/${
-      file._id
-    }`;
   }
 
   async onAllUsersLeaveEtherpadPad(

@@ -45,7 +45,7 @@ import { GenericResponse } from 'src/generic-response.interceptor';
 import { HttpStatusCode } from 'src/utils/http-status-code';
 import {
   CreateFileResponse,
-  EtherpadURLResponse,
+  GetFileResponse,
   GetResponse,
   SearchFilesResponse,
 } from './files.controller.types';
@@ -58,10 +58,7 @@ import {
 } from './etherpad/etherpad';
 import { Utils } from '../utils';
 import { FileAcl } from './file-acl';
-import {
-  DOCUMENT_MIMETYPES,
-  TEXT_MIMETYPES,
-} from './file-types';
+import { DOCUMENT_MIMETYPES, TEXT_MIMETYPES } from './file-types';
 
 @ApiTags('files')
 @ApiBearerAuth()
@@ -119,7 +116,7 @@ export class FilesController {
       (result as any).path = path;
     }
 
-    return { msg: 'File informations loaded', content: result };
+    return { msg: 'File information loaded', content: result };
   }
 
   @Post()
@@ -239,7 +236,7 @@ export class FilesController {
     description: 'Update file metadata',
   })
   @ApiOkResponse({
-    description: 'File informations modified',
+    description: 'File information modified',
     type: GenericResponse,
   })
   @ApiBadRequestResponse({
@@ -264,7 +261,7 @@ export class FilesController {
       editFileMetadataDto,
     );
 
-    return { msg: 'File informations modified' };
+    return { msg: 'File information modified' };
   }
 
   @Post(':fileID/copy')
@@ -468,7 +465,7 @@ export class FilesController {
     return { msg: 'File deleted' };
   }
 
-  @Get(':fileID/etherpad-url')
+  @Get(':fileID/sync-file-with-etherpad-and-get-info')
   @UseGuards(FileGuard)
   @HttpCode(HttpStatusCode.OK)
   @ApiParam({
@@ -477,18 +474,18 @@ export class FilesController {
     example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
   })
   @ApiOperation({
-    summary: 'Get URL to open .etherpad file with Etherpad',
-    description: 'Get URL to open .etherpad file with Etherpad',
+    summary: 'Sync file with etherpad and returns info about it',
+    description: 'Sync file with etherpad and returns info about it',
   })
-  @ApiOkResponse({ description: 'OK', type: EtherpadURLResponse })
+  @ApiOkResponse({ description: 'OK', type: GetFileResponse })
   @ApiBadRequestResponse({
     description: 'This action is only available for etherpad files',
     type: GenericResponse,
   })
-  async getURLToOpenFileWithEtherpad(
+  async syncFileWithEtherpadAndGetInfo(
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
-    @CurrentFile(FileAcl.READ) file: File,
+    @CurrentFile(FileAcl.WRITE) file: File,
   ) {
     if (file.mimetype !== ETHERPAD_MIMETYPE) {
       throw new BadRequestException(
@@ -496,12 +493,12 @@ export class FilesController {
       );
     }
 
-    const url = await this.filesService.getURLToOpenFileWithEtherpad(
+    const fileInfo = await this.filesService.syncFileWithEtherpadAndGetInfo(
       user,
       userHash,
       file,
     );
-    return { msg: 'OK', url };
+    return { msg: 'OK', file: fileInfo };
   }
 
   @Post(':fileID/convert-to-etherpad')
@@ -516,7 +513,7 @@ export class FilesController {
     summary: 'Convert a office file to a .etherpad file',
     description: 'Convert a office file to a .etherpad file',
   })
-  @ApiOkResponse({ description: 'OK', type: EtherpadURLResponse })
+  @ApiOkResponse({ description: 'OK', type: GenericResponse })
   @ApiBadRequestResponse({
     description:
       'This action is only available for files which can converted in etherpad format ',
@@ -535,13 +532,13 @@ export class FilesController {
         'Etherpad conversion is not available for this file',
       );
 
-    const url = await this.filesService.convertFileToEtherPadFormat(
+    await this.filesService.convertFileToEtherPadFormat(
       mongoSession,
       user,
       userHash,
       file,
     );
-    return { msg: 'OK', url };
+    return { msg: 'OK' };
   }
 
   @Get(':fileID/on-all-users-leave-etherpad-pad')
