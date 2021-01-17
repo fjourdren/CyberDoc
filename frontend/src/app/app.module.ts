@@ -102,6 +102,8 @@ import { FilesOpenDialogComponent } from './components/files/files-open-dialog/f
 import { TwoFactorService } from './services/twofactor/twofactor.service';
 import { SettingsAskCurrentPasswordDialogComponent } from './components/settings/settings-ask-current-password-dialog/settings-ask-current-password-dialog.component';
 import { LoadingDialogComponent } from './components/global/loading-dialog/loading-dialog.component';
+import { FilePreviewPageComponent } from './pages/file-preview-page/file-preview-page.component';
+import { PdfJsViewerModule } from 'ng2-pdfjs-viewer';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) =>
@@ -200,6 +202,7 @@ if (environment.useSentry) {
     FilesOpenDialogComponent,
     SettingsAskCurrentPasswordDialogComponent,
     LoadingDialogComponent,
+    FilePreviewPageComponent,
   ],
   imports: [
     BrowserModule,
@@ -242,6 +245,7 @@ if (environment.useSentry) {
     NgResizeObserverPonyfillModule,
     LayoutModule,
     MatRadioModule,
+    PdfJsViewerModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
     }),

@@ -41,7 +41,9 @@
         "share": "Share",
         "export": "PDF export",
         "delete_confirm": "Are you sure you want to delete '{{name}}' ?",
-        "sign": "Sign document"
+        "sign": "Sign document",
+        "preview": "Preview",
+        "edit_with_cyberdoc": "Edit with CyberDoc"
     },
     "file": {
         "preview": "Preview",
