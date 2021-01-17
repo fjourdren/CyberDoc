@@ -7,5 +7,6 @@ export class FilesTreeviewNode {
     public parents: FilesTreeviewNode[],
     public expandable: boolean = true,
     public selected: boolean = false,
+    public bin: boolean = false,
   ) {}
 }

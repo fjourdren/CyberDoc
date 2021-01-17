@@ -31,7 +31,7 @@ export class FilesTreeviewComponent {
     ]).then((values) => {
       if (usersService.getActiveUser().role === 'owner') {
         if (values[0].isDirectory) {
-          nodes.push(new FilesTreeviewNode(values[0], 0, [], true, true));
+          nodes.push(new FilesTreeviewNode(values[0], 0, [], true, true, false));
         }
       }
       nodes.push(
@@ -78,6 +78,12 @@ export class FilesTreeviewComponent {
     this._sharedWithMeMode = val;
   }
 
+  _binMode: boolean;
+
+  @Input()
+  set binMode(val: boolean) {
+    this._binMode = val;
+  }
   getLevel = (node: FilesTreeviewNode) => node.level;
   isExpandable = (node: FilesTreeviewNode) => node.expandable;
   hasChild = (_: number, nodeData: FilesTreeviewNode) => nodeData.expandable;
