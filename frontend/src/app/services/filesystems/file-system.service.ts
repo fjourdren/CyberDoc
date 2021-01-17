@@ -7,8 +7,8 @@ import {
   CloudFile,
   CloudNode,
   FileTag,
-  RespondShare,
   RespondAnswerSign,
+  RespondShare,
   SearchParams,
 } from 'src/app/models/files-api-models';
 import { DIRECTORY_MIMETYPE } from '../files-utils/files-utils.service';
@@ -167,6 +167,24 @@ export class FileSystemService {
       .pipe(map(() => this._refreshNeeded$.emit(), null));
   }
 
+  createFileFromTemplate(
+    name: string,
+    parentFolder: CloudDirectory,
+    templateID: string,
+  ) {
+    return this.httpClient
+      .post<any>(
+        `${environment.apiBaseURL}/files/create-from-template`,
+        {
+          folderID: parentFolder._id,
+          name,
+          templateID,
+        },
+        { withCredentials: true },
+      )
+      .pipe(map(() => this._refreshNeeded$.emit(), null));
+  }
+
   search(searchParams: SearchParams): Observable<CloudDirectory> {
     const currentDate = new Date();
     let startDate: Date;
@@ -202,12 +220,10 @@ export class FileSystemService {
           const folder = new CloudDirectory();
 
           const results: CloudNode[] = response.results;
-          const directoryContent = results.map((item) => {
+          folder.directoryContent = results.map((item) => {
             item.isDirectory = item.mimetype === DIRECTORY_MIMETYPE;
             return item;
           });
-
-          folder.directoryContent = directoryContent;
           folder._id = null;
           folder.name = null;
           folder.isDirectory = true;
@@ -348,7 +364,7 @@ export class FileSystemService {
     this._uploadXhr = new XMLHttpRequest();
     this._uploadXhr.upload.onprogress = (evt) => {
       // https://stackoverflow.com/questions/21162749/how-do-i-calculate-the-time-remaining-for-my-upload
-      let timeElasped = 0;
+      let timeElasped: number;
       if (this._timeStarted === -1) {
         this._timeStarted = Date.now();
         timeElasped = 1;
@@ -413,6 +429,10 @@ export class FileSystemService {
 
   refreshNeeded(): Observable<void> {
     return this._refreshNeeded$.asObservable();
+  }
+
+  triggerRefreshNeededEvent() {
+    this._refreshNeeded$.emit();
   }
 
   private _onXHRFinished(filename: string, error: Error) {

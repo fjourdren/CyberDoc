@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { GenericResponse } from 'src/generic-response.interceptor';
 import { FileTag } from 'src/schemas/file-tag.schema';
 import { UserRole } from 'src/schemas/user.schema';
+import { VALID_THEMES } from './is-valid-theme.decorator';
 
 //see UserService -> COLUMNS_TO_KEEP_FOR_USER
 export class UserInResponse {
@@ -35,6 +36,13 @@ export class UserInResponse {
     enum: [UserRole.OWNER, UserRole.COLLABORATOR],
   })
   role: string;
+
+  @ApiProperty({
+    description: 'User theme',
+    example: 'indigo-pink',
+    enum: VALID_THEMES,
+  })
+  theme: string;
 }
 
 export class GetProfileResponse extends GenericResponse {

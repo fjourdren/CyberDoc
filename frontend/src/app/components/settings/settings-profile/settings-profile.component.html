@@ -17,9 +17,18 @@
 			<mat-form-field>
 				<input type="email" matInput formControlName="newEmail" placeholder="{{'general.email' | translate}}">
 			</mat-form-field>
+			<mat-form-field>
+				<mat-label>{{ 'themes.theme' | translate }}</mat-label>
+				<mat-select formControlName="theme">
+					<mat-option *ngFor="let theme of VALID_THEMES" [value]="theme">
+						<mat-icon [svgIcon]="theme"></mat-icon>
+						{{getThemeText(theme) | translate}}
+					</mat-option>
+				</mat-select>
+			</mat-form-field>
 		</form>
 		<button mat-flat-button color="primary" type="submit" (click)="updateProfile()"
-			[disabled]="profileForm.invalid || !(profileForm.controls['firstName'].dirty  || profileForm.controls['lastName'].dirty || profileForm.controls['newEmail'].dirty ) || loading">{{'general.update'
+			[disabled]="profileForm.invalid || !(profileForm.controls['firstName'].dirty  || profileForm.controls['lastName'].dirty || profileForm.controls['theme'].dirty || profileForm.controls['newEmail'].dirty ) || loading">{{'general.update'
 			| translate}}</button>
 	</mat-card-content>
 </mat-card>
@@ -76,7 +85,7 @@
 	<mat-expansion-panel>
 		<mat-expansion-panel-header>
 			<mat-panel-title id="danger-zone-title">
-				{{'settings.danger_zone' | translate}}
+				<span class="error-txt">{{'settings.danger_zone' | translate}}</span>
 			</mat-panel-title>
 		</mat-expansion-panel-header>
 		<mat-card id="delete-account-card">

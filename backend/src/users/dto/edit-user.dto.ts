@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { IsValidTheme, VALID_THEMES } from '../is-valid-theme.decorator';
 
 export class EditUserDto {
   @ApiProperty({ description: 'User first name', example: 'John' })
@@ -32,4 +33,14 @@ export class EditUserDto {
   @IsNotEmpty()
   @IsString()
   currentPassword: string;
+
+  @ApiProperty({
+    description: 'User theme',
+    example: 'indigo-pink',
+    enum: VALID_THEMES,
+  })
+  @IsOptional()
+  @IsNotEmpty()
+  @IsValidTheme()
+  theme: string;
 }

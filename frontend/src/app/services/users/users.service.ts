@@ -7,6 +7,8 @@ import { User, Device } from 'src/app/models/users-api-models';
 import { environment } from 'src/environments/environment';
 import { SHA3 } from 'sha3';
 import { Base64 } from 'js-base64';
+import { MatDialog } from '@angular/material/dialog';
+import { LoadingDialogComponent } from 'src/app/components/global/loading-dialog/loading-dialog.component';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +16,7 @@ import { Base64 } from 'js-base64';
 export class UsersService {
   private _userUpdated$ = new EventEmitter<User>();
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient, private dialog: MatDialog) {}
 
   getActiveUser() {
     return JSON.parse(
@@ -71,6 +73,14 @@ export class UsersService {
       .pipe(
         map((response) => {
           this._setUser(response.user);
+          if (response.user.theme !== localStorage.getItem('theme')) {
+            localStorage.setItem('theme', response.user.theme);
+            this.dialog.open(LoadingDialogComponent, {
+              width: '96px',
+              height: '96px',
+            });
+            location.reload();
+          }
           return response.user;
         }),
       );
@@ -80,6 +90,7 @@ export class UsersService {
     firstName: string,
     lastName: string,
     newEmail: string,
+    theme: string,
     currentPassword: string | undefined /*required only if email is changed*/,
   ) {
     return this.httpClient
@@ -90,6 +101,7 @@ export class UsersService {
           firstname: firstName,
           lastname: lastName,
           currentPassword,
+          theme,
         },
         { withCredentials: true },
       )
