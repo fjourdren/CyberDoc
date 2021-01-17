@@ -51,7 +51,7 @@ Usage
 * tsc: `tsc`
 * build: `tsc`
 * clean: `rm -rf dist`
-* dev: `nodemon`
+* dev: `npm run start`
 * startdev: `APP_ENV=dev ts-node src/server.ts`
 * lint: `eslint . --ext .ts`
 * start: `APP_ENV=prod node dist/server.js`

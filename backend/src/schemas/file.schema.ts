@@ -64,6 +64,9 @@ export class File {
   @Prop({ required: true })
   owner_id: string;
 
+  @Prop()
+  bin_id: boolean;
+
   updated_at: Date;
   created_at: Date;
 }

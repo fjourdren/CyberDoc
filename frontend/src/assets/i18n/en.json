@@ -54,6 +54,9 @@
         "loading_preview": "Loading preview...",
         "error_loading_preview": "Sorry, we can't preview this file"
     },
+    "bin":{
+        "folderName": "Bin"
+    },
     "sharing": {
         "folderName": "Shared with me",
         "sharewith": "Share with",
