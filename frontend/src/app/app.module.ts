@@ -102,6 +102,7 @@ import { FilesOpenDialogComponent } from './components/files/files-open-dialog/f
 import { TwoFactorService } from './services/twofactor/twofactor.service';
 import { SettingsAskCurrentPasswordDialogComponent } from './components/settings/settings-ask-current-password-dialog/settings-ask-current-password-dialog.component';
 import { LoadingDialogComponent } from './components/global/loading-dialog/loading-dialog.component';
+import { SetupBillingPageComponent } from './pages/setup-billing-page/setup-billing-page.component';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) =>
@@ -200,6 +201,7 @@ if (environment.useSentry) {
     FilesOpenDialogComponent,
     SettingsAskCurrentPasswordDialogComponent,
     LoadingDialogComponent,
+    SetupBillingPageComponent,
   ],
   imports: [
     BrowserModule,

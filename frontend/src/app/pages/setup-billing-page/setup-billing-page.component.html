@@ -1,0 +1,68 @@
+<mat-toolbar color='primary'>
+  <a id='app-name-icon-container' [routerLink]="['/files']">
+    <img id='app-icon' width='44' height='auto' src='/assets/icons/icon-512x512.png' alt='CyberDoc Logo'>
+    <span>{{'general.appname' | translate}}</span>
+  </a>
+</mat-toolbar>
+
+<br>
+<br>
+<div id='header'>
+  <h1>{{'billing.title' | translate}}</h1>
+  <h4>{{'billing.subtitle' | translate}}</h4>
+</div>
+<br>
+<br>
+
+<div id='cards-container'>
+
+  <mat-card>
+    <mat-card-subtitle>{{'billing.free' | translate}}</mat-card-subtitle>
+    <mat-card-title>{{'billing.freeplan_space' | translate}}</mat-card-title>
+    <br>
+    <button mat-raised-button disabled>{{'billing.current_plan' | translate}}</button>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-subtitle>{{'billing.most_popular' | translate}}</mat-card-subtitle>
+    <mat-card-title>{{'billing.plan1_space' | translate}}</mat-card-title>
+    <br>
+    <button mat-raised-button color='primary'
+            (click)='onBillingPlanSelected("plan1_month")'>{{'billing.plan1_price_per_month' | translate}}</button>
+    <br>
+    <div>{{'billing.or_prepay_annually' | translate}}</div>
+    <div>{{'billing.save_16_percent' | translate}}</div>
+    <button mat-button color='primary'
+            (click)='onBillingPlanSelected("plan1_year")'>{{'billing.plan1_price_per_year' | translate}}</button>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-subtitle>&nbsp;</mat-card-subtitle>
+    <mat-card-title>{{'billing.plan2_space' | translate}}</mat-card-title>
+    <br>
+    <button mat-stroked-button color='primary'
+            (click)='onBillingPlanSelected("plan2_month")'>{{'billing.plan2_price_per_month' | translate}}</button>
+    <br>
+    <div>{{'billing.or_prepay_annually' | translate}}</div>
+    <div>{{'billing.save_16_percent' | translate}}</div>
+    <button mat-button color='primary'
+            (click)='onBillingPlanSelected("plan2_year")'>{{'billing.plan2_price_per_year' | translate}}</button>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-subtitle>{{'billing.best_value' | translate}}</mat-card-subtitle>
+    <mat-card-title>{{'billing.plan3_space' | translate}}</mat-card-title>
+    <br>
+    <button mat-stroked-button color='primary'
+            (click)='onBillingPlanSelected("plan3_month")'>{{'billing.plan3_price_per_month' | translate}}</button>
+    <br>
+    <div>{{'billing.or_prepay_annually' | translate}}</div>
+    <div>{{'billing.save_16_percent' | translate}}</div>
+    <button mat-button color='primary'
+            (click)='onBillingPlanSelected("plan3_year")'>{{'billing.plan3_price_per_year' | translate}}</button>
+  </mat-card>
+
+</div>
+
+<br>
+<br>
