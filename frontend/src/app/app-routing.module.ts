@@ -22,9 +22,19 @@ import { DevicePageComponent } from './pages/device-page/device-page.component';
 // import { DeviceGuard } from './guards/device/device.guard';
 // import { DeviceCheckGuard } from './guards/device-check/device-check.guard';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
+import { SetupBillingPageComponent } from './pages/setup-billing-page/setup-billing-page.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'files', pathMatch: 'full' },
+  {
+    path: 'setup-billing',
+    component: SetupBillingPageComponent,
+    canActivate: [
+      LoggedInGuard,
+      AuthorizedGuard,
+      TwoFactorGuard /*, DeviceCheckGuard*/,
+    ],
+  },
   {
     path: 'files-search/:searchParams',
     component: FilesPageComponent,
