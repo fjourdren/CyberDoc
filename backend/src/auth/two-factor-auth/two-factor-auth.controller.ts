@@ -5,7 +5,6 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
-  Logger,
   Post,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -112,7 +111,7 @@ export class TwoFactorAuthController {
         await this.twoFactorAuthService
           .verifyTokenByEmailOrSms(user.phoneNumber, twoFactorToken)
           .then((res) => {
-            if (res !== 0) {
+            if (!res.valid) {
               throw new UnauthorizedException('Wrong token specified');
             }
           });
@@ -126,7 +125,7 @@ export class TwoFactorAuthController {
         await this.twoFactorAuthService
           .verifyTokenByEmailOrSms(user.email, twoFactorToken)
           .then((res) => {
-            if (res !== 0) {
+            if (!res.valid) {
               throw new UnauthorizedException('Wrong token specified');
             }
           });
@@ -174,6 +173,7 @@ export class TwoFactorAuthController {
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @Body('type') type: string,
+    @Body('twoFactorToken') twoFactorToken: string,
   ) {
     if (!type) {
       throw new BadRequestException('Two-Factor type is required.');
@@ -193,6 +193,7 @@ export class TwoFactorAuthController {
         'Two-factor authentication by Email is already disabled.',
       );
     }
+    await this.verifyToken(user, type, twoFactorToken);
     return await this.twoFactorAuthService.disable(
       mongoSession,
       user.email,
@@ -202,11 +203,6 @@ export class TwoFactorAuthController {
 
   @Get('generateSecret')
   @HttpCode(HttpStatusCode.OK)
-  @ApiParam({
-    name: 'email',
-    description: 'Email address',
-    example: 'john.doe@email.com',
-  })
   @ApiOperation({
     summary: 'Generates a secret for Two-Factor Auth by App',
     description: 'Generates a secret for Two-Factor Auth by App',
@@ -227,6 +223,44 @@ export class TwoFactorAuthController {
       msg: await this.twoFactorAuthService.generateSecretByEmail(
         mongoSession,
         user.email,
+      ),
+    };
+  }
+
+  @Post('sendToken')
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'type',
+    description: 'By SMS or email',
+    example: 'app',
+  })
+  @ApiOperation({
+    summary: 'Sends an OTP by the specified sending way',
+    description: 'Sends an OTP by the specified sending way',
+  })
+  @ApiOkResponse({
+    description: 'Token has been sent',
+    type: GenericResponse,
+  })
+  @ApiNotFoundResponse({
+    description: "Token hasn't been sent",
+    type: GenericResponse,
+  })
+  async sendToken(@Body('type') type: string, @LoggedUser() user: User) {
+    if (!type) {
+      throw new BadRequestException('Sending way must be defined.');
+    } else if (type !== 'email' && type !== 'sms') {
+      throw new BadRequestException(
+        'Specified sending way is incorrect. Must be email or sms.',
+      );
+    }
+    if (type === 'sms' && !user.phoneNumber) {
+      throw new ForbiddenException('Phone number is not defined.');
+    }
+    return {
+      msg: await this.twoFactorAuthService.sendToken(
+        type,
+        type === 'email' ? user.email : user.phoneNumber,
       ),
     };
   }
@@ -264,15 +298,56 @@ export class TwoFactorAuthController {
         );
       }
     }
-    let msg;
+    let retour;
     switch (type) {
       case 'app':
-        msg = await this.twoFactorAuthService.verifyTokenGeneratedByApp(
+        retour = await this.twoFactorAuthService.verifyTokenGeneratedByApp(
           user.secret,
           twoFactorToken,
         );
+        if (retour !== 0) {
+          throw new UnauthorizedException(
+            'Specified Two-Factor token is invalid.',
+          );
+        }
+        break;
+      case 'sms':
+        try {
+          retour = await this.twoFactorAuthService.verifyTokenByEmailOrSms(
+            user.phoneNumber,
+            twoFactorToken,
+          );
+        } catch (e) {
+          throw new ForbiddenException(
+            'Specified Two-Factor token is invalid.',
+          );
+        }
+        if (!retour.valid) {
+          throw new UnauthorizedException(
+            'Specified Two-Factor token is invalid.',
+          );
+        }
+        break;
+      case 'email':
+        try {
+          retour = await this.twoFactorAuthService.verifyTokenByEmailOrSms(
+            user.email,
+            twoFactorToken,
+          );
+        } catch (e) {
+          throw new ForbiddenException(
+            'Specified Two-Factor token is invalid.',
+          );
+        }
+        if (!retour.valid) {
+          throw new UnauthorizedException(
+            'Specified Two-Factor token is invalid.',
+          );
+        }
         break;
     }
-    return msg;
+    return {
+      msg: retour,
+    };
   }
 }

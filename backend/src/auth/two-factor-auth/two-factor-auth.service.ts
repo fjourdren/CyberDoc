@@ -91,8 +91,8 @@ export class TwoFactorAuthService {
     emailOrPhoneNumber: string,
     token: string,
   ): Promise<any> {
-    return TwoFactorAuthService.generateClient()
-      .verify.services(process.env.TWILIO_SERVICE_ID)
+    return twilio.verify
+      .services(process.env.TWILIO_SERVICE_ID)
       .verificationChecks.create({ to: emailOrPhoneNumber, code: token })
       .then((res) => {
         return res;
@@ -105,11 +105,5 @@ export class TwoFactorAuthService {
       throw new UnauthorizedException('Specified Two-Factor token is invalid.');
     }
     return res.delta;
-  }
-
-  public static generateClient() {
-    const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
-    const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
-    return new twilio.Twilio(twilioAccountSid, twilioAuthToken);
   }
 }
