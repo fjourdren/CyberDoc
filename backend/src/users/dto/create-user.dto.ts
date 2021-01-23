@@ -1,10 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsBoolean,
   IsEmail,
   IsEnum,
   IsLowercase,
-  IsNotEmpty, IsNumberString,
+  IsNotEmpty,
   IsString,
 } from 'class-validator';
 import { UserRole } from 'src/schemas/user.schema';
