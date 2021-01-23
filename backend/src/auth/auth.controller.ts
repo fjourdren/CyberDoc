@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiOperation, ApiOkResponse, ApiTags, ApiBody } from '@nestjs/swagger';
+import { InjectRedis, Redis } from '@svtslv/nestjs-ioredis';
 import { Request, Response } from 'express';
 import { SkipJWTAuth } from 'src/auth/jwt/skip-jwt-auth.annotation';
 import { GenericResponse } from 'src/generic-response.interceptor';
@@ -19,6 +20,7 @@ import { LocalAuthGuard } from './local/local-auth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(
+    @InjectRedis() private readonly redis: Redis,
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {}
@@ -68,6 +70,24 @@ export class AuthController {
         domain: this.configService.get<string>('JWT_COOKIE_DOMAIN'),
       },
     );
+    return { msg: 'Success' };
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatusCode.OK)
+  @ApiOperation({
+    summary: 'Logout',
+    description: 'Disable JWT token',
+  })
+  @ApiOkResponse({ description: 'Success', type: GenericResponse })
+  async logout(@Req() request: Request) {
+    const jwt =
+      request.cookies[this.configService.get<string>('JWT_COOKIE_NAME')];
+    const key = 'ban_' + jwt;
+    const ttl = this.configService.get('JWT_EXPIRATION_TIME');
+
+    this.redis.multi().set(key, 'true').expire(key, ttl).exec();
+
     return { msg: 'Success' };
   }
 }

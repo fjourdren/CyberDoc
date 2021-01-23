@@ -18,6 +18,7 @@ export class LoginPageComponent {
   hidePassword = true;
   loading = false;
   wrongCredentialError = false;
+  tooManyErrors = false;
 
   constructor(
     private fb: FormBuilder,
@@ -32,6 +33,7 @@ export class LoginPageComponent {
 
     this.loading = true;
     this.wrongCredentialError = false;
+    this.tooManyErrors = false;
     this.loginForm.get('email').disable();
     this.loginForm.get('password').disable();
 
@@ -63,6 +65,11 @@ export class LoginPageComponent {
 
           if (error instanceof HttpErrorResponse && error.status === 401) {
             this.wrongCredentialError = true;
+          } else if (
+            error instanceof HttpErrorResponse &&
+            error.status === 429
+          ) {
+            this.tooManyErrors = true;
           } else {
             throw error;
           }
