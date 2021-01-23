@@ -9,6 +9,8 @@ import { AuthController } from './auth.controller';
 import { CryptoModule } from 'src/crypto/crypto.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/schemas/user.schema';
+import { TwoFactorAuthService } from './two-factor-auth/two-factor-auth.service';
+import { TwoFactorAuthController } from './two-factor-auth/two-factor-auth.controller';
 
 @Module({
   imports: [
@@ -26,8 +28,8 @@ import { User, UserSchema } from 'src/schemas/user.schema';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, TwoFactorAuthService, LocalStrategy, JwtStrategy],
   exports: [AuthService],
-  controllers: [AuthController],
+  controllers: [AuthController, TwoFactorAuthController],
 })
 export class AuthModule {}

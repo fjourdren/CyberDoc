@@ -25,6 +25,9 @@ export const COLUMNS_TO_KEEP_FOR_USER = [
   'email',
   'directory_id',
   'tags',
+  'twoFactorByApp',
+  'twoFactorByEmail',
+  'twoFactorBySms',
   'role',
   'theme',
 ];
@@ -82,6 +85,9 @@ export class UsersService {
     user.lastname = createUserDto.lastname;
     user.password = await this.authService.hashPassword(createUserDto.password);
     user.tags = [];
+    user.twoFactorByApp = false;
+    user.twoFactorBySms = false;
+    user.twoFactorByEmail = false;
     user.userKeys = userKeys;
     user.theme = 'indigo-pink';
 

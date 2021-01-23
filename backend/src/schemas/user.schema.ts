@@ -57,6 +57,21 @@ export class User {
   @Prop([FileTag])
   tags: FileTag[];
 
+  @Prop({ required: true })
+  twoFactorByEmail: boolean;
+
+  @Prop({ required: true })
+  twoFactorBySms: boolean;
+
+  @Prop({ required: true })
+  twoFactorByApp: boolean;
+
+  @Prop()
+  secret: string;
+
+  @Prop()
+  phoneNumber: string;
+
   @Prop({
     required: true,
     enum: [UserRole.OWNER, UserRole.COLLABORATOR],
