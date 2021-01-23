@@ -21,7 +21,8 @@
         </mat-card-header>
 
         <div class="error-txt" *ngIf="wrongCredentialError">{{ 'accounts.login_error' | translate }}</div>
-
+        <div class="error-txt" *ngIf="tooManyErrors">{{ 'general.generic_error' | translate }}</div>
+        
         <mat-card-content>
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ 'general.email' | translate }}</mat-label>
