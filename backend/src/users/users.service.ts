@@ -120,6 +120,7 @@ export class UsersService {
     user.firstname = editUserDto.firstname || user.firstname;
     user.lastname = editUserDto.lastname || user.lastname;
     user.theme = editUserDto.theme || user.theme;
+    user.phoneNumber = editUserDto.phoneNumber || user.phoneNumber;
 
     const emailChanged = editUserDto.email && editUserDto.email !== user.email;
     if (emailChanged) {
