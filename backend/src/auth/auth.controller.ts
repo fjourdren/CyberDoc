@@ -83,10 +83,10 @@ export class AuthController {
   async logout(@Req() request: Request) {
     const jwt =
       request.cookies[this.configService.get<string>('JWT_COOKIE_NAME')];
-    const key = 'ban_' + jwt;
+    const key = 'banjwt_' + jwt;
     const ttl = this.configService.get('JWT_EXPIRATION_TIME');
 
-    this.redis.multi().set(key, 'true').expire(key, ttl).exec();
+    await this.redis.multi().set(key, 'true').expire(key, ttl).exec();
 
     return { msg: 'Success' };
   }
