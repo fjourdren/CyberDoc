@@ -8,17 +8,21 @@
             <mat-icon>folder_shared</mat-icon>
             {{ 'sharing.folderName' | translate }}
         </a>
+        <br>
+        <a mat-button [routerLink]="['/shared-with-me']" class="tree-node-div">
+            <mat-icon>delete</mat-icon>
+            {{ 'bin.folderName' | translate }}
+        </a>
         
     </mat-tree-node>
-    <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding 
+   <!-- <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding 
         [ngClass]="{'bin': _binMode}&&{'selected':!_sharedWithMeMode}">
-        <!-- use a disabled button to provide padding for tree leaf -->
         <button mat-icon-button disabled></button>
         <a mat-button [routerLink]="['/shared-with-me']" class="tree-node-div">
             <mat-icon>delete</mat-icon>
             {{ 'bin.folderName' | translate }}
         </a>
-    </mat-tree-node>
+    </mat-tree-node>-->
 
     <!-- This is the tree node template for expandable nodes -->
     <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding
