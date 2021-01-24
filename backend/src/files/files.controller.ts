@@ -458,4 +458,19 @@ export class FilesController {
     await this.filesService.delete(file);
     return { msg: 'File deleted' };
   }
+
+  @Delete(':fileID/sendBin')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({ summary: 'Send to bin', description: 'Send a file to the bin' })
+  @ApiOkResponse({ description: 'File moved', type: GenericResponse })
+  async sendToBin(@CurrentFile(OWNER) file: File) {
+    await this.filesService.sendToBin(file);
+    return { msg: 'File moved to bin' };
+  }
 }

@@ -384,6 +384,20 @@ export class FilesService {
     return copyFile;
   }
 
+  async sendToBin(file: File) {
+    if (file.type == FOLDER) {
+      for (const item of await this.getFolderContents(file._id)) {
+        await this.sendToBin(item);
+      }
+    } else {
+      await this.cryptoService.deleteAllAESKeysForFile(file._id);
+      if (!(await this.gridFSModel.delete(file.document_id))) {
+        throw new InternalServerErrorException(`gridFSModel.delete failed`);
+      }
+    }
+    await new this.fileModel(file).deleteOne();
+  }
+
   async delete(file: File) {
     if (file.type == FOLDER) {
       for (const item of await this.getFolderContents(file._id)) {
