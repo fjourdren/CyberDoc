@@ -20,9 +20,3 @@ export class User {
   public twoFactorRecoveryCodes: TwoFactorRecoveryCode[];
   public theme: string;
 }
-
-export class Device {
-  public name: string;
-  public browser: string;
-  public OS: string;
-}
