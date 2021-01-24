@@ -49,6 +49,7 @@ export const COLUMNS_TO_KEEP_FOR_FILE = [
   'name',
   'mimetype',
   'size',
+  'bin_id',
   'updated_at',
   'created_at',
   'tags',
@@ -135,6 +136,7 @@ export class FilesService {
     file.sharedWith = [];
     file.shareWithPending = [];
     file.tags = [];
+    file.bin_id = false;
     file.created_at = date;
     file.updated_at = date;
 
@@ -384,18 +386,11 @@ export class FilesService {
     return copyFile;
   }
 
-  async sendToBin(file: File) {
-    if (file.type == FOLDER) {
-      for (const item of await this.getFolderContents(file._id)) {
-        await this.sendToBin(item);
-      }
-    } else {
-      await this.cryptoService.deleteAllAESKeysForFile(file._id);
-      if (!(await this.gridFSModel.delete(file.document_id))) {
-        throw new InternalServerErrorException(`gridFSModel.delete failed`);
-      }
-    }
-    await new this.fileModel(file).deleteOne();
+  async sendToBin(file: File,
+    mongoSession: ClientSession,
+  ) {
+    file.bin_id = true;
+    return await new this.fileModel(file).save({ session: mongoSession });
   }
 
   async delete(file: File) {

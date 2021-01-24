@@ -25,6 +25,9 @@ export class FileInResponse {
   @ApiProperty({ description: 'File creation date', example: new Date() })
   created_at: Date;
 
+  @ApiProperty({ description: 'File in bin', example: false })
+  bin_id: boolean;
+
   @ApiProperty({ description: 'File tags', type: [FileTag] })
   tags: FileTag[];
 

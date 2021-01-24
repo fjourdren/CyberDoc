@@ -469,8 +469,9 @@ export class FilesController {
   })
   @ApiOperation({ summary: 'Send to bin', description: 'Send a file to the bin' })
   @ApiOkResponse({ description: 'File moved', type: GenericResponse })
-  async sendToBin(@CurrentFile(OWNER) file: File) {
-    await this.filesService.sendToBin(file);
+  async sendToBin(@MongoSession() mongoSession: ClientSession,
+                  @CurrentFile(OWNER) file: File,) {
+    await this.filesService.sendToBin(file, mongoSession);
     return { msg: 'File moved to bin' };
   }
 }
