@@ -212,7 +212,9 @@
     "buy_more_storage": "Buy more storage",
     "storage_space": "Storage space",
     "billing_card_title": "Subscription",
-    "billing_card_subtitle": "Manage subscription"
+    "billing_card_subtitle": "Manage subscription",
+    "no_enough_storage_dialog_title": "No enough storage",
+    "no_enough_storage_dialog_subtitle": "You don't have enough storage to do this action."
   },
   "general": {
     "generic_error": "Error. Please wait some time then retry",
