@@ -89,8 +89,6 @@ import { SecurityCheckDialogComponent } from './components/security-check-dialog
 import { TwoFactorCheckDialogComponent } from './components/two-factor/two-factor-check-dialog/two-factor-check-dialog.component';
 import { TwoFactorEditDialogComponent } from './components/two-factor/two-factor-edit-dialog/two-factor-edit-dialog.component';
 import { TwoFactorEditComponent } from './components/two-factor/two-factor-edit/two-factor-edit.component';
-import { DevicePageComponent } from './pages/device-page/device-page.component';
-import { SettingsRenameDeviceDialogComponent } from './components/settings/settings-rename-device-dialog/settings-rename-device-dialog.component';
 import {
   FilesSignDialogComponent,
   FilesSignConfirmDialogComponent,
@@ -192,8 +190,6 @@ if (environment.useSentry) {
     TwoFactorEditComponent,
     TwoFactorGenerateRecoveryCodesDialogComponent,
     TwoFactorUseRecoveryCodeDialogComponent,
-    DevicePageComponent,
-    SettingsRenameDeviceDialogComponent,
     FilesSignDialogComponent,
     FilesSignConfirmDialogComponent,
     ExportRecoveryKeyPageComponent,

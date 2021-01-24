@@ -168,12 +168,6 @@
         "uuid_example": "It looks like \"55b66298-5e13-4b5b-a610-d04e886d6be5\"",
         "two_factor_recovery_codes": "Two-factor recovery codes"
     },
-    "devices": {
-        "new_device_title": "New device ?",
-        "already_exists": "This name already exists",
-        "please_give_name": "Please give it a name",
-        "rename": "Rename device"
-    },
     "sign": {
         "sign": "Sign document",
         "signwith": "Sign this file",
