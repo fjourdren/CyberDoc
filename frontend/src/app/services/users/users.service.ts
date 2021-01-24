@@ -10,13 +10,26 @@ import { Base64 } from 'js-base64';
 import { MatDialog } from '@angular/material/dialog';
 import { LoadingDialogComponent } from 'src/app/components/global/loading-dialog/loading-dialog.component';
 
+declare var Stripe: any;
+
+const FORCE_USER_REFRESH_LOCALSTORAGE_KEY = 'forceUserRefresh';
+
 @Injectable({
   providedIn: 'root',
 })
 export class UsersService {
   private _userUpdated$ = new EventEmitter<User>();
+  private stripe: any;
 
-  constructor(private httpClient: HttpClient, private dialog: MatDialog) {}
+  constructor(private httpClient: HttpClient, private dialog: MatDialog) {
+    this.stripe = Stripe(environment.stripePublicKey);
+    if (localStorage.getItem(FORCE_USER_REFRESH_LOCALSTORAGE_KEY) === 'true') {
+      localStorage.removeItem(FORCE_USER_REFRESH_LOCALSTORAGE_KEY);
+      this.refreshActiveUser()
+        .toPromise()
+        .then(() => {});
+    }
+  }
 
   getActiveUser() {
     return JSON.parse(
@@ -326,6 +339,34 @@ export class UsersService {
 
   getDataExportURL(): string {
     return `${environment.apiBaseURL}/users/exportData`;
+  }
+
+  goToStripeCustomPortal() {
+    localStorage.setItem(FORCE_USER_REFRESH_LOCALSTORAGE_KEY, 'true');
+    this.httpClient
+      .get<any>(`${environment.apiBaseURL}/billing/customer-portal-url`, {
+        withCredentials: true,
+      })
+      .toPromise()
+      .then((response) => response.customerPortalURL as string)
+      .then((customerPortalURL) => location.replace(customerPortalURL));
+  }
+
+  setupSubscription(planId: string) {
+    localStorage.setItem(FORCE_USER_REFRESH_LOCALSTORAGE_KEY, 'true');
+    this.httpClient
+      .post<any>(
+        `${environment.apiBaseURL}/billing/create-checkout-session`,
+        {
+          planId,
+        },
+        {
+          withCredentials: true,
+        },
+      )
+      .toPromise()
+      .then((response) => response.sessionId as string)
+      .then((sessionId) => this.stripe.redirectToCheckout({ sessionId }));
   }
 
   private _setUser(user: User) {

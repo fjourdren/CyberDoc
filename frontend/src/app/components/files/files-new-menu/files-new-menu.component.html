@@ -1,0 +1,14 @@
+<button *ngFor='let fileTemplate of FILE_TEMPLATES;' mat-menu-item (click)='createFileFromTemplate(fileTemplate)'>
+  <mat-icon fontSet='fa' [fontIcon]='fileTemplate.fontAwesomeIcon'></mat-icon>
+  {{ fileTemplate.newActionTranslation | translate }}
+</button>
+<div class='separator'></div>
+<button mat-menu-item (click)='this.fileInput.click()'>
+  <mat-icon>publish</mat-icon>
+  {{ 'upload.import_file' | translate }}
+</button>
+<button mat-menu-item (click)='createFolder()'>
+  <mat-icon>create_new_folder</mat-icon>
+  {{ 'upload.new_directory' | translate }}
+</button>
+<input type='file' #fileInput (change)='(this.fileInput.files.length == 1) && uploadFile(this.fileInput.files[0])'>

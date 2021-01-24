@@ -1,0 +1,13 @@
+<h1 mat-dialog-title>
+  No enough storage
+</h1>
+
+<div mat-dialog-content>
+  You don't have enough storage to do this action.
+</div>
+
+<div mat-dialog-actions align='end'>
+  <button mat-button (click)='dialogRef.close(false)'>{{'general.cancel' | translate}}</button>
+  <button routerLink='/settings/profile' mat-raised-button color='primary'>{{'billing.buy_more_storage' |
+    translate}}</button>
+</div>

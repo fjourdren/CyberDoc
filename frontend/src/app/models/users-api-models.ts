@@ -19,6 +19,25 @@ export class User {
   public tags: FileTag[];
   public twoFactorRecoveryCodes: TwoFactorRecoveryCode[];
   public theme: string;
+
+  public subscription?: Subscription;
+  public usedSpace: number;
+  public availableSpace: number;
+}
+
+// noinspection JSUnusedGlobalSymbols
+export enum SubscriptionStatus {
+  ACTIVE = 'active',
+  INCOMPLETE = 'incomplete',
+  INCOMPLETE_EXPIRED = 'incomplete_expired',
+  PAST_DUE = 'past_due',
+  TRIALING = 'trialing',
+  UNPAID = 'unpaid',
+} //from Stripe.Subscription.Status;
+
+export class Subscription {
+  status: SubscriptionStatus;
+  planId: string;
 }
 
 export class Device {

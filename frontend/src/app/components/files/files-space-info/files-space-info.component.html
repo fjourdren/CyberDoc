@@ -1,0 +1,9 @@
+<div *ngIf='user' id='container'>
+  <div id='header-container'>
+    <mat-icon id='header-icon'>storage</mat-icon>
+    <span>{{ 'billing.storage_space' | translate }}</span>
+  </div>
+  <mat-progress-bar mode='determinate' [value]='storageSpacePercent'></mat-progress-bar>
+  <div>{{user.usedSpace | filesize}} {{ 'general.used' | translate }} / {{user.availableSpace | filesize}}</div>
+  <button id='buy-storage-btn' mat-stroked-button color='primary' routerLink='/settings/profile'>{{ 'billing.manage_subscription' | translate }}</button>
+</div>

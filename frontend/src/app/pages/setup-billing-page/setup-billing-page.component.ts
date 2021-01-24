@@ -1,16 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { UsersService } from '../../services/users/users.service';
 
 @Component({
   selector: 'app-setup-billing-page',
   templateUrl: './setup-billing-page.component.html',
   styleUrls: ['./setup-billing-page.component.css'],
 })
-export class SetupBillingPageComponent implements OnInit {
-  constructor() {}
+export class SetupBillingPageComponent {
+  loading = false;
+  selectedPlan = '';
 
-  ngOnInit(): void {}
+  constructor(private usersService: UsersService) {}
 
   onBillingPlanSelected(planID: string) {
-    alert(planID);
+    this.selectedPlan = planID;
+    this.loading = true;
+    this.usersService.setupSubscription(planID);
   }
 }

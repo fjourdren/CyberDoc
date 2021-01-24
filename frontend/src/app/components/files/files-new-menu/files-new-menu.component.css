@@ -1,0 +1,15 @@
+.separator {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    width: 100%;
+    height: 2px;
+    background: lightgray;
+}
+
+input {
+    display: none;
+}
+
+mat-icon {
+    font-size: 20px;
+}
