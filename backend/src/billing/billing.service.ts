@@ -63,7 +63,7 @@ export class BillingService {
     const stripeSubscription = response.data[0];
     if (stripeSubscription.items.data.length !== 1) {
       throw new InternalServerErrorException(
-        'Multiple subscription_item in subscription',
+        'Subscription must have only one subscription_item',
       );
     }
 
