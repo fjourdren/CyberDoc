@@ -5,6 +5,8 @@ import {
   Req,
   Res,
   HttpCode,
+  Body,
+  BadRequestException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiOperation, ApiOkResponse, ApiTags, ApiBody } from '@nestjs/swagger';
@@ -43,8 +45,13 @@ export class AuthController {
           description: 'Password',
           example: 'eV66scN@t5tGG%ND',
         },
+        currentDeviceName: {
+          type: 'string',
+          description: 'Current device name',
+          example: 'MyComputer',
+        },
       },
-      required: ['username', 'password'],
+      required: ['username', 'password', 'currentDeviceName'],
     },
   })
   @ApiOperation({
@@ -52,8 +59,19 @@ export class AuthController {
     description: 'Login and store JWT token in a cookie',
   })
   @ApiOkResponse({ description: 'Success', type: GenericResponse })
-  async login(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const { access_token } = await this.authService.login(req.user);
+  async login(
+    @Req() req: Request,
+    @Body('currentDeviceName') currentDeviceName: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    if (!currentDeviceName || currentDeviceName.length === 0) {
+      throw new BadRequestException('Missing currentDeviceName');
+    }
+
+    const { access_token } = await this.authService.login(
+      req.user,
+      currentDeviceName,
+    );
     const expirationDate = new Date();
     expirationDate.setSeconds(
       expirationDate.getSeconds() +

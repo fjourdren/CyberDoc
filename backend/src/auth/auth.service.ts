@@ -33,13 +33,21 @@ export class AuthService {
     return await bcrypt.hash(password, 10);
   }
 
-  generateJWTToken(userID: string, userHash: string) {
-    return this.jwtService.sign({ userID, userHash });
+  generateJWTToken(
+    userID: string,
+    userHash: string,
+    currentDeviceName: string,
+  ) {
+    return this.jwtService.sign({ userID, userHash, currentDeviceName });
   }
 
-  async login(user: any) {
+  async login(user: any, currentDeviceName: string) {
     return {
-      access_token: this.generateJWTToken(user._doc._id, user.hash),
+      access_token: this.generateJWTToken(
+        user._doc._id,
+        user.hash,
+        currentDeviceName,
+      ),
     };
   }
 }
