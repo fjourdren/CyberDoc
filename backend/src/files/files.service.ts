@@ -41,6 +41,7 @@ import { FileInResponse } from './files.controller.types';
 import { EditFileMetadataDto } from './dto/edit-file-metadata.dto';
 import { readFile as _readFile } from 'fs';
 import { join } from 'path';
+import { UserDevice } from '../schemas/user-device.schema';
 
 const readFile = promisify(_readFile);
 
@@ -55,6 +56,7 @@ export const COLUMNS_TO_KEEP_FOR_FILE = [
   'preview',
   'signs',
   'shareMode',
+  'deviceUsedForCreation',
 ];
 export const COLUMNS_TO_KEEP_FOR_FOLDER = [
   '_id',
@@ -64,6 +66,7 @@ export const COLUMNS_TO_KEEP_FOR_FOLDER = [
   'created_at',
   'tags',
   'preview',
+  'deviceUsedForCreation',
 ];
 
 @Injectable()
@@ -104,6 +107,7 @@ export class FilesService {
   async create(
     mongoSession: ClientSession,
     user: User,
+    currentDevice: UserDevice,
     name: string,
     mimetype: string,
     folderID: string,
@@ -135,6 +139,7 @@ export class FilesService {
     file.sharedWith = [];
     file.shareWithPending = [];
     file.tags = [];
+    file.deviceUsedForCreation = currentDevice;
     file.created_at = date;
     file.updated_at = date;
 
@@ -144,6 +149,7 @@ export class FilesService {
   async createFromTemplate(
     mongoSession: ClientSession,
     user: User,
+    currentDevice: UserDevice,
     userHash: string,
     fileName: string,
     folderID: string,
@@ -162,6 +168,7 @@ export class FilesService {
     let file = await this.create(
       mongoSession,
       user,
+      currentDevice,
       fileName,
       template.mimetype,
       folderID,
@@ -356,6 +363,7 @@ export class FilesService {
   async copyFile(
     mongoSession: ClientSession,
     user: User,
+    currentDevice: UserDevice,
     userHash: string,
     file: File,
     copyFilename: string,
@@ -365,6 +373,7 @@ export class FilesService {
     let copyFile = await this.create(
       mongoSession,
       user,
+      currentDevice,
       copyFilename,
       file.mimetype,
       destFolderID,

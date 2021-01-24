@@ -169,13 +169,14 @@ export class UsersService {
     );
   }
 
-  login(email: string, password: string) {
+  login(email: string, password: string, currentDeviceName: string) {
     return this.httpClient
       .post<any>(
         `${environment.apiBaseURL}/auth/login`,
         {
           username: email,
           password,
+          currentDeviceName,
         },
         { withCredentials: true },
       )
