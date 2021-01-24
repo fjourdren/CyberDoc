@@ -16,6 +16,7 @@ import { FileSharingModule } from './file-sharing/file-sharing.module';
 import { UtilsModule } from './utils/utils.module';
 import { FileSigningModule } from './file-signing/file-signing.module';
 import { MongoSessionInterceptor } from './mongo-session.interceptor';
+import { BillingModule } from './billing/billing.module';
 
 @Module({
   imports: [
@@ -39,6 +40,8 @@ import { MongoSessionInterceptor } from './mongo-session.interceptor';
         SENDGRID_TEMPLATE_REQUEST_CREATE_ACCOUNT: Joi.string().required(),
         SENDGRID_TEMPLATE_SHARED_WITH_YOU: Joi.string().required(),
         SENDGRID_TEMPLATE_2FA_TOKEN: Joi.string().required(),
+        STRIPE_KEY: Joi.string().required(),
+        STRIPE_RETURN_URL: Joi.string().required(),
       }),
     }),
     MongooseModule.forRootAsync({
@@ -56,6 +59,7 @@ import { MongoSessionInterceptor } from './mongo-session.interceptor';
     FileTagsModule,
     UtilsModule,
     FileSigningModule,
+    BillingModule,
   ],
   controllers: [AppController],
   providers: [

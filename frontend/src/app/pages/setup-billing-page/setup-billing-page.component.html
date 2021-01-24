@@ -28,12 +28,14 @@
     <mat-card-title>{{'billing.plan1_space' | translate}}</mat-card-title>
     <br>
     <button mat-raised-button color='primary'
-            (click)='onBillingPlanSelected("plan1_month")'>{{'billing.plan1_price_per_month' | translate}}</button>
+            [class.spinner]="loading && selectedPlan == 'plan1_month'" [disabled]="loading"
+            (click)='onBillingPlanSelected("plan1_month")'>{{'billing.plan1_month_price' | translate}}</button>
     <br>
     <div>{{'billing.or_prepay_annually' | translate}}</div>
     <div>{{'billing.save_16_percent' | translate}}</div>
     <button mat-button color='primary'
-            (click)='onBillingPlanSelected("plan1_year")'>{{'billing.plan1_price_per_year' | translate}}</button>
+            [class.spinner]="loading && selectedPlan == 'plan1_year'" [disabled]="loading"
+            (click)='onBillingPlanSelected("plan1_year")'>{{'billing.plan1_year_price' | translate}}</button>
   </mat-card>
 
   <mat-card>
@@ -41,12 +43,14 @@
     <mat-card-title>{{'billing.plan2_space' | translate}}</mat-card-title>
     <br>
     <button mat-stroked-button color='primary'
-            (click)='onBillingPlanSelected("plan2_month")'>{{'billing.plan2_price_per_month' | translate}}</button>
+            [class.spinner]="loading && selectedPlan == 'plan2_month'" [disabled]="loading"
+            (click)='onBillingPlanSelected("plan2_month")'>{{'billing.plan2_month_price' | translate}}</button>
     <br>
     <div>{{'billing.or_prepay_annually' | translate}}</div>
     <div>{{'billing.save_16_percent' | translate}}</div>
     <button mat-button color='primary'
-            (click)='onBillingPlanSelected("plan2_year")'>{{'billing.plan2_price_per_year' | translate}}</button>
+            [class.spinner]="loading && selectedPlan == 'plan2_year'" [disabled]="loading"
+            (click)='onBillingPlanSelected("plan2_year")'>{{'billing.plan2_year_price' | translate}}</button>
   </mat-card>
 
   <mat-card>
@@ -54,12 +58,14 @@
     <mat-card-title>{{'billing.plan3_space' | translate}}</mat-card-title>
     <br>
     <button mat-stroked-button color='primary'
-            (click)='onBillingPlanSelected("plan3_month")'>{{'billing.plan3_price_per_month' | translate}}</button>
+            [class.spinner]="loading && selectedPlan == 'plan3_month'" [disabled]="loading"
+            (click)='onBillingPlanSelected("plan3_month")'>{{'billing.plan3_month_price' | translate}}</button>
     <br>
     <div>{{'billing.or_prepay_annually' | translate}}</div>
     <div>{{'billing.save_16_percent' | translate}}</div>
     <button mat-button color='primary'
-            (click)='onBillingPlanSelected("plan3_year")'>{{'billing.plan3_price_per_year' | translate}}</button>
+            [class.spinner]="loading && selectedPlan == 'plan3_year'" [disabled]="loading"
+            (click)='onBillingPlanSelected("plan3_year")'>{{'billing.plan3_year_price' | translate}}</button>
   </mat-card>
 
 </div>
