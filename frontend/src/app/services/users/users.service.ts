@@ -232,11 +232,19 @@ export class UsersService {
   }
 
   logout(): Observable<void> {
-    return of(null).pipe(
-      map(() => {
-        this._setUser(null);
-      }),
-    );
+    return this.httpClient
+      .post<any>(
+        `${environment.apiBaseURL}/auth/logout`,
+        {},
+        {
+          withCredentials: true,
+        },
+      )
+      .pipe(
+        map(() => {
+          this._setUser(null);
+        }),
+      );
   }
 
   deleteAccount(xAuthTokenArray: string[]): Observable<void> {
