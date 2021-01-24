@@ -6,7 +6,7 @@ import { GenericResponseInterceptor } from './generic-response.interceptor';
 import * as helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
-import { HttpExceptionFilter } from './http-exception';
+import { HttpExceptionFilter } from './http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
