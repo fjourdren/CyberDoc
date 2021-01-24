@@ -17,7 +17,7 @@ export class JWTBanMiddleware implements NestMiddleware {
     if ((await this.redis.get('banjwt_' + jwt)) != undefined) {
       response.status(401).json({
         statusCode: 401,
-        msg: 'JWT token diabled',
+        msg: 'JWT token is disabled',
         timestamp: new Date().toISOString(),
         path: request.url,
       });
