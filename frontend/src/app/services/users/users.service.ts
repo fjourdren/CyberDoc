@@ -3,7 +3,7 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { FileTag } from 'src/app/models/files-api-models';
-import { User } from 'src/app/models/users-api-models';
+import { Session, User } from 'src/app/models/users-api-models';
 import { environment } from 'src/environments/environment';
 import { SHA3 } from 'sha3';
 import { Base64 } from 'js-base64';
@@ -243,6 +243,34 @@ export class UsersService {
       );
   }
 
+  getActiveSessions() {
+    return this.httpClient
+      .get<any>(`${environment.apiBaseURL}/auth/active-sessions`, {
+        withCredentials: true,
+      })
+      .pipe(
+        map((response) => {
+          return response.sessions as Session[];
+        }),
+      );
+  }
+
+  terminateSession(hashedJWT: string) {
+    return this.httpClient
+      .post<any>(
+        `${environment.apiBaseURL}/auth/terminate-session`,
+        { hashedJWT },
+        {
+          withCredentials: true,
+        },
+      )
+      .pipe(
+        map(() => {
+          return null;
+        }),
+      );
+  }
+
   deleteAccount(xAuthTokenArray: string[]): Observable<void> {
     return this.httpClient.delete<any>(
       `${environment.apiBaseURL}/users/profile`,
@@ -300,7 +328,7 @@ export class UsersService {
     return `${environment.apiBaseURL}/users/exportData`;
   }
 
-  private _setUser(user: User) {
+  _setUser(user: User) {
     localStorage.setItem(environment.userLocalStorageKey, JSON.stringify(user));
     if (user) {
       this._userUpdated$.emit(user);

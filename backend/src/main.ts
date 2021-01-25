@@ -6,13 +6,13 @@ import { GenericResponseInterceptor } from './generic-response.interceptor';
 import * as helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
-import { HttpExceptionFilter } from './http-exception.filter';
+import { GlobalExceptionFilter } from './global-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = new ConfigService();
 
-  app.useGlobalFilters(new HttpExceptionFilter(config));
+  app.useGlobalFilters(new GlobalExceptionFilter(config));
 
   const options = new DocumentBuilder()
     .setTitle(config.get<string>('APP_NAME'))

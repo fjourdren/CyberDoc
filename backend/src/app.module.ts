@@ -17,9 +17,9 @@ import { FileSharingModule } from './file-sharing/file-sharing.module';
 import { UtilsModule } from './utils/utils.module';
 import { FileSigningModule } from './file-signing/file-signing.module';
 import { MongoSessionInterceptor } from './mongo-session.interceptor';
-import { HttpExceptionFilter } from './http-exception.filter';
-import { JwtBanMiddleware } from './jwt-ban.middleware';
+import { GlobalExceptionFilter } from './global-exception.filter';
 import { ErrorBanMiddleware } from './error-ban.middleware';
+import { JwtBanGuard } from './auth/jwt/jwt-ban.guard';
 
 @Module({
   imports: [
@@ -78,18 +78,21 @@ import { ErrorBanMiddleware } from './error-ban.middleware';
       useClass: JwtAuthGuard,
     },
     {
+      provide: APP_GUARD,
+      useClass: JwtBanGuard,
+    },
+    {
       provide: APP_INTERCEPTOR,
       useClass: MongoSessionInterceptor,
     },
     {
       provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
+      useClass: GlobalExceptionFilter,
     },
   ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(ErrorBanMiddleware).forRoutes('*');
-    consumer.apply(JwtBanMiddleware).forRoutes('*');
   }
 }

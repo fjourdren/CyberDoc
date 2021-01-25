@@ -29,7 +29,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { SkipJWTAuth } from 'src/auth/jwt/skip-jwt-auth.annotation';
 import { MongoSession } from 'src/mongo-session.decorator';
 import { ClientSession } from 'mongoose';
-import { CurrentDevice } from '../files/current-device.decorator';
+import { CurrentDevice } from './current-device.decorator';
 import { UserDevice } from '../schemas/user-device.schema';
 
 @ApiTags('users')

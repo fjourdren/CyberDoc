@@ -55,7 +55,7 @@ import {
 import { MongoSession } from 'src/mongo-session.decorator';
 import { ClientSession } from 'mongoose';
 import { CreateFileFromTemplateDto } from './dto/create-file-from-template.dto';
-import { CurrentDevice } from './current-device.decorator';
+import { CurrentDevice } from '../users/current-device.decorator';
 import { UserDevice } from '../schemas/user-device.schema';
 
 @ApiTags('files')
