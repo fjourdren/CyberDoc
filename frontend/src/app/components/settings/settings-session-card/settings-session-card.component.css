@@ -1,0 +1,11 @@
+mat-spinner {
+    position: relative;
+    left: calc(50% - 24px);
+    top: 20px;
+}
+
+#session-name {
+    font-weight: bolder;
+    font-size: large;
+    margin-bottom: 16px;
+}

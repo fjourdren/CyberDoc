@@ -1,6 +1,10 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  HttpClient,
+  HttpClientModule,
+} from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
@@ -100,6 +104,8 @@ import { FilesOpenDialogComponent } from './components/files/files-open-dialog/f
 import { TwoFactorService } from './services/twofactor/twofactor.service';
 import { SettingsAskCurrentPasswordDialogComponent } from './components/settings/settings-ask-current-password-dialog/settings-ask-current-password-dialog.component';
 import { LoadingDialogComponent } from './components/global/loading-dialog/loading-dialog.component';
+import { SettingsSessionCardComponent } from './components/settings/settings-session-card/settings-session-card.component';
+import { HttpErrorInterceptor } from './services/http-error.interceptor';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) =>
@@ -196,6 +202,7 @@ if (environment.useSentry) {
     FilesOpenDialogComponent,
     SettingsAskCurrentPasswordDialogComponent,
     LoadingDialogComponent,
+    SettingsSessionCardComponent,
   ],
   imports: [
     BrowserModule,
@@ -248,6 +255,11 @@ if (environment.useSentry) {
     TwoFactorService,
     UsersService,
     FilesUtilsService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpErrorInterceptor,
+      multi: true,
+    },
   ],
   bootstrap: [AppComponent],
 })

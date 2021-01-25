@@ -156,6 +156,15 @@
             "subtitle": "This will provide your account data, not the actual files stored by you.",
             "button": "Download"
         },
+        "sessions": {
+            "title": "Active sessions",
+            "subtitle": "All devices which have currently access to your account",
+            "terminate_action": "Terminate selected session",
+            "ip": "IP",
+            "browser": "Browser",
+            "os": "Operating system",
+            "creation_date": "Creation date"
+        },
         "danger_zone": "Danger zone"
     },
     "dialogs": {

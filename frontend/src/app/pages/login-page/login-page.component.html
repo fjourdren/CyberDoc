@@ -25,6 +25,14 @@
 
         <mat-card-content>
           <mat-form-field appearance='outline' class='full-width'>
+            <mat-label>{{ 'accounts.device_name' | translate }}</mat-label>
+            <input type='text' matInput formControlName='deviceName' required>
+            <mat-error *ngIf="loginForm.controls['deviceName'].hasError('required')">
+              {{ 'general.no_empty' | translate }}
+            </mat-error>
+          </mat-form-field>
+          <br>
+          <mat-form-field appearance='outline' class='full-width'>
             <mat-label>{{ 'general.email' | translate }}</mat-label>
             <input autocomplete='email' type='email' matInput formControlName='email' required>
             <mat-error *ngIf="loginForm.controls['email'].hasError('required')">
@@ -44,20 +52,11 @@
             </mat-error>
             <mat-hint><a routerLink='/forgottenpassword'>{{ 'accounts.forgot_password' | translate }}</a></mat-hint>
           </mat-form-field>
-          <br>
-
-          <mat-form-field appearance='outline' class='full-width'>
-            <mat-label>{{ 'accounts.device_name' | translate }}</mat-label>
-            <input ype='text' matInput formControlName='deviceName' required>
-            <mat-error *ngIf="loginForm.controls['deviceName'].hasError('required')">
-              {{ 'general.no_empty' | translate }}
-            </mat-error>
-          </mat-form-field>
 
         </mat-card-content>
 
         <div id='button-container'>
-          <button [disabled]='loading' mat-raised-button color='primary' type='submit'>{{ 'general.login' | translate
+          <button [disabled]='loading' [class.spinner]='loading' mat-raised-button color='primary' type='submit'>{{ 'general.login' | translate
             }}</button>
           <br>
           <a routerLink='/register' mat-stroked-button color='primary'>{{ 'accounts.create_account' | translate }}</a>

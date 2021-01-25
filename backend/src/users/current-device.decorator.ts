@@ -14,7 +14,7 @@ export const CurrentDevice = createParamDecorator(
     if (request.user) {
       device.name = request.user.currentDeviceName;
     } else {
-      // for UserController.createProfile
+      // for UserController.createProfile & AuthController.login
       device.name = 'Your device';
     }
 
