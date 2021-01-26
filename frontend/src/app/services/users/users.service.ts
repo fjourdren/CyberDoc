@@ -23,15 +23,16 @@ export class UsersService {
 
   constructor(private httpClient: HttpClient, private dialog: MatDialog) {
     this.stripe = Stripe(environment.stripePublicKey);
+  }
+
+  getActiveUser() {
     if (localStorage.getItem(FORCE_USER_REFRESH_LOCALSTORAGE_KEY) === 'true') {
       localStorage.removeItem(FORCE_USER_REFRESH_LOCALSTORAGE_KEY);
       this.refreshActiveUser()
         .toPromise()
         .then(() => {});
     }
-  }
 
-  getActiveUser() {
     return JSON.parse(
       localStorage.getItem(environment.userLocalStorageKey),
     ) as User;
