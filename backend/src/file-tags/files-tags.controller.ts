@@ -13,7 +13,7 @@ import { LoggedUser } from 'src/auth/logged-user.decorator';
 import { User } from 'src/schemas/user.schema';
 import { FilesTagsService } from './files-tags.service';
 import { File } from 'src/schemas/file.schema';
-import { CurrentFile, OWNER } from 'src/files/current-file.decorator';
+import { CurrentFile } from 'src/files/current-file.decorator';
 import { FileGuard } from 'src/files/file.guard';
 import {
   ApiBearerAuth,
@@ -27,6 +27,7 @@ import { GenericResponse } from 'src/generic-response.interceptor';
 import { HttpStatusCode } from 'src/utils/http-status-code';
 import { MongoSession } from 'src/mongo-session.decorator';
 import { ClientSession } from 'mongoose';
+import { FileAcl } from '../files/file-acl';
 
 @ApiTags('file-tags')
 @ApiBearerAuth()
@@ -54,7 +55,7 @@ export class FilesTagsController {
   async addTag(
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
-    @CurrentFile(OWNER) file: File,
+    @CurrentFile(FileAcl.OWNER) file: File,
     @Body('tagId') tagID: string,
   ) {
     const tag = user.tags.find((tag) => tag._id === tagID);
@@ -91,7 +92,7 @@ export class FilesTagsController {
   async removeTag(
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
-    @CurrentFile(OWNER) file: File,
+    @CurrentFile(FileAcl.OWNER) file: File,
     @Param('tagID') tagID: string,
   ) {
     const tag = user.tags.find((tag) => tag._id === tagID);

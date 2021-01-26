@@ -46,6 +46,9 @@ import { JwtBanGuard } from './auth/jwt/jwt-ban.guard';
         SENDGRID_TEMPLATE_2FA_TOKEN: Joi.string().required(),
         STRIPE_KEY: Joi.string().required(),
         STRIPE_RETURN_URL: Joi.string().required(),
+        ETHERPAD_ROOT_URL: Joi.string().required(),
+        ETHERPAD_ROOT_API_URL: Joi.string().required(),
+        ETHERPAD_API_KEY: Joi.string().required(),
       }),
     }),
     MongooseModule.forRootAsync({

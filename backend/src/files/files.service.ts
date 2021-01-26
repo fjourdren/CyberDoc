@@ -8,7 +8,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import { ClientSession, Connection, FilterQuery, Model } from 'mongoose';
+import { ClientSession, Connection, FilterQuery, Model, Types } from 'mongoose';
 import { MongoGridFS } from 'mongo-gridfs';
 import { User, UserDocument } from 'src/schemas/user.schema';
 import {
@@ -19,21 +19,18 @@ import {
   ShareMode,
 } from '../schemas/file.schema';
 import { AesService } from 'src/crypto/aes.service';
-import { Types } from 'mongoose';
 import { Utils } from 'src/utils';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const streamToPromise = require('stream-to-promise');
 import * as libreofficeConvert from 'libreoffice-convert';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  TEXT_MIMETYPES,
-  DOCUMENT_MIMETYPES,
-  SPREADSHEET_MIMETYPES,
-  PRESENTATION_MIMETYPES,
-  PDF_MIMETYPES,
-  FileType,
-  DIRECTORY_MIMETYPE,
   ARCHIVE_MIMETYPES,
+  DIRECTORY_MIMETYPE,
+  DOCUMENT_MIMETYPES,
+  FileType,
+  PDF_MIMETYPES,
+  PRESENTATION_MIMETYPES,
+  SPREADSHEET_MIMETYPES,
+  TEXT_MIMETYPES,
 } from 'src/files/file-types';
 import { promisify } from 'util';
 import { PreviewGenerator } from './file-preview/preview-generator.service';
@@ -47,6 +44,15 @@ import { BillingService } from '../billing/billing.service';
 import { UserDevice } from '../schemas/user-device.schema';
 
 const readFile = promisify(_readFile);
+import {
+  ETHERPAD_MIMETYPE,
+  EtherpadExportFormat,
+  Etherpad,
+} from './etherpad/etherpad';
+import { ConfigService } from '@nestjs/config';
+import { FileAcl } from './file-acl';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const streamToPromise = require('stream-to-promise');
 
 export const COLUMNS_TO_KEEP_FOR_FILE = [
   '_id',
@@ -72,22 +78,26 @@ export const COLUMNS_TO_KEEP_FOR_FOLDER = [
   'tags',
   'preview',
   'deviceUsedForCreation',
+  'owner_id',
 ];
 
 @Injectable()
 export class FilesService {
   private readonly gridFSModel: MongoGridFS;
+  private readonly etherpad: Etherpad;
 
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(File.name) private readonly fileModel: Model<FileDocument>,
     @InjectConnection() readonly connection: Connection,
+    private readonly configService: ConfigService,
     private readonly cryptoService: CryptoService,
     private readonly aes: AesService,
     private readonly previewGenerator: PreviewGenerator,
     private readonly billingService: BillingService,
   ) {
     this.gridFSModel = new MongoGridFS(connection.db);
+    this.etherpad = new Etherpad(this, configService);
   }
 
   async prepareFileForOutput(file: File): Promise<FileInResponse> {
@@ -103,6 +113,23 @@ export class FilesService {
     }, {});
 
     result['ownerName'] = `${user.firstname} ${user.lastname}`;
+    switch (FileAcl.getAvailableAccess(file, user)) {
+      case FileAcl.NONE:
+        result['access'] = 'none';
+        break;
+      case FileAcl.READ:
+        result['access'] = 'read';
+        break;
+      case FileAcl.WRITE:
+        result['access'] = 'write';
+        break;
+      case FileAcl.OWNER:
+        result['access'] = 'owner';
+        break;
+      default:
+        throw new InternalServerErrorException(`Invalid file acl`);
+    }
+
     return result as FileInResponse;
   }
 
@@ -352,6 +379,32 @@ export class FilesService {
     return await new this.fileModel(file).save({ session: mongoSession });
   }
 
+  async exportEtherpadPadAssociatedWithFile(
+    user: User,
+    userHash: string,
+    file: File,
+    exportFormat: EtherpadExportFormat,
+  ) {
+    try {
+      await this.etherpad.createEmptyPad(file._id);
+      await this.etherpad.syncPadFromCyberDoc(user, userHash, file, file._id);
+    } catch (e) {
+      if (e instanceof BadRequestException) {
+        //le pad existe déjà
+      } else {
+        throw e;
+      }
+    }
+
+    const data = await this.etherpad.exportPad(file._id, exportFormat);
+
+    if ((await this.etherpad.getUsersCountOnPad(file._id)) == 0) {
+      await this.etherpad.deletePad(file._id);
+    }
+
+    return data;
+  }
+
   async setFileMetadata(
     mongoSession: ClientSession,
     user: User,
@@ -427,6 +480,10 @@ export class FilesService {
         await this.delete(item);
       }
     } else {
+      if (file.mimetype === ETHERPAD_MIMETYPE) {
+        await this.etherpad.deletePad(file._id);
+      }
+
       await this.cryptoService.deleteAllAESKeysForFile(file._id);
       if (!(await this.gridFSModel.delete(file.document_id))) {
         throw new InternalServerErrorException(`gridFSModel.delete failed`);
@@ -443,6 +500,7 @@ export class FilesService {
     }
 
     const validMimetypes = [
+      ETHERPAD_MIMETYPE,
       ...TEXT_MIMETYPES,
       ...DOCUMENT_MIMETYPES,
       ...SPREADSHEET_MIMETYPES,
@@ -453,12 +511,22 @@ export class FilesService {
       throw new BadRequestException(
         'PDF generation is not available for this file',
       );
-    const convertPdfFn = promisify(libreofficeConvert.convert);
-    return await convertPdfFn(
-      await this.getFileContent(user, userHash, file),
-      'pdf',
-      undefined,
-    );
+
+    if (file.mimetype === ETHERPAD_MIMETYPE) {
+      return await this.exportEtherpadPadAssociatedWithFile(
+        user,
+        userHash,
+        file,
+        EtherpadExportFormat.PDF,
+      );
+    } else {
+      const convertPdfFn = promisify(libreofficeConvert.convert);
+      return await convertPdfFn(
+        await this.getFileContent(user, userHash, file),
+        'pdf',
+        undefined,
+      );
+    }
   }
 
   async generatePngPreview(
@@ -467,6 +535,7 @@ export class FilesService {
     file: File,
   ): Promise<Buffer> {
     const validOfficeMimetypes = [
+      ETHERPAD_MIMETYPE,
       ...TEXT_MIMETYPES,
       ...PDF_MIMETYPES,
       ...DOCUMENT_MIMETYPES,
@@ -480,9 +549,80 @@ export class FilesService {
       !validOfficeMimetypes.includes(file.mimetype)
     )
       throw new BadRequestException('Preview is not available for this file');
-    return await this.previewGenerator.generatePngPreview(
+
+    if (file.mimetype === ETHERPAD_MIMETYPE) {
+      return await this.previewGenerator.generatePngPreview(
+        file,
+        await this.exportEtherpadPadAssociatedWithFile(
+          user,
+          userHash,
+          file,
+          EtherpadExportFormat.PDF,
+        ),
+      );
+    } else {
+      return await this.previewGenerator.generatePngPreview(
+        file,
+        await this.getFileContent(user, userHash, file),
+      );
+    }
+  }
+
+  async syncFileWithEtherpadAndGetInfo(
+    user: User,
+    userHash: string,
+    file: File,
+  ) {
+    try {
+      await this.etherpad.createEmptyPad(file._id);
+      await this.etherpad.syncPadFromCyberDoc(user, userHash, file, file._id);
+    } catch (e) {
+      if (e instanceof BadRequestException) {
+        //pad already exists
+      } else {
+        throw e;
+      }
+    }
+
+    return this.prepareFileForOutput(file);
+  }
+
+  async convertFileToEtherPadFormat(
+    mongoSession: ClientSession,
+    user: User,
+    userHash: string,
+    file: File,
+  ) {
+    await this.etherpad.createEmptyPad(file._id);
+    await this.etherpad.importCyberDocFileToPad(user, userHash, file, file._id);
+
+    file.name = Utils.replaceFileExtension(file.name, null);
+    file.mimetype = ETHERPAD_MIMETYPE;
+    file = await new this.fileModel(file).save({ session: mongoSession });
+
+    await this.etherpad.syncPadToCyberDoc(
+      mongoSession,
+      user,
+      userHash,
       file,
-      await this.getFileContent(user, userHash, file),
+      file._id,
     );
+  }
+
+  async onAllUsersLeaveEtherpadPad(
+    mongoSession: ClientSession,
+    user: User,
+    userHash: string,
+    file: File,
+  ) {
+    await this.etherpad.syncPadToCyberDoc(
+      mongoSession,
+      user,
+      userHash,
+      file,
+      file._id,
+    );
+
+    await this.etherpad.deletePad(file._id);
   }
 }

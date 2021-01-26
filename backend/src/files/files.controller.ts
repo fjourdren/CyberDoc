@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
   Res,
   UploadedFiles,
   UseGuards,
@@ -25,12 +26,7 @@ import { User } from 'src/schemas/user.schema';
 import { LoggedUser } from 'src/auth/logged-user.decorator';
 import { LoggedUserHash } from 'src/auth/logged-user-hash.decorator';
 import { FileGuard } from 'src/files/file.guard';
-import {
-  CurrentFile,
-  READ,
-  WRITE,
-  OWNER,
-} from 'src/files/current-file.decorator';
+import { CurrentFile } from 'src/files/current-file.decorator';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -44,20 +40,30 @@ import {
   ApiParam,
   ApiProduces,
   ApiResponse,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { GenericResponse } from 'src/generic-response.interceptor';
 import { HttpStatusCode } from 'src/utils/http-status-code';
 import {
-  SearchFilesResponse,
-  GetResponse,
   CreateFileResponse,
+  GetFileResponse,
+  GetResponse,
+  SearchFilesResponse,
 } from './files.controller.types';
 import { MongoSession } from 'src/mongo-session.decorator';
 import { ClientSession } from 'mongoose';
 import { CreateFileFromTemplateDto } from './dto/create-file-from-template.dto';
 import { CurrentDevice } from '../users/current-device.decorator';
 import { UserDevice } from '../schemas/user-device.schema';
+import {
+  ETHERPAD_MIMETYPE,
+  EtherpadExportFormat,
+  getMimetypeForEtherpadExportFormat,
+} from './etherpad/etherpad';
+import { Utils } from '../utils';
+import { FileAcl } from './file-acl';
+import { DOCUMENT_MIMETYPES, TEXT_MIMETYPES } from './file-types';
 
 @ApiTags('files')
 @ApiBearerAuth()
@@ -89,8 +95,8 @@ export class FilesController {
     example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
   })
   @ApiOperation({ summary: 'Get a file', description: 'Get a file' })
-  @ApiOkResponse({ description: 'File informations loaded', type: GetResponse })
-  async get(@CurrentFile(READ) file: File) {
+  @ApiOkResponse({ description: 'File information loaded', type: GetResponse })
+  async get(@CurrentFile(FileAcl.READ) file: File) {
     const result = await this.filesService.prepareFileForOutput(file);
     if (file.type == FOLDER) {
       const folderContents = await this.filesService.getFolderContents(
@@ -115,7 +121,7 @@ export class FilesController {
       (result as any).path = path;
     }
 
-    return { msg: 'File informations loaded', content: result };
+    return { msg: 'File information loaded', content: result };
   }
 
   @Post()
@@ -257,7 +263,7 @@ export class FilesController {
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
     @UploadedFiles() files,
-    @CurrentFile(WRITE) file: File,
+    @CurrentFile(FileAcl.WRITE) file: File,
   ) {
     if (file.type !== FILE)
       throw new BadRequestException('This action is only available with files');
@@ -290,7 +296,7 @@ export class FilesController {
     description: 'Update file metadata',
   })
   @ApiOkResponse({
-    description: 'File informations modified',
+    description: 'File information modified',
     type: GenericResponse,
   })
   @ApiBadRequestResponse({
@@ -306,7 +312,7 @@ export class FilesController {
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @Body() editFileMetadataDto: EditFileMetadataDto,
-    @CurrentFile(WRITE) file: File,
+    @CurrentFile(FileAcl.WRITE) file: File,
   ) {
     await this.filesService.setFileMetadata(
       mongoSession,
@@ -315,7 +321,7 @@ export class FilesController {
       editFileMetadataDto,
     );
 
-    return { msg: 'File informations modified' };
+    return { msg: 'File information modified' };
   }
 
   @Post(':fileID/copy')
@@ -350,7 +356,7 @@ export class FilesController {
     @CurrentDevice() currentDevice: UserDevice,
     @LoggedUserHash() userHash: string,
     @Body() copyFileDto: CopyFileDto,
-    @CurrentFile(READ) file: File,
+    @CurrentFile(FileAcl.READ) file: File,
   ) {
     if (file.type !== FILE)
       throw new BadRequestException('This action is only available with files');
@@ -374,6 +380,14 @@ export class FilesController {
     description: 'File ID',
     example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
   })
+  @ApiQuery({
+    name: 'etherpad_export_format',
+    description:
+      'When the user download an etherpad file, specify the format to use for export (required). For other files this field must be `null`',
+    example: '',
+    enum: EtherpadExportFormat,
+    required: false,
+  })
   @ApiProduces('application/octet-stream')
   @ApiOperation({ summary: 'Download a file', description: 'Download a file' })
   @ApiOkResponse({ description: 'Success' })
@@ -385,13 +399,48 @@ export class FilesController {
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
     @Res() res: Response,
-    @CurrentFile(READ) file: File,
+    @CurrentFile(FileAcl.READ) file: File,
+    @Query('etherpad_export_format')
+    etherpadExportFormat: EtherpadExportFormat = null,
   ) {
     if (file.type !== FILE)
       throw new BadRequestException('This action is only available with files');
-    res.set('Content-Type', file.mimetype);
-    res.set('Content-Disposition', `attachment; filename="${file.name}"`);
-    res.send(await this.filesService.getFileContent(user, userHash, file));
+
+    const isEtherpadFile = file.mimetype === ETHERPAD_MIMETYPE;
+    if (!isEtherpadFile && etherpadExportFormat != null) {
+      throw new BadRequestException(
+        '`etherpad_export_format` query param have to be empty for non-etherpad files',
+      );
+    } else if (isEtherpadFile && etherpadExportFormat == null) {
+      throw new BadRequestException(
+        '`etherpad_export_format` query param is required for etherpad files',
+      );
+    }
+
+    if (isEtherpadFile) {
+      // this function throws BadRequestException if etherpadExportFormat is invalid
+      const filename = Utils.replaceFileExtension(
+        file.name,
+        etherpadExportFormat,
+      );
+      const content = this.filesService.exportEtherpadPadAssociatedWithFile(
+        user,
+        userHash,
+        file,
+        etherpadExportFormat,
+      );
+      res.set(
+        'Content-Type',
+        getMimetypeForEtherpadExportFormat(etherpadExportFormat),
+      );
+      res.set('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(await content);
+    } else {
+      const content = this.filesService.getFileContent(user, userHash, file);
+      res.set('Content-Type', file.mimetype);
+      res.set('Content-Disposition', `attachment; filename="${file.name}"`);
+      res.send(await content);
+    }
   }
 
   @Get(':fileID/export')
@@ -416,17 +465,12 @@ export class FilesController {
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
     @Res() res: Response,
-    @CurrentFile(READ) file: File,
+    @CurrentFile(FileAcl.READ) file: File,
   ) {
     if (file.type !== FILE)
       throw new BadRequestException('This action is only available with files');
 
-    let pdfFileName = file.name;
-    if (pdfFileName.indexOf('.') !== -1) {
-      pdfFileName = pdfFileName.substring(0, pdfFileName.lastIndexOf('.'));
-    }
-    pdfFileName += '.pdf';
-
+    let pdfFileName = Utils.replaceFileExtension(file.name, 'pdf');
     res.set('Content-Type', 'application/pdf');
     res.set('Content-Disposition', `attachment; filename="${pdfFileName}"`);
     res.send(await this.filesService.generatePDF(user, userHash, file));
@@ -454,7 +498,7 @@ export class FilesController {
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
     @Res() res: Response,
-    @CurrentFile(READ) file: File,
+    @CurrentFile(FileAcl.READ) file: File,
   ) {
     if (file.type !== FILE)
       throw new BadRequestException('This action is only available with files');
@@ -483,8 +527,122 @@ export class FilesController {
   })
   @ApiOperation({ summary: 'Delete a file', description: 'Delete a file' })
   @ApiOkResponse({ description: 'File deleted', type: GenericResponse })
-  async delete(@CurrentFile(OWNER) file: File) {
+  async delete(@CurrentFile(FileAcl.OWNER) file: File) {
     await this.filesService.delete(file);
     return { msg: 'File deleted' };
+  }
+
+  @Get(':fileID/sync-file-with-etherpad-and-get-info')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({
+    summary: 'Sync file with etherpad and returns info about it',
+    description: 'Sync file with etherpad and returns info about it',
+  })
+  @ApiOkResponse({ description: 'OK', type: GetFileResponse })
+  @ApiBadRequestResponse({
+    description: 'This action is only available for etherpad files',
+    type: GenericResponse,
+  })
+  async syncFileWithEtherpadAndGetInfo(
+    @LoggedUser() user: User,
+    @LoggedUserHash() userHash: string,
+    @CurrentFile(FileAcl.WRITE) file: File,
+  ) {
+    if (file.mimetype !== ETHERPAD_MIMETYPE) {
+      throw new BadRequestException(
+        'This action is only available for etherpad files',
+      );
+    }
+
+    const fileInfo = await this.filesService.syncFileWithEtherpadAndGetInfo(
+      user,
+      userHash,
+      file,
+    );
+    return { msg: 'OK', file: fileInfo };
+  }
+
+  @Post(':fileID/convert-to-etherpad')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({
+    summary: 'Convert a office file to a .etherpad file',
+    description: 'Convert a office file to a .etherpad file',
+  })
+  @ApiOkResponse({ description: 'OK', type: GenericResponse })
+  @ApiBadRequestResponse({
+    description:
+      'This action is only available for files which can converted in etherpad format ',
+    type: GenericResponse,
+  })
+  async convertFileToEtherPadFormat(
+    @MongoSession() mongoSession: ClientSession,
+    @LoggedUser() user: User,
+    @LoggedUserHash() userHash: string,
+    @CurrentFile(FileAcl.OWNER) file: File,
+  ) {
+    const validMimetypes = [...TEXT_MIMETYPES, ...DOCUMENT_MIMETYPES];
+
+    if (!validMimetypes.includes(file.mimetype))
+      throw new BadRequestException(
+        'Etherpad conversion is not available for this file',
+      );
+
+    await this.filesService.convertFileToEtherPadFormat(
+      mongoSession,
+      user,
+      userHash,
+      file,
+    );
+    return { msg: 'OK' };
+  }
+
+  @Get(':fileID/on-all-users-leave-etherpad-pad')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({
+    summary: 'Called by Etherpad when all users have leave a pad',
+    description: 'Called by Etherpad when all users have leave a pad',
+  })
+  @ApiOkResponse({ description: 'OK', type: GenericResponse })
+  @ApiBadRequestResponse({
+    description: 'This action is only available for etherpad files',
+    type: GenericResponse,
+  })
+  async onAllUsersLeaveEtherpadPad(
+    @MongoSession() mongoSession: ClientSession,
+    @LoggedUser() user: User,
+    @LoggedUserHash() userHash: string,
+    @CurrentFile(FileAcl.READ) file: File,
+  ) {
+    if (file.mimetype !== ETHERPAD_MIMETYPE) {
+      throw new BadRequestException(
+        'This action is only available for etherpad files',
+      );
+    }
+
+    await this.filesService.onAllUsersLeaveEtherpadPad(
+      mongoSession,
+      user,
+      userHash,
+      file,
+    );
+    return { msg: 'OK' };
   }
 }

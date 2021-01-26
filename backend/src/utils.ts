@@ -21,4 +21,21 @@ export class Utils {
       });
     });
   }
+
+  static getFileExtension(fileName: string) {
+    return fileName.substring(fileName.lastIndexOf('.') + 1);
+  }
+
+  static replaceFileExtension(originalFileName: string, newExtension?: string) {
+    if (originalFileName.indexOf('.') !== -1) {
+      originalFileName = originalFileName.substring(
+        0,
+        originalFileName.lastIndexOf('.'),
+      );
+    }
+    if (newExtension) {
+      originalFileName += `.${newExtension}`;
+    }
+    return originalFileName;
+  }
 }
