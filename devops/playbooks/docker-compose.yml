@@ -90,16 +90,6 @@ services:
       - "traefik.http.middlewares.sonarquberatelimit.ratelimit.period=1m"
       - "traefik.http.middlewares.sonarquberatelimit.ratelimit.sourcecriterion.requesthost=true"
       - "traefik.http.routers.sonarquberouter.middlewares=sonarquberatelimit@docker"
-  
-    restart: always
-    ports:
-      - 27017:27017
-    # EXAMPLE
-    #environment:
-    #  MONGO_INITDB_ROOT_USERNAME: login
-    #  MONGO_INITDB_ROOT_PASSWORD: password
-    labels:
-      - "traefik.enable=true"
 
   mongodb:
     restart: always
@@ -120,6 +110,23 @@ services:
     #      memory: 1000M
     labels:
        - "traefik.enable=true"
-  
+  redis:
+    restart: always
+    image: redis
+    container_name: startup_redis_1
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass #PASSWORD HERE
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.redisrouter.rule=Host(`redis.cyberdoc.fulgen.fr`)
+      - traefik.http.routers.redisrouter.tls=true
+      - traefik.http.routers.redisrouter.tls.certresolver=myresolver
+      - traefik.http.services.redisservice.loadbalancer.server.port=6379
+      - traefik.http.middlewares.redissratelimit.ratelimit.average=30
+      - traefik.http.middlewares.redissratelimit.ratelimit.burst=15
+      - traefik.http.middlewares.redissratelimit.ratelimit.period=1m
+      - traefik.http.middlewares.redissratelimit.ratelimit.sourcecriterion.requesthost=true
+      - traefik.http.routers.redisrouter.middlewares=redissratelimit@docker 
 
 
