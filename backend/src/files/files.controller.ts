@@ -43,6 +43,7 @@ import {
   ApiOperation,
   ApiParam,
   ApiProduces,
+  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { GenericResponse } from 'src/generic-response.interceptor';
@@ -129,6 +130,11 @@ export class FilesController {
       'Trying to create a file without the `upfile` field, or `folderID` is not a valid folder',
     type: GenericResponse,
   })
+  @ApiResponse({
+    status: 507,
+    description: 'Insufficient storage',
+    type: GenericResponse,
+  })
   @ApiCreatedResponse({ description: 'File created', type: CreateFileResponse })
   async create(
     @MongoSession() mongoSession: ClientSession,
@@ -181,6 +187,11 @@ export class FilesController {
     description: 'Template not found',
     type: GenericResponse,
   })
+  @ApiResponse({
+    status: 507,
+    description: 'Insufficient storage',
+    type: GenericResponse,
+  })
   @ApiCreatedResponse({ description: 'File created', type: CreateFileResponse })
   async createFromTemplate(
     @MongoSession() mongoSession: ClientSession,
@@ -228,6 +239,11 @@ export class FilesController {
   @ApiOkResponse({ description: 'File updated', type: GenericResponse })
   @ApiBadRequestResponse({
     description: '`fileID` is a folder or `upfile` field is missing',
+    type: GenericResponse,
+  })
+  @ApiResponse({
+    status: 507,
+    description: 'Insufficient storage',
     type: GenericResponse,
   })
   async updateFileContent(
@@ -315,6 +331,11 @@ export class FilesController {
   })
   @ApiBadRequestResponse({
     description: 'Cannot copy a folder, or `folderID` is not a valid folder',
+    type: GenericResponse,
+  })
+  @ApiResponse({
+    status: 507,
+    description: 'Insufficient storage',
     type: GenericResponse,
   })
   async copy(

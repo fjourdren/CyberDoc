@@ -10,10 +10,33 @@
   <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&amp;display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script type="text/javascript" src="https://unpkg.com/default-passive-events"></script>
+  <script src="https://js.stripe.com/v3/"></script>
 
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#1976d2">
-  <style>iframe{border: 0} app-root{width: 100vw; height: 100vh;}</style>
+  <style>
+    iframe{border: 0} app-root{width: 100vw; height: 100vh;}
+      @keyframes spinner {
+          to {transform: rotate(360deg);}
+      }
+
+      .spinner:before {
+          content: '';
+          box-sizing: border-box;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 20px;
+          height: 20px;
+          margin-top: -10px;
+          margin-left: -10px;
+          border-radius: 50%;
+          border: 2px solid #ffffff;
+          border-top-color: #000000;
+          animation: spinner .8s linear infinite;
+      }
+  </style>
+
   <script>
     var theme = localStorage.getItem("theme");
     var themeURL = "assets/themes/indigo-pink.css";

@@ -20,6 +20,7 @@ import { MongoSessionInterceptor } from './mongo-session.interceptor';
 import { HttpExceptionFilter } from './http-exception.filter';
 import { JwtBanMiddleware } from './jwt-ban.middleware';
 import { ErrorBanMiddleware } from './error-ban.middleware';
+import { BillingModule } from './billing/billing.module';
 
 @Module({
   imports: [
@@ -44,6 +45,8 @@ import { ErrorBanMiddleware } from './error-ban.middleware';
         SENDGRID_TEMPLATE_REQUEST_CREATE_ACCOUNT: Joi.string().required(),
         SENDGRID_TEMPLATE_SHARED_WITH_YOU: Joi.string().required(),
         SENDGRID_TEMPLATE_2FA_TOKEN: Joi.string().required(),
+        STRIPE_KEY: Joi.string().required(),
+        STRIPE_RETURN_URL: Joi.string().required(),
       }),
     }),
     MongooseModule.forRootAsync({
@@ -70,6 +73,7 @@ import { ErrorBanMiddleware } from './error-ban.middleware';
     FileTagsModule,
     UtilsModule,
     FileSigningModule,
+    BillingModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -41,6 +43,7 @@ import { FileInResponse } from './files.controller.types';
 import { EditFileMetadataDto } from './dto/edit-file-metadata.dto';
 import { readFile as _readFile } from 'fs';
 import { join } from 'path';
+import { BillingService } from '../billing/billing.service';
 
 const readFile = promisify(_readFile);
 
@@ -79,6 +82,7 @@ export class FilesService {
     private readonly cryptoService: CryptoService,
     private readonly aes: AesService,
     private readonly previewGenerator: PreviewGenerator,
+    private readonly billingService: BillingService,
   ) {
     this.gridFSModel = new MongoGridFS(connection.db);
   }
@@ -263,6 +267,19 @@ export class FilesService {
     return this.fileModel.find({ owner_id: userID }).exec();
   }
 
+  async getUsedSpace(currentUser: User) {
+    const files = await this.fileModel.find({
+      owner_id: currentUser._id,
+      type: FILE,
+    });
+
+    let usedSpace = 0;
+    for (const file of files) {
+      usedSpace += file.size;
+    }
+    return usedSpace;
+  }
+
   async getFileContent(currentUser: User, userHash: string, file: File) {
     const rawStream = this.gridFSModel.bucket.openDownloadStream(
       Types.ObjectId(file.document_id),
@@ -285,6 +302,15 @@ export class FilesService {
     file: File,
     buffer: Buffer,
   ) {
+    const usedSpace = await this.getUsedSpace(currentUser);
+    const availableSpace = this.billingService.getAvailableSpaceForSubscription(
+      await this.billingService.getSubscription(currentUser.billingAccountID),
+    );
+
+    if (usedSpace + buffer.length > availableSpace) {
+      throw new HttpException('Insufficient Storage', 507);
+    }
+
     let aesKey = this.cryptoService.getFileAESKey(
       currentUser,
       userHash,

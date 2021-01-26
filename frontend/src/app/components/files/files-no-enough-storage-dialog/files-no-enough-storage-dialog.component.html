@@ -1,0 +1,13 @@
+<h1 mat-dialog-title>
+  {{'billing.no_enough_storage_dialog_title' | translate}}
+</h1>
+
+<div mat-dialog-content>
+  {{'billing.no_enough_storage_dialog_subtitle' | translate}}
+</div>
+
+<div mat-dialog-actions align='end'>
+  <button mat-button (click)='dialogRef.close(false)'>{{'general.cancel' | translate}}</button>
+  <button routerLink='/settings/profile' mat-raised-button color='primary'>{{'billing.buy_more_storage' |
+    translate}}</button>
+</div>

@@ -29,6 +29,7 @@ export class FilesPageComponent implements AfterViewInit {
   loading = false;
   searchMode = false;
   sharedWithMeMode = false;
+  currentlyUploading = false;
 
   currentDirectory: CloudDirectory;
   selectedNode: CloudNode;
@@ -43,6 +44,10 @@ export class FilesPageComponent implements AfterViewInit {
     private fsService: FileSystemService,
     private usersService: UsersService,
   ) {
+    fsService.getCurrentFileUpload().subscribe((val) => {
+      this.currentlyUploading = val != undefined;
+    });
+
     this.fsService.refreshNeeded().subscribe(() => this.refresh());
     this.breakpointObserver
       .observe('(max-width: 600px)')
