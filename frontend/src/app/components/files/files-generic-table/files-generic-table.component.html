@@ -99,6 +99,12 @@
             <mat-icon fontSet="fa" fontIcon="fa-external-link-alt"></mat-icon>
             <span>{{ 'fileaction.open' | translate }}</span>
         </button>
+
+        <button *ngIf="isFilePreviewPreviewAvailable(selectedNode)" mat-menu-item (click)="onContextMenuOrBottomSheetSelection('preview')">
+            <mat-icon fontSet="fa" fontIcon="fa-eye"></mat-icon>
+            <span>{{ 'fileaction.preview' | translate }}</span>
+        </button>
+
         <!-- We can download every files -->
         <button *ngIf="selectedNode && !selectedNode.isDirectory" mat-menu-item
             (click)="onContextMenuOrBottomSheetSelection('download')">
