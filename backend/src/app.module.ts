@@ -36,6 +36,7 @@ import { JwtBanGuard } from './auth/jwt/jwt-ban.guard';
         JWT_COOKIE_DOMAIN: Joi.string().required(),
         MONGODB_URL: Joi.string().required(),
         REDIS_URL: Joi.string().required(),
+        REDIS_PASSWORD: Joi.string().optional(),
         ENCRYPTION_IV: Joi.string().required(),
         SENDGRID_API_KEY: Joi.string().required(),
         SENDGRID_MAIL_FROM: Joi.string().required(),
@@ -54,7 +55,7 @@ import { JwtBanGuard } from './auth/jwt/jwt-ban.guard';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get('MONGODB_URL'),
+        uri: configService.get<string>('MONGODB_URL'),
       }),
       inject: [ConfigService],
     }),
@@ -62,7 +63,8 @@ import { JwtBanGuard } from './auth/jwt/jwt-ban.guard';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         config: {
-          url: configService.get('REDIS_URL'),
+          url: configService.get<string>('REDIS_URL'),
+          password: configService.get<string>('REDIS_PASSWORD'),
         },
       }),
       inject: [ConfigService],
