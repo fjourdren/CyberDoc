@@ -58,6 +58,15 @@ export class FilesGenericTableBottomsheetComponent {
     return this.filesUtils.isPDFExportAvailable(fileType);
   }
 
+  isFilePreviewPreviewAvailable(node: CloudNode): boolean {
+    if (!node) {
+      return;
+    }
+
+    const fileType = this.filesUtils.getFileTypeForMimetype(node.mimetype);
+    return this.filesUtils.isFilePreviewAvailable(fileType);
+  }
+
   onBottomSheetSelection(event: Event, action: string) {
     event.preventDefault();
     this.bottomSheetRef.dismiss();

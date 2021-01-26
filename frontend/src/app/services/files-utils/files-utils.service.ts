@@ -115,6 +115,18 @@ export class FilesUtilsService {
     return [FileType.Text, FileType.Folder].indexOf(fileType) !== -1;
   }
 
+  isFilePreviewAvailable(fileType: FileType): boolean {
+    return (
+      [
+        FileType.Text,
+        FileType.PDF,
+        FileType.Document,
+        FileType.Spreadsheet,
+        FileType.Presentation,
+      ].indexOf(fileType) !== -1
+    );
+  }
+
   isPDFExportAvailable(fileType: FileType): boolean {
     return (
       [

@@ -1,0 +1,21 @@
+<div id='root-container'>
+  <mat-toolbar>
+    <div *ngIf='file'>
+      <button mat-icon-button (click)='onBackBtnClick()'>
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <mat-icon id='file-icon' fontSet='fa' fontIcon='{{getIconForMimetype(file.mimetype)}}'></mat-icon>
+      <span>{{file.name}}</span>
+    </div>
+    <div *ngIf='file'>
+      <mat-spinner *ngIf="loadingPdfFile" diameter="48"></mat-spinner>
+      <button mat-raised-button *ngIf='!loadingPdfFile' (click)='onEditInCyberDocBtnClick()'>{{ 'fileaction.edit_with_cyberdoc' | translate }}</button>
+    </div>
+    <div *ngIf='file'>
+      <button mat-icon-button (click)='onDownloadBtnClick()'>
+        <mat-icon>download</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar>
+  <ng2-pdfjs-viewer #pdfJsViewerComponent  download='false' openFile='false' viewBookmark='false'></ng2-pdfjs-viewer>
+</div>
