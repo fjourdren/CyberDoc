@@ -36,7 +36,6 @@ import { JwtBanGuard } from './auth/jwt/jwt-ban.guard';
         JWT_COOKIE_DOMAIN: Joi.string().required(),
         MONGODB_URL: Joi.string().required(),
         REDIS_URL: Joi.string().required(),
-        REDIS_PASSWORD: Joi.string().optional(),
         ENCRYPTION_IV: Joi.string().required(),
         SENDGRID_API_KEY: Joi.string().required(),
         SENDGRID_MAIL_FROM: Joi.string().required(),
@@ -64,7 +63,6 @@ import { JwtBanGuard } from './auth/jwt/jwt-ban.guard';
       useFactory: (configService: ConfigService) => ({
         config: {
           url: configService.get<string>('REDIS_URL'),
-          password: configService.get<string>('REDIS_PASSWORD'),
         },
       }),
       inject: [ConfigService],
