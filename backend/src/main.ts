@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import { GenericResponseInterceptor } from './generic-response.interceptor';
 import * as helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
+import * as csurf from 'csurf';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
@@ -30,6 +31,8 @@ async function bootstrap() {
   app.use(helmet());
 
   app.use(cookieParser());
+
+  app.use(csurf({ cookie: true }));
 
   app.enableCors({
     origin: config.get<string>('CORS_ORIGIN'),
