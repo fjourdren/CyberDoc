@@ -1,4 +1,11 @@
 import { FileType } from '../services/files-utils/files-utils.service';
+import { User } from './users-api-models';
+
+export class UserDevice {
+  public os: string;
+  public browser: string;
+  public name: string;
+}
 
 export class FileTag {
   public _id: string;
@@ -25,6 +32,7 @@ export class CloudFile {
   public preview: boolean;
   isDirectory: false;
   public shareMode: 'readonly' | 'readwrite';
+  public deviceUsedForCreation: UserDevice;
 }
 
 export class CloudDirectory {
@@ -38,6 +46,7 @@ export class CloudDirectory {
   public tags: FileTag[];
   public preview: false;
   isDirectory: true;
+  public deviceUsedForCreation: UserDevice;
 }
 
 export interface RespondShare {

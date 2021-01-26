@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { EventEmitter, Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { FileTag } from 'src/app/models/files-api-models';
-import { User, Device } from 'src/app/models/users-api-models';
+import { Session, User } from 'src/app/models/users-api-models';
 import { environment } from 'src/environments/environment';
 import { SHA3 } from 'sha3';
 import { Base64 } from 'js-base64';
@@ -182,13 +182,14 @@ export class UsersService {
     );
   }
 
-  login(email: string, password: string) {
+  login(email: string, password: string, currentDeviceName: string) {
     return this.httpClient
       .post<any>(
         `${environment.apiBaseURL}/auth/login`,
         {
           username: email,
           password,
+          currentDeviceName,
         },
         { withCredentials: true },
       )
@@ -239,11 +240,6 @@ export class UsersService {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  searchExistingUser(email: string): Observable<User> {
-    return null;
-  }
-
   logout(): Observable<void> {
     return this.httpClient
       .post<any>(
@@ -256,6 +252,34 @@ export class UsersService {
       .pipe(
         map(() => {
           this._setUser(null);
+        }),
+      );
+  }
+
+  getActiveSessions() {
+    return this.httpClient
+      .get<any>(`${environment.apiBaseURL}/auth/active-sessions`, {
+        withCredentials: true,
+      })
+      .pipe(
+        map((response) => {
+          return response.sessions as Session[];
+        }),
+      );
+  }
+
+  terminateSession(hashedJWT: string) {
+    return this.httpClient
+      .post<any>(
+        `${environment.apiBaseURL}/auth/terminate-session`,
+        { hashedJWT },
+        {
+          withCredentials: true,
+        },
+      )
+      .pipe(
+        map(() => {
+          return null;
         }),
       );
   }
@@ -280,38 +304,6 @@ export class UsersService {
 
   userUpdated(): Observable<User> {
     return this._userUpdated$.asObservable();
-  }
-
-  getUserDevices(): Observable<Device[]> {
-    return this.httpClient
-      .get<any>(`${environment.apiBaseURL}/users/devices`, {
-        withCredentials: true,
-      })
-      .pipe(
-        map((response) => {
-          return response.devices;
-        }),
-      );
-  }
-
-  renameUserDevice(oldName: string, name: string): Observable<void> {
-    return this.httpClient.patch<any>(
-      `${environment.apiBaseURL}/users/devices/${oldName}`,
-      { name },
-      { withCredentials: true },
-    );
-  }
-
-  createUserDevice(
-    name: string,
-    browser: string,
-    OS: string,
-  ): Observable<void> {
-    return this.httpClient.post<any>(
-      `${environment.apiBaseURL}/users/devices`,
-      { name, browser, OS },
-      { withCredentials: true },
-    );
   }
 
   exportRecoveryKey(): Observable<string> {
@@ -377,7 +369,7 @@ export class UsersService {
       .then((sessionId) => this.stripe.redirectToCheckout({ sessionId }));
   }
 
-  private _setUser(user: User) {
+  _setUser(user: User) {
     localStorage.setItem(environment.userLocalStorageKey, JSON.stringify(user));
     if (user) {
       this._userUpdated$.emit(user);

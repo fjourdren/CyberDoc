@@ -5,12 +5,26 @@ import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
 import { UserHashService } from 'src/crypto/user-hash.service';
 import { User, UserDocument } from 'src/schemas/user.schema';
+import { InjectRedis, Redis } from '@svtslv/nestjs-ioredis';
+import { ConfigService } from '@nestjs/config';
+import { UserDevice } from '../schemas/user-device.schema';
+import { SHA3 } from 'sha3';
+import { Session } from './auth.controller.types';
+
+export const REDIS_VALIDJWT_KEY = (userId: string, hashedJWT: string) =>
+  `valid_tokens:${userId}:${hashedJWT}`;
+export const REDIS_VALIDJWT_INDEX_KEY = (userId: string) =>
+  `valid_tokens:${userId}:index`;
+export const REDIS_BANJWT_KEY = (hashedJWT: string) =>
+  `banned_tokens:${hashedJWT}`;
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectRedis() private readonly redis: Redis,
     private jwtService: JwtService,
+    private configService: ConfigService,
     private userHashService: UserHashService,
   ) {}
 
@@ -33,13 +47,86 @@ export class AuthService {
     return await bcrypt.hash(password, 10);
   }
 
-  generateJWTToken(userID: string, userHash: string) {
-    return this.jwtService.sign({ userID, userHash });
+  async getAllValidJwtTokensForUser(userId: string) {
+    await this._cleanOutdatedTokens(userId);
+    const keys = await this.redis.zrangebyscore(
+      REDIS_VALIDJWT_INDEX_KEY(userId),
+      '-inf',
+      '+inf',
+    );
+    const sessions: Session[] = [];
+    for (const rawValue of await this.redis.mget(keys)) {
+      sessions.push(JSON.parse(rawValue));
+    }
+    return sessions;
   }
 
-  async login(user: any) {
-    return {
-      access_token: this.generateJWTToken(user._doc._id, user.hash),
+  async disableJWTToken(userId: string, hashedJWT: string) {
+    const ttl = this.configService.get('JWT_EXPIRATION_TIME');
+    await this.redis
+      .multi()
+      .zrem(
+        REDIS_VALIDJWT_INDEX_KEY(userId),
+        REDIS_VALIDJWT_KEY(userId, hashedJWT),
+      )
+      .del(REDIS_VALIDJWT_KEY(userId, hashedJWT))
+      .setex(REDIS_BANJWT_KEY(hashedJWT), ttl, 'true')
+      .exec();
+  }
+
+  generateJWTToken(
+    userID: string,
+    userHash: string,
+    currentDeviceName: string,
+  ) {
+    return this.jwtService.sign({ userID, userHash, currentDeviceName });
+  }
+
+  async login(user: any, currentDevice: UserDevice, ip: string) {
+    const userId = user._doc._id;
+    const accessToken = this.generateJWTToken(
+      userId,
+      user.hash,
+      currentDevice.name,
+    );
+
+    const hashObj = new SHA3();
+    hashObj.update(accessToken);
+    const hashedJWT = hashObj.digest('hex');
+    const data = {
+      device: currentDevice,
+      hashedJWT,
+      ip,
+      creationDate: new Date(),
     };
+
+    const ttl = this.configService.get('JWT_EXPIRATION_TIME');
+    const ttlDate = new Date();
+    ttlDate.setSeconds(
+      ttlDate.getSeconds() + this.configService.get('JWT_EXPIRATION_TIME'),
+    );
+
+    await this.redis
+      .multi()
+      .setex(REDIS_VALIDJWT_KEY(userId, hashedJWT), ttl, JSON.stringify(data))
+      .zadd(
+        REDIS_VALIDJWT_INDEX_KEY(userId),
+        ttlDate.getTime(),
+        REDIS_VALIDJWT_KEY(userId, hashedJWT),
+      )
+      .exec();
+
+    return { access_token: accessToken };
+  }
+
+  //https://web.archive.org/web/20161007055137/https://quickleft.com/blog/how-to-create-and-expire-list-items-in-redis/
+  private async _cleanOutdatedTokens(userId: string) {
+    if ((await this.redis.exists(REDIS_VALIDJWT_INDEX_KEY(userId))) == 1) {
+      await this.redis.zremrangebyscore(
+        REDIS_VALIDJWT_INDEX_KEY(userId),
+        0,
+        Date.now(),
+      );
+    }
   }
 }

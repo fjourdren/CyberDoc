@@ -1,0 +1,25 @@
+<mat-card-header>
+  <mat-icon mat-card-avatar>people</mat-icon>
+  <mat-card-title>{{ 'settings.sessions.title' | translate }}</mat-card-title>
+  <mat-card-subtitle>{{ 'settings.sessions.subtitle' | translate }}</mat-card-subtitle>
+</mat-card-header>
+<mat-card-content>
+  <mat-spinner *ngIf='this.sessions.length === 0' diameter='48'></mat-spinner>
+  <mat-selection-list multiple='false' #sessionList>
+    <mat-list-option *ngFor='let session of sessions' [value]='session.hashedJWT'>
+      <div mat-line id='session-name'>{{session.device.name}}</div>
+      <div mat-line><b>{{ 'settings.sessions.ip' | translate }} : </b>{{session.ip}}</div>
+      <div mat-line><b>{{ 'settings.sessions.browser' | translate }} : </b> {{session.device.browser}}</div>
+      <div mat-line><b>{{ 'settings.sessions.os' | translate }} : </b>{{session.device.os}}</div>
+      <div mat-line><b>{{ 'settings.sessions.creation_date' | translate }} : </b>{{session.creationDate | date:'long'}}</div>
+    </mat-list-option>
+  </mat-selection-list>
+  <br>
+  <button [hidden]='this.sessions.length === 0'
+          [disabled]='!sessionList.selectedOptions.selected[0] || loading'
+          [class.spinner]='loading'
+          (click)='terminateSession(sessionList.selectedOptions.selected[0]?.value)'
+          mat-raised-button color='warn'>
+    {{ 'settings.sessions.terminate_action' | translate }}
+  </button>
+</mat-card-content>

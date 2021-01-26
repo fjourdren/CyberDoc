@@ -18,6 +18,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { FileSharingService } from 'src/file-sharing/file-sharing.service';
 import { EditUserDto } from './dto/edit-user.dto';
 import { BillingService } from '../billing/billing.service';
+import { UserDevice } from '../schemas/user-device.schema';
 
 export const COLUMNS_TO_KEEP_FOR_USER = [
   '_id',
@@ -72,6 +73,7 @@ export class UsersService {
 
   async createUser(
     mongoSession: ClientSession,
+    currentDevice: UserDevice,
     createUserDto: CreateUserDto,
   ): Promise<User> {
     if (await this.findOneByEmail(createUserDto.email)) {
@@ -106,6 +108,7 @@ export class UsersService {
     const rootFolder = await this.filesService.create(
       mongoSession,
       user,
+      currentDevice,
       'My safebox',
       'application/x-dir',
       null,

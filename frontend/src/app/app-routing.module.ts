@@ -18,9 +18,6 @@ import { AuthorizedGuard } from './guards/authorized/authorized-guard.service';
 import { TwoFactorGuard } from './guards/two-factor/two-factor-guard.service';
 import { UnauthorizedGuard } from './guards/unauthorized/unauthorized-guard.service';
 import { RequireTwoFactorGuard } from './guards/require-two-factor/require-two-factor-guard.service';
-import { DevicePageComponent } from './pages/device-page/device-page.component';
-// import { DeviceGuard } from './guards/device/device.guard';
-// import { DeviceCheckGuard } from './guards/device-check/device-check.guard';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
 import { FilePreviewPageComponent } from './pages/file-preview-page/file-preview-page.component';
 import { SetupBillingPageComponent } from './pages/setup-billing-page/setup-billing-page.component';
@@ -48,47 +45,27 @@ const routes: Routes = [
   {
     path: 'files-search/:searchParams',
     component: FilesPageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
   },
   {
     path: 'files/:dirID',
     component: FilesPageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
   },
   {
     path: 'files',
     component: FilesPageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
   },
   {
     path: 'shared-with-me',
     component: FilesPageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
   },
   {
     path: 'generateRecoveryCodes',
     component: FilesPageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
   },
 
   {
@@ -124,11 +101,6 @@ const routes: Routes = [
     ],
   },
   {
-    path: 'device',
-    component: DevicePageComponent,
-    canActivate: [LoggedInGuard, TwoFactorGuard /*, DeviceGuard*/],
-  },
-  {
     path: 'two-factor-register',
     component: TwoFactorRegisterPageComponent,
     canActivate: [LoggedInGuard, RequireTwoFactorGuard],
@@ -142,20 +114,12 @@ const routes: Routes = [
   {
     path: 'settings/profile',
     component: SettingsProfilePageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
   },
   {
     path: 'settings/security',
     component: SettingsSecurityPageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
   },
 
   { path: '**', component: NotFoundPageComponent },

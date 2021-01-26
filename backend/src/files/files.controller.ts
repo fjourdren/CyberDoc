@@ -56,6 +56,8 @@ import {
 import { MongoSession } from 'src/mongo-session.decorator';
 import { ClientSession } from 'mongoose';
 import { CreateFileFromTemplateDto } from './dto/create-file-from-template.dto';
+import { CurrentDevice } from '../users/current-device.decorator';
+import { UserDevice } from '../schemas/user-device.schema';
 
 @ApiTags('files')
 @ApiBearerAuth()
@@ -140,6 +142,7 @@ export class FilesController {
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser({ requireOwner: true }) user: User,
     @LoggedUserHash() userHash: string,
+    @CurrentDevice() currentDevice: UserDevice,
     @UploadedFiles() files,
     @Body() uploadFileDto: UploadFileDto,
   ) {
@@ -152,6 +155,7 @@ export class FilesController {
     let file = await this.filesService.create(
       mongoSession,
       user,
+      currentDevice,
       uploadFileDto.name,
       uploadFileDto.mimetype,
       uploadFileDto.folderID,
@@ -196,12 +200,14 @@ export class FilesController {
   async createFromTemplate(
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser({ requireOwner: true }) user: User,
+    @CurrentDevice() currentDevice: UserDevice,
     @LoggedUserHash() userHash: string,
     @Body() createFileFromTemplateDto: CreateFileFromTemplateDto,
   ) {
     const file = await this.filesService.createFromTemplate(
       mongoSession,
       user,
+      currentDevice,
       userHash,
       createFileFromTemplateDto.name,
       createFileFromTemplateDto.folderID,
@@ -341,6 +347,7 @@ export class FilesController {
   async copy(
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser({ requireOwner: true }) user: User,
+    @CurrentDevice() currentDevice: UserDevice,
     @LoggedUserHash() userHash: string,
     @Body() copyFileDto: CopyFileDto,
     @CurrentFile(READ) file: File,
@@ -350,6 +357,7 @@ export class FilesController {
     const copy = await this.filesService.copyFile(
       mongoSession,
       user,
+      currentDevice,
       userHash,
       file,
       copyFileDto.copyFileName,
