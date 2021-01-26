@@ -22,9 +22,14 @@ import { DevicePageComponent } from './pages/device-page/device-page.component';
 // import { DeviceGuard } from './guards/device/device.guard';
 // import { DeviceCheckGuard } from './guards/device-check/device-check.guard';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
+import { FilePreviewPageComponent } from './pages/file-preview-page/file-preview-page.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'files', pathMatch: 'full' },
+  {
+    path: 'preview/:fileID',
+    component: FilePreviewPageComponent,
+  },
   {
     path: 'files-search/:searchParams',
     component: FilesPageComponent,
