@@ -1,0 +1,21 @@
+mat-progress-bar {
+    margin: 8px;
+    width: unset;
+}
+
+#buy-storage-btn {
+    margin-top: 8px;
+}
+
+#container {
+    display: block;
+}
+
+#header-icon {
+    margin-right: 8px;
+}
+
+#header-container {
+    display: flex;
+    align-items: center;
+}

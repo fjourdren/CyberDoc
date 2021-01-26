@@ -1,7 +1,6 @@
 import {
   AfterViewInit,
   Component,
-  ElementRef,
   EventEmitter,
   HostListener,
   Input,
@@ -41,13 +40,11 @@ import {
 } from '../files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 import { FilesRenameDialogComponent } from '../files-rename-dialog/files-rename-dialog.component';
 import { FilesShareMenuDialogComponent } from '../files-share-menu-dialog/files-share-menu-dialog.component';
-import { FilesNewFolderDialogComponent } from '../files-new-folder-dialog/files-new-folder-dialog.component';
 import { FilesSignDialogComponent } from '../files-sign-dialog/files-sign-dialog.component';
 import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
 import { UsersService } from 'src/app/services/users/users.service';
-import { LoadingDialogComponent } from '../../global/loading-dialog/loading-dialog.component';
-import { TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
+import { FilesNoEnoughStorageDialogComponent } from '../files-no-enough-storage-dialog/files-no-enough-storage-dialog.component';
 
 export type FileAction =
   | 'open'
@@ -78,7 +75,6 @@ export class FilesGenericTableComponent implements AfterViewInit {
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild('fileContextMenuTrigger') fileContextMenu: MatMenuTrigger;
   @ViewChild('newContextMenuTrigger') newContextMenu: MatMenuTrigger;
-  @ViewChild('file') input: ElementRef<HTMLInputElement>;
   currentlyUploading = false;
 
   @Input() currentDirectoryID: string | null;
@@ -99,7 +95,6 @@ export class FilesGenericTableComponent implements AfterViewInit {
     private router: Router,
     private fsService: FileSystemService,
     private usersService: UsersService,
-    private translateService: TranslateService,
   ) {
     resize
       .pipe(map((entry) => entry.contentRect.width))
@@ -157,12 +152,6 @@ export class FilesGenericTableComponent implements AfterViewInit {
       if (this.unselectAfterContextMenuOrBottomSheet) {
         this.setSelectedNode(null);
         this.unselectAfterContextMenuOrBottomSheet = false;
-      }
-    });
-
-    this.input.nativeElement.addEventListener('change', () => {
-      if (this.input.nativeElement.files.length === 1) {
-        this.uploadSelectedFile(this.input.nativeElement.files[0]);
       }
     });
   }
@@ -406,24 +395,6 @@ export class FilesGenericTableComponent implements AfterViewInit {
     }
   }
 
-  createFileFromTemplate(templateID: string, extension: string) {
-    const dialogRef = this.dialog.open(LoadingDialogComponent, {
-      width: '96px',
-      height: '96px',
-    });
-
-    this.translateService
-      .get('upload.new_file_name')
-      .toPromise()
-      .then((filename) => {
-        filename = `${filename}.${extension}`;
-        this.fsService
-          .createFileFromTemplate(filename, this.currentDirectory, templateID)
-          .toPromise()
-          .finally(() => dialogRef.close());
-      });
-  }
-
   deleteNode(node: CloudNode): void {
     this.dialog.open(FilesDeleteDialogComponent, {
       maxWidth: '400px',
@@ -439,8 +410,18 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   moveOrCopyNode(node: CloudNode, isCopy: boolean): void {
-    const initialDirectoryID =
-      this.currentDirectoryID || this.usersService.getActiveUser().directory_id;
+    const user = this.usersService.getActiveUser();
+    if (
+      isCopy &&
+      user.usedSpace + (node as CloudFile).size > user.availableSpace
+    ) {
+      this.dialog.open(FilesNoEnoughStorageDialogComponent, {
+        maxWidth: '400px',
+      });
+      return;
+    }
+
+    const initialDirectoryID = this.currentDirectoryID || user.directory_id;
     this.dialog.open(FilesMoveCopyDialogComponent, {
       width: '400px',
       height: '400px',
@@ -481,22 +462,6 @@ export class FilesGenericTableComponent implements AfterViewInit {
       width: '500px',
       height: '400px',
       data: node,
-    });
-  }
-
-  uploadSelectedFile(file: File) {
-    this.fsService.startFileUpload(file, this.currentDirectory);
-  }
-
-  uploadFile() {
-    this.input.nativeElement.click();
-  }
-
-  createFolder() {
-    console.warn(this.selectedNode);
-    this.dialog.open(FilesNewFolderDialogComponent, {
-      maxWidth: '400px',
-      data: this.currentDirectory,
     });
   }
 }

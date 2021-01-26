@@ -7,6 +7,7 @@ import { FilesModule } from 'src/files/files.module';
 import { CryptoModule } from 'src/crypto/crypto.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { FileSharingModule } from 'src/file-sharing/file-sharing.module';
+import { BillingModule } from '../billing/billing.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { FileSharingModule } from 'src/file-sharing/file-sharing.module';
     CryptoModule,
     FilesModule,
     FileSharingModule,
+    BillingModule,
   ],
   providers: [UsersService],
   exports: [UsersService],

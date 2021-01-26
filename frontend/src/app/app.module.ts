@@ -46,7 +46,7 @@ import { FilesMoveCopyDialogComponent } from './components/files/files-move-copy
 import { FilesRenameDialogComponent } from './components/files/files-rename-dialog/files-rename-dialog.component';
 import { FilesDeleteDialogComponent } from './components/files/files-delete-dialog/files-delete-dialog.component';
 import { FilesNewFolderDialogComponent } from './components/files/files-new-folder-dialog/files-new-folder-dialog.component';
-import { FilesUploadComponent } from './components/files/files-upload/files-upload.component';
+import { FilesUploadDragZoneComponent } from './components/files/files-upload-drag-zone/files-upload-drag-zone.component';
 import { FilesGenericTableComponent } from './components/files/files-generic-table/files-generic-table.component';
 import { FilesGenericTableBottomsheetComponent } from './components/files/files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 
@@ -104,6 +104,11 @@ import { SettingsAskCurrentPasswordDialogComponent } from './components/settings
 import { LoadingDialogComponent } from './components/global/loading-dialog/loading-dialog.component';
 import { FilePreviewPageComponent } from './pages/file-preview-page/file-preview-page.component';
 import { PdfJsViewerModule } from 'ng2-pdfjs-viewer';
+import { SetupBillingPageComponent } from './pages/setup-billing-page/setup-billing-page.component';
+import { FilesSpaceInfoComponent } from './components/files/files-space-info/files-space-info.component';
+import { SettingsBillingCardComponent } from './components/settings/settings-billing-card/settings-billing-card.component';
+import { FilesNoEnoughStorageDialogComponent } from './components/files/files-no-enough-storage-dialog/files-no-enough-storage-dialog.component';
+import { FilesNewMenuComponent } from './components/files/files-new-menu/files-new-menu.component';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) =>
@@ -119,7 +124,7 @@ const FILES_COMPONENTS = [
   FilesRenameDialogComponent,
   FilesDeleteDialogComponent,
   FilesNewFolderDialogComponent,
-  FilesUploadComponent,
+  FilesUploadDragZoneComponent,
   FilesGenericTableComponent,
   FilesGenericTableBottomsheetComponent,
   FilesTagsInputComponent,
@@ -203,6 +208,11 @@ if (environment.useSentry) {
     SettingsAskCurrentPasswordDialogComponent,
     LoadingDialogComponent,
     FilePreviewPageComponent,
+    SetupBillingPageComponent,
+    FilesSpaceInfoComponent,
+    SettingsBillingCardComponent,
+    FilesNoEnoughStorageDialogComponent,
+    FilesNewMenuComponent,
   ],
   imports: [
     BrowserModule,

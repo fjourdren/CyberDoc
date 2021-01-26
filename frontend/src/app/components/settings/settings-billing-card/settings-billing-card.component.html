@@ -1,0 +1,17 @@
+<mat-card>
+  <mat-card-header>
+    <mat-icon mat-card-avatar>storage</mat-icon>
+    <mat-card-title>{{ 'billing.billing_card_title' | translate }}</mat-card-title>
+    <mat-card-subtitle>{{ 'billing.billing_card_subtitle' | translate }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div id='plan-info'>
+      <div><b>{{ 'billing.current_plan' | translate }} : </b>{{currentPlan}}</div>
+      <div class='flex-fill'>&nbsp;</div>
+      <div>{{user.usedSpace | filesize}} {{ 'general.used' | translate }} / {{user.availableSpace | filesize}}</div>
+    </div>
+    <mat-progress-bar mode='determinate' [value]='storageSpacePercent'></mat-progress-bar>
+    <button *ngIf='user.subscription' mat-stroked-button color='primary' [class.spinner]="loading" [disabled]="loading" (click)='onManageSubscriptionBtnClicked()'>{{ 'billing.manage_subscription' | translate }}</button>
+    <button *ngIf='!user.subscription' mat-flat-button color='primary' [routerLink]='["/setup-billing"]'>{{ 'billing.buy_more_storage' | translate }}</button>
+  </mat-card-content>
+</mat-card>

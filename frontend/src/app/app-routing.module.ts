@@ -23,12 +23,27 @@ import { DevicePageComponent } from './pages/device-page/device-page.component';
 // import { DeviceCheckGuard } from './guards/device-check/device-check.guard';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
 import { FilePreviewPageComponent } from './pages/file-preview-page/file-preview-page.component';
+import { SetupBillingPageComponent } from './pages/setup-billing-page/setup-billing-page.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'files', pathMatch: 'full' },
   {
     path: 'preview/:fileID',
     component: FilePreviewPageComponent,
+    canActivate: [
+      LoggedInGuard,
+      AuthorizedGuard,
+      TwoFactorGuard /*, DeviceCheckGuard*/,
+    ],
+  }
+  {
+    path: 'setup-billing',
+    component: SetupBillingPageComponent,
+    canActivate: [
+      LoggedInGuard,
+      AuthorizedGuard,
+      TwoFactorGuard /*, DeviceCheckGuard*/,
+    ],
   },
   {
     path: 'files-search/:searchParams',

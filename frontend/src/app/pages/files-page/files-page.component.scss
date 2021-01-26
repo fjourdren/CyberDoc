@@ -47,6 +47,13 @@ app-files-breadcrumb, app-files-filter-dialog{
     min-width: 100%;
 }
 
+#upload-fab {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    z-index: 99;
+}
+
 .take-remaining-space {
     flex: 1 1 auto;
 }
@@ -58,10 +65,6 @@ mat-spinner {
 
 app-files-generic-table {
     display: block;
-}
-
-app-files-upload{
-    z-index: 10;
 }
 
 #filepage {

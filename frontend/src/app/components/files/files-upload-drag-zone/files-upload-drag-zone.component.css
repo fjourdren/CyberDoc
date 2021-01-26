@@ -1,0 +1,16 @@
+#drop-div-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+}
+
+#drop-div {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    top: 24px;
+    bottom: 24px;
+    z-index: 200;
+}

@@ -26,8 +26,13 @@
                 </button>
             </mat-toolbar>
 
-            <app-files-treeview *ngIf="!searchMode" [currentDirectoryID]="currentDirectory && currentDirectory._id"
-                [sharedWithMeMode]="sharedWithMeMode"></app-files-treeview>
+            <div style='display: flex; flex-direction: column; height: 100%;'>
+                <app-files-treeview style='flex: 1;' *ngIf="!searchMode" [currentDirectoryID]="currentDirectory && currentDirectory._id"
+                                    [sharedWithMeMode]="sharedWithMeMode"></app-files-treeview>
+
+                <app-files-space-info style='display: block; margin: 16px;'></app-files-space-info>
+            </div>
+
         </mat-drawer>
 
         <div *ngIf="!fileDetailDrawerLocked">
@@ -71,5 +76,14 @@
         <app-files-upload-progress-snackbar></app-files-upload-progress-snackbar>
 
     </mat-drawer-container>
-    <app-files-upload *ngIf="!searchMode && !sharedWithMeMode" [currentDirectory]="currentDirectory"></app-files-upload>
+
+    <div *ngIf='!currentlyUploading && !searchMode && !sharedWithMeMode'>
+        <button id='upload-fab' mat-fab color='primary' [matMenuTriggerFor]='menu'>
+            <mat-icon>add</mat-icon>
+        </button>
+        <mat-menu #menu='matMenu'>
+            <app-files-new-menu [currentDirectory]='currentDirectory'></app-files-new-menu>
+        </mat-menu>
+        <app-files-upload-drag-zone [currentDirectory]="currentDirectory"></app-files-upload-drag-zone>
+    </div>
 </div>
