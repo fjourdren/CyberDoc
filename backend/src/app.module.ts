@@ -9,7 +9,7 @@ import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { JwtAuthGuard } from './auth/jwt/jwt-auth.guard';
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { FilesModule } from './files/files.module';
 import { CryptoModule } from './crypto/crypto.module';
 import { FileTagsModule } from './file-tags/file-tags.module';
@@ -17,7 +17,6 @@ import { FileSharingModule } from './file-sharing/file-sharing.module';
 import { UtilsModule } from './utils/utils.module';
 import { FileSigningModule } from './file-signing/file-signing.module';
 import { MongoSessionInterceptor } from './mongo-session.interceptor';
-import { GlobalExceptionFilter } from './global-exception.filter';
 import { ErrorBanMiddleware } from './error-ban.middleware';
 import { JwtBanGuard } from './auth/jwt/jwt-ban.guard';
 
@@ -84,10 +83,6 @@ import { JwtBanGuard } from './auth/jwt/jwt-ban.guard';
     {
       provide: APP_INTERCEPTOR,
       useClass: MongoSessionInterceptor,
-    },
-    {
-      provide: APP_FILTER,
-      useClass: GlobalExceptionFilter,
     },
   ],
 })
