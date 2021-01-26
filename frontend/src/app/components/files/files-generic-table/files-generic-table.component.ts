@@ -47,9 +47,11 @@ import { FileSystemService } from 'src/app/services/filesystems/file-system.serv
 import { UsersService } from 'src/app/services/users/users.service';
 import { LoadingDialogComponent } from '../../global/loading-dialog/loading-dialog.component';
 import { TranslateService } from '@ngx-translate/core';
+import { Router } from '@angular/router';
 
 export type FileAction =
   | 'open'
+  | 'preview'
   | 'download'
   | 'export'
   | 'rename'
@@ -67,7 +69,7 @@ export type FileAction =
   providers: [...ngResizeObserverProviders],
 })
 export class FilesGenericTableComponent implements AfterViewInit {
-  isTouchScreen = 'ontouchstart' in window;
+  isTouchScreen = eval("'ontouchstart' in window");
   bottomSheetIsOpened = false;
   unselectAfterContextMenuOrBottomSheet = false;
   displayedColumns = ['icon', 'name', 'type', 'size', 'date', 'menubutton'];
@@ -94,6 +96,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
     private ngZone: NgZone,
     private filesUtils: FilesUtilsService,
     resize: NgResizeObserver,
+    private router: Router,
     private fsService: FileSystemService,
     private usersService: UsersService,
     private translateService: TranslateService,
@@ -186,6 +189,15 @@ export class FilesGenericTableComponent implements AfterViewInit {
       !this.isReadOnly(node as CloudFile) &&
       this.usersService.getActiveUser().role === 'owner'
     );
+  }
+
+  isFilePreviewPreviewAvailable(node: CloudNode): boolean {
+    if (!node) {
+      return;
+    }
+
+    const fileType = this.filesUtils.getFileTypeForMimetype(node.mimetype);
+    return this.filesUtils.isFilePreviewAvailable(fileType);
   }
 
   isPDFExportAvailable(node: CloudNode): boolean {
@@ -350,6 +362,10 @@ export class FilesGenericTableComponent implements AfterViewInit {
         this.openButtonClicked.emit(this.selectedNode);
         break;
       }
+      case 'preview': {
+        this.openPreviewForFile(this.selectedNode as CloudFile);
+        break;
+      }
       case 'download': {
         this.downloadFile(this.selectedNode as CloudFile);
         break;
@@ -430,6 +446,10 @@ export class FilesGenericTableComponent implements AfterViewInit {
       height: '400px',
       data: new MoveCopyDialogModel(node, initialDirectoryID, isCopy),
     });
+  }
+
+  openPreviewForFile(file: CloudFile) {
+    this.router.navigate(['preview', file._id]);
   }
 
   downloadFile(file: CloudFile): void {

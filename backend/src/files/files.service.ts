@@ -46,6 +46,7 @@ const readFile = promisify(_readFile);
 
 export const COLUMNS_TO_KEEP_FOR_FILE = [
   '_id',
+  'parent_file_id',
   'name',
   'mimetype',
   'size',
@@ -58,6 +59,7 @@ export const COLUMNS_TO_KEEP_FOR_FILE = [
 ];
 export const COLUMNS_TO_KEEP_FOR_FOLDER = [
   '_id',
+  'parent_file_id',
   'name',
   'mimetype',
   'updated_at',
@@ -401,6 +403,10 @@ export class FilesService {
   }
 
   async generatePDF(user: User, userHash: string, file: File): Promise<Buffer> {
+    if (PDF_MIMETYPES.includes(file.mimetype)) {
+      return await this.getFileContent(user, userHash, file);
+    }
+
     const validMimetypes = [
       ...TEXT_MIMETYPES,
       ...DOCUMENT_MIMETYPES,

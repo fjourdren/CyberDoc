@@ -12,6 +12,13 @@
             {{ 'fileaction.open' | translate }}
         </span>
     </a>
+    <a href="#" *ngIf="isFilePreviewPreviewAvailable(data.node)" mat-list-item (click)="onBottomSheetSelection($event,'preview')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-eye"></mat-icon>
+            {{ 'fileaction.preview' | translate }}
+        </span>
+    </a>
+
     <!-- We can download every files -->
     <a href="#" *ngIf="!data.node.isDirectory" mat-list-item (click)="onBottomSheetSelection($event,'download')">
         <span>
