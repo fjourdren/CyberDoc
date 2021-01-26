@@ -58,7 +58,10 @@ export class LoginPageComponent implements AfterViewInit {
           err instanceof HttpErrorResponse && err.status === 429;
 
         if (!this.wrongCredentialError && !this.tooManyErrors) throw err;
-        else this.loginForm.enable();
+        else {
+          this.loginForm.enable();
+          this.loading = false;
+        }
       });
   }
 

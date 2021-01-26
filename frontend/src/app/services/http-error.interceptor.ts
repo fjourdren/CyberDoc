@@ -20,21 +20,14 @@ export class HttpErrorInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<any>> {
     return next.handle(request).pipe(
       catchError((error, caught) => {
-        if (error.status === 401) {
+        if (error.status === 401 && !request.url.includes('auth/log')) {
           if (this.usersService.getActiveUser()) {
             this.usersService._setUser(null);
             location.replace('/login');
           }
           return caught;
         } else {
-          let errorMessage = '';
-          if (error.error instanceof ErrorEvent) {
-            errorMessage = `Error: ${error.error.message}`;
-          } else {
-            errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
-          }
-          window.alert(errorMessage);
-          return throwError(errorMessage);
+          throw error;
         }
       }),
     );
