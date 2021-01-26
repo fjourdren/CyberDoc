@@ -33,7 +33,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSelectModule } from '@angular/material/select';
 import { MatExpansionModule } from '@angular/material/expansion';
 
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { NgResizeObserverPonyfillModule } from 'ng-resize-observer';
 import { LayoutModule } from '@angular/cdk/layout';
@@ -94,13 +94,13 @@ import { TwoFactorCheckDialogComponent } from './components/two-factor/two-facto
 import { TwoFactorEditDialogComponent } from './components/two-factor/two-factor-edit-dialog/two-factor-edit-dialog.component';
 import { TwoFactorEditComponent } from './components/two-factor/two-factor-edit/two-factor-edit.component';
 import {
-  FilesSignDialogComponent,
   FilesSignConfirmDialogComponent,
+  FilesSignDialogComponent,
 } from './components/files/files-sign-dialog/files-sign-dialog.component';
 import { TwoFactorGenerateRecoveryCodesDialogComponent } from './components/two-factor/two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
 import { TwoFactorUseRecoveryCodeDialogComponent } from './components/two-factor/two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
-import { FilesOpenDialogComponent } from './components/files/files-open-dialog/files-open-dialog.component';
+import { FilesConvertToEtherpadDialogComponent } from './components/files/files-convert-to-etherpad-dialog/files-convert-to-etherpad-dialog.component';
 import { TwoFactorService } from './services/twofactor/twofactor.service';
 import { SettingsAskCurrentPasswordDialogComponent } from './components/settings/settings-ask-current-password-dialog/settings-ask-current-password-dialog.component';
 import { LoadingDialogComponent } from './components/global/loading-dialog/loading-dialog.component';
@@ -206,7 +206,7 @@ if (environment.useSentry) {
     FilesSignDialogComponent,
     FilesSignConfirmDialogComponent,
     ExportRecoveryKeyPageComponent,
-    FilesOpenDialogComponent,
+    FilesConvertToEtherpadDialogComponent,
     SettingsAskCurrentPasswordDialogComponent,
     LoadingDialogComponent,
     FilePreviewPageComponent,

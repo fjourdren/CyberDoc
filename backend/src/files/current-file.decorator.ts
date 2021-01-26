@@ -4,12 +4,9 @@ import {
   ForbiddenException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { File, ShareMode } from '../schemas/file.schema';
+import { File } from '../schemas/file.schema';
 import { User } from '../schemas/user.schema';
-
-export const READ = 1;
-export const WRITE = 2;
-export const OWNER = 3;
+import { FileAcl } from './file-acl';
 
 export const CurrentFile = createParamDecorator(
   (requiredAccess: number, ctx: ExecutionContext) => {
@@ -21,14 +18,7 @@ export const CurrentFile = createParamDecorator(
         '@CurrentFile is used without @FileGuard !',
       );
 
-    let availableAccess = 0;
-    if (file.owner_id === user._id) {
-      availableAccess = OWNER;
-    } else if (file.sharedWith.includes(user._id)) {
-      availableAccess = file.shareMode === ShareMode.READWRITE ? WRITE : READ;
-    }
-
-    if (requiredAccess > availableAccess) {
+    if (requiredAccess > FileAcl.getAvailableAccess(file, user)) {
       throw new ForbiddenException();
     }
 

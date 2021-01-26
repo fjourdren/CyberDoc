@@ -332,8 +332,12 @@ export class FileSystemService {
       .pipe(map(() => this._refreshNeeded$.emit(), null));
   }
 
-  getDownloadURL(node: CloudNode): string {
-    return `${environment.apiBaseURL}/files/${node._id}/download`;
+  getDownloadURL(node: CloudNode, etherpadExportFormat?: string): string {
+    if (etherpadExportFormat) {
+      return `${environment.apiBaseURL}/files/${node._id}/download?etherpad_export_format=${etherpadExportFormat}`;
+    } else {
+      return `${environment.apiBaseURL}/files/${node._id}/download`;
+    }
   }
 
   getExportURL(node: CloudNode): string {
@@ -349,6 +353,18 @@ export class FileSystemService {
       .get<any>(`${environment.apiBaseURL}/files/${file._id}/etherpad-url`, {
         withCredentials: true,
       })
+      .pipe(map((response) => response.url));
+  }
+
+  convertFileToEtherpadFormat(file: CloudFile): Observable<string> {
+    return this.httpClient
+      .post<any>(
+        `${environment.apiBaseURL}/files/${file._id}/convert-to-etherpad`,
+        null,
+        {
+          withCredentials: true,
+        },
+      )
       .pipe(map((response) => response.url));
   }
 

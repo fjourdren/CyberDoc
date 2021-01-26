@@ -169,7 +169,8 @@
         "document": "Document",
         "spreadsheet": "Spreadsheet",
         "presentation": "Presentation",
-        "folder": "Folder"
+        "folder": "Folder",
+        "etherpad": "CyberDoc document"
     },
     "datediff": {
         "-1": "Any time",
@@ -195,7 +196,11 @@
         "delete_confirm": "Are you sure you want to delete '{{name}}' ?",
         "sign": "Sign document",
         "preview": "Preview",
-        "edit_with_cyberdoc": "Edit with CyberDoc"
+        "edit_with_cyberdoc": "Edit with CyberDoc",
+        "convert": "Convert",
+        "download_as_doc": "Download as .doc",
+        "download_as_odt": "Download as .odt",
+        "download_as_txt": "Download as .txt"
     },
     "file": {
         "preview": "Preview",
@@ -371,6 +376,13 @@
       "no_enough_storage_dialog_title": "No enough storage",
       "no_enough_storage_dialog_subtitle": "You don't have enough storage to do this action."
     },  
+    "convert": {
+        "dialog_title": "Convert file for editing",
+        "dialog_content1": "To edit this file, CyberDoc have to convert your file with its own format.",
+        "dialog_content2": "During this process, some complex formatting will be lost.",
+        "dialog_content3": "If your document is complex, please create a copy of your file before.",
+        "dialog_content4": "This action can only be done by the owner of the file."
+    },
     "general": {
         "generic_error": "Error. Please wait some time then retry",
         "new_name": "New name",

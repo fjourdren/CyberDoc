@@ -19,6 +19,7 @@ export type PathItem = {
 };
 
 export type CloudNode = CloudFile | CloudDirectory;
+export type FileAcl = 'none' | 'read' | 'write' | 'owner';
 
 export class CloudFile {
   public _id: string;
@@ -31,6 +32,7 @@ export class CloudFile {
   public tags: FileTag[];
   public preview: boolean;
   isDirectory: false;
+  public access: FileAcl;
   public shareMode: 'readonly' | 'readwrite';
   public deviceUsedForCreation: UserDevice;
 }
@@ -45,6 +47,7 @@ export class CloudDirectory {
   public directoryContent: CloudNode[];
   public tags: FileTag[];
   public preview: false;
+  public access: FileAcl;
   isDirectory: true;
   public deviceUsedForCreation: UserDevice;
 }

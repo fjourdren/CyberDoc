@@ -36,11 +36,12 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: config.get<string>('CORS_ORIGIN'),
+    origin: config.get<string>('CORS_ORIGIN').split(','),
     credentials: true,
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
   });
 
   await app.listen(config.get<number>('APP_PORT'));
 }
+// noinspection JSIgnoredPromiseFromCall
 bootstrap();
