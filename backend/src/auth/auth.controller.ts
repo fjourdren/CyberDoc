@@ -143,7 +143,7 @@ export class AuthController {
     summary: 'Terminate a session',
     description: 'Terminate a session',
   })
-  @ApiOkResponse({ description: 'Success', type: GetActiveSessionsResponse })
+  @ApiOkResponse({ description: 'Success', type: GenericResponse })
   async terminateSession(
     @LoggedUser() user: User,
     @Body() dto: TerminateSessionDto,
