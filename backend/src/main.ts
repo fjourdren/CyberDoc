@@ -1,5 +1,5 @@
 import { ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GenericResponseInterceptor } from './generic-response.interceptor';
@@ -11,8 +11,9 @@ import { GlobalExceptionFilter } from './global-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = new ConfigService();
+  const { httpAdapter } = app.get(HttpAdapterHost);
 
-  app.useGlobalFilters(new GlobalExceptionFilter(config));
+  app.useGlobalFilters(new GlobalExceptionFilter(config, httpAdapter));
 
   const options = new DocumentBuilder()
     .setTitle(config.get<string>('APP_NAME'))

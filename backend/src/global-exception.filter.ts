@@ -1,23 +1,27 @@
 import {
-  ExceptionFilter,
   Catch,
   ArgumentsHost,
   HttpException,
-  HttpStatus,
+  HttpServer,
 } from '@nestjs/common';
 import Redis from 'ioredis';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { BaseExceptionFilter } from '@nestjs/core';
 
-@Catch(Error)
-export class GlobalExceptionFilter implements ExceptionFilter {
-  redis: Redis.Redis;
+@Catch()
+export class GlobalExceptionFilter extends BaseExceptionFilter {
+  private readonly redis: Redis.Redis;
 
-  constructor(configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly _applicationRef?: HttpServer,
+  ) {
+    super(_applicationRef);
     this.redis = new Redis(configService.get<string>('REDIS_URL'));
   }
 
-  async catch(exception: Error, host: ArgumentsHost) {
+  catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
@@ -25,28 +29,27 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       request.ip ||
       request.connection.remoteAddress ||
       request.socket.remoteAddress;
-    if (response.headersSent) return;
 
     const minute = new Date().getMinutes();
     const key = ip + ':' + minute;
-    await this.redis.multi().incr(key).expire(key, 59).exec(); // increment number of error of that user and put an expiration time of 59s
+    this.redis.multi().incr(key).expire(key, 59).exec(); // increment number of error of that user and put an expiration time of 59s
+    if (response.headersSent) return;
 
     if (exception instanceof HttpException) {
-      response.status(exception.getStatus()).json({
-        statusCode: exception.getStatus(),
-        success: false,
-        msg: exception.message,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-      });
+      const newException = new HttpException(
+        {
+          statusCode: exception.getStatus(),
+          success: false,
+          msg: `${exception.getResponse()}`,
+          timestamp: new Date().toISOString(),
+          path: request.url,
+        },
+        exception.getStatus(),
+      );
+
+      super.catch(newException, host);
     } else {
-      response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        success: false,
-        msg: exception.message,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-      });
+      super.catch(exception, host);
     }
   }
 }

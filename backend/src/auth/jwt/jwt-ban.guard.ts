@@ -1,12 +1,12 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { isObservable, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { SKIP_JWT_AUTH_KEY } from './skip-jwt-auth.annotation';
 import { Reflector } from '@nestjs/core';
-import { UsersService } from '../../users/users.service';
 import { SHA3 } from 'sha3';
 import { HttpStatusCode } from '../../utils/http-status-code';
 import { ConfigService } from '@nestjs/config';
 import { InjectRedis, Redis } from '@svtslv/nestjs-ioredis';
+import { REDIS_BANJWT_KEY } from '../auth.service';
 
 @Injectable()
 export class JwtBanGuard implements CanActivate {
@@ -33,8 +33,9 @@ export class JwtBanGuard implements CanActivate {
 
     const hashObj = new SHA3();
     hashObj.update(jwt);
+    const hashedJWT = hashObj.digest('hex');
 
-    return this.redis.get('banjwt_' + hashObj.digest('hex')).then((value) => {
+    return this.redis.get(REDIS_BANJWT_KEY(hashedJWT)).then((value) => {
       if (value) {
         response.status(HttpStatusCode.UNAUTHORIZED).json({
           statusCode: HttpStatusCode.UNAUTHORIZED,
