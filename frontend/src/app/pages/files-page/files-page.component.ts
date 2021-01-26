@@ -29,6 +29,7 @@ export class FilesPageComponent implements AfterViewInit {
   loading = false;
   searchMode = false;
   sharedWithMeMode = false;
+  binNode = false;
 
   currentDirectory: CloudDirectory;
   selectedNode: CloudNode;
@@ -99,6 +100,7 @@ export class FilesPageComponent implements AfterViewInit {
             case this.route.toString().indexOf('files') !== -1: {
               if (paramMap.has('dirID')) {
                 this.sharedWithMeMode = false;
+                this.binNode = false;
                 this.searchMode = false;
                 this.routeSearchParams = null;
                 this.refresh(paramMap.get('dirID'));
@@ -111,6 +113,17 @@ export class FilesPageComponent implements AfterViewInit {
             // Shared-with-me
             case this.route.toString().indexOf('shared-with-me') !== -1: {
               this.sharedWithMeMode = true;
+              this.binNode = false;
+              this.searchMode = false;
+              this.routeSearchParams = null;
+              this.refresh();
+              break;
+            }
+
+            // bin
+            case this.route.toString().indexOf('bin') !== -1: {
+              this.sharedWithMeMode = false;
+              this.binNode = true;
               this.searchMode = false;
               this.routeSearchParams = null;
               this.refresh();
@@ -143,6 +156,8 @@ export class FilesPageComponent implements AfterViewInit {
       promise = this.fsService.search(this.routeSearchParams).toPromise();
     } else if (this.sharedWithMeMode) {
       promise = this.fsService.getSharedFiles().toPromise();
+    } else if(this.binNode){
+      promise = this.fsService.getSharedFiles().toPromise();
     } else {
       if (!directoryID && !this.currentDirectory) return; //FIXME
       const id =
@@ -163,6 +178,7 @@ export class FilesPageComponent implements AfterViewInit {
             for (const item of node.directoryContent) {
               if (item._id === oldSelectedNodeID) {
                 this.selectedNode = item;
+                
               }
             }
           }

@@ -177,6 +177,7 @@ export class MockFileSystemService {
             directoryContent: [],
             isDirectory: true,
             preview: false,
+            bin_id: false,
           };
 
           let nodes: InternalFileElement[] = Array.from(this.filesMap.values());
@@ -430,6 +431,9 @@ export class MockFileSystemService {
           this._save();
         }),
       );
+  }
+  restore(node: CloudNode): Observable<void>{
+    return
   }
 
   setPreviewEnabled(file: CloudFile, enabled: boolean): Observable<void> {

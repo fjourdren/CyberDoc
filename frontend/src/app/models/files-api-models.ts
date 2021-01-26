@@ -24,6 +24,7 @@ export class CloudFile {
   public preview: boolean;
   isDirectory: false;
   public shareMode: 'readonly' | 'readwrite';
+  public bin_id: boolean;
 }
 
 export class CloudDirectory {
@@ -36,6 +37,7 @@ export class CloudDirectory {
   public tags: FileTag[];
   public preview: false;
   isDirectory: true;
+  public bin_id: boolean;
 }
 
 export interface RespondShare {

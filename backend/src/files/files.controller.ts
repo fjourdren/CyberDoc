@@ -77,6 +77,27 @@ export class FilesController {
     return { msg: 'Done', results };
   }
 
+  @Get('get-bin')
+  @HttpCode(HttpStatusCode.OK)
+  @ApiOperation({
+    summary: 'Get all files in bin',
+    description: 'Get all files the user sended to the bin',
+  })
+  @ApiOkResponse({ description: 'Success', type: GenericResponse })
+  async getBin(@LoggedUser() currentUser: User) {
+    const sharedFiles = await this.filesService.getBin(
+      currentUser,
+    );
+
+    const results = await Promise.all(
+      sharedFiles.map(async (value) => {
+        return await this.filesService.prepareFileForOutput(value);
+      }),
+    );
+
+    return { msg: 'Success', results };
+  }
+
   @Get(':fileID')
   @UseGuards(FileGuard)
   @HttpCode(HttpStatusCode.OK)
@@ -474,4 +495,22 @@ export class FilesController {
     await this.filesService.sendToBin(file, mongoSession);
     return { msg: 'File moved to bin' };
   }
+
+  @Get(':fileID/restore')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({ summary: 'Restore from bin', description: 'Restore a file from the bin' })
+  @ApiOkResponse({ description: 'File moved', type: GenericResponse })
+  async restore(@MongoSession() mongoSession: ClientSession,
+                  @CurrentFile(OWNER) file: File,) {
+    await this.filesService.restore(file, mongoSession);
+    return { msg: 'File restored from bin' };
+  }
+
+ 
 }
