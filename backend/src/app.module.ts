@@ -9,7 +9,7 @@ import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { JwtAuthGuard } from './auth/jwt/jwt-auth.guard';
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { FilesModule } from './files/files.module';
 import { CryptoModule } from './crypto/crypto.module';
 import { FileTagsModule } from './file-tags/file-tags.module';
@@ -17,10 +17,9 @@ import { FileSharingModule } from './file-sharing/file-sharing.module';
 import { UtilsModule } from './utils/utils.module';
 import { FileSigningModule } from './file-signing/file-signing.module';
 import { MongoSessionInterceptor } from './mongo-session.interceptor';
-import { HttpExceptionFilter } from './http-exception.filter';
-import { JwtBanMiddleware } from './jwt-ban.middleware';
 import { ErrorBanMiddleware } from './error-ban.middleware';
 import { BillingModule } from './billing/billing.module';
+import { JwtBanGuard } from './auth/jwt/jwt-ban.guard';
 
 @Module({
   imports: [
@@ -82,18 +81,17 @@ import { BillingModule } from './billing/billing.module';
       useClass: JwtAuthGuard,
     },
     {
-      provide: APP_INTERCEPTOR,
-      useClass: MongoSessionInterceptor,
+      provide: APP_GUARD,
+      useClass: JwtBanGuard,
     },
     {
-      provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
+      provide: APP_INTERCEPTOR,
+      useClass: MongoSessionInterceptor,
     },
   ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(ErrorBanMiddleware).forRoutes('*');
-    consumer.apply(JwtBanMiddleware).forRoutes('*');
   }
 }

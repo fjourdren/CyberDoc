@@ -1,6 +1,6 @@
 // from swagger file users.yml
 
-import { FileTag } from './files-api-models';
+import { FileTag, UserDevice } from './files-api-models';
 import { TwoFactorRecoveryCode } from './two-factor-api-models';
 
 export class User {
@@ -40,8 +40,9 @@ export class Subscription {
   planId: string;
 }
 
-export class Device {
-  public name: string;
-  public browser: string;
-  public OS: string;
+export class Session {
+  public device: UserDevice;
+  public hashedJWT: string;
+  public ip: string;
+  public creationDate: Date;
 }

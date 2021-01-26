@@ -1,59 +1,66 @@
-<div *ngIf="node">
-    <div class="mat-title">
-        <mat-icon fontSet="fa" fontIcon="{{getIconForMimetype(node.mimetype)}}"></mat-icon>
-        {{node.name}}
+<div *ngIf='node'>
+  <div class='mat-title'>
+    <mat-icon fontSet='fa' fontIcon='{{getIconForMimetype(node.mimetype)}}'></mat-icon>
+    {{node.name}}
+  </div>
+
+  <div *ngIf='node && isPreviewAvailable(node) && node.preview' id='filepreview'>
+    <img [ngStyle]="{'display': previewLoaded ? 'initial': 'none'}" (error)='previewError = true'
+         (load)='previewLoaded = true' [src]='getFilePreviewImageURL()'>
+
+    <div id='filepreview-loading' *ngIf='!previewLoaded && !previewError'>
+      <mat-progress-bar mode='indeterminate'></mat-progress-bar>
+      <div>{{ 'file.loading_preview' | translate }}</div>
     </div>
 
-    <div *ngIf="node && isPreviewAvailable(node) && node.preview" id="filepreview">
-        <img [ngStyle]="{'display': previewLoaded ? 'initial': 'none'}" (error)="previewError = true"
-            (load)="previewLoaded = true" [src]="getFilePreviewImageURL()">
-
-        <div id="filepreview-loading" *ngIf="!previewLoaded && !previewError">
-            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-            <div>{{ 'file.loading_preview' | translate }}</div>
-        </div>
-
-        <div id="filepreview-loading" *ngIf="!previewLoaded && previewError">
-            <div>{{ 'file.error_loading_preview' | translate }}</div>
-        </div>
-
+    <div id='filepreview-loading' *ngIf='!previewLoaded && previewError'>
+      <div>{{ 'file.error_loading_preview' | translate }}</div>
     </div>
 
-    <mat-slide-toggle *ngIf="node && isPreviewAvailable(node) && !sharedWithMeMode"
-        (change)="onPreviewToggleChange($event)" [checked]="node.preview">{{ 'file.preview' | translate }}
-    </mat-slide-toggle>
+  </div>
 
-    <table id="details-table">
-        <tr *ngIf="!node.isDirectory">
-            <td class="mat-body-strong">{{ 'file.modified' | translate }}</td>
-            <td>{{node.updated_at | date}}&nbsp;&nbsp;</td>
-        </tr>
-        <tr>
-            <td class="mat-body-strong">{{ 'file.owner' | translate }}</td>
-            <td>{{node.ownerName}}&nbsp;&nbsp;</td>
-        </tr>
-        <tr *ngIf="!node.isDirectory">
-            <td class="mat-body-strong">{{ 'file.size' | translate }}</td>
-            <td>{{node.size | filesize}}&nbsp;&nbsp;</td>
-        </tr>
-        <tr>
-            <td class="mat-body-strong">{{ 'file.type' | translate }}</td>
-            <td [title]="node.mimetype">{{getFileTypeFromMimetype(node.mimetype) | translate }}&nbsp;&nbsp;</td>
-        </tr>
-    </table>
+  <mat-slide-toggle *ngIf='node && isPreviewAvailable(node) && !sharedWithMeMode'
+                    (change)='onPreviewToggleChange($event)' [checked]='node.preview'>{{ 'file.preview' | translate }}
+  </mat-slide-toggle>
 
-    <mat-divider></mat-divider>
-    <div id="title-div" class="mat-h3" *ngIf="!sharedWithMeMode">
-        <span id="title-span">{{'tags.tags' | translate}}</span>
-        <button id="add-tag-btn" mat-stroked-button mat-button (click)="createNewTag()">
-            {{'tags.create_new_tag' | translate}}
-        </button>
-    </div>
+  <table id='details-table'>
+    <tr *ngIf='!node.isDirectory'>
+      <td class='mat-body-strong'>{{ 'file.modified' | translate }}</td>
+      <td>{{node.updated_at | date}}&nbsp;&nbsp;</td>
+    </tr>
+    <tr>
+      <td class='mat-body-strong'>{{ 'file.owner' | translate }}</td>
+      <td>{{node.ownerName}}&nbsp;&nbsp;</td>
+    </tr>
+    <tr *ngIf='!node.isDirectory'>
+      <td class='mat-body-strong'>{{ 'file.size' | translate }}</td>
+      <td>{{node.size | filesize}}&nbsp;&nbsp;</td>
+    </tr>
+    <tr>
+      <td class='mat-body-strong'>{{ 'file.type' | translate }}</td>
+      <td [title]='node.mimetype'>{{getFileTypeFromMimetype(node.mimetype) | translate }}&nbsp;&nbsp;</td>
+    </tr>
+    <tr>
+      <td class='mat-body-strong'>{{ 'file.device_used_for_creation' | translate }}&nbsp;&nbsp;</td>
+      <td
+        [title]="[node.deviceUsedForCreation.browser, node.deviceUsedForCreation.os].join(',')">{{node.deviceUsedForCreation.name}}&nbsp;&nbsp;
+      </td>
+    </tr>
+  </table>
 
-    <app-files-tags-input [allTags]="allTags" [selectedTags]="nodeTags" (tagAdded)="onTagAdded($event)"
-        (tagRemoved)="onTagRemoved($event)" (newTagCreated)="createNewTag($event)" *ngIf="!sharedWithMeMode">
-    </app-files-tags-input>
+  <mat-divider></mat-divider>
+  <div id='title-div' class='mat-h3' *ngIf='!sharedWithMeMode'>
+    <span id='title-span'>{{'tags.tags' | translate}}</span>
+    <button id='add-tag-btn' mat-stroked-button mat-button (click)='createNewTag()'>
+      {{'tags.create_new_tag' | translate}}
+    </button>
+  </div>
+
+  <app-files-tags-input [allTags]='allTags' [selectedTags]='nodeTags' (tagAdded)='onTagAdded($event)'
+                        (tagRemoved)='onTagRemoved($event)' (newTagCreated)='createNewTag($event)'
+                        *ngIf='!sharedWithMeMode'>
+  </app-files-tags-input>
 
 </div>
 
-<mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
+<mat-spinner *ngIf='loading' diameter='48'></mat-spinner>

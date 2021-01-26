@@ -1,6 +1,10 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  HttpClient,
+  HttpClientModule,
+} from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
@@ -89,8 +93,6 @@ import { SecurityCheckDialogComponent } from './components/security-check-dialog
 import { TwoFactorCheckDialogComponent } from './components/two-factor/two-factor-check-dialog/two-factor-check-dialog.component';
 import { TwoFactorEditDialogComponent } from './components/two-factor/two-factor-edit-dialog/two-factor-edit-dialog.component';
 import { TwoFactorEditComponent } from './components/two-factor/two-factor-edit/two-factor-edit.component';
-import { DevicePageComponent } from './pages/device-page/device-page.component';
-import { SettingsRenameDeviceDialogComponent } from './components/settings/settings-rename-device-dialog/settings-rename-device-dialog.component';
 import {
   FilesSignDialogComponent,
   FilesSignConfirmDialogComponent,
@@ -109,6 +111,8 @@ import { FilesSpaceInfoComponent } from './components/files/files-space-info/fil
 import { SettingsBillingCardComponent } from './components/settings/settings-billing-card/settings-billing-card.component';
 import { FilesNoEnoughStorageDialogComponent } from './components/files/files-no-enough-storage-dialog/files-no-enough-storage-dialog.component';
 import { FilesNewMenuComponent } from './components/files/files-new-menu/files-new-menu.component';
+import { SettingsSessionCardComponent } from './components/settings/settings-session-card/settings-session-card.component';
+import { HttpErrorInterceptor } from './services/http-error.interceptor';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) =>
@@ -199,8 +203,6 @@ if (environment.useSentry) {
     TwoFactorEditComponent,
     TwoFactorGenerateRecoveryCodesDialogComponent,
     TwoFactorUseRecoveryCodeDialogComponent,
-    DevicePageComponent,
-    SettingsRenameDeviceDialogComponent,
     FilesSignDialogComponent,
     FilesSignConfirmDialogComponent,
     ExportRecoveryKeyPageComponent,
@@ -213,6 +215,7 @@ if (environment.useSentry) {
     SettingsBillingCardComponent,
     FilesNoEnoughStorageDialogComponent,
     FilesNewMenuComponent,
+    SettingsSessionCardComponent,
   ],
   imports: [
     BrowserModule,
@@ -266,6 +269,11 @@ if (environment.useSentry) {
     TwoFactorService,
     UsersService,
     FilesUtilsService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpErrorInterceptor,
+      multi: true,
+    },
   ],
   bootstrap: [AppComponent],
 })
