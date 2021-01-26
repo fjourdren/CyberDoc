@@ -21,8 +21,10 @@ export class HttpErrorInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((error, caught) => {
         if (error.status === 401) {
-          this.usersService._setUser(null);
-          this.router.navigate(['/login']);
+          if (this.usersService.getActiveUser()) {
+            this.usersService._setUser(null);
+            location.replace('/login');
+          }
           return caught;
         } else {
           let errorMessage = '';
