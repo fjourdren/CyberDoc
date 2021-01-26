@@ -27,20 +27,12 @@ const routes: Routes = [
   {
     path: 'preview/:fileID',
     component: FilePreviewPageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
-    ],
-  }
+    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
+  },
   {
     path: 'setup-billing',
     component: SetupBillingPageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
   },
   {
     path: 'files-search/:searchParams',
