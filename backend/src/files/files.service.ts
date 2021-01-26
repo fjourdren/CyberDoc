@@ -65,6 +65,7 @@ export const COLUMNS_TO_KEEP_FOR_FOLDER = [
   'created_at',
   'tags',
   'preview',
+  'bin_id',
 ];
 
 @Injectable()
@@ -391,6 +392,17 @@ export class FilesService {
   ) {
     file.bin_id = true;
     return await new this.fileModel(file).save({ session: mongoSession });
+  }
+
+  async restore(file: File,
+    mongoSession: ClientSession,
+  ) {
+    file.bin_id = false;
+    return await new this.fileModel(file).save({ session: mongoSession });
+  }
+
+  async getBin(user: User): Promise<File[]> {
+    return await this.fileModel.find({ bin_id: true }).exec();
   }
 
   async delete(file: File) {

@@ -128,9 +128,32 @@ export class FileSystemService {
       );
   }
 
+
   getSharedFiles(): Observable<CloudDirectory> {
     return this.httpClient
       .get<any>(`${environment.apiBaseURL}/file-sharing/shared-files`, {
+        withCredentials: true,
+      })
+      .pipe(
+        map((response) => {
+          const folder = new CloudDirectory();
+
+          folder.directoryContent = response.results;
+          folder._id = null;
+          folder.name = null;
+          folder.isDirectory = true;
+          folder.mimetype = DIRECTORY_MIMETYPE;
+          folder.ownerName = null;
+          folder.path = [];
+          folder.tags = [];
+          return folder;
+        }),
+      );
+  }
+
+  getBinFiles(): Observable<CloudDirectory> {
+    return this.httpClient
+      .get<any>(`${environment.apiBaseURL}/files/get-bin`, {
         withCredentials: true,
       })
       .pipe(
@@ -279,11 +302,35 @@ export class FileSystemService {
   }
 
   delete(node: CloudNode): Observable<void> {
+    if(!node.isDirectory){
+      if(node.bin_id){
+        return this.httpClient
+          .delete<any>(`${environment.apiBaseURL}/files/${node._id}`, {
+            withCredentials: true,
+          })
+          .pipe(map(() => this._refreshNeeded$.emit(), null));
+      }
+      else{
+        return this.httpClient
+          .delete<any>(`${environment.apiBaseURL}/files/${node._id}/sendBin`, {
+            withCredentials: true,
+          })
+          .pipe(map(() => this._refreshNeeded$.emit(), null));
+      }
+    }
     return this.httpClient
       .delete<any>(`${environment.apiBaseURL}/files/${node._id}`, {
         withCredentials: true,
       })
       .pipe(map(() => this._refreshNeeded$.emit(), null));
+  }
+
+  restore(node: CloudNode): Observable<void>{
+    if(!node.bin_id){
+      new Error('Error, file not in bin')
+    }
+    return this.httpClient
+      .get<any>(`${environment.apiBaseURL}/files/${node._id}/restore`, {withCredentials: true,}).pipe();
   }
 
   setPreviewEnabled(file: CloudFile, enabled: boolean): Observable<void> {
