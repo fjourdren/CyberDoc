@@ -25,8 +25,8 @@ sudo chmod 777 $frontendDir/exec.sh
 sudo chmod 777 $backendDir/exec.sh
 
 ## frontend
-sudo docker stop frontend || true && sudo docker rm frontend || true
 sudo docker run --rm  -v /home/centos/workspace/cyberdoc:/opt  -w /opt/frontend  teracy/angular-cli /opt/devops/docker_frontend/exec.sh
+sudo docker stop frontend || true && sudo docker rm frontend || true
 sudo docker run -d --restart always --name frontend -v $frontendDist:/usr/share/nginx/html:ro -v $frontendDir/default.conf:/etc/nginx/conf.d/default.conf --label-file $frontendDir/labels nginx
 
 ## Etherpad
@@ -39,17 +39,23 @@ echo "" > $etherpadDir/APIKEY.txt
 
 sudo docker stop etherpad || true && sudo docker rm etherpad || true
 
-sudo docker run -d 												                    \
-    --label-file $etherpadDir/labels 							            \
-    --name etherpad         									                \
+sudo docker run -d 	\
+    --label-file $etherpadDir/labels 	\
+    --name etherpad         \
     -v $etherpadDir/APIKEY.txt:/opt/etherpad-lite/APIKEY.txt	\
-    -e TITLE=CyberDoc											                    \
-	  -e DB_URL=													                      \
-	  -e DB_NAME=													                      \
-	  -e DB_ETHERPAD_COLLNAME=EtherpadData						          \
-	  -e DB_FILE_COLLNAME= 										                  \
-	  -e DB_USER_COLLNAME=										                  \
-	  -e JWT_SECRET=												                    \
+    -e TITLE=CyberDoc		\
+    -e EDIT_ONLY=true 	\
+    -e MAX_AGE=0 	\
+    -e SOFFICE=/usr/bin/soffice 	\
+    -e REQUIRE_AUTHENTICATION=true 	\
+    -e HACK_DISABLE_PAD_AUTH_CHECK=true 	\
+    -e REQUIRE_AUTHORIZATION=true 	\
+    -e TRUST_PROXY=true 	\
+    -e CYBERDOC_ENABLE_AUTH_HOOKS=true 	\
+    -e CYBERDOC_ENABLE_USER_LEAVE_HANDLER=true 	\
+    -e CYBERDOC_FRONTEND_BASE_URL=https://cyberdoc.fulgen.fr 	\
+    -e CYBERDOC_BACKEND_BASE_URL=https://api.cyberdoc.fulgen.fr 	\
+    -e CYBERDOC_ICON_URL=https://cyberdoc.fulgen.fr/assets/icons/icon-192x192.png 	\
     etherpad
 
 ## backend
