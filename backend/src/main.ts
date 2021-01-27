@@ -32,7 +32,9 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
-  app.use(csurf({ cookie: true }));
+  if (config.get<string>('ENABLE_CSRF') === 'true') {
+    app.use(csurf({ cookie: true }));
+  }
 
   app.enableCors({
     origin: config.get<string>('CORS_ORIGIN'),

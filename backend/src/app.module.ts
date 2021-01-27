@@ -32,6 +32,7 @@ import { MongoSessionInterceptor } from './mongo-session.interceptor';
         JWT_COOKIE_DOMAIN: Joi.string().required(),
         MONGODB_URL: Joi.string().required(),
         ENCRYPTION_IV: Joi.string().required(),
+        ENABLE_CSRF: Joi.boolean().required(),
         SENDGRID_API_KEY: Joi.string().required(),
         SENDGRID_MAIL_FROM: Joi.string().required(),
         SENDGRID_MAIL_FROM_NAME: Joi.string().required(),
