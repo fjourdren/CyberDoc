@@ -139,6 +139,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   get items(): CloudNode[] {
+    
     return this.dataSource.data;
   }
 
@@ -254,6 +255,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
       data: {
         callback: this.onContextMenuOrBottomSheetSelection.bind(this),
         sharedWithMeMode: this.sharedWithMeMode,
+        binMode: this.binMode,
         readonlyMode:
           this.sharedWithMeMode && this.isReadOnly(node as CloudFile),
         showDetailsEntry: this.showDetailsButton,

@@ -111,9 +111,18 @@ export class FilesController {
   async get(@CurrentFile(READ) file: File) {
     const result = await this.filesService.prepareFileForOutput(file);
     if (file.type == FOLDER) {
-      const folderContents = await this.filesService.getFolderContents(
+      let folderContents = await this.filesService.getFolderContents(
         file._id,
       );
+
+      const binTest: File[] = [];
+      for(const element of folderContents){
+        if(!element.bin_id){
+          binTest.push(element)
+        }
+      }
+
+      folderContents = binTest;
 
       //DirectoryContent
       (result as any).directoryContent = await Promise.all(
