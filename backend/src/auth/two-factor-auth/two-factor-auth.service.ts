@@ -1,7 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model } from 'mongoose';
 import { User, UserDocument } from 'src/schemas/user.schema';
+import { AuthService } from '../auth.service';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const twoFactor = require('node-2fa');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -14,9 +15,17 @@ const twilio = require('twilio')(
 
 @Injectable()
 export class TwoFactorAuthService {
+  logger;
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-  ) {}
+    private readonly authService: AuthService,
+  ) {
+    this.logger = new Logger(TwoFactorAuthService.name);
+  }
+
+  async isAuthorized(accessToken: any): Promise<any> {
+    return this.authService.decodeJwt(accessToken)['twoFactorAuthorized'];
+  }
 
   async enable(
     mongoSession: ClientSession,
@@ -27,13 +36,13 @@ export class TwoFactorAuthService {
     const user = await this.userModel.findOne({ email });
     switch (type) {
       case 'app':
-        user.twoFactorByApp = true;
+        user.twoFactorApp = true;
         break;
       case 'email':
-        user.twoFactorByEmail = true;
+        user.twoFactorEmail = true;
         break;
       case 'sms':
-        user.twoFactorBySms = true;
+        user.twoFactorSms = true;
         user.phoneNumber = phone_number;
         break;
     }
@@ -49,14 +58,14 @@ export class TwoFactorAuthService {
     const user = await this.userModel.findOne({ email });
     switch (type) {
       case 'app':
-        user.twoFactorByApp = false;
+        user.twoFactorApp = false;
         user.secret = null;
         break;
       case 'email':
-        user.twoFactorByEmail = false;
+        user.twoFactorEmail = false;
         break;
       case 'sms':
-        user.twoFactorBySms = false;
+        user.twoFactorSms = false;
         user.phoneNumber = null;
         break;
     }
@@ -79,7 +88,7 @@ export class TwoFactorAuthService {
   }
 
   async sendToken(
-    sendingWay: string,
+    sendingWay: 'email' | 'sms',
     emailOrPhoneNumber: string,
   ): Promise<any> {
     return twilio.verify
@@ -88,21 +97,25 @@ export class TwoFactorAuthService {
   }
 
   async verifyTokenByEmailOrSms(
-    emailOrPhoneNumber: string,
+    user: any,
+    sendingWay: 'email' | 'sms',
     token: string,
   ): Promise<any> {
     return twilio.verify
       .services(process.env.TWILIO_SERVICE_ID)
-      .verificationChecks.create({ to: emailOrPhoneNumber, code: token })
+      .verificationChecks.create({
+        to: sendingWay === 'email' ? user.email : user.phoneNumber,
+        code: token,
+      })
       .then((res) => {
         return res;
       });
   }
 
-  async verifyTokenGeneratedByApp(secret: string, token: string): Promise<any> {
-    const res = twoFactor.verifyToken(secret, token);
+  async verifyTokenGeneratedByApp(user: any, token: string): Promise<any> {
+    const res = twoFactor.verifyToken(user.secret, token);
     if (!res) {
-      throw new UnauthorizedException('Specified Two-Factor token is invalid.');
+      throw new ForbiddenException('Specified Two-Factor token is invalid.');
     }
     return res.delta;
   }

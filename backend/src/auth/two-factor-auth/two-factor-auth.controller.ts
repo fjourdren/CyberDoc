@@ -5,8 +5,12 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
+  Logger,
   Post,
+  Req,
+  Res,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { HttpStatusCode } from '../../utils/http-status-code';
 import {
@@ -23,12 +27,58 @@ import { ClientSession } from 'mongoose';
 import { LoggedUser } from '../logged-user.decorator';
 import { User } from '../../schemas/user.schema';
 import { TwoFactorAuthService } from './two-factor-auth.service';
+import { Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
+import { AuthService } from '../auth.service';
+import { SkipJWTAuth } from '../jwt/skip-jwt-auth.annotation';
+import { LocalAuthGuard } from '../local/local-auth.guard';
+import { LoggedUserHash } from '../logged-user-hash.decorator';
 
 @ApiTags('two-factor-auth')
 @ApiBearerAuth()
 @Controller('two-factor-auth')
 export class TwoFactorAuthController {
-  constructor(private readonly twoFactorAuthService: TwoFactorAuthService) {}
+  logger;
+
+  constructor(
+    private readonly twoFactorAuthService: TwoFactorAuthService,
+    private readonly configService: ConfigService,
+    private readonly authService: AuthService,
+  ) {
+    this.logger = new Logger(TwoFactorAuthController.name);
+  }
+
+  @Get('isAuthorized')
+  @HttpCode(HttpStatusCode.OK)
+  @ApiOperation({
+    summary: 'Verify if 2FA is verified',
+    description: 'Verify if 2FA is verified',
+  })
+  @ApiOkResponse({
+    description: 'You are two-factor authorized',
+    type: GenericResponse,
+  })
+  @ApiNotFoundResponse({
+    description: 'You are not two-factor authorized',
+    type: GenericResponse,
+  })
+  async isTwoFactorAuthorized(@Req() req: Request, @LoggedUser() user: User) {
+    const accessToken =
+      req?.cookies[this.configService.get<string>('JWT_COOKIE_NAME')];
+    if (!accessToken) {
+      throw new BadRequestException('No access_token defined');
+    }
+    const isAuthorized = await this.twoFactorAuthService.isAuthorized(
+      accessToken,
+    );
+    if (
+      !isAuthorized &&
+      (user.twoFactorSms || user.twoFactorEmail || user.twoFactorApp)
+    ) {
+      throw new UnauthorizedException('You are not two-factor authorized');
+    }
+    return { msg: 'Success' };
+  }
 
   @Post('enable')
   @HttpCode(HttpStatusCode.OK)
@@ -72,18 +122,8 @@ export class TwoFactorAuthController {
       throw new BadRequestException("Specified Two-Factor type doesn't exist.");
     }
 
-    if (!twoFactorToken) {
-      throw new BadRequestException('Two-Factor token is required.');
-    } else {
-      if (!twoFactorToken.match('[0-9]{6}')) {
-        throw new BadRequestException(
-          'Two-Factor token must be a 6 digits number.',
-        );
-      }
-    }
-
     if (type === 'app') {
-      if (user.twoFactorByApp) {
+      if (user.twoFactorApp) {
         throw new BadRequestException(
           'Two-factor authentication by App is already enabled.',
         );
@@ -92,15 +132,15 @@ export class TwoFactorAuthController {
           throw new ForbiddenException('User secret not defined.');
         }
         await this.twoFactorAuthService
-          .verifyTokenGeneratedByApp(user.secret, twoFactorToken)
+          .verifyTokenGeneratedByApp(user, twoFactorToken)
           .then((res) => {
             if (res !== 0) {
-              throw new UnauthorizedException('Wrong token specified');
+              throw new ForbiddenException('Wrong token specified');
             }
           });
       }
     } else if (type === 'sms') {
-      if (user.twoFactorBySms) {
+      if (user.twoFactorSms) {
         throw new BadRequestException(
           'Two-factor authentication by Sms is already enabled.',
         );
@@ -109,24 +149,24 @@ export class TwoFactorAuthController {
           throw new ForbiddenException('User phone number not defined.');
         }
         await this.twoFactorAuthService
-          .verifyTokenByEmailOrSms(user.phoneNumber, twoFactorToken)
+          .verifyTokenByEmailOrSms(user, 'sms', twoFactorToken)
           .then((res) => {
             if (!res.valid) {
-              throw new UnauthorizedException('Wrong token specified');
+              throw new ForbiddenException('Wrong token specified');
             }
           });
       }
     } else if (type === 'email') {
-      if (user.twoFactorByEmail) {
+      if (user.twoFactorEmail) {
         throw new BadRequestException(
           'Two-factor authentication by Email is already enabled.',
         );
       } else {
         await this.twoFactorAuthService
-          .verifyTokenByEmailOrSms(user.email, twoFactorToken)
+          .verifyTokenByEmailOrSms(user, 'email', twoFactorToken)
           .then((res) => {
             if (!res.valid) {
-              throw new UnauthorizedException('Wrong token specified');
+              throw new ForbiddenException('Wrong token specified');
             }
           });
       }
@@ -173,27 +213,26 @@ export class TwoFactorAuthController {
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @Body('type') type: string,
-    @Body('twoFactorToken') twoFactorToken: string,
   ) {
     if (!type) {
       throw new BadRequestException('Two-Factor type is required.');
     } else if (type !== 'app' && type !== 'email' && type !== 'sms') {
       throw new BadRequestException("Specified Two-Factor type doesn't exist.");
     }
-    if (!user.twoFactorByApp && type === 'app') {
+    if (!user.twoFactorApp && type === 'app') {
       throw new BadRequestException(
         'Two-factor authentication by App is already disabled.',
       );
-    } else if (!user.twoFactorBySms && type === 'sms') {
+    } else if (!user.twoFactorSms && type === 'sms') {
       throw new BadRequestException(
         'Two-factor authentication by Sms is already disabled.',
       );
-    } else if (!user.twoFactorByEmail && type === 'email') {
+    } else if (!user.twoFactorEmail && type === 'email') {
       throw new BadRequestException(
         'Two-factor authentication by Email is already disabled.',
       );
     }
-    await this.verifyToken(user, type, twoFactorToken);
+    // await this.verifyToken(user, type, twoFactorToken);
     return await this.twoFactorAuthService.disable(
       mongoSession,
       user.email,
@@ -268,9 +307,14 @@ export class TwoFactorAuthController {
   @Post('verifyToken')
   @HttpCode(HttpStatusCode.OK)
   @ApiParam({
-    name: 'email',
-    description: 'Email address',
-    example: 'john.doe@email.com',
+    name: 'type',
+    description: 'Two-Factor type',
+    example: 'email',
+  })
+  @ApiParam({
+    name: 'twoFactorToken',
+    description: 'Two-factor token',
+    example: '123456',
   })
   @ApiOperation({
     summary: 'Verify that token is correct',
@@ -285,6 +329,8 @@ export class TwoFactorAuthController {
     type: GenericResponse,
   })
   async verifyToken(
+    @Res({ passthrough: true }) res: Response,
+    @LoggedUserHash() userHash: string,
     @LoggedUser() user: User,
     @Body('type') type: string,
     @Body('twoFactorToken') twoFactorToken: string,
@@ -302,36 +348,21 @@ export class TwoFactorAuthController {
     switch (type) {
       case 'app':
         retour = await this.twoFactorAuthService.verifyTokenGeneratedByApp(
-          user.secret,
+          user,
           twoFactorToken,
         );
         if (retour !== 0) {
-          throw new UnauthorizedException(
+          throw new ForbiddenException(
             'Specified Two-Factor token is invalid.',
           );
         }
         break;
       case 'sms':
-        try {
-          retour = await this.twoFactorAuthService.verifyTokenByEmailOrSms(
-            user.phoneNumber,
-            twoFactorToken,
-          );
-        } catch (e) {
-          throw new ForbiddenException(
-            'Specified Two-Factor token is invalid.',
-          );
-        }
-        if (!retour.valid) {
-          throw new UnauthorizedException(
-            'Specified Two-Factor token is invalid.',
-          );
-        }
-        break;
       case 'email':
         try {
           retour = await this.twoFactorAuthService.verifyTokenByEmailOrSms(
-            user.email,
+            user,
+            type,
             twoFactorToken,
           );
         } catch (e) {
@@ -340,14 +371,20 @@ export class TwoFactorAuthController {
           );
         }
         if (!retour.valid) {
-          throw new UnauthorizedException(
+          throw new ForbiddenException(
             'Specified Two-Factor token is invalid.',
           );
         }
         break;
     }
+    const access_token = this.authService.generateJWTToken(
+      user._id,
+      userHash,
+      true,
+    );
+    this.authService.sendJwtCookie(res, access_token);
     return {
-      msg: retour,
+      msg: 'Success',
     };
   }
 }

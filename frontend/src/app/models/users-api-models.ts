@@ -11,6 +11,7 @@ export class User {
   public phoneNumber: string;
   public secret: string;
   public twoFactorApp: boolean;
+  public twoFactorEmail: boolean;
   public twoFactorSms: boolean;
   public updated_at: string;
   public created_at: string;

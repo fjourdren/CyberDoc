@@ -23,7 +23,6 @@ export class UsersService {
       localStorage.getItem(environment.userLocalStorageKey),
     ) as User;
   }
-
   register(userObj: User, password: string) {
     return this.httpClient.post<void>(`${environment.apiBaseURL}/users`, {
       email: userObj.email,
@@ -87,11 +86,12 @@ export class UsersService {
   }
 
   updateProfile(
-    firstName: string,
-    lastName: string,
-    newEmail: string,
-    theme: string,
+    firstName: string | undefined,
+    lastName: string | undefined,
+    newEmail: string | undefined,
+    theme: string | undefined,
     currentPassword: string | undefined /*required only if email is changed*/,
+    phoneNumber: string | undefined,
   ) {
     return this.httpClient
       .post<any>(
@@ -102,6 +102,7 @@ export class UsersService {
           lastname: lastName,
           currentPassword,
           theme,
+          phoneNumber,
         },
         { withCredentials: true },
       )
@@ -134,42 +135,31 @@ export class UsersService {
     );
   }
 
-  updateTwoFactor(
-    twoFactorApp: boolean,
-    twoFactorSms: boolean,
-    secret: string,
-    phoneNumber: string,
-    xAuthTokenArray: string[],
-  ): Observable<void> {
+  enableTwoFactor(type: string, twoFactorToken: string): Observable<void> {
     const options = { withCredentials: true };
-    if (xAuthTokenArray && xAuthTokenArray.length === 3) {
-      options['headers'] = {
-        'x-auth-token': Base64.encode(
-          xAuthTokenArray[0] +
-            '\t' +
-            xAuthTokenArray[1] +
-            '\t' +
-            xAuthTokenArray[2],
-        ),
-      };
-    } else if (xAuthTokenArray && xAuthTokenArray.length === 1) {
-      options['headers'] = {
-        'x-auth-token': Base64.encode(xAuthTokenArray[0]),
-      };
-    }
     return this.httpClient.post<any>(
-      `${environment.apiBaseURL}/users/profile`,
+      `${environment.apiBaseURL}/two-factor-auth/enable`,
       {
-        twoFactorApp,
-        twoFactorSms,
-        secret,
-        phoneNumber,
+        type,
+        twoFactorToken,
       },
       options,
     );
   }
 
-  login(email: string, password: string) {
+  disableTwoFactor(type: string, twoFactorToken: string): Observable<void> {
+    const options = { withCredentials: true };
+    return this.httpClient.post<any>(
+      `${environment.apiBaseURL}/two-factor-auth/disable`,
+      {
+        type,
+        twoFactorToken,
+      },
+      options,
+    );
+  }
+
+  login(email: string, password: string): any {
     return this.httpClient
       .post<any>(
         `${environment.apiBaseURL}/auth/login`,
