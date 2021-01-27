@@ -12,7 +12,7 @@ import { LoadingDialogComponent } from 'src/app/components/global/loading-dialog
 
 declare var Stripe: any;
 
-const FORCE_USER_REFRESH_LOCALSTORAGE_KEY = 'forceUserRefresh';
+const FORCE_USER_REFRESH_URL_HASH = 'forceUserRefresh';
 
 @Injectable({
   providedIn: 'root',
@@ -26,13 +26,6 @@ export class UsersService {
   }
 
   getActiveUser() {
-    if (localStorage.getItem(FORCE_USER_REFRESH_LOCALSTORAGE_KEY) === 'true') {
-      localStorage.removeItem(FORCE_USER_REFRESH_LOCALSTORAGE_KEY);
-      this.refreshActiveUser()
-        .toPromise()
-        .then(() => {});
-    }
-
     return JSON.parse(
       localStorage.getItem(environment.userLocalStorageKey),
     ) as User;
@@ -304,6 +297,13 @@ export class UsersService {
   }
 
   userUpdated(): Observable<User> {
+    if (location.hash === `#${FORCE_USER_REFRESH_URL_HASH}`) {
+      location.hash = '';
+      this.refreshActiveUser()
+        .toPromise()
+        .then(() => {});
+    }
+
     return this._userUpdated$.asObservable();
   }
 
@@ -343,7 +343,6 @@ export class UsersService {
   }
 
   goToStripeCustomPortal() {
-    localStorage.setItem(FORCE_USER_REFRESH_LOCALSTORAGE_KEY, 'true');
     this.httpClient
       .get<any>(`${environment.apiBaseURL}/billing/customer-portal-url`, {
         withCredentials: true,
@@ -354,7 +353,6 @@ export class UsersService {
   }
 
   setupSubscription(planId: string) {
-    localStorage.setItem(FORCE_USER_REFRESH_LOCALSTORAGE_KEY, 'true');
     this.httpClient
       .post<any>(
         `${environment.apiBaseURL}/billing/create-checkout-session`,
