@@ -37,10 +37,12 @@
         "copy": "Copy",
         "rename": "Rename",
         "delete": "Delete",
+        "restore":"Restore",
         "create": "Create",
         "share": "Share",
         "export": "PDF export",
         "delete_confirm": "Are you sure you want to delete '{{name}}' ?",
+        "restore_confirm": "Are you sure you want to restore '{{name}}' ?",
         "sign": "Sign document"
     },
     "file": {

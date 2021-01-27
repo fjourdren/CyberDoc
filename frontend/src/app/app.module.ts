@@ -45,6 +45,7 @@ import { FilesBreadcrumbComponent } from './components/files/files-breadcrumb/fi
 import { FilesMoveCopyDialogComponent } from './components/files/files-move-copy-dialog/files-move-copy-dialog.component';
 import { FilesRenameDialogComponent } from './components/files/files-rename-dialog/files-rename-dialog.component';
 import { FilesDeleteDialogComponent } from './components/files/files-delete-dialog/files-delete-dialog.component';
+import { FilesRestoreDialogComponent } from './components/files/files-restore-dialog/files-restore-dialog.component';
 import { FilesNewFolderDialogComponent } from './components/files/files-new-folder-dialog/files-new-folder-dialog.component';
 import { FilesUploadComponent } from './components/files/files-upload/files-upload.component';
 import { FilesGenericTableComponent } from './components/files/files-generic-table/files-generic-table.component';
@@ -116,6 +117,7 @@ const FILES_COMPONENTS = [
   FilesMoveCopyDialogComponent,
   FilesRenameDialogComponent,
   FilesDeleteDialogComponent,
+  FilesRestoreDialogComponent,
   FilesNewFolderDialogComponent,
   FilesUploadComponent,
   FilesGenericTableComponent,

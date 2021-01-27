@@ -157,7 +157,7 @@ export class FilesPageComponent implements AfterViewInit {
     } else if (this.sharedWithMeMode) {
       promise = this.fsService.getSharedFiles().toPromise();
     } else if(this.binNode){
-      promise = this.fsService.getSharedFiles().toPromise();
+      promise = this.fsService.getBinFiles().toPromise();
     } else {
       if (!directoryID && !this.currentDirectory) return; //FIXME
       const id =

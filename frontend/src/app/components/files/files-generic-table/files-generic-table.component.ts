@@ -32,6 +32,7 @@ import {
   CloudNode,
 } from 'src/app/models/files-api-models';
 import { FilesDeleteDialogComponent } from '../files-delete-dialog/files-delete-dialog.component';
+import { FilesRestoreDialogComponent } from '../files-restore-dialog/files-restore-dialog.component';
 import { FilesMoveCopyDialogComponent } from '../files-move-copy-dialog/files-move-copy-dialog.component';
 import { MoveCopyDialogModel } from '../files-move-copy-dialog/move-copy-dialog-model';
 import { FilesUtilsService } from 'src/app/services/files-utils/files-utils.service';
@@ -55,6 +56,7 @@ export type FileAction =
   | 'rename'
   | 'copy'
   | 'delete'
+  | 'restore'
   | 'move'
   | 'details'
   | 'share'
@@ -82,6 +84,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   @Input() currentDirectoryID: string | null;
   @Input() currentDirectory: CloudDirectory | null;
   @Input() sharedWithMeMode: boolean;
+  @Input() binMode: boolean;
   @Input() showDetailsButton: boolean;
   @Output() selectedNodeChange = new EventEmitter<CloudNode>();
   @Output() openButtonClicked = new EventEmitter<CloudNode>();
@@ -367,6 +370,10 @@ export class FilesGenericTableComponent implements AfterViewInit {
         this.deleteNode(this.selectedNode);
         break;
       }
+      case 'restore': {
+        this.restoreNode(this.selectedNode);
+        break;
+      }
       case 'rename': {
         this.renameNode(this.selectedNode);
         break;
@@ -410,6 +417,13 @@ export class FilesGenericTableComponent implements AfterViewInit {
 
   deleteNode(node: CloudNode): void {
     this.dialog.open(FilesDeleteDialogComponent, {
+      maxWidth: '400px',
+      data: node,
+    });
+  }
+
+  restoreNode(node: CloudNode): void {
+    this.dialog.open(FilesRestoreDialogComponent, {
       maxWidth: '400px',
       data: node,
     });
