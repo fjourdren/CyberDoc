@@ -1,7 +1,7 @@
 <div style="height: 100%;" (contextmenu)="onContextMenu($event, undefined)"
     *ngIf="dataSource && dataSource.data.length !== 0">
     <table mat-table [dataSource]="dataSource" matSort>
-
+        
         <ng-container matColumnDef="icon">
             <th mat-header-cell *matHeaderCellDef> </th>
             <td class="icon-column" mat-cell *matCellDef="let element" (click)="onClick(element)"
