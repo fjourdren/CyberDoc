@@ -330,7 +330,7 @@ export class FileSystemService {
       new Error('Error, file not in bin')
     }
     return this.httpClient
-      .get<any>(`${environment.apiBaseURL}/files/${node._id}/restore`, {withCredentials: true,}).pipe();
+      .get<any>(`${environment.apiBaseURL}/files/${node._id}/restore`, {withCredentials: true,}).pipe(map(() => this._refreshNeeded$.emit(), null));
   }
 
   setPreviewEnabled(file: CloudFile, enabled: boolean): Observable<void> {

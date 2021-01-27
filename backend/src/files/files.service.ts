@@ -402,7 +402,7 @@ export class FilesService {
   }
 
   async getBin(user: User): Promise<File[]> {
-    return await this.fileModel.find({ bin_id: true }).exec();
+    return await this.fileModel.find({ bin_id: true, owner_id: user._id}).exec();
   }
 
   async delete(file: File) {
