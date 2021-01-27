@@ -7,9 +7,13 @@ import * as helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
 import { GlobalExceptionFilter } from './global-exception.filter';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  // see https://expressjs.com/en/guide/behind-proxies.html
+  app.set('trust proxy', 1);
+
   const config = new ConfigService();
   const { httpAdapter } = app.get(HttpAdapterHost);
 
