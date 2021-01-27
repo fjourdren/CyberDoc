@@ -30,6 +30,8 @@ export class TwoFactorCheckDialogComponent {
     this.user = this.usersService.getActiveUser();
     if (this.user.twoFactorApp) {
       this.twoFactorType = 'app';
+    } else if (this.user.twoFactorEmail) {
+      this.sendTokenByEmail();
     } else if (this.user.twoFactorSms) {
       this.sendTokenBySms();
     }
@@ -54,20 +56,18 @@ export class TwoFactorCheckDialogComponent {
     switch (this.twoFactorType) {
       case 'app':
         this.twoFactorService
-          .verifyTokenByApp(undefined, this.twoFactorForm.get('token').value)
+          .verifyToken('app', this.twoFactorForm.get('token').value)
           .toPromise()
           .then(() => {
             this.loading = false;
             this.twoFactorDialog.close({
               recoveryCodesLeft: true,
-              twoFactorTypeAndToken:
-                'app\t' + this.twoFactorForm.get('token').value,
             });
           })
           .catch((err) => {
             this.loading = false;
             if (err.status === 403) {
-              this.snackBar.open(err.error.msg, null, { duration: 2500 });
+              this.snackBar.open(err.error.message, null, { duration: 2500 });
             } else {
               throw err;
             }
@@ -75,20 +75,37 @@ export class TwoFactorCheckDialogComponent {
         break;
       case 'sms':
         this.twoFactorService
-          .verifyTokenBySms(undefined, this.twoFactorForm.get('token').value)
+          .verifyToken('sms', this.twoFactorForm.get('token').value)
           .toPromise()
           .then(() => {
             this.loading = false;
             this.twoFactorDialog.close({
               recoveryCodesLeft: true,
-              twoFactorTypeAndToken:
-                'sms\t' + this.twoFactorForm.get('token').value,
             });
           })
           .catch((err) => {
             this.loading = false;
             if (err.status === 403) {
-              this.snackBar.open(err.error.msg, null, { duration: 2500 });
+              this.snackBar.open(err.error.message, null, { duration: 2500 });
+            } else {
+              throw err;
+            }
+          });
+        break;
+      case 'email':
+        this.twoFactorService
+          .verifyToken('email', this.twoFactorForm.get('token').value)
+          .toPromise()
+          .then(() => {
+            this.loading = false;
+            this.twoFactorDialog.close({
+              recoveryCodesLeft: true,
+            });
+          })
+          .catch((err) => {
+            this.loading = false;
+            if (err.status === 403) {
+              this.snackBar.open(err.error.message, null, { duration: 2500 });
             } else {
               throw err;
             }
@@ -97,13 +114,29 @@ export class TwoFactorCheckDialogComponent {
     }
   }
 
+  sendTokenByEmail(): void {
+    this.twoFactorType = 'email';
+    this.twoFactorService
+      .sendTokenByEmail()
+      .toPromise()
+      .catch((err) =>
+        this.snackBar.open(
+          'Email cannot be sent : ' + err.error.message,
+          null,
+          {
+            duration: 2500,
+          },
+        ),
+      );
+  }
+
   sendTokenBySms(): void {
     this.twoFactorType = 'sms';
     this.twoFactorService
-      .sendTokenBySms(undefined)
+      .sendTokenBySms()
       .toPromise()
       .catch((err) =>
-        this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {
+        this.snackBar.open('SMS cannot be sent : ' + err.error.message, null, {
           duration: 2500,
         }),
       );

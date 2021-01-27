@@ -23,6 +23,7 @@ const USER: User = {
   secret: null,
   twoFactorApp: false,
   twoFactorSms: false,
+  twoFactorEmail: false,
   directory_id: 'root',
   tags: [
     {
@@ -47,6 +48,7 @@ const USER: User = {
     },
   ],
   twoFactorRecoveryCodes: [],
+  theme: 'indigo-pink',
 };
 
 @Injectable({

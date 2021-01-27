@@ -13,11 +13,8 @@ import { SettingsProfilePageComponent } from './pages/settings-profile-page/sett
 import { SettingsSecurityPageComponent } from './pages/settings-security-page/settings-security-page.component';
 import { LoggedInGuard } from './guards/logged-in/logged-in.guard';
 import { LoggedOutGuard } from './guards/logged-out/logged-out.guard';
-import { TwoFactorRegisterPageComponent } from './pages/two-factor-register-page/two-factor-register-page.component';
 import { AuthorizedGuard } from './guards/authorized/authorized-guard.service';
-import { TwoFactorGuard } from './guards/two-factor/two-factor-guard.service';
 import { UnauthorizedGuard } from './guards/unauthorized/unauthorized-guard.service';
-import { RequireTwoFactorGuard } from './guards/require-two-factor/require-two-factor-guard.service';
 import { DevicePageComponent } from './pages/device-page/device-page.component';
 // import { DeviceGuard } from './guards/device/device.guard';
 // import { DeviceCheckGuard } from './guards/device-check/device-check.guard';
@@ -31,7 +28,7 @@ const routes: Routes = [
     canActivate: [
       LoggedInGuard,
       AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
+      /*, DeviceCheckGuard*/
     ],
   },
   {
@@ -40,7 +37,7 @@ const routes: Routes = [
     canActivate: [
       LoggedInGuard,
       AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
+      /*, DeviceCheckGuard*/
     ],
   },
   {
@@ -49,7 +46,7 @@ const routes: Routes = [
     canActivate: [
       LoggedInGuard,
       AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
+      /*, DeviceCheckGuard*/
     ],
   },
   {
@@ -58,7 +55,7 @@ const routes: Routes = [
     canActivate: [
       LoggedInGuard,
       AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
+      /*, DeviceCheckGuard*/
     ],
   },
   {
@@ -67,7 +64,7 @@ const routes: Routes = [
     canActivate: [
       LoggedInGuard,
       AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
+      /*, DeviceCheckGuard*/
     ],
   },
 
@@ -106,17 +103,17 @@ const routes: Routes = [
   {
     path: 'device',
     component: DevicePageComponent,
-    canActivate: [LoggedInGuard, TwoFactorGuard /*, DeviceGuard*/],
+    canActivate: [LoggedInGuard, AuthorizedGuard /*, DeviceGuard*/],
   },
-  {
-    path: 'two-factor-register',
-    component: TwoFactorRegisterPageComponent,
-    canActivate: [LoggedInGuard, RequireTwoFactorGuard],
-  },
+  // {
+  //   path: 'two-factor-register',
+  //   component: TwoFactorRegisterPageComponent,
+  //   canActivate: [LoggedInGuard, RequireTwoFactorGuard],
+  // },
   {
     path: 'two-factor',
     component: TwoFactorLoginPageComponent,
-    canActivate: [LoggedInGuard, TwoFactorGuard, UnauthorizedGuard],
+    canActivate: [LoggedInGuard, UnauthorizedGuard],
   },
   { path: 'settings', redirectTo: 'settings/profile', pathMatch: 'full' },
   {
@@ -125,7 +122,7 @@ const routes: Routes = [
     canActivate: [
       LoggedInGuard,
       AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
+      /*, DeviceCheckGuard*/
     ],
   },
   {
@@ -134,7 +131,7 @@ const routes: Routes = [
     canActivate: [
       LoggedInGuard,
       AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
+      /*, DeviceCheckGuard*/
     ],
   },
 

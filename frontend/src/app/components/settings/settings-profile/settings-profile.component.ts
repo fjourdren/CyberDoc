@@ -97,6 +97,7 @@ export class SettingsProfileComponent {
                 this.profileForm.get('newEmail').value,
                 this.profileForm.get('theme').value,
                 currentPassword,
+                undefined,
               )
               .toPromise();
             this._handleUpdateProfilePromise(promise);
@@ -111,6 +112,7 @@ export class SettingsProfileComponent {
           this.profileForm.get('lastName').value,
           this.profileForm.get('newEmail').value,
           this.profileForm.get('theme').value,
+          undefined,
           undefined,
         )
         .toPromise();

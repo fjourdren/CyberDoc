@@ -58,13 +58,13 @@ export class User {
   tags: FileTag[];
 
   @Prop({ required: true })
-  twoFactorByEmail: boolean;
+  twoFactorEmail: boolean;
 
   @Prop({ required: true })
-  twoFactorBySms: boolean;
+  twoFactorSms: boolean;
 
   @Prop({ required: true })
-  twoFactorByApp: boolean;
+  twoFactorApp: boolean;
 
   @Prop()
   secret: string;
