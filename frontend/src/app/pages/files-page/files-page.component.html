@@ -5,7 +5,7 @@
         </app-files-main-toolbar>
 
         <div *ngIf="!searchMode" class="app-files-breadcrumb-container">
-            <app-files-breadcrumb [currentDirectory]="currentDirectory" [sharedWithMeMode]="sharedWithMeMode">
+            <app-files-breadcrumb [currentDirectory]="currentDirectory" [sharedWithMeMode]="sharedWithMeMode" [binMode]="binMode">
             </app-files-breadcrumb>
         </div>
 
@@ -27,7 +27,7 @@
             </mat-toolbar>
 
             <app-files-treeview *ngIf="!searchMode" [currentDirectoryID]="currentDirectory && currentDirectory._id"
-                [sharedWithMeMode]="sharedWithMeMode"></app-files-treeview>
+                [sharedWithMeMode]="sharedWithMeMode" [binMode]="binMode"></app-files-treeview>
         </mat-drawer>
 
         <div *ngIf="!fileDetailDrawerLocked">
@@ -36,7 +36,7 @@
             </app-files-main-toolbar>
 
             <div *ngIf="!searchMode" class="app-files-breadcrumb-container">
-                <app-files-breadcrumb [sharedWithMeMode]="sharedWithMeMode" [currentDirectory]="currentDirectory">
+                <app-files-breadcrumb [sharedWithMeMode]="sharedWithMeMode" [currentDirectory]="currentDirectory" [binMode]="binMode">
                 </app-files-breadcrumb>
             </div>
 
@@ -48,7 +48,7 @@
         <mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
 
         <app-files-generic-table *ngIf="!loading" [showDetailsButton]="!fileDetailDrawerLocked"
-            [sharedWithMeMode]="sharedWithMeMode" [currentDirectoryID]="currentDirectory && currentDirectory._id"
+            [sharedWithMeMode]="sharedWithMeMode" [binMode]="binMode" [currentDirectoryID]="currentDirectory && currentDirectory._id"
             [currentDirectory]="!searchMode && !sharedWithMeMode && currentDirectory"
             [items]="currentDirectory && currentDirectory.directoryContent" [(selectedNode)]="selectedNode"
             (openButtonClicked)="openButtonClicked($event)" (detailsButtonClicked)="fileDetailDrawer.open()">
@@ -63,7 +63,7 @@
                 {{ 'general.filedetails' | translate }}
                 <div class="take-remaining-space"></div>
             </mat-toolbar>
-            <app-files-details-panel [loading]="loading" [sharedWithMeMode]="sharedWithMeMode"
+            <app-files-details-panel [loading]="loading" [sharedWithMeMode]="sharedWithMeMode" 
                 [node]="selectedNode || (currentDirectory && currentDirectory.path.length === 0 ? null : currentDirectory)">
             </app-files-details-panel>
         </mat-drawer>

@@ -41,7 +41,8 @@
         "create": "Create",
         "share": "Share",
         "export": "PDF export",
-        "delete_confirm": "Are you sure you want to delete '{{name}}' ?",
+        "delete_confirm": "Are you sure you want to send '{{name}}' to the bin ? You may retrieve this file later.",
+        "delete_from_bin": "Do you want to definitely delete '{{name}}' ? You will not be able to retrieve this file.",
         "restore_confirm": "Are you sure you want to restore '{{name}}' ?",
         "sign": "Sign document"
     },
