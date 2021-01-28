@@ -1,7 +1,7 @@
 <mat-progress-bar [mode]="loading ? 'indeterminate' : 'determinate'"></mat-progress-bar>
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
     <!-- This is the tree node template for leaf nodes -->
-    <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding [ngClass]="{'selected': _sharedWithMeMode}">
+    <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding [ngClass]="{'selected': _sharedWithMeMode || _binMode}">
         <!-- use a disabled button to provide padding for tree leaf -->
         <button mat-icon-button disabled></button>
         <a mat-button [routerLink]="['/shared-with-me']" class="tree-node-div">
@@ -15,10 +15,11 @@
         </a>
         
     </mat-tree-node>
-   <!-- <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding 
-        [ngClass]="{'bin': _binMode}&&{'selected':!_sharedWithMeMode}">
+    <!--
+    <mat-tree-node *matTreeNodeDef="let node;when: _binMode" matTreeNodePadding 
+        [ngClass]="{'selected': _binMode}">
         <button mat-icon-button disabled></button>
-        <a mat-button [routerLink]="['/shared-with-me']" class="tree-node-div">
+        <a mat-button [routerLink]="['/bin']" class="tree-node-div">
             <mat-icon>delete</mat-icon>
             {{ 'bin.folderName' | translate }}
         </a>
