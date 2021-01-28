@@ -79,6 +79,7 @@ export class FilesTreeviewComponent {
   }
 
   _binMode: boolean;
+ 
 
   @Input()
   set binMode(val: boolean) {
