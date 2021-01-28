@@ -29,11 +29,7 @@ import { User } from '../schemas/user.schema';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  logger;
-
-  constructor(private readonly authService: AuthService) {
-    this.logger = new Logger(AuthController.name);
-  }
+  constructor(private readonly authService: AuthService) {}
 
   @UseGuards(LocalAuthGuard)
   @SkipJWTAuth()

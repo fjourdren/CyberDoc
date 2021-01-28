@@ -39,6 +39,8 @@ import { MongoSessionInterceptor } from './mongo-session.interceptor';
         SENDGRID_TEMPLATE_REQUEST_CREATE_ACCOUNT: Joi.string().required(),
         SENDGRID_TEMPLATE_SHARED_WITH_YOU: Joi.string().required(),
         SENDGRID_TEMPLATE_2FA_TOKEN: Joi.string().required(),
+        TWILIO_ACCOUNT_SID: Joi.string().required(),
+        TWILIO_AUTH_TOKEN: Joi.string().required(),
       }),
     }),
     MongooseModule.forRootAsync({

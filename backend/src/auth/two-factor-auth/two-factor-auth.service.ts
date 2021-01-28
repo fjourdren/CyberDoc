@@ -1,122 +1,114 @@
-import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model } from 'mongoose';
 import { User, UserDocument } from 'src/schemas/user.schema';
 import { AuthService } from '../auth.service';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const twoFactor = require('node-2fa');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config();
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const twilio = require('twilio')(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN,
-);
+import { generateSecret, verifyToken } from 'node-2fa';
+import { ConfigService } from '@nestjs/config';
+import { TwoFactorType } from './two-factor-type.enum';
 
 @Injectable()
 export class TwoFactorAuthService {
-  logger;
+  private readonly twilio;
+
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly authService: AuthService,
+    private readonly configService: ConfigService,
   ) {
-    this.logger = new Logger(TwoFactorAuthService.name);
+    this.twilio = require('twilio')(
+      this.configService.get<string>('TWILIO_ACCOUNT_SID'),
+      this.configService.get<string>('TWILIO_AUTH_TOKEN'),
+    );
   }
 
   async isAuthorized(accessToken: any): Promise<any> {
     return this.authService.decodeJwt(accessToken)['twoFactorAuthorized'];
   }
 
-  async enable(
-    mongoSession: ClientSession,
-    email: string,
-    type: 'sms' | 'app' | 'email',
-    phone_number: string,
-  ): Promise<any> {
-    const user = await this.userModel.findOne({ email });
+  isSpecific2FAIsEnabled(user: User, type: TwoFactorType) {
     switch (type) {
-      case 'app':
-        user.twoFactorApp = true;
-        break;
-      case 'email':
-        user.twoFactorEmail = true;
-        break;
-      case 'sms':
-        user.twoFactorSms = true;
-        user.phoneNumber = phone_number;
-        break;
+      case TwoFactorType.SMS:
+        return user.twoFactorSms && user.phoneNumber != undefined;
+      case TwoFactorType.APP:
+        return user.twoFactorApp && user.secret != undefined;
+      case TwoFactorType.EMAIL:
+        return user.twoFactorEmail;
     }
-    await new this.userModel(user).save({ session: mongoSession });
-    return { msg: 'Two-Factor by ' + type + ' has been enabled.' };
   }
 
-  async disable(
+  async enableTwoFactorMethod(
     mongoSession: ClientSession,
-    email: string,
-    type: 'sms' | 'app' | 'email',
-  ): Promise<any> {
-    const user = await this.userModel.findOne({ email });
+    user: User,
+    type: TwoFactorType,
+  ) {
     switch (type) {
-      case 'app':
+      case TwoFactorType.APP:
+        user.twoFactorApp = true;
+        break;
+      case TwoFactorType.EMAIL:
+        user.twoFactorEmail = true;
+        break;
+      case TwoFactorType.SMS:
+        user.twoFactorSms = true;
+        break;
+    }
+    return await new this.userModel(user).save({ session: mongoSession });
+  }
+
+  async disableTwoFactorMethod(
+    mongoSession: ClientSession,
+    user: User,
+    type: TwoFactorType,
+  ) {
+    switch (type) {
+      case TwoFactorType.APP:
         user.twoFactorApp = false;
         user.secret = null;
         break;
-      case 'email':
+      case TwoFactorType.EMAIL:
         user.twoFactorEmail = false;
         break;
-      case 'sms':
+      case TwoFactorType.SMS:
         user.twoFactorSms = false;
         user.phoneNumber = null;
         break;
     }
-    await new this.userModel(user).save({ session: mongoSession });
-    return { msg: 'Two-Factor by ' + type + ' has been disabled.' };
+    return await new this.userModel(user).save({ session: mongoSession });
   }
 
-  async generateSecretByEmail(
-    mongoSession: ClientSession,
-    email: string,
-  ): Promise<any> {
-    const user = await this.userModel.findOne({ email });
-    const generatedSecret = twoFactor.generateSecret({
+  async generateSecretForTwoFactorApp(mongoSession: ClientSession, user: User) {
+    const generatedSecret = generateSecret({
       name: 'CyberDoc',
-      account: email,
+      account: user.email,
     });
     user.secret = generatedSecret.secret;
     await new this.userModel(user).save({ session: mongoSession });
     return generatedSecret;
   }
 
-  async sendToken(
-    sendingWay: 'email' | 'sms',
-    emailOrPhoneNumber: string,
-  ): Promise<any> {
-    return twilio.verify
+  async sendToken(type: TwoFactorType.EMAIL | TwoFactorType.SMS, user: User) {
+    let to = type === TwoFactorType.EMAIL ? user.email : user.phoneNumber;
+    await this.twilio.verify
       .services(process.env.TWILIO_SERVICE_ID)
-      .verifications.create({ to: emailOrPhoneNumber, channel: sendingWay });
+      .verifications.create({ to, channel: type });
   }
 
-  async verifyTokenByEmailOrSms(
-    user: any,
-    sendingWay: 'email' | 'sms',
-    token: string,
-  ): Promise<any> {
-    return twilio.verify
-      .services(process.env.TWILIO_SERVICE_ID)
-      .verificationChecks.create({
-        to: sendingWay === 'email' ? user.email : user.phoneNumber,
-        code: token,
-      })
-      .then((res) => {
-        return res;
-      });
-  }
-
-  async verifyTokenGeneratedByApp(user: any, token: string): Promise<any> {
-    const res = twoFactor.verifyToken(user.secret, token);
-    if (!res) {
-      throw new ForbiddenException('Specified Two-Factor token is invalid.');
+  async verifyToken(user: User, type: TwoFactorType, token: string) {
+    if (type === TwoFactorType.APP) {
+      const res = verifyToken(user.secret, token);
+      if (!res)
+        throw new ForbiddenException('Specified Two-Factor token is invalid.');
+      if (res.delta !== 0)
+        throw new ForbiddenException('Wrong token specified');
+    } else {
+      const res = await this.twilio.verify
+        .services(process.env.TWILIO_SERVICE_ID)
+        .verificationChecks.create({
+          to: type === TwoFactorType.EMAIL ? user.email : user.phoneNumber,
+          code: token,
+        });
+      if (!res.valid) throw new ForbiddenException('Wrong token specified');
     }
-    return res.delta;
   }
 }
