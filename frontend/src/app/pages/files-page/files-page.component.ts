@@ -14,6 +14,7 @@ import {
 } from 'src/app/models/files-api-models';
 import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
 import { UsersService } from 'src/app/services/users/users.service';
+import { FilesPurgeDialogComponent } from '../../components/files/files-purge-dialog/files-purge-dialog.component';
 
 @Component({
   selector: 'app-files-page',
@@ -156,7 +157,7 @@ export class FilesPageComponent implements AfterViewInit {
       promise = this.fsService.search(this.routeSearchParams).toPromise();
     } else if (this.sharedWithMeMode) {
       promise = this.fsService.getSharedFiles().toPromise();
-    } else if(this.binMode){
+    } else if (this.binMode) {
       promise = this.fsService.getBinFiles().toPromise();
     } else {
       if (!directoryID && !this.currentDirectory) return; //FIXME
@@ -178,7 +179,6 @@ export class FilesPageComponent implements AfterViewInit {
             for (const item of node.directoryContent) {
               if (item._id === oldSelectedNodeID) {
                 this.selectedNode = item;
-                
               }
             }
           }
@@ -216,5 +216,11 @@ export class FilesPageComponent implements AfterViewInit {
     } else {
       this.router.navigate(['/shared-with-me']);
     }
+  }
+
+  purgeBin() {
+    this.dialog.open(FilesPurgeDialogComponent, {
+      maxWidth: '400px',
+    });
   }
 }

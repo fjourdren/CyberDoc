@@ -10,7 +10,6 @@ import { FileSystemService } from 'src/app/services/filesystems/file-system.serv
 })
 export class FilesPurgeDialogComponent {
   loading = false;
-  
 
   constructor(
     public dialogRef: MatDialogRef<FilesPurgeDialogComponent>,
@@ -28,11 +27,13 @@ export class FilesPurgeDialogComponent {
   onPurgeBtnClicked() {
     this.dialogRef.disableClose = true;
     this.loading = true;
-    this.fsService.purge().toPromise().then(() => {
-        this.dialogRef.disableClose = false;
-        this.loading = false;
-        this.dialogRef.close(true);
-      });
+    //TODO mauvais code à refaire
+
+    /* this.fsService.purge().toPromise().then(() => {
+         this.dialogRef.disableClose = false;
+         this.loading = false;
+         this.dialogRef.close(true);
+       });*/
   }
 
   onCancelBtnClicked() {

@@ -44,6 +44,11 @@
             </div>
         </div>
 
+        <mat-toolbar *ngIf='binMode' style='display: flex; align-items: center'>
+            <span class='mat-h4' style='flex: 1; margin: 0'>Items in the bin are deleted forever after 30 days</span>
+            <a mat-button (click)='purgeBin()'>Empty bin</a>
+        </mat-toolbar>
+
         <mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
 
         <app-files-generic-table *ngIf="!loading" [showDetailsButton]="!fileDetailDrawerLocked"
@@ -70,5 +75,5 @@
         <app-files-upload-progress-snackbar></app-files-upload-progress-snackbar>
 
     </mat-drawer-container>
-    <app-files-upload *ngIf="!searchMode && !sharedWithMeMode" [currentDirectory]="currentDirectory"></app-files-upload>
+    <app-files-upload *ngIf="!searchMode && !sharedWithMeMode && !binMode" [currentDirectory]="currentDirectory"></app-files-upload>
 </div>
