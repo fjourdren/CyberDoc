@@ -12,7 +12,7 @@
             {{ 'fileaction.open' | translate }}
         </span>
     </a>
-    <a href="#" *ngIf="isFilePreviewPreviewAvailable(data.node)" mat-list-item (click)="onBottomSheetSelection($event,'preview')">
+    <a href="#" *ngIf="isFilePreviewPreviewAvailable(data.node) && !data.node.bin_id" mat-list-item (click)="onBottomSheetSelection($event,'preview')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-eye"></mat-icon>
             {{ 'fileaction.preview' | translate }}
