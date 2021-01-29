@@ -35,6 +35,7 @@ export class CloudFile {
   public access: FileAcl;
   public shareMode: 'readonly' | 'readwrite';
   public deviceUsedForCreation: UserDevice;
+  public bin_id: boolean;
 }
 
 export class CloudDirectory {
@@ -50,6 +51,7 @@ export class CloudDirectory {
   public access: FileAcl;
   isDirectory: true;
   public deviceUsedForCreation: UserDevice;
+  public bin_id: boolean;
 }
 
 export interface RespondShare {

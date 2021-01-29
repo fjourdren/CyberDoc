@@ -6,7 +6,7 @@
         </span>
     </a>
     <!-- We can open txt files -->
-    <a href="#" *ngIf="canBeOpened(data.node)" mat-list-item (click)="onBottomSheetSelection($event,'open')">
+    <a href="#" *ngIf="canBeOpened(data.node) && !data.node.bin_id" mat-list-item (click)="onBottomSheetSelection($event,'open')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-external-link-alt"></mat-icon>
             {{ 'fileaction.open' | translate }}
@@ -21,7 +21,7 @@
 
     <!-- We can download every files -->
     <!-- Etherpad files have their own download logic -->
-    <a href="#" *ngIf="!data.node.isDirectory && !isEtherPadFile(data.node)" mat-list-item (click)="onBottomSheetSelection($event,'download')">
+    <a href="#" *ngIf="!data.node.isDirectory && !isEtherPadFile(data.node) && !data.node.bin_id" mat-list-item (click)="onBottomSheetSelection($event,'download')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-file-download"></mat-icon>
             {{ 'fileaction.download' | translate }}
@@ -48,27 +48,27 @@
 
 
     <!-- We can export PDF when it is available -->
-    <a href="#" *ngIf="isPDFExportAvailable(data.node)" mat-list-item (click)="onBottomSheetSelection($event,'export')">
+    <a href="#" *ngIf="isPDFExportAvailable(data.node) && !data.node.bin_id" mat-list-item (click)="onBottomSheetSelection($event,'export')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-file-pdf"></mat-icon>
             {{ 'fileaction.export' | translate }}
         </span>
     </a>
-    <a href="#" *ngIf="!data.node.isDirectory && !data.sharedWithMeMode" mat-list-item
+    <a href="#" *ngIf="!data.node.isDirectory && !data.sharedWithMeMode && !data.node.bin_id" mat-list-item
         (click)="onBottomSheetSelection($event,'share')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-share"></mat-icon>
             {{ 'fileaction.share' | translate }}
         </span>
     </a>
-    <a href="#" *ngIf="data.showDetailsEntry" mat-list-item (click)="onBottomSheetSelection($event,'details')">
+    <a href="#" *ngIf="data.showDetailsEntry && !data.node.bin_id" mat-list-item (click)="onBottomSheetSelection($event,'details')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-info-circle"></mat-icon>
             {{ 'fileaction.details' | translate }}
         </span>
     </a>
     <!-- We can move every files that are in "My safebox" as an Owner -->
-    <a href="#" *ngIf="isOwner() && !data.sharedWithMeMode" mat-list-item
+    <a href="#" *ngIf="isOwner() && !data.sharedWithMeMode && !data.node.bin_id" mat-list-item
         (click)="onBottomSheetSelection($event,'move')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-file-export"></mat-icon>
@@ -76,7 +76,7 @@
         </span>
     </a>
     <!-- We can always copy files as an Owner -->
-    <a href="#" *ngIf="!data.node.isDirectory && isOwner()" mat-list-item
+    <a href="#" *ngIf="!data.node.isDirectory && isOwner() && !data.node.bin_id" mat-list-item
         (click)="onBottomSheetSelection($event,'copy')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-copy"></mat-icon>
@@ -84,14 +84,14 @@
         </span>
     </a>
     <!-- We can't rename a file shared in "read-only" mode -->
-    <a href="#" *ngIf="!data.sharedWithMeMode" mat-list-item (click)="onBottomSheetSelection($event,'rename')">
+    <a href="#" *ngIf="!data.sharedWithMeMode && !data.node.bin_id" mat-list-item (click)="onBottomSheetSelection($event,'rename')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-pen"></mat-icon>
             {{ 'fileaction.rename' | translate }}
         </span>
     </a>
     <!-- We can sign a file as an owner or a collaborator -->
-    <a href="#" *ngIf="!data.node.isDirectory" mat-list-item (click)="onBottomSheetSelection($event,'sign')">
+    <a href="#" *ngIf="!data.node.isDirectory && !data.node.bin_id" mat-list-item (click)="onBottomSheetSelection($event,'sign')">
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-file-signature"></mat-icon>
             {{ 'fileaction.sign' | translate }}
@@ -102,6 +102,13 @@
         <span>
             <mat-icon fontSet="fa" fontIcon="fa-trash"></mat-icon>
             {{ 'fileaction.delete' | translate }}
+        </span>
+    </a>
+    <!-- We can't restore a file not in bin -->
+    <a href="#" *ngIf="data.node.bin_id" mat-list-item (click)="onBottomSheetSelection($event,'restore')">
+        <span>
+            <mat-icon fontSet="fa" fontIcon="fa-trash-restore"></mat-icon>
+            {{ 'fileaction.restore' | translate }}
         </span>
     </a>
 

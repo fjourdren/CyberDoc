@@ -67,6 +67,9 @@ export class File {
 
   @Prop({ required: true })
   deviceUsedForCreation: UserDevice;
+  
+  @Prop()
+  bin_id: boolean;
 
   updated_at: Date;
   created_at: Date;

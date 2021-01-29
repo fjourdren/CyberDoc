@@ -231,6 +231,16 @@
     "dialog_content3": "If your document is complex, please create a copy of your file before.",
     "dialog_content4": "This action can only be done by the owner of the file."
   },
+  "bin": {
+    "folderName": "Bin",
+    "bin": "Bin",
+    "welcome": "Welcome on your bin, here you can view the file you deleted.",
+    "warning": "All file in bin are automatically deleted after 30 days in the bin",
+    "delete": "You can delete definitely all file with the following button :",
+    "purge": "Empty the bin",
+    "warning_purge": "You will delete the entirety of the bin. Proceed ?",
+    "empty": "Empty bin"
+  },
   "general": {
     "generic_error": "Error. Please wait some time then retry",
     "new_name": "New name",

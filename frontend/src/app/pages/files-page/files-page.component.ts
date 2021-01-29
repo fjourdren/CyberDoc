@@ -19,6 +19,7 @@ import {
   FileType,
 } from '../../services/files-utils/files-utils.service';
 import { FilesConvertToEtherpadDialogComponent } from '../../components/files/files-convert-to-etherpad-dialog/files-convert-to-etherpad-dialog.component';
+import { FilesPurgeDialogComponent } from '../../components/files/files-purge-dialog/files-purge-dialog.component';
 
 @Component({
   selector: 'app-files-page',
@@ -35,6 +36,7 @@ export class FilesPageComponent implements AfterViewInit {
   searchMode = false;
   sharedWithMeMode = false;
   currentlyUploading = false;
+  binMode = false;
 
   currentDirectory: CloudDirectory;
   selectedNode: CloudNode;
@@ -110,6 +112,7 @@ export class FilesPageComponent implements AfterViewInit {
             case this.route.toString().indexOf('files') !== -1: {
               if (paramMap.has('dirID')) {
                 this.sharedWithMeMode = false;
+                this.binMode = false;
                 this.searchMode = false;
                 this.routeSearchParams = null;
                 this.refresh(paramMap.get('dirID'));
@@ -122,6 +125,17 @@ export class FilesPageComponent implements AfterViewInit {
             // Shared-with-me
             case this.route.toString().indexOf('shared-with-me') !== -1: {
               this.sharedWithMeMode = true;
+              this.binMode = false;
+              this.searchMode = false;
+              this.routeSearchParams = null;
+              this.refresh();
+              break;
+            }
+
+            // bin
+            case this.route.toString().indexOf('bin') !== -1: {
+              this.sharedWithMeMode = false;
+              this.binMode = true;
               this.searchMode = false;
               this.routeSearchParams = null;
               this.refresh();
@@ -154,6 +168,8 @@ export class FilesPageComponent implements AfterViewInit {
       promise = this.fsService.search(this.routeSearchParams).toPromise();
     } else if (this.sharedWithMeMode) {
       promise = this.fsService.getSharedFiles().toPromise();
+    } else if (this.binMode) {
+      promise = this.fsService.getBinFiles().toPromise();
     } else {
       if (!directoryID && !this.currentDirectory) return; //FIXME
       const id =
@@ -226,5 +242,11 @@ export class FilesPageComponent implements AfterViewInit {
     } else {
       this.router.navigate(['/shared-with-me']);
     }
+  }
+
+  purgeBin() {
+    this.dialog.open(FilesPurgeDialogComponent, {
+      maxWidth: '400px',
+    });
   }
 }

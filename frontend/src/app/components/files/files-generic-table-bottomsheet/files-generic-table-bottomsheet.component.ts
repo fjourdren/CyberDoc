@@ -13,6 +13,7 @@ import { UsersService } from 'src/app/services/users/users.service';
 export interface FilesGenericTableBottomsheetData {
   sharedWithMeMode: boolean;
   callback: (action: string, extra?: string) => void;
+  binMode: boolean;
   showDetailsEntry: boolean;
   readonlyMode: boolean;
   node: CloudNode;

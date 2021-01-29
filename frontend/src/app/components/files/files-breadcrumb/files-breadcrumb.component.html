@@ -7,9 +7,12 @@
         </button>
     </div>
     <a *ngIf="sharedWithMeMode" [routerLink]="['/shared-with-me']" mat-button>Shared with me</a>
-    <a *ngIf="!sharedWithMeMode" [routerLink]="['/files', currentDirectory._id]"
+
+    <a *ngIf="binMode" [routerLink]="['/bin']" mat-button>Your bin</a>
+    
+    <a *ngIf="!sharedWithMeMode && !binMode" [routerLink]="['/files', currentDirectory._id]"
         mat-button>{{currentDirectory.name}}</a>
-    <button *ngIf="!sharedWithMeMode" mat-icon-button (click)="loadDataForContextMenu(currentDirectory._id)"
+    <button *ngIf="!sharedWithMeMode && !binMode" mat-icon-button (click)="loadDataForContextMenu(currentDirectory._id)"
         [matMenuTriggerFor]="menu">
         <mat-icon>keyboard_arrow_right</mat-icon>
     </button>
