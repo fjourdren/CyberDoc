@@ -58,7 +58,14 @@
         "error_loading_preview": "Sorry, we can't preview this file"
     },
     "bin":{
-        "folderName": "Bin"
+        "folderName": "Bin",
+        "bin":"Bin",
+        "welcome":"Welcome on your bin, here you can view the file you deleted.",
+        "warning":"All file in bin are automatically deleted after 30 days in the bin",
+        "delete":"You can delete definitely all file with the following button :", 
+        "purge":"Empty the bin",
+        "warning_purge":"You will delete the entirety of the bin. Proceed ?",
+        "empty":"Empty bin"
     },
     "sharing": {
         "folderName": "Shared with me",

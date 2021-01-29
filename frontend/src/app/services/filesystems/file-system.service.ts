@@ -325,6 +325,20 @@ export class FileSystemService {
       .pipe(map(() => this._refreshNeeded$.emit(), null));
   }
 
+  purge(): Observable<void> {
+    let promise: Promise<CloudNode>;
+    promise = this.getBinFiles().toPromise();
+    promise
+      .then((node) => {
+        if (node.isDirectory) {
+          for (const item of node.directoryContent) {
+            this.delete(item);
+          }
+        }
+      });
+    return;
+  }
+
   restore(node: CloudNode): Observable<void>{
     if(!node.bin_id){
       new Error('Error, file not in bin')
