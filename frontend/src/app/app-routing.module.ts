@@ -55,6 +55,15 @@ const routes: Routes = [
     canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
   },
   {
+    path: 'bin',
+    component: FilesPageComponent,
+    canActivate: [
+      LoggedInGuard,
+      AuthorizedGuard,
+      TwoFactorGuard /*, DeviceCheckGuard*/,
+    ],
+  },
+  {
     path: 'generateRecoveryCodes',
     component: FilesPageComponent,
     canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],

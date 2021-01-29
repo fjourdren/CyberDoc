@@ -69,7 +69,7 @@ import { DOCUMENT_MIMETYPES, TEXT_MIMETYPES } from './file-types';
 @ApiBearerAuth()
 @Controller('files')
 export class FilesController {
-  constructor(private readonly filesService: FilesService) {}
+  constructor(private readonly filesService: FilesService) { }
 
   @Post('search')
   @HttpCode(HttpStatusCode.OK)
@@ -86,6 +86,27 @@ export class FilesController {
     return { msg: 'Done', results };
   }
 
+  @Get('get-bin')
+  @HttpCode(HttpStatusCode.OK)
+  @ApiOperation({
+    summary: 'Get all files in bin',
+    description: 'Get all files the user sended to the bin',
+  })
+  @ApiOkResponse({ description: 'Success', type: GenericResponse })
+  async getBin(@LoggedUser() currentUser: User) {
+    const sharedFiles = await this.filesService.getBin(
+      currentUser,
+    );
+
+    const results = await Promise.all(
+      sharedFiles.map(async (value) => {
+        return await this.filesService.prepareFileForOutput(value);
+      }),
+    );
+
+    return { msg: 'Success', results };
+  }
+
   @Get(':fileID')
   @UseGuards(FileGuard)
   @HttpCode(HttpStatusCode.OK)
@@ -99,9 +120,18 @@ export class FilesController {
   async get(@CurrentFile(FileAcl.READ) file: File) {
     const result = await this.filesService.prepareFileForOutput(file);
     if (file.type == FOLDER) {
-      const folderContents = await this.filesService.getFolderContents(
+      let folderContents = await this.filesService.getFolderContents(
         file._id,
       );
+
+      const binTest: File[] = [];
+      for (const element of folderContents) {
+        if (!element.bin_id) {
+          binTest.push(element)
+        }
+      }
+
+      folderContents = binTest;
 
       //DirectoryContent
       (result as any).directoryContent = await Promise.all(
@@ -644,5 +674,37 @@ export class FilesController {
       file,
     );
     return { msg: 'OK' };
+  }
+
+  @Delete(':fileID/sendBin')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({ summary: 'Send to bin', description: 'Send a file to the bin' })
+  @ApiOkResponse({ description: 'File moved', type: GenericResponse })
+  async sendToBin(@MongoSession() mongoSession: ClientSession,
+    @CurrentFile(FileAcl.OWNER) file: File,) {
+    await this.filesService.sendToBin(file, mongoSession);
+    return { msg: 'File moved to bin' };
+  }
+
+  @Get(':fileID/restore')
+  @UseGuards(FileGuard)
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'fileID',
+    description: 'File ID',
+    example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
+  })
+  @ApiOperation({ summary: 'Restore from bin', description: 'Restore a file from the bin' })
+  @ApiOkResponse({ description: 'File moved', type: GenericResponse })
+  async restore(@MongoSession() mongoSession: ClientSession,
+    @CurrentFile(FileAcl.OWNER) file: File,) {
+    await this.filesService.restore(file, mongoSession);
+    return { msg: 'File restored from bin' };
   }
 }

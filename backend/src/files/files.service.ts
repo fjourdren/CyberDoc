@@ -60,6 +60,7 @@ export const COLUMNS_TO_KEEP_FOR_FILE = [
   'name',
   'mimetype',
   'size',
+  'bin_id',
   'updated_at',
   'created_at',
   'tags',
@@ -79,6 +80,7 @@ export const COLUMNS_TO_KEEP_FOR_FOLDER = [
   'preview',
   'deviceUsedForCreation',
   'owner_id',
+  'bin_id',
 ];
 
 @Injectable()
@@ -173,6 +175,7 @@ export class FilesService {
     file.shareWithPending = [];
     file.tags = [];
     file.deviceUsedForCreation = currentDevice;
+    file.bin_id = false;
     file.created_at = date;
     file.updated_at = date;
 
@@ -472,6 +475,24 @@ export class FilesService {
       await this.getFileContent(user, userHash, file),
     );
     return copyFile;
+  }
+
+  async sendToBin(file: File,
+    mongoSession: ClientSession,
+  ) {
+    file.bin_id = true;
+    return await new this.fileModel(file).save({ session: mongoSession });
+  }
+
+  async restore(file: File,
+    mongoSession: ClientSession,
+  ) {
+    file.bin_id = false;
+    return await new this.fileModel(file).save({ session: mongoSession });
+  }
+
+  async getBin(user: User): Promise<File[]> {
+    return await this.fileModel.find({ bin_id: true, owner_id: user._id}).exec();
   }
 
   async delete(file: File) {

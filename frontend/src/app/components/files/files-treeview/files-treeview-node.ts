@@ -7,5 +7,12 @@ export class FilesTreeviewNode {
     public parents: FilesTreeviewNode[],
     public expandable: boolean = true,
     public selected: boolean = false,
-  ) {}
+    public matIcon: string = 'folder',
+    public url: string[] = undefined,
+  ) {
+    if (!this.url) {
+      this.url = ['/files', directory._id];
+    }
+    console.warn(this.url);
+  }
 }
