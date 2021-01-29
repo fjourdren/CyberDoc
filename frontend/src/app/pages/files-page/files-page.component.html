@@ -26,8 +26,7 @@
                 </button>
             </mat-toolbar>
 
-            <app-files-treeview *ngIf="!searchMode" [currentDirectoryID]="currentDirectory && currentDirectory._id"
-                [sharedWithMeMode]="sharedWithMeMode" [binMode]="binMode"></app-files-treeview>
+            <app-files-treeview *ngIf="!searchMode"></app-files-treeview>
         </mat-drawer>
 
         <div *ngIf="!fileDetailDrawerLocked">
@@ -63,7 +62,7 @@
                 {{ 'general.filedetails' | translate }}
                 <div class="take-remaining-space"></div>
             </mat-toolbar>
-            <app-files-details-panel [loading]="loading" [sharedWithMeMode]="sharedWithMeMode" 
+            <app-files-details-panel [loading]="loading" [sharedWithMeMode]="sharedWithMeMode"
                 [node]="selectedNode || (currentDirectory && currentDirectory.path.length === 0 ? null : currentDirectory)">
             </app-files-details-panel>
         </mat-drawer>
