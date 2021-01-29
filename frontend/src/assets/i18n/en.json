@@ -46,6 +46,7 @@
     "preview": "Preview",
     "edit_with_cyberdoc": "Edit with CyberDoc",
     "convert": "Convert",
+    "restore": "Restore",
     "download_as_doc": "Download as .doc",
     "download_as_odt": "Download as .odt",
     "download_as_txt": "Download as .txt"

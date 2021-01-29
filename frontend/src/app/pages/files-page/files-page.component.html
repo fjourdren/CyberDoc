@@ -27,7 +27,7 @@
             </mat-toolbar>
 
             <div style='display: flex; flex-direction: column; height: 100%;'>
-                <app-files-treeview *ngIf="!searchMode"></app-files-treeview>
+                <app-files-treeview style='flex: 1' *ngIf="!searchMode"></app-files-treeview>
                 <app-files-space-info style='display: block; margin: 16px;'></app-files-space-info>
             </div>
         </mat-drawer>
@@ -49,7 +49,7 @@
 
         <mat-toolbar *ngIf='binMode' style='display: flex; align-items: center'>
             <span class='mat-h4' style='flex: 1; margin: 0'>Items in the bin are deleted forever after 30 days</span>
-            <a mat-button (click)='purgeBin()'>Empty bin</a>
+            <!--<a mat-button (click)='purgeBin()'>Empty bin</a>-->
         </mat-toolbar>
 
         <mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
