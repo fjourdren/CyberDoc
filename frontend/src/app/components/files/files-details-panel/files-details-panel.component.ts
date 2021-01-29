@@ -9,6 +9,7 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { SettingsCreateEditTagDialogComponent } from '../../settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
 import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
 import { UsersService } from 'src/app/services/users/users.service';
+import {FilesPurgeDialogComponent} from '../files-purge-dialog/files-purge-dialog.component'
 
 @Component({
   selector: 'app-files-details-panel',
@@ -20,6 +21,7 @@ export class FilesDetailsPanelComponent {
   @Input() allTags: FileTag[];
   @Input() nodeTags: FileTag[];
   @Input() sharedWithMeMode: boolean;
+  @Input() binMode: boolean;
   previewLoaded = false;
   previewError = false;
 
@@ -110,6 +112,12 @@ export class FilesDetailsPanelComponent {
           }
         }
       });
+  }
+
+  purgeBin() {
+    this.dialog.open(FilesPurgeDialogComponent, {
+      maxWidth: '400px',
+    });
   }
 
   isPreviewAvailable(node: CloudNode) {

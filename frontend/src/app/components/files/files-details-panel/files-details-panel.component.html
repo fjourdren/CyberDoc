@@ -1,3 +1,22 @@
+<div *ngIf="binMode">
+    <div class="mat-title">
+        <mat-icon fontSet="fa" fontIcon="delete"></mat-icon>
+        {{'bin.bin' | translate }}
+    </div>
+    <div mat-dialog-content>
+        {{'bin.welcome' | translate }}
+        <br>
+        {{'bin.warning' | translate }}
+        <br>
+        {{'bin.delete' | translate }}
+        <br>
+        <button id="add-tag-btn" mat-stroked-button mat-button (click)="purgeBin()">
+            {{'bin.empty' | translate}}
+        </button>
+    </div>
+    <mat-divider></mat-divider>
+</div>
+
 <div *ngIf="node">
     <div class="mat-title">
         <mat-icon fontSet="fa" fontIcon="{{getIconForMimetype(node.mimetype)}}"></mat-icon>
