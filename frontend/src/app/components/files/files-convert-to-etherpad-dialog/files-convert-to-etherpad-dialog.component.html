@@ -1,0 +1,25 @@
+<h1 mat-dialog-title>
+  {{'convert.dialog_title' | translate}}
+</h1>
+
+<div mat-dialog-content *ngIf='canConvert'>
+  {{'convert.dialog_content1' | translate}}
+  <br>
+  {{'convert.dialog_content2' | translate}}
+  <br><br>
+  <b>{{'convert.dialog_content3' | translate}}</b>
+</div>
+
+<div mat-dialog-content *ngIf='!canConvert'>
+  {{'convert.dialog_content1' | translate}}
+  <br><br>
+  <b style='color: red'>{{'convert.dialog_content4' | translate}}</b>
+</div>
+
+
+<div mat-dialog-actions align="end">
+  <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+  <button [disabled]="loading" mat-button (click)="onCancelBtnClicked()">{{'general.cancel' | translate}}</button>
+  <button [disabled]="loading || !canConvert" mat-raised-button color="primary" (click)="onConvertBtnClicked()">{{'fileaction.convert' |
+    translate}}</button>
+</div>

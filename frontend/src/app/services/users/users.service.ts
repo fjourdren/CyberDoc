@@ -1,21 +1,28 @@
 import { HttpClient } from '@angular/common/http';
 import { EventEmitter, Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { FileTag } from 'src/app/models/files-api-models';
-import { Device, User } from 'src/app/models/users-api-models';
+import { Session, User } from 'src/app/models/users-api-models';
 import { environment } from 'src/environments/environment';
 import { SHA3 } from 'sha3';
 import { MatDialog } from '@angular/material/dialog';
 import { LoadingDialogComponent } from 'src/app/components/global/loading-dialog/loading-dialog.component';
+
+declare var Stripe: any;
+
+const FORCE_USER_REFRESH_URL_HASH = 'forceUserRefresh';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UsersService {
   private _userUpdated$ = new EventEmitter<User>();
+  private stripe: any;
 
-  constructor(private httpClient: HttpClient, private dialog: MatDialog) {}
+  constructor(private httpClient: HttpClient, private dialog: MatDialog) {
+    this.stripe = Stripe(environment.stripePublicKey);
+  }
 
   getActiveUser() {
     return JSON.parse(
@@ -152,13 +159,14 @@ export class UsersService {
     );
   }
 
-  login(email: string, password: string): any {
+  login(email: string, password: string, currentDeviceName: string): any {
     return this.httpClient
       .post<any>(
         `${environment.apiBaseURL}/auth/login`,
         {
           username: email,
           password,
+          currentDeviceName,
         },
         { withCredentials: true },
       )
@@ -209,17 +217,48 @@ export class UsersService {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  searchExistingUser(email: string): Observable<User> {
-    return null;
+  logout(): Observable<void> {
+    return this.httpClient
+      .post<any>(
+        `${environment.apiBaseURL}/auth/logout`,
+        {},
+        {
+          withCredentials: true,
+        },
+      )
+      .pipe(
+        map(() => {
+          this._setUser(null);
+        }),
+      );
   }
 
-  logout(): Observable<void> {
-    return of(null).pipe(
-      map(() => {
-        this._setUser(null);
-      }),
-    );
+  getActiveSessions() {
+    return this.httpClient
+        .get<any>(`${environment.apiBaseURL}/auth/active-sessions`, {
+          withCredentials: true,
+        })
+        .pipe(
+            map((response) => {
+              return response.sessions as Session[];
+            }),
+        );
+  }
+
+  terminateSession(hashedJWT: string) {
+    return this.httpClient
+        .post<any>(
+            `${environment.apiBaseURL}/auth/terminate-session`,
+            { hashedJWT },
+            {
+              withCredentials: true,
+            },
+        )
+        .pipe(
+            map(() => {
+              return null;
+            }),
+        );
   }
 
   deleteAccount(): Observable<void> {
@@ -232,39 +271,14 @@ export class UsersService {
   }
 
   userUpdated(): Observable<User> {
+    if (location.hash === `#${FORCE_USER_REFRESH_URL_HASH}`) {
+      location.hash = '';
+      this.refreshActiveUser()
+        .toPromise()
+        .then(() => {});
+    }
+
     return this._userUpdated$.asObservable();
-  }
-
-  getUserDevices(): Observable<Device[]> {
-    return this.httpClient
-      .get<any>(`${environment.apiBaseURL}/users/devices`, {
-        withCredentials: true,
-      })
-      .pipe(
-        map((response) => {
-          return response.devices;
-        }),
-      );
-  }
-
-  renameUserDevice(oldName: string, name: string): Observable<void> {
-    return this.httpClient.patch<any>(
-      `${environment.apiBaseURL}/users/devices/${oldName}`,
-      { name },
-      { withCredentials: true },
-    );
-  }
-
-  createUserDevice(
-    name: string,
-    browser: string,
-    OS: string,
-  ): Observable<void> {
-    return this.httpClient.post<any>(
-      `${environment.apiBaseURL}/users/devices`,
-      { name, browser, OS },
-      { withCredentials: true },
-    );
   }
 
   exportRecoveryKey(): Observable<string> {
@@ -302,7 +316,33 @@ export class UsersService {
     return `${environment.apiBaseURL}/users/exportData`;
   }
 
-  private _setUser(user: User) {
+  goToStripeCustomPortal() {
+    this.httpClient
+      .get<any>(`${environment.apiBaseURL}/billing/customer-portal-url`, {
+        withCredentials: true,
+      })
+      .toPromise()
+      .then((response) => response.customerPortalURL as string)
+      .then((customerPortalURL) => location.replace(customerPortalURL));
+  }
+
+  setupSubscription(planId: string) {
+    this.httpClient
+      .post<any>(
+        `${environment.apiBaseURL}/billing/create-checkout-session`,
+        {
+          planId,
+        },
+        {
+          withCredentials: true,
+        },
+      )
+      .toPromise()
+      .then((response) => response.sessionId as string)
+      .then((sessionId) => this.stripe.redirectToCheckout({ sessionId }));
+  }
+
+  _setUser(user: User) {
     localStorage.setItem(environment.userLocalStorageKey, JSON.stringify(user));
     if (user) {
       this._userUpdated$.emit(user);

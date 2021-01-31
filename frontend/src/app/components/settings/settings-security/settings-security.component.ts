@@ -10,7 +10,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MustMatch } from './_helpers/must-match.validator';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
-import { SettingsRenameDeviceDialogComponent } from '../settings-rename-device-dialog/settings-rename-device-dialog.component';
 import { UsersService } from 'src/app/services/users/users.service';
 import { SettingsAskCurrentPasswordDialogComponent } from '../settings-ask-current-password-dialog/settings-ask-current-password-dialog.component';
 
@@ -66,8 +65,6 @@ export class SettingsSecurityComponent {
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
   ) {
-    //this.refreshDevice();
-
     this.passwordForm = this.fb.group(
       {
         newPassword: ['', [Validators.required, passwordValidator()]],
@@ -116,30 +113,6 @@ export class SettingsSecurityComponent {
   public checkError = (controlName: string, errorName: string) => {
     return this.passwordForm.controls[controlName].hasError(errorName);
   };
-
-  renameDevice(name: string): void {
-    const refDialog = this.dialog.open(SettingsRenameDeviceDialogComponent, {
-      width: '400px',
-      data: {
-        name,
-      },
-    });
-    refDialog
-      .afterClosed()
-      .toPromise()
-      .then(() => {
-        this.refreshDevice();
-      });
-  }
-
-  refreshDevice(): void {
-    this.usersService
-      .getUserDevices()
-      .toPromise()
-      .then((value) => {
-        this.dataSource.data = value;
-      });
-  }
 
   downloadRecoveryKey(): void {
     this.loading = true;

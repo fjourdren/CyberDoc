@@ -5,7 +5,7 @@
         </app-files-main-toolbar>
 
         <div *ngIf="!searchMode" class="app-files-breadcrumb-container">
-            <app-files-breadcrumb [currentDirectory]="currentDirectory" [sharedWithMeMode]="sharedWithMeMode">
+            <app-files-breadcrumb [currentDirectory]="currentDirectory" [sharedWithMeMode]="sharedWithMeMode" [binMode]="binMode">
             </app-files-breadcrumb>
         </div>
 
@@ -26,8 +26,10 @@
                 </button>
             </mat-toolbar>
 
-            <app-files-treeview *ngIf="!searchMode" [currentDirectoryID]="currentDirectory && currentDirectory._id"
-                [sharedWithMeMode]="sharedWithMeMode"></app-files-treeview>
+            <div style='display: flex; flex-direction: column; height: 100%;'>
+                <app-files-treeview style='flex: 1' *ngIf="!searchMode"></app-files-treeview>
+                <app-files-space-info style='display: block; margin: 16px;'></app-files-space-info>
+            </div>
         </mat-drawer>
 
         <div *ngIf="!fileDetailDrawerLocked">
@@ -36,7 +38,7 @@
             </app-files-main-toolbar>
 
             <div *ngIf="!searchMode" class="app-files-breadcrumb-container">
-                <app-files-breadcrumb [sharedWithMeMode]="sharedWithMeMode" [currentDirectory]="currentDirectory">
+                <app-files-breadcrumb [sharedWithMeMode]="sharedWithMeMode" [currentDirectory]="currentDirectory" [binMode]="binMode">
                 </app-files-breadcrumb>
             </div>
 
@@ -45,10 +47,15 @@
             </div>
         </div>
 
+        <mat-toolbar *ngIf='binMode' style='display: flex; align-items: center'>
+            <span class='mat-h4' style='flex: 1; margin: 0'>Items in the bin are deleted forever after 30 days</span>
+            <!--<a mat-button (click)='purgeBin()'>Empty bin</a>-->
+        </mat-toolbar>
+
         <mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
 
         <app-files-generic-table *ngIf="!loading" [showDetailsButton]="!fileDetailDrawerLocked"
-            [sharedWithMeMode]="sharedWithMeMode" [currentDirectoryID]="currentDirectory && currentDirectory._id"
+            [sharedWithMeMode]="sharedWithMeMode" [binMode]="binMode" [currentDirectoryID]="currentDirectory && currentDirectory._id"
             [currentDirectory]="!searchMode && !sharedWithMeMode && currentDirectory"
             [items]="currentDirectory && currentDirectory.directoryContent" [(selectedNode)]="selectedNode"
             (openButtonClicked)="openButtonClicked($event)" (detailsButtonClicked)="fileDetailDrawer.open()">
@@ -71,5 +78,13 @@
         <app-files-upload-progress-snackbar></app-files-upload-progress-snackbar>
 
     </mat-drawer-container>
-    <app-files-upload *ngIf="!searchMode && !sharedWithMeMode" [currentDirectory]="currentDirectory"></app-files-upload>
+    <div *ngIf='!currentlyUploading && !searchMode && !sharedWithMeMode && !binMode'>
+        <button id='upload-fab' mat-fab color='primary' [matMenuTriggerFor]='menu'>
+            <mat-icon>add</mat-icon>
+        </button>
+        <mat-menu #menu='matMenu'>
+            <app-files-new-menu [currentDirectory]='currentDirectory'></app-files-new-menu>
+        </mat-menu>
+        <app-files-upload-drag-zone [currentDirectory]="currentDirectory"></app-files-upload-drag-zone>
+    </div>
 </div>

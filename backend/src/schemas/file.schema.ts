@@ -4,6 +4,7 @@ import { SharedWithPending } from './file-sharewith-pending.schema';
 import { FileTag } from './file-tag.schema';
 import { UserSign } from './user-sign.schema';
 import * as mongooseTimestamp from 'mongoose-timestamp';
+import { UserDevice } from './user-device.schema';
 
 export type FileDocument = File & Document;
 export const FOLDER = 0;
@@ -63,6 +64,12 @@ export class File {
 
   @Prop({ required: true })
   owner_id: string;
+
+  @Prop({ required: true })
+  deviceUsedForCreation: UserDevice;
+  
+  @Prop()
+  bin_id: boolean;
 
   updated_at: Date;
   created_at: Date;

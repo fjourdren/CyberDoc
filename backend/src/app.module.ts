@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { RedisModule } from '@svtslv/nestjs-ioredis';
 
 import * as Joi from '@hapi/joi';
 
@@ -16,6 +17,9 @@ import { FileSharingModule } from './file-sharing/file-sharing.module';
 import { UtilsModule } from './utils/utils.module';
 import { FileSigningModule } from './file-signing/file-signing.module';
 import { MongoSessionInterceptor } from './mongo-session.interceptor';
+import { ErrorBanMiddleware } from './error-ban.middleware';
+import { BillingModule } from './billing/billing.module';
+import { JwtBanGuard } from './auth/jwt/jwt-ban.guard';
 
 @Module({
   imports: [
@@ -31,6 +35,7 @@ import { MongoSessionInterceptor } from './mongo-session.interceptor';
         JWT_COOKIE_NAME: Joi.string().required(),
         JWT_COOKIE_DOMAIN: Joi.string().required(),
         MONGODB_URL: Joi.string().required(),
+        REDIS_URL: Joi.string().required(),
         ENCRYPTION_IV: Joi.string().required(),
         SENDGRID_API_KEY: Joi.string().required(),
         SENDGRID_MAIL_FROM: Joi.string().required(),
@@ -41,12 +46,26 @@ import { MongoSessionInterceptor } from './mongo-session.interceptor';
         SENDGRID_TEMPLATE_2FA_TOKEN: Joi.string().required(),
         TWILIO_ACCOUNT_SID: Joi.string().required(),
         TWILIO_AUTH_TOKEN: Joi.string().required(),
+        STRIPE_KEY: Joi.string().required(),
+        STRIPE_RETURN_URL: Joi.string().required(),
+        ETHERPAD_ROOT_URL: Joi.string().required(),
+        ETHERPAD_ROOT_API_URL: Joi.string().required(),
+        ETHERPAD_API_KEY: Joi.string().required(),
       }),
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get('MONGODB_URL'),
+        uri: configService.get<string>('MONGODB_URL'),
+      }),
+      inject: [ConfigService],
+    }),
+    RedisModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        config: {
+          url: configService.get<string>('REDIS_URL'),
+        },
       }),
       inject: [ConfigService],
     }),
@@ -58,6 +77,7 @@ import { MongoSessionInterceptor } from './mongo-session.interceptor';
     FileTagsModule,
     UtilsModule,
     FileSigningModule,
+    BillingModule,
   ],
   controllers: [AppController],
   providers: [
@@ -66,9 +86,17 @@ import { MongoSessionInterceptor } from './mongo-session.interceptor';
       useClass: JwtAuthGuard,
     },
     {
+      provide: APP_GUARD,
+      useClass: JwtBanGuard,
+    },
+    {
       provide: APP_INTERCEPTOR,
       useClass: MongoSessionInterceptor,
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(ErrorBanMiddleware).forRoutes('*');
+  }
+}

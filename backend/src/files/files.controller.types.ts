@@ -25,11 +25,21 @@ export class FileInResponse {
   @ApiProperty({ description: 'File creation date', example: new Date() })
   created_at: Date;
 
+  @ApiProperty({ description: 'File in bin', example: false })
+  bin_id: boolean;
+
   @ApiProperty({ description: 'File tags', type: [FileTag] })
   tags: FileTag[];
 
   @ApiProperty({ description: 'Is file preview enabled', example: true })
   preview: boolean;
+
+  @ApiProperty({
+    description: 'Available rights for current user',
+    enum: ['none', 'read', 'write', 'owner'],
+    enumName: 'FileAcl',
+  })
+  access: string;
 
   @ApiProperty({
     description: 'Email of users who have signed this file',
@@ -74,6 +84,13 @@ export class DirectoryProperties extends FileInResponse {
 export class GetResponse extends GenericResponse {
   @ApiProperty({ description: 'File' })
   content: DirectoryProperties;
+}
+
+export class GetFileResponse extends GenericResponse {
+  @ApiProperty({
+    description: 'File info',
+  })
+  file: FileInResponse;
 }
 
 export class SearchFilesResponse extends GenericResponse {

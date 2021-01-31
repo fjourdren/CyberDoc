@@ -150,6 +150,28 @@ export class FileSystemService {
       );
   }
 
+  getBinFiles(): Observable<CloudDirectory> {
+    return this.httpClient
+      .get<any>(`${environment.apiBaseURL}/files/get-bin`, {
+        withCredentials: true,
+      })
+      .pipe(
+        map((response) => {
+          const folder = new CloudDirectory();
+
+          folder.directoryContent = response.results;
+          folder._id = null;
+          folder.name = null;
+          folder.isDirectory = true;
+          folder.mimetype = DIRECTORY_MIMETYPE;
+          folder.ownerName = null;
+          folder.path = [];
+          folder.tags = [];
+          return folder;
+        }),
+      );
+  }
+
   createDirectory(
     name: string,
     parentFolder: CloudDirectory,
@@ -279,8 +301,48 @@ export class FileSystemService {
   }
 
   delete(node: CloudNode): Observable<void> {
+    if (!node.isDirectory) {
+      if (node.bin_id) {
+        return this.httpClient
+          .delete<any>(`${environment.apiBaseURL}/files/${node._id}`, {
+            withCredentials: true,
+          })
+          .pipe(map(() => this._refreshNeeded$.emit(), null));
+      } else {
+        return this.httpClient
+          .delete<any>(`${environment.apiBaseURL}/files/${node._id}/sendBin`, {
+            withCredentials: true,
+          })
+          .pipe(map(() => this._refreshNeeded$.emit(), null));
+      }
+    }
     return this.httpClient
       .delete<any>(`${environment.apiBaseURL}/files/${node._id}`, {
+        withCredentials: true,
+      })
+      .pipe(map(() => this._refreshNeeded$.emit(), null));
+  }
+
+  //TODO mauvais code à refaire
+  purge() {
+    /*let promise: Promise<CloudNode>;
+    promise = this.getBinFiles().toPromise();
+    promise.then((node) => {
+      if (node.isDirectory) {
+        for (const item of node.directoryContent) {
+          this.delete(item);
+        }
+      }
+    });
+    return promise;*/
+  }
+
+  restore(node: CloudNode): Observable<void> {
+    if (!node.bin_id) {
+      new Error('Error, file not in bin');
+    }
+    return this.httpClient
+      .get<any>(`${environment.apiBaseURL}/files/${node._id}/restore`, {
         withCredentials: true,
       })
       .pipe(map(() => this._refreshNeeded$.emit(), null));
@@ -332,8 +394,12 @@ export class FileSystemService {
       .pipe(map(() => this._refreshNeeded$.emit(), null));
   }
 
-  getDownloadURL(node: CloudNode): string {
-    return `${environment.apiBaseURL}/files/${node._id}/download`;
+  getDownloadURL(node: CloudNode, etherpadExportFormat?: string): string {
+    if (etherpadExportFormat) {
+      return `${environment.apiBaseURL}/files/${node._id}/download?etherpad_export_format=${etherpadExportFormat}`;
+    } else {
+      return `${environment.apiBaseURL}/files/${node._id}/download`;
+    }
   }
 
   getExportURL(node: CloudNode): string {
@@ -349,6 +415,18 @@ export class FileSystemService {
       .get<any>(`${environment.apiBaseURL}/files/${file._id}/etherpad-url`, {
         withCredentials: true,
       })
+      .pipe(map((response) => response.url));
+  }
+
+  convertFileToEtherpadFormat(file: CloudFile): Observable<string> {
+    return this.httpClient
+      .post<any>(
+        `${environment.apiBaseURL}/files/${file._id}/convert-to-etherpad`,
+        null,
+        {
+          withCredentials: true,
+        },
+      )
       .pipe(map((response) => response.url));
   }
 
