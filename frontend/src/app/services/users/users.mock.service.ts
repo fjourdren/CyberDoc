@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Observable, of } from 'rxjs';
-import { Device, User } from 'src/app/models/users-api-models';
+import { User } from 'src/app/models/users-api-models';
 import { delay, map } from 'rxjs/operators';
 import { EventEmitter, Injectable } from '@angular/core';
 import { FileTag } from 'src/app/models/files-api-models';
@@ -25,6 +25,7 @@ const USER: User = {
   twoFactorSms: false,
   twoFactorEmail: false,
   directory_id: 'root',
+  theme: '',
   tags: [
     {
       _id: '65af88e0-4d6f-80da-1cab-6ef5db2c7188',
@@ -338,22 +339,6 @@ export class MockUsersService {
           this._save();
         }),
       );
-  }
-
-  getUserDevices(): Observable<Device[]> {
-    return null;
-  }
-
-  renameUserDevice(oldName: string, name: string): Observable<void> {
-    return;
-  }
-
-  createUserDevice(
-    name: string,
-    browser: string,
-    OS: string,
-  ): Observable<void> {
-    return;
   }
 
   private _getUser(): User {

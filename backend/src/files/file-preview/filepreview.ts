@@ -13,6 +13,7 @@ const lstat = promisify(_lstat);
 async function ensureFileExists(path: string) {
   try {
     if (!(await lstat(path)).isFile()) {
+      // noinspection ExceptionCaughtLocallyJS
       throw new Error('fs.lstat(path).isFile() == false');
     }
   } catch (err) {

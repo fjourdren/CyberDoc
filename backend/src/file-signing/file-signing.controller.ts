@@ -10,7 +10,7 @@ import { LoggedUser } from 'src/auth/logged-user.decorator';
 import { User } from 'src/schemas/user.schema';
 import { FileSigningService } from './file-signing.service';
 import { File } from 'src/schemas/file.schema';
-import { CurrentFile, READ } from 'src/files/current-file.decorator';
+import { CurrentFile } from 'src/files/current-file.decorator';
 import { FileGuard } from 'src/files/file.guard';
 import {
   ApiBadRequestResponse,
@@ -24,6 +24,7 @@ import { GenericResponse } from 'src/generic-response.interceptor';
 import { HttpStatusCode } from 'src/utils/http-status-code';
 import { MongoSession } from 'src/mongo-session.decorator';
 import { ClientSession } from 'mongoose';
+import { FileAcl } from '../files/file-acl';
 
 @ApiTags('file-signing')
 @ApiBearerAuth()
@@ -49,7 +50,7 @@ export class FileSigningController {
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
     @LoggedUserHash() userHash: string,
-    @CurrentFile(READ) file: File,
+    @CurrentFile(FileAcl.READ) file: File,
   ) {
     if (file.signs.find((item) => item.user_email === user.email))
       throw new BadRequestException('You already signed that document');

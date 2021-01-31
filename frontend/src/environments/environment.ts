@@ -6,9 +6,12 @@ export const environment = {
   production: false,
   useSentry: false,
   apiBaseURL: 'http://localhost:3000',
+  etherpadBaseUrl: 'http://localhost:9001',
   authCookieDomain: 'localhost',
   authCookieName: 'access_token',
   userLocalStorageKey: 'real_user',
+  stripePublicKey:
+    'pk_test_51IAhqQJtuzyH7f5D6s19N5gW9iANxOKn82MJELcCnJGvaVhbQhADRksH1Mg8z3qFLXUIVowcHMJ8Ks6FGLCo0mXo00qlEty6Vs',
 };
 
 /*

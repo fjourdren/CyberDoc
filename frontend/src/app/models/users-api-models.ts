@@ -1,6 +1,6 @@
 // from swagger file users.yml
 
-import { FileTag } from './files-api-models';
+import { FileTag, UserDevice } from './files-api-models';
 import { TwoFactorRecoveryCode } from './two-factor-api-models';
 
 export class User {
@@ -20,10 +20,30 @@ export class User {
   public tags: FileTag[];
   public twoFactorRecoveryCodes: TwoFactorRecoveryCode[];
   public theme: string;
+
+  public subscription?: Subscription;
+  public usedSpace: number;
+  public availableSpace: number;
 }
 
-export class Device {
-  public name: string;
-  public browser: string;
-  public OS: string;
+// noinspection JSUnusedGlobalSymbols
+export enum SubscriptionStatus {
+  ACTIVE = 'active',
+  INCOMPLETE = 'incomplete',
+  INCOMPLETE_EXPIRED = 'incomplete_expired',
+  PAST_DUE = 'past_due',
+  TRIALING = 'trialing',
+  UNPAID = 'unpaid',
+} //from Stripe.Subscription.Status;
+
+export class Subscription {
+  status: SubscriptionStatus;
+  planId: string;
+}
+
+export class Session {
+  public device: UserDevice;
+  public hashedJWT: string;
+  public ip: string;
+  public creationDate: Date;
 }

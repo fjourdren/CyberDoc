@@ -12,6 +12,7 @@ import { FileSystemService } from 'src/app/services/filesystems/file-system.serv
 export class FilesBreadcrumbComponent {
   @Input() currentDirectory: CloudDirectory;
   @Input() sharedWithMeMode: boolean;
+  @Input() binMode: boolean;
   contextMenuContent$: Observable<CloudDirectory[]>;
 
   constructor(private fsService: FileSystemService) {}

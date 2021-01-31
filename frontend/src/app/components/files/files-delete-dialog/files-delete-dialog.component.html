@@ -2,7 +2,11 @@
     {{'fileaction.delete' | translate}}
 </h1>
 
-<div mat-dialog-content>
+<div *ngIf="node.bin_id" mat-dialog-content>
+    {{ 'fileaction.delete_from_bin' | translate:translateParams }}
+</div>
+
+<div *ngIf="!node.bin_id" mat-dialog-content>
     {{ 'fileaction.delete_confirm' | translate:translateParams }}
 </div>
 

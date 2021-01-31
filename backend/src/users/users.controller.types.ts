@@ -3,6 +3,7 @@ import { GenericResponse } from 'src/generic-response.interceptor';
 import { FileTag } from 'src/schemas/file-tag.schema';
 import { UserRole } from 'src/schemas/user.schema';
 import { VALID_THEMES } from './is-valid-theme.decorator';
+import { Subscription } from '../billing/billing.controller.types';
 
 //see UserService -> COLUMNS_TO_KEEP_FOR_USER
 export class UserInResponse {
@@ -43,6 +44,18 @@ export class UserInResponse {
     enum: VALID_THEMES,
   })
   theme: string;
+
+  @ApiProperty({
+    description: 'Subscription info for user',
+    type: Subscription,
+  })
+  subscription: Subscription;
+
+  @ApiProperty({ description: 'Used space, in bytes', example: 888 })
+  usedSpace: number;
+
+  @ApiProperty({ description: 'Available space, in bytes', example: 888 })
+  availableSpace: number;
 }
 
 export class GetProfileResponse extends GenericResponse {

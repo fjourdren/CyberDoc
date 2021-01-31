@@ -1,0 +1,12 @@
+mat-progress-bar {
+    margin: 16px;
+    width: unset;
+}
+
+#plan-info {
+    display: flex;
+}
+
+.flex-fill {
+    flex: 1;
+}

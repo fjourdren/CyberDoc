@@ -11,6 +11,7 @@ import {
   PathItem,
   RespondShare,
   RespondAnswerSign,
+  UserDevice,
 } from 'src/app/models/files-api-models';
 import {
   DIRECTORY_MIMETYPE,
@@ -177,6 +178,8 @@ export class MockFileSystemService {
             directoryContent: [],
             isDirectory: true,
             preview: false,
+            deviceUsedForCreation: new UserDevice(),
+            bin_id: false,
           };
 
           let nodes: InternalFileElement[] = Array.from(this.filesMap.values());
@@ -298,6 +301,7 @@ export class MockFileSystemService {
         }),
       );
   }
+
   // TODO : Modifer le share pour ne pas prendre encompte les dossiers.
   share(fileID: string, email: string): Observable<void> {
     let currentFile: InternalFileElement;
@@ -421,6 +425,7 @@ export class MockFileSystemService {
 
     return this.filesMap.get(fileID);
   }
+
   delete(node: CloudNode): Observable<void> {
     return of(null)
       .pipe(delay(DELAY))
@@ -430,6 +435,9 @@ export class MockFileSystemService {
           this._save();
         }),
       );
+  }
+  restore(node: CloudNode): Observable<void>{
+    return
   }
 
   setPreviewEnabled(file: CloudFile, enabled: boolean): Observable<void> {

@@ -9,6 +9,9 @@ export const environment = {
   authCookieDomain: 'cyberdoc.fulgen.fr',
   authCookieName: 'access_token',
   userLocalStorageKey: 'real_user',
+  etherpadBaseUrl: 'https://etherpad.cyberdoc.fulgen.fr',
+  stripePublicKey:
+    'pk_test_51IAhqQJtuzyH7f5D6s19N5gW9iANxOKn82MJELcCnJGvaVhbQhADRksH1Mg8z3qFLXUIVowcHMJ8Ks6FGLCo0mXo00qlEty6Vs',
 };
 
 /*

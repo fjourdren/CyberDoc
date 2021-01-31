@@ -19,9 +19,21 @@ import { DevicePageComponent } from './pages/device-page/device-page.component';
 // import { DeviceGuard } from './guards/device/device.guard';
 // import { DeviceCheckGuard } from './guards/device-check/device-check.guard';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
+import { FilePreviewPageComponent } from './pages/file-preview-page/file-preview-page.component';
+import { SetupBillingPageComponent } from './pages/setup-billing-page/setup-billing-page.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'files', pathMatch: 'full' },
+  {
+    path: 'preview/:fileID',
+    component: FilePreviewPageComponent,
+    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
+  },
+  {
+    path: 'setup-billing',
+    component: SetupBillingPageComponent,
+    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
+  },
   {
     path: 'files-search/:searchParams',
     component: FilesPageComponent,
@@ -51,6 +63,11 @@ const routes: Routes = [
   },
   {
     path: 'shared-with-me',
+    component: FilesPageComponent,
+    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
+  },
+  {
+    path: 'bin',
     component: FilesPageComponent,
     canActivate: [
       LoggedInGuard,

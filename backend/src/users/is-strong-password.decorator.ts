@@ -7,6 +7,7 @@ export function isStrongPassword(value: string): boolean {
   if (!value.match(/[A-Z]/g)) return false;
   if (!value.match(/[a-z]/g)) return false;
   if (!value.match(/[0-9]/g)) return false;
+  // noinspection RedundantIfStatementJS
   if (!value.replace(/[0-9a-zA-Z ]/g, '').length) return false;
 
   return true;

@@ -1,7 +1,6 @@
 import {
   AfterViewInit,
   Component,
-  ElementRef,
   EventEmitter,
   HostListener,
   Input,
@@ -32,29 +31,34 @@ import {
   CloudNode,
 } from 'src/app/models/files-api-models';
 import { FilesDeleteDialogComponent } from '../files-delete-dialog/files-delete-dialog.component';
+import { FilesRestoreDialogComponent } from '../files-restore-dialog/files-restore-dialog.component';
 import { FilesMoveCopyDialogComponent } from '../files-move-copy-dialog/files-move-copy-dialog.component';
 import { MoveCopyDialogModel } from '../files-move-copy-dialog/move-copy-dialog-model';
-import { FilesUtilsService } from 'src/app/services/files-utils/files-utils.service';
+import {
+  FilesUtilsService,
+  FileType,
+} from 'src/app/services/files-utils/files-utils.service';
 import {
   FilesGenericTableBottomsheetComponent,
   FilesGenericTableBottomsheetData,
 } from '../files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 import { FilesRenameDialogComponent } from '../files-rename-dialog/files-rename-dialog.component';
 import { FilesShareMenuDialogComponent } from '../files-share-menu-dialog/files-share-menu-dialog.component';
-import { FilesNewFolderDialogComponent } from '../files-new-folder-dialog/files-new-folder-dialog.component';
 import { FilesSignDialogComponent } from '../files-sign-dialog/files-sign-dialog.component';
 import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
 import { UsersService } from 'src/app/services/users/users.service';
-import { LoadingDialogComponent } from '../../global/loading-dialog/loading-dialog.component';
-import { TranslateService } from '@ngx-translate/core';
+import { Router } from '@angular/router';
+import { FilesNoEnoughStorageDialogComponent } from '../files-no-enough-storage-dialog/files-no-enough-storage-dialog.component';
 
 export type FileAction =
   | 'open'
+  | 'preview'
   | 'download'
   | 'export'
   | 'rename'
   | 'copy'
   | 'delete'
+  | 'restore'
   | 'move'
   | 'details'
   | 'share'
@@ -67,7 +71,7 @@ export type FileAction =
   providers: [...ngResizeObserverProviders],
 })
 export class FilesGenericTableComponent implements AfterViewInit {
-  isTouchScreen = 'ontouchstart' in window;
+  isTouchScreen = eval("'ontouchstart' in window");
   bottomSheetIsOpened = false;
   unselectAfterContextMenuOrBottomSheet = false;
   displayedColumns = ['icon', 'name', 'type', 'size', 'date', 'menubutton'];
@@ -76,12 +80,12 @@ export class FilesGenericTableComponent implements AfterViewInit {
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild('fileContextMenuTrigger') fileContextMenu: MatMenuTrigger;
   @ViewChild('newContextMenuTrigger') newContextMenu: MatMenuTrigger;
-  @ViewChild('file') input: ElementRef<HTMLInputElement>;
   currentlyUploading = false;
 
   @Input() currentDirectoryID: string | null;
   @Input() currentDirectory: CloudDirectory | null;
   @Input() sharedWithMeMode: boolean;
+  @Input() binMode: boolean;
   @Input() showDetailsButton: boolean;
   @Output() selectedNodeChange = new EventEmitter<CloudNode>();
   @Output() openButtonClicked = new EventEmitter<CloudNode>();
@@ -94,9 +98,9 @@ export class FilesGenericTableComponent implements AfterViewInit {
     private ngZone: NgZone,
     private filesUtils: FilesUtilsService,
     resize: NgResizeObserver,
+    private router: Router,
     private fsService: FileSystemService,
     private usersService: UsersService,
-    private translateService: TranslateService,
   ) {
     resize
       .pipe(map((entry) => entry.contentRect.width))
@@ -136,6 +140,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   get items(): CloudNode[] {
+    
     return this.dataSource.data;
   }
 
@@ -154,12 +159,6 @@ export class FilesGenericTableComponent implements AfterViewInit {
       if (this.unselectAfterContextMenuOrBottomSheet) {
         this.setSelectedNode(null);
         this.unselectAfterContextMenuOrBottomSheet = false;
-      }
-    });
-
-    this.input.nativeElement.addEventListener('change', () => {
-      if (this.input.nativeElement.files.length === 1) {
-        this.uploadSelectedFile(this.input.nativeElement.files[0]);
       }
     });
   }
@@ -186,6 +185,15 @@ export class FilesGenericTableComponent implements AfterViewInit {
       !this.isReadOnly(node as CloudFile) &&
       this.usersService.getActiveUser().role === 'owner'
     );
+  }
+
+  isFilePreviewPreviewAvailable(node: CloudNode): boolean {
+    if (!node) {
+      return;
+    }
+
+    const fileType = this.filesUtils.getFileTypeForMimetype(node.mimetype);
+    return this.filesUtils.isFilePreviewAvailable(fileType);
   }
 
   isPDFExportAvailable(node: CloudNode): boolean {
@@ -221,6 +229,13 @@ export class FilesGenericTableComponent implements AfterViewInit {
     );
   }
 
+  isEtherPadFile(node: CloudNode): boolean {
+    return (
+      this.filesUtils.getFileTypeForMimetype(node.mimetype) ===
+      FileType.EtherPad
+    );
+  }
+
   onContextMenu(event: MouseEvent, node: CloudNode): void {
     if (node && this._restrictions.isContextAndBottomSheetDisabled(node)) {
       return;
@@ -251,6 +266,7 @@ export class FilesGenericTableComponent implements AfterViewInit {
       data: {
         callback: this.onContextMenuOrBottomSheetSelection.bind(this),
         sharedWithMeMode: this.sharedWithMeMode,
+        binMode: this.binMode,
         readonlyMode:
           this.sharedWithMeMode && this.isReadOnly(node as CloudFile),
         showDetailsEntry: this.showDetailsButton,
@@ -273,9 +289,12 @@ export class FilesGenericTableComponent implements AfterViewInit {
       });
   }
 
-  onContextMenuOrBottomSheetSelection(action: FileAction): void {
+  onContextMenuOrBottomSheetSelection(
+    action: FileAction,
+    extra?: string,
+  ): void {
     this.ngZone.run(() => {
-      this.execActionOnSelectedNode(action);
+      this.execActionOnSelectedNode(action, extra);
     });
   }
 
@@ -319,8 +338,6 @@ export class FilesGenericTableComponent implements AfterViewInit {
         )
       ) {
         this.execActionOnSelectedNode('open');
-      } else {
-        this.execActionOnSelectedNode('download');
       }
     });
   }
@@ -344,14 +361,18 @@ export class FilesGenericTableComponent implements AfterViewInit {
     }
   }
 
-  execActionOnSelectedNode(action: FileAction): void {
+  execActionOnSelectedNode(action: FileAction, extra?: string): void {
     switch (action) {
       case 'open': {
         this.openButtonClicked.emit(this.selectedNode);
         break;
       }
+      case 'preview': {
+        this.openPreviewForFile(this.selectedNode as CloudFile);
+        break;
+      }
       case 'download': {
-        this.downloadFile(this.selectedNode as CloudFile);
+        this.downloadFile(this.selectedNode as CloudFile, extra);
         break;
       }
       case 'export': {
@@ -365,6 +386,10 @@ export class FilesGenericTableComponent implements AfterViewInit {
       }
       case 'delete': {
         this.deleteNode(this.selectedNode);
+        break;
+      }
+      case 'restore': {
+        this.restoreNode(this.selectedNode);
         break;
       }
       case 'rename': {
@@ -390,26 +415,15 @@ export class FilesGenericTableComponent implements AfterViewInit {
     }
   }
 
-  createFileFromTemplate(templateID: string, extension: string) {
-    const dialogRef = this.dialog.open(LoadingDialogComponent, {
-      width: '96px',
-      height: '96px',
-    });
-
-    this.translateService
-      .get('upload.new_file_name')
-      .toPromise()
-      .then((filename) => {
-        filename = `${filename}.${extension}`;
-        this.fsService
-          .createFileFromTemplate(filename, this.currentDirectory, templateID)
-          .toPromise()
-          .finally(() => dialogRef.close());
-      });
-  }
-
   deleteNode(node: CloudNode): void {
     this.dialog.open(FilesDeleteDialogComponent, {
+      maxWidth: '400px',
+      data: node,
+    });
+  }
+
+  restoreNode(node: CloudNode): void {
+    this.dialog.open(FilesRestoreDialogComponent, {
       maxWidth: '400px',
       data: node,
     });
@@ -423,8 +437,18 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   moveOrCopyNode(node: CloudNode, isCopy: boolean): void {
-    const initialDirectoryID =
-      this.currentDirectoryID || this.usersService.getActiveUser().directory_id;
+    const user = this.usersService.getActiveUser();
+    if (
+      isCopy &&
+      user.usedSpace + (node as CloudFile).size > user.availableSpace
+    ) {
+      this.dialog.open(FilesNoEnoughStorageDialogComponent, {
+        maxWidth: '400px',
+      });
+      return;
+    }
+
+    const initialDirectoryID = this.currentDirectoryID || user.directory_id;
     this.dialog.open(FilesMoveCopyDialogComponent, {
       width: '400px',
       height: '400px',
@@ -432,10 +456,14 @@ export class FilesGenericTableComponent implements AfterViewInit {
     });
   }
 
-  downloadFile(file: CloudFile): void {
+  openPreviewForFile(file: CloudFile) {
+    this.router.navigate(['preview', file._id]);
+  }
+
+  downloadFile(file: CloudFile, etherpadExportFormat?: string): void {
     const anchor = document.createElement('a');
     anchor.download = file.name;
-    anchor.href = this.fsService.getDownloadURL(file);
+    anchor.href = this.fsService.getDownloadURL(file, etherpadExportFormat);
     anchor.click();
     anchor.remove();
   }
@@ -461,22 +489,6 @@ export class FilesGenericTableComponent implements AfterViewInit {
       width: '500px',
       height: '400px',
       data: node,
-    });
-  }
-
-  uploadSelectedFile(file: File) {
-    this.fsService.startFileUpload(file, this.currentDirectory);
-  }
-
-  uploadFile() {
-    this.input.nativeElement.click();
-  }
-
-  createFolder() {
-    console.warn(this.selectedNode);
-    this.dialog.open(FilesNewFolderDialogComponent, {
-      maxWidth: '400px',
-      data: this.currentDirectory,
     });
   }
 }

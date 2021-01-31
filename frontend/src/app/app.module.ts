@@ -1,6 +1,10 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  HttpClient,
+  HttpClientModule,
+} from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
@@ -29,7 +33,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSelectModule } from '@angular/material/select';
 import { MatExpansionModule } from '@angular/material/expansion';
 
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { NgResizeObserverPonyfillModule } from 'ng-resize-observer';
 import { LayoutModule } from '@angular/cdk/layout';
@@ -45,8 +49,10 @@ import { FilesBreadcrumbComponent } from './components/files/files-breadcrumb/fi
 import { FilesMoveCopyDialogComponent } from './components/files/files-move-copy-dialog/files-move-copy-dialog.component';
 import { FilesRenameDialogComponent } from './components/files/files-rename-dialog/files-rename-dialog.component';
 import { FilesDeleteDialogComponent } from './components/files/files-delete-dialog/files-delete-dialog.component';
+import { FilesPurgeDialogComponent } from './components/files/files-purge-dialog/files-purge-dialog.component';
+import { FilesRestoreDialogComponent } from './components/files/files-restore-dialog/files-restore-dialog.component';
 import { FilesNewFolderDialogComponent } from './components/files/files-new-folder-dialog/files-new-folder-dialog.component';
-import { FilesUploadComponent } from './components/files/files-upload/files-upload.component';
+import { FilesUploadDragZoneComponent } from './components/files/files-upload-drag-zone/files-upload-drag-zone.component';
 import { FilesGenericTableComponent } from './components/files/files-generic-table/files-generic-table.component';
 import { FilesGenericTableBottomsheetComponent } from './components/files/files-generic-table-bottomsheet/files-generic-table-bottomsheet.component';
 
@@ -89,19 +95,26 @@ import { SecurityCheckDialogComponent } from './components/security-check-dialog
 import { TwoFactorCheckDialogComponent } from './components/two-factor/two-factor-check-dialog/two-factor-check-dialog.component';
 import { TwoFactorEditDialogComponent } from './components/two-factor/two-factor-edit-dialog/two-factor-edit-dialog.component';
 import { TwoFactorEditComponent } from './components/two-factor/two-factor-edit/two-factor-edit.component';
-import { DevicePageComponent } from './pages/device-page/device-page.component';
-import { SettingsRenameDeviceDialogComponent } from './components/settings/settings-rename-device-dialog/settings-rename-device-dialog.component';
 import {
-  FilesSignDialogComponent,
   FilesSignConfirmDialogComponent,
+  FilesSignDialogComponent,
 } from './components/files/files-sign-dialog/files-sign-dialog.component';
 import { TwoFactorGenerateRecoveryCodesDialogComponent } from './components/two-factor/two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
 import { TwoFactorUseRecoveryCodeDialogComponent } from './components/two-factor/two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
-import { FilesOpenDialogComponent } from './components/files/files-open-dialog/files-open-dialog.component';
+import { FilesConvertToEtherpadDialogComponent } from './components/files/files-convert-to-etherpad-dialog/files-convert-to-etherpad-dialog.component';
 import { TwoFactorService } from './services/twofactor/twofactor.service';
 import { SettingsAskCurrentPasswordDialogComponent } from './components/settings/settings-ask-current-password-dialog/settings-ask-current-password-dialog.component';
 import { LoadingDialogComponent } from './components/global/loading-dialog/loading-dialog.component';
+import { FilePreviewPageComponent } from './pages/file-preview-page/file-preview-page.component';
+import { PdfJsViewerModule } from 'ng2-pdfjs-viewer';
+import { SetupBillingPageComponent } from './pages/setup-billing-page/setup-billing-page.component';
+import { FilesSpaceInfoComponent } from './components/files/files-space-info/files-space-info.component';
+import { SettingsBillingCardComponent } from './components/settings/settings-billing-card/settings-billing-card.component';
+import { FilesNoEnoughStorageDialogComponent } from './components/files/files-no-enough-storage-dialog/files-no-enough-storage-dialog.component';
+import { FilesNewMenuComponent } from './components/files/files-new-menu/files-new-menu.component';
+import { SettingsSessionCardComponent } from './components/settings/settings-session-card/settings-session-card.component';
+import { HttpErrorInterceptor } from './services/http-error.interceptor';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) =>
@@ -116,8 +129,10 @@ const FILES_COMPONENTS = [
   FilesMoveCopyDialogComponent,
   FilesRenameDialogComponent,
   FilesDeleteDialogComponent,
+  FilesPurgeDialogComponent,
+  FilesRestoreDialogComponent,
   FilesNewFolderDialogComponent,
-  FilesUploadComponent,
+  FilesUploadDragZoneComponent,
   FilesGenericTableComponent,
   FilesGenericTableBottomsheetComponent,
   FilesTagsInputComponent,
@@ -192,14 +207,19 @@ if (environment.useSentry) {
     TwoFactorEditComponent,
     TwoFactorGenerateRecoveryCodesDialogComponent,
     TwoFactorUseRecoveryCodeDialogComponent,
-    DevicePageComponent,
-    SettingsRenameDeviceDialogComponent,
     FilesSignDialogComponent,
     FilesSignConfirmDialogComponent,
     ExportRecoveryKeyPageComponent,
-    FilesOpenDialogComponent,
+    FilesConvertToEtherpadDialogComponent,
     SettingsAskCurrentPasswordDialogComponent,
     LoadingDialogComponent,
+    FilePreviewPageComponent,
+    SetupBillingPageComponent,
+    FilesSpaceInfoComponent,
+    SettingsBillingCardComponent,
+    FilesNoEnoughStorageDialogComponent,
+    FilesNewMenuComponent,
+    SettingsSessionCardComponent,
   ],
   imports: [
     BrowserModule,
@@ -242,6 +262,7 @@ if (environment.useSentry) {
     NgResizeObserverPonyfillModule,
     LayoutModule,
     MatRadioModule,
+    PdfJsViewerModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
     }),
@@ -252,6 +273,11 @@ if (environment.useSentry) {
     TwoFactorService,
     UsersService,
     FilesUtilsService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpErrorInterceptor,
+      multi: true,
+    },
   ],
   bootstrap: [AppComponent],
 })

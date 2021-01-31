@@ -1,4 +1,11 @@
 import { FileType } from '../services/files-utils/files-utils.service';
+import { User } from './users-api-models';
+
+export class UserDevice {
+  public os: string;
+  public browser: string;
+  public name: string;
+}
 
 export class FileTag {
   public _id: string;
@@ -12,9 +19,11 @@ export type PathItem = {
 };
 
 export type CloudNode = CloudFile | CloudDirectory;
+export type FileAcl = 'none' | 'read' | 'write' | 'owner';
 
 export class CloudFile {
   public _id: string;
+  public parent_file_id: string;
   public ownerName: string;
   public name: string;
   public mimetype: Exclude<string, 'application/x-dir'>;
@@ -23,11 +32,15 @@ export class CloudFile {
   public tags: FileTag[];
   public preview: boolean;
   isDirectory: false;
+  public access: FileAcl;
   public shareMode: 'readonly' | 'readwrite';
+  public deviceUsedForCreation: UserDevice;
+  public bin_id: boolean;
 }
 
 export class CloudDirectory {
   public _id: string;
+  public parent_file_id: string;
   public ownerName: string;
   public name: string;
   public mimetype: 'application/x-dir';
@@ -35,7 +48,10 @@ export class CloudDirectory {
   public directoryContent: CloudNode[];
   public tags: FileTag[];
   public preview: false;
+  public access: FileAcl;
   isDirectory: true;
+  public deviceUsedForCreation: UserDevice;
+  public bin_id: boolean;
 }
 
 export interface RespondShare {

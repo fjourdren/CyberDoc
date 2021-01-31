@@ -17,6 +17,8 @@ import { RsaService } from 'src/crypto/rsa.service';
 import { v4 as uuidv4 } from 'uuid';
 import { FileSharingService } from 'src/file-sharing/file-sharing.service';
 import { EditUserDto } from './dto/edit-user.dto';
+import { BillingService } from '../billing/billing.service';
+import { UserDevice } from '../schemas/user-device.schema';
 
 export const COLUMNS_TO_KEEP_FOR_USER = [
   '_id',
@@ -42,13 +44,25 @@ export class UsersService {
     private readonly rsa: RsaService,
     private readonly authService: AuthService,
     private readonly userHashService: UserHashService,
+    private readonly billingService: BillingService,
   ) {}
 
   async prepareUserForOutput(user: User): Promise<UserInResponse> {
-    const result = COLUMNS_TO_KEEP_FOR_USER.reduce((r, key) => {
+    const result: any = COLUMNS_TO_KEEP_FOR_USER.reduce((r, key) => {
       r[key] = user[key];
       return r;
     }, {});
+
+    const subscription = await this.billingService.getSubscription(
+      user.billingAccountID,
+    );
+
+    result.subscription = subscription;
+    result.usedSpace = await this.filesService.getUsedSpace(user);
+    result.availableSpace = this.billingService.getAvailableSpaceForSubscription(
+      subscription,
+    );
+
     return result as UserInResponse;
   }
 
@@ -62,6 +76,7 @@ export class UsersService {
 
   async createUser(
     mongoSession: ClientSession,
+    currentDevice: UserDevice,
     createUserDto: CreateUserDto,
   ): Promise<User> {
     if (await this.findOneByEmail(createUserDto.email)) {
@@ -90,6 +105,7 @@ export class UsersService {
     user.twoFactorEmail = false;
     user.userKeys = userKeys;
     user.theme = 'indigo-pink';
+    user.billingAccountID = await this.billingService.createBillingAccount();
 
     const { rsaPublicKey, rsaPrivateKey } = this.rsa.generateKeys();
     userKeys.public_key = rsaPublicKey;
@@ -98,6 +114,7 @@ export class UsersService {
     const rootFolder = await this.filesService.create(
       mongoSession,
       user,
+      currentDevice,
       'My safebox',
       'application/x-dir',
       null,
@@ -146,6 +163,7 @@ export class UsersService {
   }
 
   async deleteUser(user: User): Promise<void> {
+    await this.billingService.deleteBillingAccount(user.billingAccountID);
     const rootFolder = await this.filesService.findOne(user.directory_id);
     await this.filesService.delete(rootFolder);
 
