@@ -319,7 +319,14 @@ export class TwoFactorEditComponent {
           .subscribe((res) => {
             if (res) {
               // if (xAuthTokenArray && xAuthTokenArray.length === 1) {
-              this.twoFactorService.sendTokenByEmail().toPromise();
+              this.twoFactorService
+                .sendTokenByEmail()
+                .toPromise()
+                .catch((err) => {
+                  this.snackBar.open(err.error.message, null, {
+                    duration: 2500,
+                  });
+                });
               const refDialog = this.dialog.open(TwoFactorEditDialogComponent, {
                 width: '500px',
                 data: {
@@ -351,7 +358,14 @@ export class TwoFactorEditComponent {
     } else {
       // Trying to enable 2FA Email (first time 2FA registering)
       event.source.checked = false;
-      this.twoFactorService.sendTokenByEmail().toPromise();
+      this.twoFactorService
+        .sendTokenByEmail()
+        .toPromise()
+        .catch((err) => {
+          this.snackBar.open(err.error.message, null, {
+            duration: 2500,
+          });
+        });
       const refDialog = this.dialog.open(TwoFactorEditDialogComponent, {
         width: '500px',
         data: {

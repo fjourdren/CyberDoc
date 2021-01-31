@@ -21,7 +21,7 @@ import { ClientSession } from 'mongoose';
 import { LoggedUser } from '../logged-user.decorator';
 import { User } from '../../schemas/user.schema';
 import { TwoFactorAuthService } from './two-factor-auth.service';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth.service';
 import { LoggedUserHash } from '../logged-user-hash.decorator';
@@ -29,6 +29,7 @@ import { TwoFactorTypeAndTokenDto } from '../dto/two-factor-type-and-token.dto';
 import { TwoFactorType } from './two-factor-type.enum';
 import { SendTokenDto } from '../dto/send-token.dto';
 import { IsTwoFactorAuthorized } from '../is-two-factor-authorized';
+import { TwoFactorTypeDto } from '../dto/two-factor-type.dto';
 
 @ApiTags('two-factor-auth')
 @ApiBearerAuth()
@@ -74,7 +75,7 @@ export class TwoFactorAuthController {
   async enableTwoFactor(
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
-    @Body() dto: TwoFactorTypeAndTokenDto,
+    @Body() dto: TwoFactorTypeDto,
   ) {
     if (this.twoFactorAuthService.isSpecific2FAIsEnabled(user, dto.type)) {
       throw new BadRequestException(
@@ -88,11 +89,11 @@ export class TwoFactorAuthController {
       throw new BadRequestException('User secret not defined.');
     }
 
-    await this.twoFactorAuthService.verifyToken(
-      user,
-      dto.type,
-      dto.twoFactorToken,
-    );
+    // await this.twoFactorAuthService.verifyToken(
+    //   user,
+    //   dto.type,
+    //   dto.twoFactorToken,
+    // );
     await this.twoFactorAuthService.enableTwoFactorMethod(
       mongoSession,
       user,
@@ -114,7 +115,7 @@ export class TwoFactorAuthController {
   async disableTwoFactor(
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
-    @Body() dto: TwoFactorTypeAndTokenDto,
+    @Body() dto: TwoFactorTypeDto,
   ) {
     if (!this.twoFactorAuthService.isSpecific2FAIsEnabled(user, dto.type)) {
       throw new BadRequestException(
@@ -122,11 +123,11 @@ export class TwoFactorAuthController {
       );
     }
 
-    await this.twoFactorAuthService.verifyToken(
-      user,
-      dto.type,
-      dto.twoFactorToken,
-    );
+    // await this.twoFactorAuthService.verifyToken(
+    //   user,
+    //   dto.type,
+    //   dto.twoFactorToken,
+    // );
     await this.twoFactorAuthService.disableTwoFactorMethod(
       mongoSession,
       user,
@@ -171,10 +172,7 @@ export class TwoFactorAuthController {
     if (dto.type === TwoFactorType.APP) {
       throw new BadRequestException('Cannot use this endpoint with app 2FA');
     }
-
-    return {
-      msg: await this.twoFactorAuthService.sendToken(dto.type, user),
-    };
+    return { msg: await this.twoFactorAuthService.sendToken(dto.type, user) };
   }
 
   @Post('verifyToken')
