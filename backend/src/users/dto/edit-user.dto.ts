@@ -29,11 +29,23 @@ export class EditUserDto {
   @IsLowercase()
   email: string;
 
-  @ApiProperty({ description: 'User password', example: 'eV66scN@t5tGG%ND' })
+  @ApiProperty({
+    description: 'Current user password',
+    example: 'eV66scN@t5tGG%ND',
+  })
   @IsOptional()
   @IsNotEmpty()
   @IsString()
   currentPassword: string;
+
+  @ApiProperty({
+    description: 'New user password',
+    example: 'eV66scN@t5tGG%ND',
+  })
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  newPassword: string;
 
   @ApiProperty({
     description: 'User theme',

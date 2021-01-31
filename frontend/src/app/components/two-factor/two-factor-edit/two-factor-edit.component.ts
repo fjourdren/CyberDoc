@@ -55,8 +55,6 @@ export class TwoFactorEditComponent {
             .afterClosed()
             .subscribe((res) => {
               if (res) {
-                // if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) {
-                // password:appOrSms:2faToken
                 this.usersService
                   .disableTwoFactor('app', res.twoFactorToken)
                   .toPromise()
@@ -399,20 +397,20 @@ export class TwoFactorEditComponent {
         if (res) {
           // if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) {
           // [password:smsOrAppOrRecoveryCode:2faTokenOrRecoveryCode]
-          if (
-            res.xAuthTokenArray[1] === 'app' ||
-            res.xAuthTokenArray[1] === 'sms'
-          ) {
-            this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
-              maxWidth: '500px',
-              disableClose: true,
-              data: {
-                xAuthTokenArray: res.xAuthTokenArray,
-              },
-            });
-          }
-          // }
+          // if (
+          //   res.xAuthTokenArray[1] === 'app' ||
+          //   res.xAuthTokenArray[1] === 'sms'
+          // ) {
+          this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+            maxWidth: '500px',
+            disableClose: true,
+            // data: {
+            //   xAuthTokenArray: res.xAuthTokenArray,
+            // },
+          });
         }
+        // }
+        // }
       });
   }
 }

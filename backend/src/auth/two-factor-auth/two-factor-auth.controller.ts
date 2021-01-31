@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   Get,
   HttpCode,
   Post,
@@ -30,6 +31,7 @@ import { TwoFactorType } from './two-factor-type.enum';
 import { SendTokenDto } from '../dto/send-token.dto';
 import { IsTwoFactorAuthorized } from '../is-two-factor-authorized';
 import { TwoFactorTypeDto } from '../dto/two-factor-type.dto';
+import { TwoFactorRecoveryCodeDto } from '../dto/two-factor-recovery-code.dto';
 
 @ApiTags('two-factor-auth')
 @ApiBearerAuth()
@@ -204,6 +206,80 @@ export class TwoFactorAuthController {
     this.authService.sendJwtCookie(res, access_token);
     return {
       msg: 'Success',
+    };
+  }
+
+  @Get('generateRecoveryCodes')
+  @HttpCode(HttpStatusCode.OK)
+  @ApiOperation({
+    summary: 'Generates recovery codes for Two-Factor',
+    description: 'Generates recovery codes for Two-Factor',
+  })
+  @ApiOkResponse({
+    description: 'Recovery codes generated',
+    type: GenericResponse,
+  })
+  async generateRecoveryCodes(
+    @MongoSession() mongoSession: ClientSession,
+    @LoggedUser() user: User,
+  ) {
+    if (!user.twoFactorApp && !user.twoFactorEmail && !user.twoFactorSms) {
+      throw new UnauthorizedException(
+        'You must have at least 1 Two-Factor option enabled.',
+      );
+    }
+    return {
+      msg: await this.twoFactorAuthService.generateRecoveryCodes(
+        mongoSession,
+        user,
+      ),
+    };
+  }
+
+  @Post('useRecoveryCode')
+  @HttpCode(HttpStatusCode.OK)
+  @ApiOperation({
+    summary: 'Consumes recovery code for Two-Factor',
+    description: 'Consumes recovery code for Two-Factor',
+  })
+  @ApiOkResponse({
+    description: 'Recovery code used',
+    type: GenericResponse,
+  })
+  async useRecoveryCode(
+    @Res({ passthrough: true }) res: Response,
+    @LoggedUserHash() userHash: string,
+    @MongoSession() mongoSession: ClientSession,
+    @LoggedUser() user: User,
+    @Body() dto: TwoFactorRecoveryCodeDto,
+  ) {
+    if (!user.twoFactorRecoveryCodes) {
+      throw new UnauthorizedException(
+        'You must have generated recovery codes before using one.',
+      );
+    }
+    const codeToUse = user.twoFactorRecoveryCodes.find(
+      (twoFactorRecoveryCode) =>
+        twoFactorRecoveryCode.code === dto.twoFactorRecoveryCode,
+    );
+    if (!codeToUse || !codeToUse.isValid) {
+      throw new ForbiddenException('This recovery code is invalid');
+    }
+
+    const hasRecoveryCodesLeft = await this.twoFactorAuthService.useRecoveryCode(
+      mongoSession,
+      user,
+      dto.twoFactorRecoveryCode,
+    );
+
+    const access_token = this.authService.generateJWTToken(
+      user._id,
+      userHash,
+      true,
+    );
+    this.authService.sendJwtCookie(res, access_token);
+    return {
+      msg: { hasRecoveryCodesLeft },
     };
   }
 }

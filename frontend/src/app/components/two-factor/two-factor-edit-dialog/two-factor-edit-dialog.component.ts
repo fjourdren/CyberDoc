@@ -16,6 +16,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { TwoFactorService } from 'src/app/services/twofactor/twofactor.service';
 import { UsersService } from 'src/app/services/users/users.service';
+import { TwoFactorGenerateRecoveryCodesDialogComponent } from '../two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
 
 const phoneNumberUtil = PhoneNumberUtil.getInstance();
 
@@ -206,6 +207,7 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
         undefined,
         undefined,
         undefined,
+        undefined,
         phoneNumber,
       )
       .toPromise()
@@ -278,11 +280,10 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
       .enableTwoFactor(type, tokenForm)
       .toPromise()
       .then(() => {
-        // TODO 2FA RECOVERY CODES
-        // this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
-        //   maxWidth: '500px',
-        //   disableClose: true,
-        // });
+        this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+          maxWidth: '500px',
+          disableClose: true,
+        });
         this.dialogRef.close(true);
       });
   }

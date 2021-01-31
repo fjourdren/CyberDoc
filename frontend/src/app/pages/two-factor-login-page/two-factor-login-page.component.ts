@@ -142,10 +142,12 @@ export class TwoFactorLoginPageComponent implements OnInit {
       .afterClosed()
       .toPromise()
       .then((res) => {
-        if (res && res.recoveryCodesLeft === false) {
-          this.router.navigate(['/generateRecoveryCodes']);
-        } else {
-          this.router.navigate(['/files']);
+        if (res) {
+          if (!res.hasRecoveryCodesLeft) {
+            this.router.navigate(['/generateRecoveryCodes']);
+          } else {
+            this.router.navigate(['/files']);
+          }
         }
       });
   }

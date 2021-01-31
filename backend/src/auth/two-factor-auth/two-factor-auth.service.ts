@@ -6,6 +6,7 @@ import { AuthService } from '../auth.service';
 import { generateSecret, verifyToken } from 'node-2fa';
 import { ConfigService } from '@nestjs/config';
 import { TwoFactorType } from './two-factor-type.enum';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class TwoFactorAuthService {
@@ -111,5 +112,23 @@ export class TwoFactorAuthService {
         });
       if (!res.valid) throw new ForbiddenException('Wrong token specified');
     }
+  }
+
+  async generateRecoveryCodes(mongoSession: ClientSession, user: User) {
+    user.twoFactorRecoveryCodes = [];
+    for (let i = 0; i < 5; i++) {
+      user.twoFactorRecoveryCodes[i] = {
+        code: uuidv4(),
+        isValid: true,
+      };
+    }
+    await new this.userModel(user).save({ session: mongoSession });
+    return user.twoFactorRecoveryCodes.map((c) => c.code);
+  }
+
+  async useRecoveryCode(mongoSession: ClientSession, user: User, code: string) {
+    user.twoFactorRecoveryCodes.find((c) => c.code === code).isValid = false;
+    await new this.userModel(user).save({ session: mongoSession });
+    return user.twoFactorRecoveryCodes.filter((c) => c.isValid).length > 1;
   }
 }

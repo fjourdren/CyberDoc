@@ -63,7 +63,7 @@ export class SecurityCheckDialogComponent implements OnInit {
               .afterClosed()
               .subscribe((res) => {
                 if (res) {
-                  if (res.recoveryCodesLeft === false) {
+                  if (res.hasRecoveryCodesLeft === false) {
                     this.dialog.open(
                       TwoFactorGenerateRecoveryCodesDialogComponent,
                       {
@@ -72,9 +72,7 @@ export class SecurityCheckDialogComponent implements OnInit {
                       },
                     );
                   }
-                  this.verifyPasswordDialog.close({
-                    recoveryCodesLeft: res.recoveryCodesLeft,
-                  });
+                  this.verifyPasswordDialog.close(true);
                 } else {
                   this.verifyPasswordDialog.close(false);
                 }
