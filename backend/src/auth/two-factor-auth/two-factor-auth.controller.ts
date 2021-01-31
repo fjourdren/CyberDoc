@@ -32,6 +32,8 @@ import { SendTokenDto } from '../dto/send-token.dto';
 import { IsTwoFactorAuthorized } from '../is-two-factor-authorized';
 import { TwoFactorTypeDto } from '../dto/two-factor-type.dto';
 import { TwoFactorRecoveryCodeDto } from '../dto/two-factor-recovery-code.dto';
+import { CurrentDevice } from '../../users/current-device.decorator';
+import { UserDevice } from '../../schemas/user-device.schema';
 
 @ApiTags('two-factor-auth')
 @ApiBearerAuth()
@@ -191,6 +193,7 @@ export class TwoFactorAuthController {
     @Res({ passthrough: true }) res: Response,
     @LoggedUserHash() userHash: string,
     @LoggedUser() user: User,
+    @CurrentDevice() currentDevice: UserDevice,
     @Body() dto: TwoFactorTypeAndTokenDto,
   ) {
     await this.twoFactorAuthService.verifyToken(
@@ -201,6 +204,7 @@ export class TwoFactorAuthController {
     const access_token = this.authService.generateJWTToken(
       user._id,
       userHash,
+      currentDevice.name,
       true,
     );
     this.authService.sendJwtCookie(res, access_token);
@@ -251,6 +255,7 @@ export class TwoFactorAuthController {
     @LoggedUserHash() userHash: string,
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
+    @CurrentDevice() currentDevice: UserDevice,
     @Body() dto: TwoFactorRecoveryCodeDto,
   ) {
     if (!user.twoFactorRecoveryCodes) {
@@ -275,6 +280,7 @@ export class TwoFactorAuthController {
     const access_token = this.authService.generateJWTToken(
       user._id,
       userHash,
+      currentDevice.name,
       true,
     );
     this.authService.sendJwtCookie(res, access_token);

@@ -3,18 +3,14 @@ import {
   Controller,
   HttpCode,
   ForbiddenException,
-  HttpCode,
   Post,
   Req,
   Res,
-  Body,
   BadRequestException,
   Get,
   UseGuards,
-  UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiOperation, ApiOkResponse, ApiTags, ApiBody } from '@nestjs/swagger';
 import { InjectRedis, Redis } from '@svtslv/nestjs-ioredis';
 import {
   ApiBody,
@@ -90,17 +86,17 @@ export class AuthController {
     }
     currentDevice.name = currentDeviceName;
     const ip =
-        req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
+      req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
 
-    const {access_token} = await this.authService.login(
-        req.user,
-        currentDevice,
-        ip,
+    const { access_token } = await this.authService.login(
+      req.user,
+      currentDevice,
+      ip,
     );
     this.authService.sendJwtCookie(res, access_token);
     const expirationDate = new Date();
     expirationDate.setSeconds(
-        expirationDate.getSeconds() +
+      expirationDate.getSeconds() +
         this.configService.get<number>('JWT_EXPIRATION_TIME'),
     );
     return { msg: 'Success' };

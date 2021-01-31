@@ -1,5 +1,4 @@
 import { FileType } from '../services/files-utils/files-utils.service';
-import { User } from './users-api-models';
 
 export class UserDevice {
   public os: string;

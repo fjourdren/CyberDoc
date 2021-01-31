@@ -26,7 +26,8 @@ const phoneNumberUtil = PhoneNumberUtil.getInstance();
   styleUrls: ['./two-factor-edit-dialog.component.scss'],
 })
 export class TwoFactorEditDialogComponent implements AfterViewInit {
-  isSmartphoneOrTablet = 'ontouchstart' in window;
+  // eslint-disable-next-line
+  isSmartphoneOrTablet = ('ontouchstart' in window);
   loading = false;
   allCountries = __allCountries;
   email: string;

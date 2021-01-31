@@ -39,37 +39,37 @@ export class LoginPageComponent implements AfterViewInit {
     this.tooManyErrors = false;
     this.loginForm.disable();
     localStorage.setItem(
-        LAST_DEVICE_NAME_LOCALSTORAGE_KEY,
-        this.loginForm.controls.deviceName.value,
+      LAST_DEVICE_NAME_LOCALSTORAGE_KEY,
+      this.loginForm.controls.deviceName.value,
     );
 
     this.usersService
-        .login(
-            this.loginForm.controls.email.value,
-            this.loginForm.controls.password.value,
-            this.loginForm.controls.deviceName.value,
-        )
-        .toPromise()
-        .then(() => this.router.navigate(['/files']))
-        .catch((err) => {
-          this.wrongCredentialError =
-              err instanceof HttpErrorResponse && err.status === 401;
-          this.tooManyErrors =
-              err instanceof HttpErrorResponse && err.status === 429;
+      .login(
+        this.loginForm.controls.email.value,
+        this.loginForm.controls.password.value,
+        this.loginForm.controls.deviceName.value,
+      )
+      .toPromise()
+      .then(() => this.router.navigate(['/files']))
+      .catch((err) => {
+        this.wrongCredentialError =
+          err instanceof HttpErrorResponse && err.status === 401;
+        this.tooManyErrors =
+          err instanceof HttpErrorResponse && err.status === 429;
 
-          if (!this.wrongCredentialError && !this.tooManyErrors) throw err;
-          else {
-            this.loginForm.enable();
-            this.loading = false;
-          }
-        });
+        if (!this.wrongCredentialError && !this.tooManyErrors) throw err;
+        else {
+          this.loginForm.enable();
+          this.loading = false;
+        }
+      });
   }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       if (localStorage.getItem(LAST_DEVICE_NAME_LOCALSTORAGE_KEY)) {
         this.loginForm.controls.deviceName.setValue(
-            localStorage.getItem(LAST_DEVICE_NAME_LOCALSTORAGE_KEY),
+          localStorage.getItem(LAST_DEVICE_NAME_LOCALSTORAGE_KEY),
         );
       }
     }, 10);
