@@ -16,6 +16,7 @@ export class TwoFactorAuthService {
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     this.twilio = require('twilio')(
       this.configService.get<string>('TWILIO_ACCOUNT_SID'),
       this.configService.get<string>('TWILIO_AUTH_TOKEN'),
@@ -88,8 +89,8 @@ export class TwoFactorAuthService {
   }
 
   async sendToken(type: TwoFactorType.EMAIL | TwoFactorType.SMS, user: User) {
-    let to = type === TwoFactorType.EMAIL ? user.email : user.phoneNumber;
-    await this.twilio.verify
+    const to = type === TwoFactorType.EMAIL ? user.email : user.phoneNumber;
+    return await this.twilio.verify
       .services(process.env.TWILIO_SERVICE_ID)
       .verifications.create({ to, channel: type });
   }
