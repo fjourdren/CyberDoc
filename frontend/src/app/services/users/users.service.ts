@@ -3,10 +3,9 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { FileTag } from 'src/app/models/files-api-models';
-import { User, Device } from 'src/app/models/users-api-models';
+import { Device, User } from 'src/app/models/users-api-models';
 import { environment } from 'src/environments/environment';
 import { SHA3 } from 'sha3';
-import { Base64 } from 'js-base64';
 import { MatDialog } from '@angular/material/dialog';
 import { LoadingDialogComponent } from 'src/app/components/global/loading-dialog/loading-dialog.component';
 
@@ -90,7 +89,8 @@ export class UsersService {
     lastName: string | undefined,
     newEmail: string | undefined,
     theme: string | undefined,
-    currentPassword: string | undefined /*required only if email is changed*/,
+    currentPassword: string | undefined,
+    newPassword: string | undefined,
     phoneNumber: string | undefined,
   ) {
     return this.httpClient
@@ -101,6 +101,7 @@ export class UsersService {
           firstname: firstName,
           lastname: lastName,
           currentPassword,
+          newPassword,
           theme,
           phoneNumber,
         },
@@ -110,26 +111,18 @@ export class UsersService {
   }
 
   updatePassword(
-    password: string,
-    xAuthTokenArray: string[],
+    currentPassword: string,
+    newPassword: string,
   ): Observable<void> {
     const options = {
       withCredentials: true,
-      headers: {
-        'x-auth-token': Base64.encode(
-          xAuthTokenArray[0] +
-            '\t' +
-            xAuthTokenArray[1] +
-            '\t' +
-            xAuthTokenArray[2],
-        ),
-      },
     };
 
     return this.httpClient.post<any>(
       `${environment.apiBaseURL}/users/profile`,
       {
-        password,
+        currentPassword,
+        newPassword,
       },
       options,
     );
@@ -229,19 +222,10 @@ export class UsersService {
     );
   }
 
-  deleteAccount(xAuthTokenArray: string[]): Observable<void> {
+  deleteAccount(): Observable<void> {
     return this.httpClient.delete<any>(
       `${environment.apiBaseURL}/users/profile`,
       {
-        headers: {
-          'x-auth-token': Base64.encode(
-            xAuthTokenArray[0] +
-              '\t' +
-              xAuthTokenArray[1] +
-              '\t' +
-              xAuthTokenArray[2],
-          ),
-        },
         withCredentials: true,
       },
     );

@@ -98,6 +98,7 @@ export class SettingsProfileComponent {
                 this.profileForm.get('theme').value,
                 currentPassword,
                 undefined,
+                undefined,
               )
               .toPromise();
             this._handleUpdateProfilePromise(promise);
@@ -112,6 +113,7 @@ export class SettingsProfileComponent {
           this.profileForm.get('lastName').value,
           this.profileForm.get('newEmail').value,
           this.profileForm.get('theme').value,
+          undefined,
           undefined,
           undefined,
         )
@@ -153,18 +155,13 @@ export class SettingsProfileComponent {
       .afterClosed()
       .subscribe((res) => {
         if (res) {
-          if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) {
-            // password:appOrSms:2faToken
-            this.usersService
-              .deleteAccount(res.xAuthTokenArray)
-              .toPromise()
-              .then(() => {
-                this.loading = false;
-                this.router.navigate(['/logout']);
-              });
-          } else {
-            this.loading = false;
-          }
+          this.usersService
+            .deleteAccount()
+            .toPromise()
+            .then(() => {
+              this.loading = false;
+              this.router.navigate(['/logout']);
+            });
         } else {
           this.loading = false;
         }

@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { FileTag } from './file-tag.schema';
 import * as mongooseTimestamp from 'mongoose-timestamp';
+import { TwoFactorRecoveryCode } from './two-factor-recovery-code.schema';
 
 export type UserDocument = User & Document;
 
@@ -71,6 +72,9 @@ export class User {
 
   @Prop()
   phoneNumber: string;
+
+  @Prop()
+  twoFactorRecoveryCodes: TwoFactorRecoveryCode[];
 
   @Prop({
     required: true,

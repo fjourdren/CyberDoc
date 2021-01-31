@@ -91,41 +91,28 @@ export class TwoFactorService {
   useRecoveryCode(code: string): Observable<boolean> {
     return this.httpClient
       .post<any>(
-        `${environment.apiBaseURL}/2fa/useRecoveryCode`,
-        { code },
+        `${environment.apiBaseURL}/two-factor-auth/useRecoveryCode`,
+        { twoFactorRecoveryCode: code },
         { withCredentials: true },
       )
       .pipe(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         map((response) => {
-          /*if (response) {
-            this.cookieService.set(
-              environment.authCookieName,
-              response.token,
-              this.jwtHelper.getTokenExpirationDate(response.token),
-              '/',
-              environment.authCookieDomain,
-            );
-            localStorage.setItem(
-              'real_user',
-              JSON.stringify(this.jwtHelper.decodeToken(response.token).user),
-            );
-            return response.recoveryCodesLeft;
-          }*/
-          //TODO
-          return false;
+          return response.msg.hasRecoveryCodesLeft;
         }),
       );
   }
 
   generateRecoveryCodes(): Observable<string[]> {
     return this.httpClient
-      .get<any>(`${environment.apiBaseURL}/2fa/generateRecoveryCodes`, {
-        withCredentials: true,
-      })
+      .get<any>(
+        `${environment.apiBaseURL}/two-factor-auth/generateRecoveryCodes`,
+        {
+          withCredentials: true,
+        },
+      )
       .pipe(
         map((response) => {
-          return response.recoveryCodes;
+          return response.msg;
         }),
       );
   }

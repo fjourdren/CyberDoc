@@ -45,10 +45,10 @@ export class TwoFactorUseRecoveryCodeDialogComponent {
     this.twoFactorService
       .useRecoveryCode(this.recoverTwoFactorForm.get('code').value)
       .toPromise()
-      .then((recoveryCodesLeft) => {
+      .then((res) => {
         this.loading = true;
         this.recoverTwoFactorDialog.close({
-          recoveryCodesLeft,
+          hasRecoveryCodesLeft: res,
           usedCode: this.recoverTwoFactorForm.get('code').value,
         });
       })
