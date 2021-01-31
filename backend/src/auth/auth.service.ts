@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
@@ -51,9 +51,9 @@ export class AuthService {
   async getAllValidJwtTokensForUser(userId: string) {
     await this._cleanOutdatedTokens(userId);
     const keys = await this.redis.zrangebyscore(
-        REDIS_VALIDJWT_INDEX_KEY(userId),
-        '-inf',
-        '+inf',
+      REDIS_VALIDJWT_INDEX_KEY(userId),
+      '-inf',
+      '+inf',
     );
     const sessions: Session[] = [];
     for (const rawValue of await this.redis.mget(keys)) {
@@ -65,22 +65,28 @@ export class AuthService {
   async disableJWTToken(userId: string, hashedJWT: string) {
     const ttl = this.configService.get('JWT_EXPIRATION_TIME');
     await this.redis
-        .multi()
-        .zrem(
-            REDIS_VALIDJWT_INDEX_KEY(userId),
-            REDIS_VALIDJWT_KEY(userId, hashedJWT),
-        )
-        .del(REDIS_VALIDJWT_KEY(userId, hashedJWT))
-        .setex(REDIS_BANJWT_KEY(hashedJWT), ttl, 'true')
-        .exec();
+      .multi()
+      .zrem(
+        REDIS_VALIDJWT_INDEX_KEY(userId),
+        REDIS_VALIDJWT_KEY(userId, hashedJWT),
+      )
+      .del(REDIS_VALIDJWT_KEY(userId, hashedJWT))
+      .setex(REDIS_BANJWT_KEY(hashedJWT), ttl, 'true')
+      .exec();
   }
 
   generateJWTToken(
     userID: string,
     userHash: string,
+    currentDeviceName: string,
     twoFactorAuthorized: boolean,
   ) {
-    return this.jwtService.sign({ userID, userHash, twoFactorAuthorized });
+    return this.jwtService.sign({
+      userID,
+      userHash,
+      currentDeviceName,
+      twoFactorAuthorized,
+    });
   }
 
   decodeJwt(accessToken: string) {
@@ -109,11 +115,11 @@ export class AuthService {
       user._doc.twoFactorSms ||
       user._doc.twoFactorEmail;
     const accessToken = this.generateJWTToken(
-        userId,
-        user.hash,
-        currentDevice.name,
-        !hasTwoFactoredEnabled,
-        );
+      userId,
+      user.hash,
+      currentDevice.name,
+      !hasTwoFactoredEnabled,
+    );
 
     const hashObj = new SHA3();
     hashObj.update(accessToken);

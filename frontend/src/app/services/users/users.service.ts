@@ -9,7 +9,7 @@ import { SHA3 } from 'sha3';
 import { MatDialog } from '@angular/material/dialog';
 import { LoadingDialogComponent } from 'src/app/components/global/loading-dialog/loading-dialog.component';
 
-declare var Stripe: any;
+declare let Stripe: any;
 
 const FORCE_USER_REFRESH_URL_HASH = 'forceUserRefresh';
 
@@ -235,30 +235,30 @@ export class UsersService {
 
   getActiveSessions() {
     return this.httpClient
-        .get<any>(`${environment.apiBaseURL}/auth/active-sessions`, {
-          withCredentials: true,
-        })
-        .pipe(
-            map((response) => {
-              return response.sessions as Session[];
-            }),
-        );
+      .get<any>(`${environment.apiBaseURL}/auth/active-sessions`, {
+        withCredentials: true,
+      })
+      .pipe(
+        map((response) => {
+          return response.sessions as Session[];
+        }),
+      );
   }
 
   terminateSession(hashedJWT: string) {
     return this.httpClient
-        .post<any>(
-            `${environment.apiBaseURL}/auth/terminate-session`,
-            { hashedJWT },
-            {
-              withCredentials: true,
-            },
-        )
-        .pipe(
-            map(() => {
-              return null;
-            }),
-        );
+      .post<any>(
+        `${environment.apiBaseURL}/auth/terminate-session`,
+        { hashedJWT },
+        {
+          withCredentials: true,
+        },
+      )
+      .pipe(
+        map(() => {
+          return null;
+        }),
+      );
   }
 
   deleteAccount(): Observable<void> {
@@ -275,6 +275,7 @@ export class UsersService {
       location.hash = '';
       this.refreshActiveUser()
         .toPromise()
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         .then(() => {});
     }
 
