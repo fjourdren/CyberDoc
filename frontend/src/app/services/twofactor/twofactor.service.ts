@@ -21,7 +21,7 @@ export class TwoFactorService {
       })
       .pipe(
         map((response) => {
-          return response;
+          return response.isTwoFactorAuthorized;
         }),
       );
   }

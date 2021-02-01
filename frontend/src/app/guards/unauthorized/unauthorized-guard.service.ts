@@ -44,11 +44,12 @@ export class UnauthorizedGuard implements CanActivate {
         return this.twoFactorService
           .isTwoFactorAuthorized()
           .toPromise()
-          .then(() => {
-            return this.router.parseUrl('/files');
-          })
-          .catch(() => {
-            return true;
+          .then((res) => {
+            if (res) {
+              return this.router.parseUrl('/files');
+            } else {
+              return true;
+            }
           });
       }
     }

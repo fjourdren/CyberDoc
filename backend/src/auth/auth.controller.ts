@@ -1,13 +1,13 @@
 import {
+  BadRequestException,
   Body,
   Controller,
-  HttpCode,
   ForbiddenException,
+  Get,
+  HttpCode,
   Post,
   Req,
   Res,
-  BadRequestException,
-  Get,
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -94,11 +94,6 @@ export class AuthController {
       ip,
     );
     this.authService.sendJwtCookie(res, access_token);
-    const expirationDate = new Date();
-    expirationDate.setSeconds(
-      expirationDate.getSeconds() +
-        this.configService.get<number>('JWT_EXPIRATION_TIME'),
-    );
     return { msg: 'Success' };
   }
 
