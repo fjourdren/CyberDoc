@@ -57,8 +57,11 @@ export class FilesTreeviewDataSource implements DataSource<FilesTreeviewNode> {
   toggleNode(node: FilesTreeviewNode, expand: boolean) {
     if (this.loading) return;
     const index = this.data.indexOf(node);
-
-    if (expand) {
+    if (
+      expand &&
+      node.directory._id !== 'shared-with-me' &&
+      node.directory._id !== 'bin'
+    ) {
       this.loading = true;
       this.fsService
         .get(node.directory._id)

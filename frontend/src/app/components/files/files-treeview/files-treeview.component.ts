@@ -16,6 +16,15 @@ export class FilesTreeviewComponent implements AfterViewInit {
   treeControl: FlatTreeControl<FilesTreeviewNode>;
   dataSource: FilesTreeviewDataSource;
 
+  private _refreshSelection(url: string) {
+    if (this.treeControl.dataNodes) {
+      for (const node of this.treeControl.dataNodes) {
+        console.warn(node.url.join('/'), url, node.url.join('/') === url);
+        node.selected = node.url.join('/') === url;
+      }
+    }
+  }
+
   constructor(
     fsService: FileSystemService,
     usersService: UsersService,
@@ -73,23 +82,12 @@ export class FilesTreeviewComponent implements AfterViewInit {
   }
 
   getLevel = (node: FilesTreeviewNode) => node.level;
-
   isExpandable = (node: FilesTreeviewNode) => node.expandable;
-
   hasChild = (_: number, nodeData: FilesTreeviewNode) => nodeData.expandable;
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       this._refreshSelection(location.pathname);
     }, 10);
-  }
-
-  private _refreshSelection(url: string) {
-    if (this.treeControl.dataNodes) {
-      for (const node of this.treeControl.dataNodes) {
-        console.warn(node.url.join('/'), url, node.url.join('/') === url);
-        node.selected = node.url.join('/') === url;
-      }
-    }
   }
 }
