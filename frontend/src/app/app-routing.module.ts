@@ -15,8 +15,6 @@ import { LoggedInGuard } from './guards/logged-in/logged-in.guard';
 import { LoggedOutGuard } from './guards/logged-out/logged-out.guard';
 import { AuthorizedGuard } from './guards/authorized/authorized-guard.service';
 import { UnauthorizedGuard } from './guards/unauthorized/unauthorized-guard.service';
-// import { DeviceGuard } from './guards/device/device.guard';
-// import { DeviceCheckGuard } from './guards/device-check/device-check.guard';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
 import { FilePreviewPageComponent } from './pages/file-preview-page/file-preview-page.component';
 import { SetupBillingPageComponent } from './pages/setup-billing-page/setup-billing-page.component';
@@ -36,29 +34,17 @@ const routes: Routes = [
   {
     path: 'files-search/:searchParams',
     component: FilesPageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      /*, DeviceCheckGuard*/
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
   {
     path: 'files/:dirID',
     component: FilesPageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      /*, DeviceCheckGuard*/
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
   {
     path: 'files',
     component: FilesPageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      /*, DeviceCheckGuard*/
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
   {
     path: 'shared-with-me',
@@ -68,20 +54,12 @@ const routes: Routes = [
   {
     path: 'bin',
     component: FilesPageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      /*, DeviceCheckGuard*/
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
   {
     path: 'generateRecoveryCodes',
     component: FilesPageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      /*, DeviceCheckGuard*/
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
 
   {
@@ -112,20 +90,8 @@ const routes: Routes = [
   {
     path: 'export-recovery-key',
     component: ExportRecoveryKeyPageComponent,
-    canActivate: [
-      /*LoggedInGuard, AuthorizedGuard, TwoFactorGuard*/
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
-  // {
-  //   path: 'device',
-  //   component: DevicePageComponent,
-  //   canActivate: [LoggedInGuard, AuthorizedGuard /*, DeviceGuard*/],
-  // },
-  // {
-  //   path: 'two-factor-register',
-  //   component: TwoFactorRegisterPageComponent,
-  //   canActivate: [LoggedInGuard, RequireTwoFactorGuard],
-  // },
   {
     path: 'two-factor',
     component: TwoFactorLoginPageComponent,
@@ -135,20 +101,12 @@ const routes: Routes = [
   {
     path: 'settings/profile',
     component: SettingsProfilePageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      /*, DeviceCheckGuard*/
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
   {
     path: 'settings/security',
     component: SettingsSecurityPageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      /*, DeviceCheckGuard*/
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
 
   { path: '**', component: NotFoundPageComponent },

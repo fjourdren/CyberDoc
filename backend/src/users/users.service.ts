@@ -103,6 +103,7 @@ export class UsersService {
     user.twoFactorApp = false;
     user.twoFactorSms = false;
     user.twoFactorEmail = false;
+    user.twoFactorRecoveryCodes = [];
     user.userKeys = userKeys;
     user.theme = 'indigo-pink';
     user.billingAccountID = await this.billingService.createBillingAccount();

@@ -43,11 +43,9 @@ export class AuthorizedGuard implements CanActivate {
       return this.twoFactorService
         .isTwoFactorAuthorized()
         .toPromise()
-        .then(() => {
-          return true;
-        })
-        .catch(() => {
-          return this.router.parseUrl('/two-factor');
+        .then((res) => {
+          if (res) return true;
+          else return this.router.parseUrl('/two-factor');
         });
     }
   }

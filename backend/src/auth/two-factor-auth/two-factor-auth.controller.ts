@@ -52,18 +52,14 @@ export class TwoFactorAuthController {
     description: 'Verify if 2FA is verified',
   })
   @ApiOkResponse({
-    description: 'You are two-factor authorized',
+    description: 'Tell if you are 2FA verified',
     type: GenericResponse,
   })
   async isTwoFactorAuthorized(
     @LoggedUser() user: User,
     @IsTwoFactorAuthorized() twoFactorAuthorized: boolean,
   ) {
-    if (twoFactorAuthorized) {
-      return { msg: 'Success' };
-    } else {
-      throw new UnauthorizedException('You are not two-factor authorized');
-    }
+    return { msg: 'Success', isTwoFactorAuthorized: twoFactorAuthorized };
   }
 
   @Post('enable')

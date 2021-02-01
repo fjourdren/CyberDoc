@@ -105,7 +105,6 @@ export class RegisterPageComponent {
       .then(
         () => {
           this.loading = false;
-          this.router.navigate(['/two-factor-register']);
         },
         (error) => {
           this.loading = false;

@@ -50,19 +50,33 @@ export class LoginPageComponent implements AfterViewInit {
         this.loginForm.controls.deviceName.value,
       )
       .toPromise()
-      .then(() => this.router.navigate(['/files']))
-      .catch((err) => {
-        this.wrongCredentialError =
-          err instanceof HttpErrorResponse && err.status === 401;
-        this.tooManyErrors =
-          err instanceof HttpErrorResponse && err.status === 429;
-
-        if (!this.wrongCredentialError && !this.tooManyErrors) throw err;
-        else {
-          this.loginForm.enable();
+      .then(
+        () => {
           this.loading = false;
-        }
-      });
+          this.router.navigate(['/files']);
+        },
+        (error) => {
+          this.loading = false;
+          this.loginForm.get('email').enable();
+          this.loginForm.get('password').enable();
+
+          console.log('ERROR = ' + error);
+          if (error instanceof HttpErrorResponse && error.status === 401) {
+            this.wrongCredentialError = true;
+          } else if (
+            error instanceof HttpErrorResponse &&
+            error.status === 429
+          ) {
+            this.tooManyErrors = true;
+          }
+
+          if (!this.wrongCredentialError && !this.tooManyErrors) throw error;
+          else {
+            this.loginForm.enable();
+            this.loading = false;
+          }
+        },
+      );
   }
 
   ngAfterViewInit(): void {
