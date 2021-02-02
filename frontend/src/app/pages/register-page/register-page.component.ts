@@ -105,6 +105,7 @@ export class RegisterPageComponent {
       .then(
         () => {
           this.loading = false;
+          this.router.navigate(['/login']);
         },
         (error) => {
           this.loading = false;
