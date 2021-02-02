@@ -16,7 +16,6 @@
         </div>
     </div>
 
-
     <div *ngIf="data.twoFactorMode == 'sms'" id="configure-via-sms-header-container">
         <mat-icon class="header-icon">sms</mat-icon>
         <div class="header-text">
@@ -27,21 +26,21 @@
     <mat-divider></mat-divider>
 
     <div *ngIf="data.twoFactorMode == 'app'" id="configure-via-app-container"
-        [ngClass]="{'isSmartphoneOrTablet': isSmartphoneOrTablet}">
+         [ngClass]="{'isSmartphoneOrTablet': isSmartphoneOrTablet}">
         <div *ngIf="!isSmartphoneOrTablet" id="qr-container">
             <img width="166" height="166" [alt]="qrSecret" [src]="qrURL">
         </div>
         <div id="secret-code-container">
             <div *ngIf="isSmartphoneOrTablet">
                 <a [href]="qrProtocolURL" [disabled]="loading" mat-raised-button
-                    color="primary">{{'twofactor.twofactor_add_to_app' | translate}}</a>
+                   color="primary">{{'twofactor.twofactor_add_to_app' | translate}}</a>
             </div>
 
             <div class="margin-top-bottom">{{'twofactor.twofactor_enter_code' | translate}}</div>
             <div class="secret-code">{{formattedQrSecretLineOne}}</div>
             <div class="secret-code">{{formattedQrSecretLineTwo}}</div>
             <button class="margin-top-bottom" (click)="onCopyBtnClick()" ngxClipboard [cbContent]="qrSecret"
-                mat-raised-button color="accent">{{'fileaction.copy' | translate}}</button>
+                    mat-raised-button color="accent">{{'fileaction.copy' | translate}}</button>
         </div>
     </div>
 
@@ -65,8 +64,14 @@
             </mat-form-field>
         </form>
         <button [disabled]="loading" mat-raised-button color="accent"
-            (click)="onSendSMSBtnClick()">{{'twofactor.send_code' | translate}}</button>
+                (click)="onSendSMSBtnClick()">{{'twofactor.send_code' | translate}}</button>
+    </div>
 
+    <div *ngIf="data.twoFactorMode == 'email'" id="configure-via-email-header-container">
+        <mat-icon class="header-icon">email</mat-icon>
+        <div class="header-text">
+            {{'twofactor.twofactor_email' | translate}} {{ this.email }}
+        </div>
     </div>
 
     <mat-divider></mat-divider>
@@ -79,7 +84,7 @@
         <mat-form-field id="token-input">
             <!-- https://gist.github.com/niksumeiko/360164708c3b326bd1c8#gistcomment-2367048 -->
             <input autocomplete="autocomplete_off_hack_xfr4!k" matInput required size="6" pattern="\d{6}"
-                formControlName="token">
+                   formControlName="token">
         </mat-form-field>
     </form>
 </mat-dialog-content>
@@ -88,5 +93,5 @@
     <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
     <button [disabled]="loading" mat-button (click)="onCancelBtnClick()">{{'general.cancel' | translate}}</button>
     <button [disabled]="loading || !this.tokenForm.valid || (this.data.twoFactorMode == 'sms' && !validPhoneNumber) "
-        mat-button (click)="onOKBtnClick()" mat-raised-button color="primary">{{'general.ok' | translate}}</button>
+            mat-button (click)="onOKBtnClick()" mat-raised-button color="primary">{{'general.ok' | translate}}</button>
 </mat-dialog-actions>

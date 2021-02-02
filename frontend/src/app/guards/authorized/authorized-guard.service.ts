@@ -8,6 +8,7 @@ import {
 } from '@angular/router';
 import { Observable } from 'rxjs';
 import { UsersService } from 'src/app/services/users/users.service';
+import { TwoFactorService } from '../../services/twofactor/twofactor.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,7 @@ import { UsersService } from 'src/app/services/users/users.service';
 export class AuthorizedGuard implements CanActivate {
   constructor(
     private readonly usersService: UsersService,
+    private readonly twoFactorService: TwoFactorService,
     private readonly router: Router,
   ) {}
 
@@ -28,16 +30,23 @@ export class AuthorizedGuard implements CanActivate {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    //TODO replace Promise.resolve
-    const isTwoFactorAuthOKPromise = Promise.resolve(
-      this.usersService.getActiveUser() != undefined,
-    );
-    return isTwoFactorAuthOKPromise.then((isTwoFactorAuthOK) => {
-      if (isTwoFactorAuthOK) {
-        return true;
-      } else {
-        return this.router.parseUrl('/two-factor');
-      }
-    });
+    const activeUser = this.usersService.getActiveUser();
+    // Case "No 2FA configured"
+    if (
+      !activeUser.twoFactorApp &&
+      !activeUser.twoFactorSms &&
+      !activeUser.twoFactorEmail
+    ) {
+      return true;
+    } else {
+      // Case at least 1 2FA configured
+      return this.twoFactorService
+        .isTwoFactorAuthorized()
+        .toPromise()
+        .then((res) => {
+          if (res) return true;
+          else return this.router.parseUrl('/two-factor');
+        });
+    }
   }
 }

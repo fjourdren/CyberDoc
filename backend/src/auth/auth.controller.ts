@@ -1,17 +1,25 @@
 import {
+  BadRequestException,
+  Body,
   Controller,
+  ForbiddenException,
+  Get,
   HttpCode,
   Post,
   Req,
   Res,
-  Body,
-  BadRequestException,
-  Get,
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiOperation, ApiOkResponse, ApiTags, ApiBody } from '@nestjs/swagger';
 import { InjectRedis, Redis } from '@svtslv/nestjs-ioredis';
+import {
+  ApiBody,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { SkipJWTAuth } from 'src/auth/jwt/skip-jwt-auth.annotation';
 import { GenericResponse } from 'src/generic-response.interceptor';
@@ -85,22 +93,35 @@ export class AuthController {
       currentDevice,
       ip,
     );
-    const expirationDate = new Date();
-    expirationDate.setSeconds(
-      expirationDate.getSeconds() +
-        this.configService.get<number>('JWT_EXPIRATION_TIME'),
-    );
+    this.authService.sendJwtCookie(res, access_token);
+    return { msg: 'Success' };
+  }
 
-    res.cookie(
-      this.configService.get<string>('JWT_COOKIE_NAME'),
-      access_token,
-      {
-        path: '/',
-        httpOnly: true,
-        expires: expirationDate,
-        domain: this.configService.get<string>('JWT_COOKIE_DOMAIN'),
-      },
-    );
+  @Post('validatepassword')
+  @HttpCode(HttpStatusCode.OK)
+  @ApiParam({
+    name: 'password',
+    description: 'Password to check',
+    example: '123456',
+  })
+  @ApiOperation({
+    summary: 'Check if specified password is valid',
+    description: 'Check if specified password is valid',
+  })
+  @ApiOkResponse({
+    description: 'Valid password',
+    type: GenericResponse,
+  })
+  @ApiNotFoundResponse({
+    description: 'Password is incorrect',
+    type: GenericResponse,
+  })
+  async validatePassword(
+    @LoggedUser() user: User,
+    @Body('password') password: string,
+  ) {
+    if (!(await this.authService.isValidPassword(user, password)))
+      throw new ForbiddenException('Specified password is incorrect');
     return { msg: 'Success' };
   }
 

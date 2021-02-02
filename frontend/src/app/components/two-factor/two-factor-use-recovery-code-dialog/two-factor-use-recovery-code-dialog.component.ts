@@ -45,16 +45,16 @@ export class TwoFactorUseRecoveryCodeDialogComponent {
     this.twoFactorService
       .useRecoveryCode(this.recoverTwoFactorForm.get('code').value)
       .toPromise()
-      .then((recoveryCodesLeft) => {
+      .then((res) => {
         this.loading = true;
         this.recoverTwoFactorDialog.close({
-          recoveryCodesLeft,
+          hasRecoveryCodesLeft: res,
           usedCode: this.recoverTwoFactorForm.get('code').value,
         });
       })
       .catch((err) => {
         this.loading = false;
-        this.snackBar.open(err.error.msg, null, { duration: 2500 });
+        this.snackBar.open(err.error.message, null, { duration: 2500 });
         this.recoverTwoFactorForm.controls.code.setErrors({ incorrect: true });
       });
   }

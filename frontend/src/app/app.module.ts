@@ -88,7 +88,6 @@ import { FilesShareMenuDialogComponent } from './components/files/files-share-me
 import { PasswordRecoveryPageComponent } from './pages/password-recovery-page/password-recovery-page.component';
 import { ResetPasswordPageComponent } from './pages/reset-password-page/reset-password-page.component';
 import { TwoFactorLoginPageComponent } from './pages/two-factor-login-page/two-factor-login-page.component';
-import { TwoFactorRegisterPageComponent } from './pages/two-factor-register-page/two-factor-register-page.component';
 import { SettingsDeleteTagDialogComponent } from './components/settings/settings-delete-tag-dialog/settings-delete-tag-dialog.component';
 import { SettingsCreateEditTagDialogComponent } from './components/settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
 import { SecurityCheckDialogComponent } from './components/security-check-dialog/security-check-dialog.component';
@@ -198,7 +197,6 @@ if (environment.useSentry) {
     PasswordRecoveryPageComponent,
     ResetPasswordPageComponent,
     TwoFactorLoginPageComponent,
-    TwoFactorRegisterPageComponent,
     SettingsDeleteTagDialogComponent,
     SettingsCreateEditTagDialogComponent,
     SecurityCheckDialogComponent,

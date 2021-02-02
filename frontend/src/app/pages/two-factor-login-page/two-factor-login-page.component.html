@@ -3,7 +3,7 @@
         <form [formGroup]="tokenForm" novalidate (ngSubmit)="onSubmit()">
             <mat-card id="card">
                 <h1 id='app-title'>
-                    <img src="/assets/icons/icon-192x192.png" width="100" height="100" alt="CyberDoc Header" />
+                    <img src="/assets/icons/icon-192x192.png" width="100" height="100" alt="CyberDoc Header"/>
                     <b>{{ 'general.appname' | translate }}</b>
                 </h1>
 
@@ -11,8 +11,9 @@
                     <mat-card-title>Two-factor authentication required</mat-card-title>
                 </mat-card-header>
                 <mat-card-content>
-                    <p *ngIf="twoFactorType === 'app'">Enter token generated on your application</p>
-                    <p *ngIf="twoFactorType === 'sms'">Enter token received on your phone</p>
+                    <p *ngIf="twoFactorType === 'app'">{{ 'twofactor.enter_token_app' | translate }}</p>
+                    <p *ngIf="twoFactorType === 'sms'">{{ 'twofactor.enter_token_sms' | translate }}</p>
+                    <p *ngIf="twoFactorType === 'email'">{{ 'twofactor.enter_token_email' | translate }}</p>
                     <mat-form-field appearance="outline" class="full-width">
                         <mat-label>Token</mat-label>
                         <input matInput formControlName="token" required maxlength="6">
@@ -20,20 +21,29 @@
                             Token is <strong>required. </strong>
                         </mat-error>
                     </mat-form-field>
-                    <button *ngIf="twoFactorType === 'sms' && this.user.twoFactorApp" mat-raised-button color="basic"
-                        (click)="dialogTokenByApp()">I got a token with my App
+                    <button *ngIf="(twoFactorType === 'sms' || twoFactorType === 'email') && this.user.twoFactorApp"
+                            mat-raised-button color="basic" (click)="dialogTokenByApp()">
+                        {{ 'twofactor.use_code_from_app' | translate }}
                     </button>
-                    <button *ngIf="twoFactorType === 'app' && this.user.twoFactorSms" mat-raised-button color="basic"
-                        (click)="sendTokenBySms()">Send me token by SMS
-                    </button><br>
+                    <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'email') && this.user.twoFactorSms"
+                            mat-raised-button color="basic" (click)="sendTokenBySms()">
+                        {{ 'twofactor.send_code_by_sms' | translate }}
+                    </button>
+                    <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'sms') && this.user.twoFactorEmail"
+                            mat-raised-button color="basic" (click)="sendTokenByEmail()">
+                        {{ 'twofactor.send_code_by_email' | translate }}
+                    </button>
                     <a mat-button (click)="openDialogRecovery()">{{ 'accounts.use_recovery_code' | translate }}</a>
                 </mat-card-content>
                 <div id="button-container">
                     <button [disabled]="loading || !tokenForm.valid" mat-raised-button color="primary" type="submit"
-                        class="submit">Validate token</button>
+                            class="submit">
+                        Validate token
+                    </button>
                     <br>
-                    <button [disabled]="loading" routerLink="/logout" mat-stroked-button color="primary">Back to login
-                        page</button>
+                    <button [disabled]="loading" routerLink="/logout" mat-stroked-button color="primary">
+                        Back to login page
+                    </button>
                 </div>
             </mat-card>
         </form>

@@ -13,11 +13,8 @@ import { SettingsProfilePageComponent } from './pages/settings-profile-page/sett
 import { SettingsSecurityPageComponent } from './pages/settings-security-page/settings-security-page.component';
 import { LoggedInGuard } from './guards/logged-in/logged-in.guard';
 import { LoggedOutGuard } from './guards/logged-out/logged-out.guard';
-import { TwoFactorRegisterPageComponent } from './pages/two-factor-register-page/two-factor-register-page.component';
 import { AuthorizedGuard } from './guards/authorized/authorized-guard.service';
-import { TwoFactorGuard } from './guards/two-factor/two-factor-guard.service';
 import { UnauthorizedGuard } from './guards/unauthorized/unauthorized-guard.service';
-import { RequireTwoFactorGuard } from './guards/require-two-factor/require-two-factor-guard.service';
 import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
 import { FilePreviewPageComponent } from './pages/file-preview-page/file-preview-page.component';
 import { SetupBillingPageComponent } from './pages/setup-billing-page/setup-billing-page.component';
@@ -27,46 +24,42 @@ const routes: Routes = [
   {
     path: 'preview/:fileID',
     component: FilePreviewPageComponent,
-    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
   {
     path: 'setup-billing',
     component: SetupBillingPageComponent,
-    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
   {
     path: 'files-search/:searchParams',
     component: FilesPageComponent,
-    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
   {
     path: 'files/:dirID',
     component: FilesPageComponent,
-    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
   {
     path: 'files',
     component: FilesPageComponent,
-    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
   {
     path: 'shared-with-me',
     component: FilesPageComponent,
-    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
   {
     path: 'bin',
     component: FilesPageComponent,
-    canActivate: [
-      LoggedInGuard,
-      AuthorizedGuard,
-      TwoFactorGuard /*, DeviceCheckGuard*/,
-    ],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
   {
     path: 'generateRecoveryCodes',
     component: FilesPageComponent,
-    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
 
   {
@@ -97,30 +90,23 @@ const routes: Routes = [
   {
     path: 'export-recovery-key',
     component: ExportRecoveryKeyPageComponent,
-    canActivate: [
-      /*LoggedInGuard, AuthorizedGuard, TwoFactorGuard*/
-    ],
-  },
-  {
-    path: 'two-factor-register',
-    component: TwoFactorRegisterPageComponent,
-    canActivate: [LoggedInGuard, RequireTwoFactorGuard],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
   {
     path: 'two-factor',
     component: TwoFactorLoginPageComponent,
-    canActivate: [LoggedInGuard, TwoFactorGuard, UnauthorizedGuard],
+    canActivate: [LoggedInGuard, UnauthorizedGuard],
   },
   { path: 'settings', redirectTo: 'settings/profile', pathMatch: 'full' },
   {
     path: 'settings/profile',
     component: SettingsProfilePageComponent,
-    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
   {
     path: 'settings/security',
     component: SettingsSecurityPageComponent,
-    canActivate: [LoggedInGuard, AuthorizedGuard, TwoFactorGuard],
+    canActivate: [LoggedInGuard, AuthorizedGuard],
   },
 
   { path: '**', component: NotFoundPageComponent },

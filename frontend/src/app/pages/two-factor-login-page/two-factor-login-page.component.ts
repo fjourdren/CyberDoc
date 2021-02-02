@@ -55,7 +55,7 @@ export class TwoFactorLoginPageComponent implements OnInit {
       switch (this.twoFactorType) {
         case 'app':
           this.twoFactorService
-            .verifyTokenByApp(undefined, this.tokenForm.get('token').value)
+            .verifyToken('app', this.tokenForm.get('token').value)
             .toPromise()
             .then(() => {
               this.loading = false;
@@ -63,12 +63,12 @@ export class TwoFactorLoginPageComponent implements OnInit {
             })
             .catch((err) => {
               this.loading = false;
-              this.snackBar.open(err.error.msg, null, { duration: 2500 });
+              this.snackBar.open(err.error.message, null, { duration: 2500 });
             });
           break;
         case 'sms':
           this.twoFactorService
-            .verifyTokenBySms(undefined, this.tokenForm.get('token').value)
+            .verifyToken('sms', this.tokenForm.get('token').value)
             .toPromise()
             .then(() => {
               this.loading = false;
@@ -76,7 +76,20 @@ export class TwoFactorLoginPageComponent implements OnInit {
             })
             .catch((err) => {
               this.loading = false;
-              this.snackBar.open(err.error.msg, null, { duration: 2500 });
+              this.snackBar.open(err.error.message, null, { duration: 2500 });
+            });
+          break;
+        case 'email':
+          this.twoFactorService
+            .verifyToken('email', this.tokenForm.get('token').value)
+            .toPromise()
+            .then(() => {
+              this.loading = false;
+              this.router.navigate(['/files']);
+            })
+            .catch((err) => {
+              this.loading = false;
+              this.snackBar.open(err.error.message, null, { duration: 2500 });
             });
           break;
       }
@@ -93,12 +106,28 @@ export class TwoFactorLoginPageComponent implements OnInit {
   sendTokenBySms(): void {
     this.twoFactorType = 'sms';
     this.twoFactorService
-      .sendTokenBySms(undefined)
+      .sendTokenBySms()
       .toPromise()
       .catch((err) =>
-        this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {
+        this.snackBar.open('SMS cannot be sent : ' + err.error.message, null, {
           duration: 2500,
         }),
+      );
+  }
+
+  sendTokenByEmail(): void {
+    this.twoFactorType = 'email';
+    this.twoFactorService
+      .sendTokenByEmail()
+      .toPromise()
+      .catch((err) =>
+        this.snackBar.open(
+          'Email cannot be sent : ' + err.error.message,
+          null,
+          {
+            duration: 2500,
+          },
+        ),
       );
   }
 
@@ -113,10 +142,12 @@ export class TwoFactorLoginPageComponent implements OnInit {
       .afterClosed()
       .toPromise()
       .then((res) => {
-        if (res && res.recoveryCodesLeft === false) {
-          this.router.navigate(['/generateRecoveryCodes']);
-        } else {
-          this.router.navigate(['/files']);
+        if (res) {
+          if (!res.hasRecoveryCodesLeft) {
+            this.router.navigate(['/generateRecoveryCodes']);
+          } else {
+            this.router.navigate(['/files']);
+          }
         }
       });
   }

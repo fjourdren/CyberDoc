@@ -6,11 +6,10 @@ import { FileTag } from 'src/app/models/files-api-models';
 import { Session, User } from 'src/app/models/users-api-models';
 import { environment } from 'src/environments/environment';
 import { SHA3 } from 'sha3';
-import { Base64 } from 'js-base64';
 import { MatDialog } from '@angular/material/dialog';
 import { LoadingDialogComponent } from 'src/app/components/global/loading-dialog/loading-dialog.component';
 
-declare var Stripe: any;
+declare let Stripe: any;
 
 const FORCE_USER_REFRESH_URL_HASH = 'forceUserRefresh';
 
@@ -30,7 +29,6 @@ export class UsersService {
       localStorage.getItem(environment.userLocalStorageKey),
     ) as User;
   }
-
   register(userObj: User, password: string) {
     return this.httpClient.post<void>(`${environment.apiBaseURL}/users`, {
       email: userObj.email,
@@ -94,11 +92,13 @@ export class UsersService {
   }
 
   updateProfile(
-    firstName: string,
-    lastName: string,
-    newEmail: string,
-    theme: string,
-    currentPassword: string | undefined /*required only if email is changed*/,
+    firstName: string | undefined,
+    lastName: string | undefined,
+    newEmail: string | undefined,
+    theme: string | undefined,
+    currentPassword: string | undefined,
+    newPassword: string | undefined,
+    phoneNumber: string | undefined,
   ) {
     return this.httpClient
       .post<any>(
@@ -108,7 +108,9 @@ export class UsersService {
           firstname: firstName,
           lastname: lastName,
           currentPassword,
+          newPassword,
           theme,
+          phoneNumber,
         },
         { withCredentials: true },
       )
@@ -116,67 +118,48 @@ export class UsersService {
   }
 
   updatePassword(
-    password: string,
-    xAuthTokenArray: string[],
+    currentPassword: string,
+    newPassword: string,
   ): Observable<void> {
     const options = {
       withCredentials: true,
-      headers: {
-        'x-auth-token': Base64.encode(
-          xAuthTokenArray[0] +
-            '\t' +
-            xAuthTokenArray[1] +
-            '\t' +
-            xAuthTokenArray[2],
-        ),
-      },
     };
 
     return this.httpClient.post<any>(
       `${environment.apiBaseURL}/users/profile`,
       {
-        password,
+        currentPassword,
+        newPassword,
       },
       options,
     );
   }
 
-  updateTwoFactor(
-    twoFactorApp: boolean,
-    twoFactorSms: boolean,
-    secret: string,
-    phoneNumber: string,
-    xAuthTokenArray: string[],
-  ): Observable<void> {
+  enableTwoFactor(type: string, twoFactorToken: string): Observable<void> {
     const options = { withCredentials: true };
-    if (xAuthTokenArray && xAuthTokenArray.length === 3) {
-      options['headers'] = {
-        'x-auth-token': Base64.encode(
-          xAuthTokenArray[0] +
-            '\t' +
-            xAuthTokenArray[1] +
-            '\t' +
-            xAuthTokenArray[2],
-        ),
-      };
-    } else if (xAuthTokenArray && xAuthTokenArray.length === 1) {
-      options['headers'] = {
-        'x-auth-token': Base64.encode(xAuthTokenArray[0]),
-      };
-    }
     return this.httpClient.post<any>(
-      `${environment.apiBaseURL}/users/profile`,
+      `${environment.apiBaseURL}/two-factor-auth/enable`,
       {
-        twoFactorApp,
-        twoFactorSms,
-        secret,
-        phoneNumber,
+        type,
+        twoFactorToken,
       },
       options,
     );
   }
 
-  login(email: string, password: string, currentDeviceName: string) {
+  disableTwoFactor(type: string, twoFactorToken: string): Observable<void> {
+    const options = { withCredentials: true };
+    return this.httpClient.post<any>(
+      `${environment.apiBaseURL}/two-factor-auth/disable`,
+      {
+        type,
+        twoFactorToken,
+      },
+      options,
+    );
+  }
+
+  login(email: string, password: string, currentDeviceName: string): any {
     return this.httpClient
       .post<any>(
         `${environment.apiBaseURL}/auth/login`,
@@ -278,19 +261,10 @@ export class UsersService {
       );
   }
 
-  deleteAccount(xAuthTokenArray: string[]): Observable<void> {
+  deleteAccount(): Observable<void> {
     return this.httpClient.delete<any>(
       `${environment.apiBaseURL}/users/profile`,
       {
-        headers: {
-          'x-auth-token': Base64.encode(
-            xAuthTokenArray[0] +
-              '\t' +
-              xAuthTokenArray[1] +
-              '\t' +
-              xAuthTokenArray[2],
-          ),
-        },
         withCredentials: true,
       },
     );
@@ -301,6 +275,7 @@ export class UsersService {
       location.hash = '';
       this.refreshActiveUser()
         .toPromise()
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         .then(() => {});
     }
 
