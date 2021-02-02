@@ -141,23 +141,21 @@ export class UsersService {
     user.phoneNumber = editUserDto.phoneNumber || user.phoneNumber;
 
     const emailChanged = editUserDto.email && editUserDto.email !== user.email;
-    const passwordChanged = !(await this.authService.isValidPassword(
-      user,
-      editUserDto.newPassword,
-    ));
-    if (emailChanged || passwordChanged) {
-      if (
-        !(await this.authService.isValidPassword(
-          user,
-          editUserDto.currentPassword,
-        ))
-      ) {
-        throw new ForbiddenException('Missing or wrong password specified');
+    if (editUserDto.currentPassword) {
+      if (emailChanged || editUserDto.newPassword) {
+        if (
+          !(await this.authService.isValidPassword(
+            user,
+            editUserDto.currentPassword,
+          ))
+        ) {
+          throw new ForbiddenException('Missing or wrong password specified');
+        }
+        user.email = editUserDto.email || user.email;
+        user.password = editUserDto.newPassword
+          ? await this.authService.hashPassword(editUserDto.newPassword)
+          : user.password;
       }
-      user.email = editUserDto.email || user.email;
-      user.password = editUserDto.newPassword
-        ? await this.authService.hashPassword(editUserDto.newPassword)
-        : user.password;
     }
 
     return await new this.userModel(user).save({ session: mongoSession });
