@@ -281,10 +281,23 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
       .enableTwoFactor(type, tokenForm)
       .toPromise()
       .then(() => {
-        this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
-          maxWidth: '500px',
-          disableClose: true,
-        });
+        const activeUser = this.usersService.getActiveUser();
+        if (
+          (type === 'app' &&
+            !activeUser.twoFactorSms &&
+            !activeUser.twoFactorEmail) ||
+          (type === 'sms' &&
+            !activeUser.twoFactorApp &&
+            !activeUser.twoFactorEmail) ||
+          (type === 'email' &&
+            !activeUser.twoFactorApp &&
+            !activeUser.twoFactorSms)
+        ) {
+          this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+            maxWidth: '500px',
+            disableClose: true,
+          });
+        }
         this.dialogRef.close(true);
       });
   }
