@@ -1,9 +1,11 @@
 <h1 mat-dialog-title>{{ 'dialogs.two_factor_auth_required' | translate }}</h1>
 <div mat-dialog-content>
+    <div id="form-container">
     <form [formGroup]="twoFactorForm" novalidate (ngSubmit)="onSubmit()">
         <mat-card-content>
             <p *ngIf="twoFactorType === 'app'">{{ 'twofactor.enter_token_app' | translate }}</p>
             <p *ngIf="twoFactorType === 'sms'">{{ 'twofactor.enter_token_sms' | translate }}</p>
+            <p *ngIf="twoFactorType === 'email'">{{ 'twofactor.enter_token_email' | translate }}</p>
             <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Token</mat-label>
                 <input matInput formControlName="token" required maxlength="6">
@@ -11,15 +13,23 @@
                     Token is <strong>required. </strong>
                 </mat-error>
             </mat-form-field>
-            <button *ngIf="twoFactorType === 'sms' && this.user.twoFactorApp" mat-raised-button color="basic"
-                (click)="dialogTokenByApp()">{{ 'twofactor.use_code_from_app' | translate }}
+            <button *ngIf="(twoFactorType === 'sms' || twoFactorType === 'email') && this.user.twoFactorApp"
+                    mat-raised-button color="basic"
+                    (click)="dialogTokenByApp()">{{ 'twofactor.use_code_from_app' | translate }}
             </button>
-            <button *ngIf="twoFactorType === 'app' && this.user.twoFactorSms" mat-raised-button color="basic"
-                (click)="sendTokenBySms()">{{ 'twofactor.send_code_by_sms' | translate }}
-            </button><br>
+            <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'email')  && this.user.twoFactorSms"
+                    mat-raised-button color="basic"
+                    (click)="sendTokenBySms()">{{ 'twofactor.send_code_by_sms' | translate }}
+            </button>
+            <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'sms') && this.user.twoFactorEmail"
+                    mat-raised-button color="basic"
+                    (click)="sendTokenByEmail()">{{ 'twofactor.send_code_by_email' | translate }}
+            </button>
+            <br>
             <a mat-button (click)="openDialogRecovery()">{{ 'accounts.use_recovery_code' | translate }}</a>
         </mat-card-content>
     </form>
+    </div>
 </div>
 
 <div mat-dialog-actions align="end">

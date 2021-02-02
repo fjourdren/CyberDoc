@@ -8,10 +8,10 @@ import {
 } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MustMatch } from './_helpers/must-match.validator';
-import { SecurityCheckDialogComponent } from '../../security-check-dialog/security-check-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { UsersService } from 'src/app/services/users/users.service';
+import { SettingsAskCurrentPasswordDialogComponent } from '../settings-ask-current-password-dialog/settings-ask-current-password-dialog.component';
 
 function passwordValidator(): ValidatorFn {
   return (control: AbstractControl): { [key: string]: any } | null => {
@@ -86,7 +86,7 @@ export class SettingsSecurityComponent {
 
     this.loading = true;
     this.dialog
-      .open(SecurityCheckDialogComponent, {
+      .open(SettingsAskCurrentPasswordDialogComponent, {
         maxWidth: '500px',
         data: {
           checkTwoFactor: true,
@@ -95,25 +95,16 @@ export class SettingsSecurityComponent {
       .afterClosed()
       .subscribe((res) => {
         if (res) {
-          if (
-            (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) || // 2FA verified
-            res.recoveryCodesLeft
-          ) {
-            // Used a recovery code
-            this.usersService
-              .updatePassword(
-                this.passwordForm.get('newPassword').value,
-                res.xAuthTokenArray,
-              )
-              .toPromise()
-              .then(() => {
-                this.snackBar.dismiss();
-                this.snackBar.open('Password updated', null, {
-                  duration: 1500,
-                });
-                this.passwordForm.reset();
+          this.usersService
+            .updatePassword(res, this.passwordForm.get('newPassword').value)
+            .toPromise()
+            .then(() => {
+              this.snackBar.dismiss();
+              this.snackBar.open('Password updated', null, {
+                duration: 1500,
               });
-          }
+              this.passwordForm.reset();
+            });
         }
         this.loading = false;
       });

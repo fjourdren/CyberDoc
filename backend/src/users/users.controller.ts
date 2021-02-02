@@ -108,7 +108,6 @@ export class UsersController {
   })
   @ApiOkResponse({ description: 'Success', type: GenericResponse })
   async deleteProfile(@LoggedUser() user: User) {
-    //TODO x-auth-token
     await this.usersService.deleteUser(user);
     return { msg: 'Success' };
   }

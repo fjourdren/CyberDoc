@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsLowercase,
+  IsMobilePhone,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -28,11 +29,23 @@ export class EditUserDto {
   @IsLowercase()
   email: string;
 
-  @ApiProperty({ description: 'User password', example: 'eV66scN@t5tGG%ND' })
+  @ApiProperty({
+    description: 'Current user password',
+    example: 'eV66scN@t5tGG%ND',
+  })
   @IsOptional()
   @IsNotEmpty()
   @IsString()
   currentPassword: string;
+
+  @ApiProperty({
+    description: 'New user password',
+    example: 'eV66scN@t5tGG%ND',
+  })
+  @IsOptional()
+  @IsNotEmpty()
+  @IsString()
+  newPassword: string;
 
   @ApiProperty({
     description: 'User theme',
@@ -43,4 +56,12 @@ export class EditUserDto {
   @IsNotEmpty()
   @IsValidTheme()
   theme: string;
+
+  @ApiProperty({
+    description: 'PhoneNumber',
+    example: '+33612345678',
+  })
+  @IsMobilePhone()
+  @IsOptional()
+  phoneNumber: string;
 }

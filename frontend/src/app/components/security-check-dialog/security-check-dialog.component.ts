@@ -42,7 +42,7 @@ export class SecurityCheckDialogComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.verifyPasswordDialog.close();
+    this.verifyPasswordDialog.close(false);
   }
 
   onSubmitPassword(): void {
@@ -55,7 +55,6 @@ export class SecurityCheckDialogComponent implements OnInit {
       .toPromise()
       .then((isPasswordVerified) => {
         if (isPasswordVerified) {
-          const xAuthTokenArray = [password];
           if (this.data.checkTwoFactor) {
             this.dialog
               .open(TwoFactorCheckDialogComponent, {
@@ -64,28 +63,7 @@ export class SecurityCheckDialogComponent implements OnInit {
               .afterClosed()
               .subscribe((res) => {
                 if (res) {
-                  if (res.twoFactorTypeAndToken !== undefined) {
-                    const twoFactorTypeAndTokenArray = res.twoFactorTypeAndToken.split(
-                      '\t',
-                    );
-                    if (
-                      twoFactorTypeAndTokenArray[0] &&
-                      (twoFactorTypeAndTokenArray[0] === 'app' ||
-                        twoFactorTypeAndTokenArray[0] === 'sms')
-                    ) {
-                      xAuthTokenArray.push(twoFactorTypeAndTokenArray[0]);
-                    }
-                    if (
-                      twoFactorTypeAndTokenArray[1] &&
-                      twoFactorTypeAndTokenArray[1].length === 6
-                    ) {
-                      xAuthTokenArray.push(twoFactorTypeAndTokenArray[1]);
-                    }
-                  } else if (res.usedCode !== undefined) {
-                    xAuthTokenArray.push('recoveryCode');
-                    xAuthTokenArray.push(res.usedCode);
-                  }
-                  if (res.recoveryCodesLeft === false) {
+                  if (res.hasRecoveryCodesLeft === false) {
                     this.dialog.open(
                       TwoFactorGenerateRecoveryCodesDialogComponent,
                       {
@@ -94,21 +72,18 @@ export class SecurityCheckDialogComponent implements OnInit {
                       },
                     );
                   }
-                  this.verifyPasswordDialog.close({
-                    xAuthTokenArray,
-                    recoveryCodesLeft: res.recoveryCodesLeft,
-                  });
+                  this.verifyPasswordDialog.close(true);
                 } else {
-                  this.verifyPasswordDialog.close();
+                  this.verifyPasswordDialog.close(false);
                 }
               });
           } else {
-            this.verifyPasswordDialog.close(xAuthTokenArray);
+            this.verifyPasswordDialog.close(true);
           }
         }
       })
       .catch((err) => {
-        this.snackBar.open(err.error.msg, null, { duration: 2500 });
+        this.snackBar.open(err.error.message, null, { duration: 2500 });
       });
   }
 }

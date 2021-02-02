@@ -14,9 +14,9 @@ import { PhoneNumberUtil } from 'google-libphonenumber';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { TwoFactorGenerateRecoveryCodesDialogComponent } from '../two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
 import { TwoFactorService } from 'src/app/services/twofactor/twofactor.service';
 import { UsersService } from 'src/app/services/users/users.service';
+import { TwoFactorGenerateRecoveryCodesDialogComponent } from '../two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
 
 const phoneNumberUtil = PhoneNumberUtil.getInstance();
 
@@ -26,10 +26,11 @@ const phoneNumberUtil = PhoneNumberUtil.getInstance();
   styleUrls: ['./two-factor-edit-dialog.component.scss'],
 })
 export class TwoFactorEditDialogComponent implements AfterViewInit {
-  isSmartphoneOrTablet = 'ontouchstart' in window;
+  // eslint-disable-next-line
+  isSmartphoneOrTablet = ('ontouchstart' in window);
   loading = false;
   allCountries = __allCountries;
-
+  email: string;
   qrURL: string;
   qrSecret: string;
   qrProtocolURL: SafeUrl;
@@ -41,6 +42,7 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
   tooManyInvalidCodesError = false;
   invalidPhoneNumber = false;
   smsSent = false;
+  theme = 'indigo-pink';
 
   phoneNumberForm = new FormGroup({
     countryCode: new FormControl(null, [Validators.required]),
@@ -64,11 +66,14 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
     private snackBar: MatSnackBar,
     private translateService: TranslateService,
     @Inject(MAT_DIALOG_DATA) public data,
-  ) {}
+  ) {
+    this.email = this.usersService.getActiveUser().email;
+  }
 
   ngAfterViewInit(): void {
     switch (this.data.twoFactorMode) {
-      case 'sms': {
+      case 'sms':
+      case 'email': {
         break;
       }
       case 'app': {
@@ -93,6 +98,7 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
           }
           break;
         }
+        case 'email':
         case 'app': {
           if (this.tokenForm.valid) {
             this.onOKBtnClick();
@@ -118,11 +124,15 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
 
     switch (this.data.twoFactorMode) {
       case 'sms': {
-        promise = this._update2FAWithSMS(this.data.xAuthTokenArray);
+        promise = this._update2FA('sms');
         break;
       }
       case 'app': {
-        promise = this._update2FAWithApp(this.data.xAuthTokenArray);
+        promise = this._update2FA('app');
+        break;
+      }
+      case 'email': {
+        promise = this._update2FA('email');
         break;
       }
       default: {
@@ -191,23 +201,36 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
     }
 
     this._setLoading(true);
-    this.twoFactorService
-      .sendTokenBySms(phoneNumber)
+    this.usersService
+      .updateProfile(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        phoneNumber,
+      )
       .toPromise()
       .then(() => {
-        this._setLoading(false);
-        this.smsSent = true;
-        this.validPhoneNumber = phoneNumber;
-      })
-      .catch((err) => {
-        this._setLoading(false);
-        if (err instanceof HttpErrorResponse && err.status === 403) {
-          this.invalidPhoneNumber = true;
-        } else if (err instanceof HttpErrorResponse && err.status === 429) {
-          this.tooManySMSSentError = true;
-        } else {
-          throw err;
-        }
+        this.twoFactorService
+          .sendTokenBySms()
+          .toPromise()
+          .then(() => {
+            this._setLoading(false);
+            this.smsSent = true;
+            this.validPhoneNumber = phoneNumber;
+          })
+          .catch((err) => {
+            this._setLoading(false);
+            if (err instanceof HttpErrorResponse && err.status === 403) {
+              this.invalidPhoneNumber = true;
+            } else if (err instanceof HttpErrorResponse && err.status === 429) {
+              this.tooManySMSSentError = true;
+            } else {
+              throw err;
+            }
+          });
       });
   }
 
@@ -215,17 +238,16 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
     this._setLoading(true);
     const email = this.usersService.getActiveUser().email;
     this.twoFactorService
-      .generateSecretUriAndQr(email)
+      .generateSecretUriAndQr()
       .toPromise()
       .then((res) => {
         this._setLoading(false);
-        this.qrURL = res.qr;
-        this.qrSecret = res.secret;
+        this.qrURL = res.msg.qr;
+        this.qrSecret = res.msg.secret;
         // https://github.com/google/google-authenticator/wiki/Key-Uri-Format
         const otpURL = `otpauth://totp/CyberDoc:${email}?secret=${this.qrSecret}&issuer=CyberDoc&digits=6&period=30`;
         this.qrProtocolURL = this.sanitizer.bypassSecurityTrustUrl(otpURL);
-
-        const qrSecretParts = res.secret.match(/.{1,4}/g);
+        const qrSecretParts = this.qrSecret.match(/.{1,4}/g);
         this.formattedQrSecretLineOne = [
           qrSecretParts[0],
           qrSecretParts[1],
@@ -253,54 +275,16 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
     }
   }
 
-  private async _update2FAWithApp(xAuthTokenArray: string[]): Promise<void> {
-    const currentUser = this.usersService.getActiveUser();
+  private async _update2FA(type: 'app' | 'sms' | 'email'): Promise<void> {
     const tokenForm = this.tokenForm.get('token').value;
-    await this.twoFactorService
-      .verifyTokenByApp(this.qrSecret, tokenForm)
-      .toPromise();
     await this.usersService
-      .updateTwoFactor(
-        true,
-        currentUser.twoFactorSms,
-        this.qrSecret,
-        undefined,
-        xAuthTokenArray,
-      )
+      .enableTwoFactor(type, tokenForm)
       .toPromise()
       .then(() => {
-        if (xAuthTokenArray === null) {
-          this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
-            maxWidth: '500px',
-            disableClose: true,
-          });
-        }
-        this.dialogRef.close(true);
-      });
-  }
-
-  private async _update2FAWithSMS(xAuthTokenArray: string[]): Promise<void> {
-    const currentUser = this.usersService.getActiveUser();
-    const tokenForm = this.tokenForm.get('token').value;
-    await this.twoFactorService
-      .verifyTokenBySms(this.validPhoneNumber, tokenForm)
-      .toPromise();
-    await this.usersService
-      .updateTwoFactor(
-        currentUser.twoFactorApp,
-        true,
-        undefined,
-        this.validPhoneNumber,
-        xAuthTokenArray,
-      )
-      .toPromise()
-      .then(() => {
-        if (xAuthTokenArray === null) {
-          this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
-            maxWidth: '500px',
-            disableClose: true,
-          });
-        }
+        this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
+          maxWidth: '500px',
+          disableClose: true,
+        });
         this.dialogRef.close(true);
       });
   }

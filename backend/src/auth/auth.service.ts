@@ -7,6 +7,7 @@ import { UserHashService } from 'src/crypto/user-hash.service';
 import { User, UserDocument } from 'src/schemas/user.schema';
 import { InjectRedis, Redis } from '@svtslv/nestjs-ioredis';
 import { ConfigService } from '@nestjs/config';
+import { Response } from 'express';
 import { UserDevice } from '../schemas/user-device.schema';
 import { SHA3 } from 'sha3';
 import { Session } from './auth.controller.types';
@@ -24,8 +25,8 @@ export class AuthService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectRedis() private readonly redis: Redis,
     private jwtService: JwtService,
-    private configService: ConfigService,
     private userHashService: UserHashService,
+    private readonly configService: ConfigService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
@@ -78,16 +79,46 @@ export class AuthService {
     userID: string,
     userHash: string,
     currentDeviceName: string,
+    twoFactorAuthorized: boolean,
   ) {
-    return this.jwtService.sign({ userID, userHash, currentDeviceName });
+    return this.jwtService.sign({
+      userID,
+      userHash,
+      currentDeviceName,
+      twoFactorAuthorized,
+    });
+  }
+
+  decodeJwt(accessToken: string) {
+    return this.jwtService.decode(accessToken, { complete: false, json: true });
+  }
+
+  sendJwtCookie(res: Response, accessToken: string) {
+    const expirationDate = new Date();
+    expirationDate.setSeconds(
+      expirationDate.getSeconds() +
+        this.configService.get<number>('JWT_EXPIRATION_TIME'),
+    );
+
+    res.cookie(this.configService.get<string>('JWT_COOKIE_NAME'), accessToken, {
+      path: '/',
+      httpOnly: true,
+      expires: expirationDate,
+      domain: this.configService.get<string>('JWT_COOKIE_DOMAIN'),
+    });
   }
 
   async login(user: any, currentDevice: UserDevice, ip: string) {
     const userId = user._doc._id;
+    const hasTwoFactoredEnabled =
+      user._doc.twoFactorApp ||
+      user._doc.twoFactorSms ||
+      user._doc.twoFactorEmail;
     const accessToken = this.generateJWTToken(
       userId,
       user.hash,
       currentDevice.name,
+      !hasTwoFactoredEnabled,
     );
 
     const hashObj = new SHA3();

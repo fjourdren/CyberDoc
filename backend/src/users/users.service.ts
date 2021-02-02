@@ -27,6 +27,9 @@ export const COLUMNS_TO_KEEP_FOR_USER = [
   'email',
   'directory_id',
   'tags',
+  'twoFactorApp',
+  'twoFactorEmail',
+  'twoFactorSms',
   'role',
   'theme',
 ];
@@ -97,6 +100,10 @@ export class UsersService {
     user.lastname = createUserDto.lastname;
     user.password = await this.authService.hashPassword(createUserDto.password);
     user.tags = [];
+    user.twoFactorApp = false;
+    user.twoFactorSms = false;
+    user.twoFactorEmail = false;
+    user.twoFactorRecoveryCodes = [];
     user.userKeys = userKeys;
     user.theme = 'indigo-pink';
     user.billingAccountID = await this.billingService.createBillingAccount();
@@ -131,20 +138,26 @@ export class UsersService {
     user.firstname = editUserDto.firstname || user.firstname;
     user.lastname = editUserDto.lastname || user.lastname;
     user.theme = editUserDto.theme || user.theme;
+    user.phoneNumber = editUserDto.phoneNumber || user.phoneNumber;
 
     const emailChanged = editUserDto.email && editUserDto.email !== user.email;
-    if (emailChanged) {
+    const passwordChanged = !(await this.authService.isValidPassword(
+      user,
+      editUserDto.newPassword,
+    ));
+    if (emailChanged || passwordChanged) {
       if (
         !(await this.authService.isValidPassword(
           user,
           editUserDto.currentPassword,
         ))
       ) {
-        throw new ForbiddenException(
-          'Missing or wrong password, required to change account email',
-        );
+        throw new ForbiddenException('Missing or wrong password specified');
       }
-      user.email = editUserDto.email;
+      user.email = editUserDto.email || user.email;
+      user.password = editUserDto.newPassword
+        ? await this.authService.hashPassword(editUserDto.newPassword)
+        : user.password;
     }
 
     return await new this.userModel(user).save({ session: mongoSession });
