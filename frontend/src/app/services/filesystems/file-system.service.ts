@@ -128,7 +128,6 @@ export class FileSystemService {
       );
   }
 
-
   getSharedFiles(): Observable<CloudDirectory> {
     return this.httpClient
       .get<any>(`${environment.apiBaseURL}/file-sharing/shared-files`, {
@@ -302,15 +301,14 @@ export class FileSystemService {
   }
 
   delete(node: CloudNode): Observable<void> {
-    if(!node.isDirectory){
-      if(node.bin_id){
+    if (!node.isDirectory) {
+      if (node.bin_id) {
         return this.httpClient
           .delete<any>(`${environment.apiBaseURL}/files/${node._id}`, {
             withCredentials: true,
           })
           .pipe(map(() => this._refreshNeeded$.emit(), null));
-      }
-      else{
+      } else {
         return this.httpClient
           .delete<any>(`${environment.apiBaseURL}/files/${node._id}/sendBin`, {
             withCredentials: true,
@@ -325,26 +323,29 @@ export class FileSystemService {
       .pipe(map(() => this._refreshNeeded$.emit(), null));
   }
 
-  purge(): Observable<void> {
-    let promise: Promise<CloudNode>;
+  //TODO mauvais code à refaire
+  purge() {
+    /*let promise: Promise<CloudNode>;
     promise = this.getBinFiles().toPromise();
-    promise
-      .then((node) => {
-        if (node.isDirectory) {
-          for (const item of node.directoryContent) {
-            this.delete(item);
-          }
+    promise.then((node) => {
+      if (node.isDirectory) {
+        for (const item of node.directoryContent) {
+          this.delete(item);
         }
-      });
-    return;
+      }
+    });
+    return promise;*/
   }
 
-  restore(node: CloudNode): Observable<void>{
-    if(!node.bin_id){
-      new Error('Error, file not in bin')
+  restore(node: CloudNode): Observable<void> {
+    if (!node.bin_id) {
+      new Error('Error, file not in bin');
     }
     return this.httpClient
-      .get<any>(`${environment.apiBaseURL}/files/${node._id}/restore`, {withCredentials: true,}).pipe(map(() => this._refreshNeeded$.emit(), null));
+      .get<any>(`${environment.apiBaseURL}/files/${node._id}/restore`, {
+        withCredentials: true,
+      })
+      .pipe(map(() => this._refreshNeeded$.emit(), null));
   }
 
   setPreviewEnabled(file: CloudFile, enabled: boolean): Observable<void> {
