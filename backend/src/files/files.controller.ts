@@ -60,7 +60,16 @@ import { CreateFileFromTemplateDto } from './dto/create-file-from-template.dto';
 @ApiBearerAuth()
 @Controller('files')
 export class FilesController {
-  constructor(private readonly filesService: FilesService) {}
+  constructor(private readonly filesService: FilesService) {
+    var cron = require('node-cron');
+    cron.schedule('0 * * * *', () => {
+      //console.log('running a task every hour');
+      this.filesService.checkBinForPurge();
+    });
+  
+  }
+
+
 
   @Post('search')
   @HttpCode(HttpStatusCode.OK)

@@ -405,6 +405,26 @@ export class FilesService {
     return await this.fileModel.find({ bin_id: true, owner_id: user._id}).exec();
   }
 
+
+  addDays(date, days) {
+    var result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
+  async checkBinForPurge(): Promise<void>{
+    let promise: Promise<FileDocument[]>;
+    promise = this.fileModel.find({ bin_id: true}).exec();
+    promise
+      .then((file) => {
+        for (const item of file) {
+          if(this.addDays(item.updated_at, 30) < new Date()){
+            this.delete(item);
+          }
+        }
+        
+      });
+  }
+
   async delete(file: File) {
     if (file.type == FOLDER) {
       for (const item of await this.getFolderContents(file._id)) {
