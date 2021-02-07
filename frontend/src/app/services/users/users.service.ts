@@ -31,7 +31,7 @@ export class UsersService {
   }
   register(userObj: User, password: string) {
     return this.httpClient.post<void>(`${environment.apiBaseURL}/users`, {
-      email: userObj.email,
+      email: userObj.email.toLowerCase(),
       firstname: userObj.firstname,
       lastname: userObj.lastname,
       role: userObj.role,
@@ -164,7 +164,7 @@ export class UsersService {
       .post<any>(
         `${environment.apiBaseURL}/auth/login`,
         {
-          username: email,
+          username: email.toLowerCase(),
           password,
           currentDeviceName,
         },

@@ -145,11 +145,15 @@ export class SettingsProfileComponent {
   }
 
   deleteAccount(): void {
+    const activeUser = this.usersService.getActiveUser();
     this.dialog
       .open(SecurityCheckDialogComponent, {
         maxWidth: '500px',
         data: {
-          checkTwoFactor: true,
+          checkTwoFactor:
+            activeUser.twoFactorApp ||
+            activeUser.twoFactorSms ||
+            activeUser.twoFactorEmail,
         },
       })
       .afterClosed()
