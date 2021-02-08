@@ -89,15 +89,6 @@
         "under_ten_seconds": "less than 10 seconds remaining",
         "finishing_upload": "Finishing upload..."
     },
-    "exportrecoverykey": {
-        "title": "Download your recovery key",
-        "subtitle1": "You will need this if you have forgotten your password or lost your Authenticator.",
-        "subtitle2a": "If you lose this recovery key and forget your password",
-        "subtitle2b": "all your files will be inaccessible, even by CyberDoc.",
-        "subtitle3": "You must download you key before continue",
-        "download_key": "Download recovery key",
-        "invalid_recovery_key": "Invalid recovery key"
-    },
     "twofactor": {
         "twofactor_qr_code_computer": "Please use your 2FA app (such as Authy) to scan this QR code and get a code",
         "twofactor_qr_code_mobile": "Please use your 2FA app (such as Authy) to get a code",

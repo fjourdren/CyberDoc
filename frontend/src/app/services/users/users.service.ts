@@ -5,7 +5,6 @@ import { map, mergeMap } from 'rxjs/operators';
 import { FileTag } from 'src/app/models/files-api-models';
 import { Session, User } from 'src/app/models/users-api-models';
 import { environment } from 'src/environments/environment';
-import { SHA3 } from 'sha3';
 import { MatDialog } from '@angular/material/dialog';
 import { LoadingDialogComponent } from 'src/app/components/global/loading-dialog/loading-dialog.component';
 
@@ -279,37 +278,6 @@ export class UsersService {
     }
 
     return this._userUpdated$.asObservable();
-  }
-
-  exportRecoveryKey(): Observable<string> {
-    return this.httpClient.get(`${environment.apiBaseURL}/users/keys`, {
-      responseType: 'text',
-      withCredentials: true,
-    });
-  }
-
-  importRecoveryKey(
-    email: string,
-    password: string,
-    file: File,
-    resetPasswordJWTToken: string,
-  ) {
-    const hash = new SHA3(512); //FIXME constant keySize
-    hash.update(email + password);
-
-    const formData = new FormData();
-    formData.set('upfile', file);
-    formData.set('user_hash', hash.digest('hex').substring(0, 32));
-    return this.httpClient.post<void>(
-      `${environment.apiBaseURL}/users/keys`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${resetPasswordJWTToken}`,
-        },
-        withCredentials: true,
-      },
-    );
   }
 
   getDataExportURL(): string {

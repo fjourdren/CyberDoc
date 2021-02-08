@@ -86,7 +86,6 @@ import { SettingsMainToolbarComponent } from './components/settings/settings-mai
 import { Router } from '@angular/router';
 import { FilesShareMenuDialogComponent } from './components/files/files-share-menu-dialog/files-share-menu-dialog.component';
 import { PasswordRecoveryPageComponent } from './pages/password-recovery-page/password-recovery-page.component';
-import { ResetPasswordPageComponent } from './pages/reset-password-page/reset-password-page.component';
 import { TwoFactorLoginPageComponent } from './pages/two-factor-login-page/two-factor-login-page.component';
 import { SettingsDeleteTagDialogComponent } from './components/settings/settings-delete-tag-dialog/settings-delete-tag-dialog.component';
 import { SettingsCreateEditTagDialogComponent } from './components/settings/settings-create-edit-tag-dialog/settings-create-edit-tag-dialog.component';
@@ -100,7 +99,6 @@ import {
 } from './components/files/files-sign-dialog/files-sign-dialog.component';
 import { TwoFactorGenerateRecoveryCodesDialogComponent } from './components/two-factor/two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
 import { TwoFactorUseRecoveryCodeDialogComponent } from './components/two-factor/two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
-import { ExportRecoveryKeyPageComponent } from './pages/export-recovery-key-page/export-recovery-key-page.component';
 import { FilesConvertToEtherpadDialogComponent } from './components/files/files-convert-to-etherpad-dialog/files-convert-to-etherpad-dialog.component';
 import { TwoFactorService } from './services/twofactor/twofactor.service';
 import { SettingsAskCurrentPasswordDialogComponent } from './components/settings/settings-ask-current-password-dialog/settings-ask-current-password-dialog.component';
@@ -195,7 +193,6 @@ if (environment.useSentry) {
     FilesFilterToolbarComponent,
     FilesShareMenuDialogComponent,
     PasswordRecoveryPageComponent,
-    ResetPasswordPageComponent,
     TwoFactorLoginPageComponent,
     SettingsDeleteTagDialogComponent,
     SettingsCreateEditTagDialogComponent,
@@ -207,7 +204,6 @@ if (environment.useSentry) {
     TwoFactorUseRecoveryCodeDialogComponent,
     FilesSignDialogComponent,
     FilesSignConfirmDialogComponent,
-    ExportRecoveryKeyPageComponent,
     FilesConvertToEtherpadDialogComponent,
     SettingsAskCurrentPasswordDialogComponent,
     LoadingDialogComponent,
