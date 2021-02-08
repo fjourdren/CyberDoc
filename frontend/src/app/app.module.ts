@@ -262,7 +262,7 @@ if (environment.useSentry) {
     MatRadioModule,
     PdfJsViewerModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: environment.production,
+      enabled: true,
     }),
   ],
   providers: [
