@@ -1,5 +1,10 @@
+::ng-deep.mat-dialog-container {
+  overflow: hidden;
+}
+
 table {
     width: 100%;
+    overflow-x: scroll;
 }
 
 .error-txt {
