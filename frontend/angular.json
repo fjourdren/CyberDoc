@@ -19,6 +19,8 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "aot": true,
+            "serviceWorker": true,
+            "ngswConfigPath": "ngsw-config.json",
             "assets": [
               "src/favicon.ico",
               "src/assets",
@@ -81,9 +83,7 @@
                   "maximumWarning": "60kb",
                   "maximumError": "100kb"
                 }
-              ],
-              "serviceWorker": true,
-              "ngswConfigPath": "ngsw-config.json"
+              ]
             }
           }
         },
