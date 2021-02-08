@@ -6,6 +6,7 @@ import { TwoFactorUseRecoveryCodeDialogComponent } from '../../components/two-fa
 import { MatDialog } from '@angular/material/dialog';
 import { TwoFactorService } from 'src/app/services/twofactor/twofactor.service';
 import { UsersService } from 'src/app/services/users/users.service';
+import { timer } from 'rxjs';
 
 @Component({
   selector: 'app-two-factor-login-page',
@@ -19,6 +20,9 @@ export class TwoFactorLoginPageComponent implements OnInit {
     token: [null, Validators.required],
   });
   loading = false;
+  subscribeTimerSms: number;
+  subscribeTimerEmail: number;
+  private timeLeft: number;
 
   constructor(
     private fb: FormBuilder,
@@ -108,6 +112,13 @@ export class TwoFactorLoginPageComponent implements OnInit {
     this.twoFactorService
       .sendTokenBySms()
       .toPromise()
+      .then(() => {
+        this.timeLeft = 60; // TODO : variable globale
+        const source = timer(1000, 2000);
+        source.subscribe((val) => {
+          this.subscribeTimerSms = this.timeLeft - val;
+        });
+      })
       .catch((err) =>
         this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {
           duration: 2500,
@@ -120,6 +131,13 @@ export class TwoFactorLoginPageComponent implements OnInit {
     this.twoFactorService
       .sendTokenByEmail()
       .toPromise()
+      .then(() => {
+        this.timeLeft = 60; // TODO : variable globale
+        const source = timer(1000, 2000);
+        source.subscribe((val) => {
+          this.subscribeTimerEmail = this.timeLeft - val;
+        });
+      })
       .catch((err) =>
         this.snackBar.open('Email cannot be sent : ' + err.error.msg, null, {
           duration: 2500,

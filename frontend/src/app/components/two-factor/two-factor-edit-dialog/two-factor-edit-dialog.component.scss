@@ -76,6 +76,11 @@ mat-divider {
     width: 50%;
 }
 
+#subscribeTimer {
+    display: inline-block;
+    white-space: nowrap;
+}
+
 @media (max-width: 600px) {
     #configure-via-sms-field {
         flex-direction: column;
