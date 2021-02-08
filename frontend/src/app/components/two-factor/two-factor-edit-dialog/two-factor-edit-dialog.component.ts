@@ -17,6 +17,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { TwoFactorService } from 'src/app/services/twofactor/twofactor.service';
 import { UsersService } from 'src/app/services/users/users.service';
 import { TwoFactorGenerateRecoveryCodesDialogComponent } from '../two-factor-generate-recovery-codes-dialog/two-factor-generate-recovery-codes-dialog.component';
+import { timer } from 'rxjs';
 
 const phoneNumberUtil = PhoneNumberUtil.getInstance();
 
@@ -43,6 +44,8 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
   invalidPhoneNumber = false;
   smsSent = false;
   theme = 'indigo-pink';
+  subscribeTimer: number;
+  timeLeft: number;
 
   phoneNumberForm = new FormGroup({
     countryCode: new FormControl(null, [Validators.required]),
@@ -218,6 +221,11 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
           .toPromise()
           .then(() => {
             this._setLoading(false);
+            this.timeLeft = 60; // TODO : variable globale
+            const source = timer(1000, 2000);
+            source.subscribe((val) => {
+              this.subscribeTimer = this.timeLeft - val;
+            });
             this.smsSent = true;
             this.validPhoneNumber = phoneNumber;
           })
