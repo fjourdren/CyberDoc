@@ -202,7 +202,6 @@ export class UsersService {
     resetPasswordJWTToken: string,
     password: string,
   ): Observable<void> {
-    console.warn('Authorization', `Bearer ${resetPasswordJWTToken}`);
     return this.httpClient.post<any>(
       `${environment.apiBaseURL}/users/profile`,
       {

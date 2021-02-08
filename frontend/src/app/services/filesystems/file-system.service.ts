@@ -373,7 +373,6 @@ export class FileSystemService {
   }
 
   addTag(node: CloudNode, tag: FileTag): Observable<void> {
-    console.warn(tag);
     return this.httpClient
       .post<any>(
         `${environment.apiBaseURL}/file-tags/${node._id}`,

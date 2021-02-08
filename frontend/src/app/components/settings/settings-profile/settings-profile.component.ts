@@ -9,7 +9,6 @@ import { SettingsCreateEditTagDialogComponent } from '../settings-create-edit-ta
 import { SecurityCheckDialogComponent } from '../../security-check-dialog/security-check-dialog.component';
 import { Router } from '@angular/router';
 import { UsersService } from 'src/app/services/users/users.service';
-import { SettingsAskCurrentPasswordDialogComponent } from '../settings-ask-current-password-dialog/settings-ask-current-password-dialog.component';
 import { User } from 'src/app/models/users-api-models';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatIconRegistry } from '@angular/material/icon';
@@ -83,20 +82,23 @@ export class SettingsProfileComponent {
 
     if (emailChanged) {
       this.dialog
-        .open(SettingsAskCurrentPasswordDialogComponent, {
+        .open(SecurityCheckDialogComponent, {
           maxWidth: '500px',
+          data: {
+            checkTwoFactor: true,
+          },
         })
         .afterClosed()
         .toPromise()
-        .then((currentPassword) => {
-          if (currentPassword) {
+        .then((res) => {
+          if (res) {
             promise = this.usersService
               .updateProfile(
                 this.profileForm.get('firstName').value,
                 this.profileForm.get('lastName').value,
                 this.profileForm.get('newEmail').value,
                 this.profileForm.get('theme').value,
-                currentPassword,
+                res.currentPassword,
                 undefined,
                 undefined,
               )
@@ -131,7 +133,7 @@ export class SettingsProfileComponent {
       .catch((err) => {
         if (err instanceof HttpErrorResponse && err.status === 403) {
           this._setIsLoading(false);
-          this.snackBar.open('[ERROR] Wrong password', null, {
+          this.snackBar.open(err.error.msg, null, {
             duration: 5000,
           });
         } else {
@@ -145,15 +147,11 @@ export class SettingsProfileComponent {
   }
 
   deleteAccount(): void {
-    const activeUser = this.usersService.getActiveUser();
     this.dialog
       .open(SecurityCheckDialogComponent, {
         maxWidth: '500px',
         data: {
-          checkTwoFactor:
-            activeUser.twoFactorApp ||
-            activeUser.twoFactorSms ||
-            activeUser.twoFactorEmail,
+          checkTwoFactor: true,
         },
       })
       .afterClosed()

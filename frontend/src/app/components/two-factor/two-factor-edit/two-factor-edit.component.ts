@@ -28,6 +28,7 @@ export class TwoFactorEditComponent {
     private dialog: MatDialog,
   ) {
     this.refresh();
+    this.usersService.userUpdated().subscribe(() => this.refresh());
   }
 
   refresh(): void {

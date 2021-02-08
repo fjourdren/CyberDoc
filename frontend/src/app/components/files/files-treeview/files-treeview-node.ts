@@ -13,6 +13,5 @@ export class FilesTreeviewNode {
     if (!this.url) {
       this.url = ['/files', directory._id];
     }
-    console.warn(this.url);
   }
 }

@@ -19,7 +19,6 @@ export class FilesTreeviewComponent implements AfterViewInit {
   private _refreshSelection(url: string) {
     if (this.treeControl.dataNodes) {
       for (const node of this.treeControl.dataNodes) {
-        console.warn(node.url.join('/'), url, node.url.join('/') === url);
         node.selected = node.url.join('/') === url;
       }
     }
