@@ -5,9 +5,9 @@
         </app-settings-main-toolbar>
 
     </div>
-    <mat-drawer-container autosize>
+    <mat-drawer-container autosize >
 
-        <mat-drawer [opened]="treeviewDrawerLocked" [mode]="treeviewDrawerLocked ? 'side' : 'over'" #treeviewDrawer
+        <mat-drawer [disableClose]='treeviewDrawerLocked' [opened]="treeviewDrawerLocked" [mode]="treeviewDrawerLocked ? 'side' : 'over'" #treeviewDrawer
             id="treeview-drawer">
 
             <mat-toolbar *ngIf="!fileDetailDrawerLocked">
