@@ -60,7 +60,6 @@ export class LoginPageComponent implements AfterViewInit {
           this.loginForm.get('email').enable();
           this.loginForm.get('password').enable();
 
-          console.log('ERROR = ' + error);
           if (error instanceof HttpErrorResponse && error.status === 401) {
             this.wrongCredentialError = true;
           } else if (

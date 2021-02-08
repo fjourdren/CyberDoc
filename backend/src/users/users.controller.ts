@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   Post,
@@ -95,7 +96,14 @@ export class UsersController {
     @LoggedUser() user: User,
     @Body() editUserDto: EditUserDto,
   ) {
+    if (
+      user.email !== editUserDto.email &&
+      (await this.usersService.findOneByEmail(editUserDto.email)) !== null
+    ) {
+      throw new ForbiddenException('This email is already used.');
+    }
     await this.usersService.editProfile(mongoSession, user, editUserDto);
+
     return { msg: 'Success' };
   }
 

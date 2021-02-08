@@ -11,7 +11,7 @@ import { MustMatch } from './_helpers/must-match.validator';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { UsersService } from 'src/app/services/users/users.service';
-import { SettingsAskCurrentPasswordDialogComponent } from '../settings-ask-current-password-dialog/settings-ask-current-password-dialog.component';
+import { SecurityCheckDialogComponent } from '../../security-check-dialog/security-check-dialog.component';
 
 function passwordValidator(): ValidatorFn {
   return (control: AbstractControl): { [key: string]: any } | null => {
@@ -86,7 +86,7 @@ export class SettingsSecurityComponent {
 
     this.loading = true;
     this.dialog
-      .open(SettingsAskCurrentPasswordDialogComponent, {
+      .open(SecurityCheckDialogComponent, {
         maxWidth: '500px',
         data: {
           checkTwoFactor: true,
@@ -94,9 +94,12 @@ export class SettingsSecurityComponent {
       })
       .afterClosed()
       .subscribe((res) => {
-        if (res) {
+        if (res.currentPassword) {
           this.usersService
-            .updatePassword(res, this.passwordForm.get('newPassword').value)
+            .updatePassword(
+              res.currentPassword,
+              this.passwordForm.get('newPassword').value,
+            )
             .toPromise()
             .then(() => {
               this.snackBar.dismiss();

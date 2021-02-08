@@ -63,7 +63,7 @@ export class TwoFactorLoginPageComponent implements OnInit {
             })
             .catch((err) => {
               this.loading = false;
-              this.snackBar.open(err.error.message, null, { duration: 2500 });
+              this.snackBar.open(err.error.msg, null, { duration: 2500 });
             });
           break;
         case 'sms':
@@ -76,7 +76,7 @@ export class TwoFactorLoginPageComponent implements OnInit {
             })
             .catch((err) => {
               this.loading = false;
-              this.snackBar.open(err.error.message, null, { duration: 2500 });
+              this.snackBar.open(err.error.msg, null, { duration: 2500 });
             });
           break;
         case 'email':
@@ -89,7 +89,7 @@ export class TwoFactorLoginPageComponent implements OnInit {
             })
             .catch((err) => {
               this.loading = false;
-              this.snackBar.open(err.error.message, null, { duration: 2500 });
+              this.snackBar.open(err.error.msg, null, { duration: 2500 });
             });
           break;
       }
@@ -109,7 +109,7 @@ export class TwoFactorLoginPageComponent implements OnInit {
       .sendTokenBySms()
       .toPromise()
       .catch((err) =>
-        this.snackBar.open('SMS cannot be sent : ' + err.error.message, null, {
+        this.snackBar.open('SMS cannot be sent : ' + err.error.msg, null, {
           duration: 2500,
         }),
       );
@@ -121,13 +121,9 @@ export class TwoFactorLoginPageComponent implements OnInit {
       .sendTokenByEmail()
       .toPromise()
       .catch((err) =>
-        this.snackBar.open(
-          'Email cannot be sent : ' + err.error.message,
-          null,
-          {
-            duration: 2500,
-          },
-        ),
+        this.snackBar.open('Email cannot be sent : ' + err.error.msg, null, {
+          duration: 2500,
+        }),
       );
   }
 

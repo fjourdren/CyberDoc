@@ -67,7 +67,7 @@ export class TwoFactorCheckDialogComponent {
           .catch((err) => {
             this.loading = false;
             if (err.status === 403) {
-              this.snackBar.open(err.error.message, null, { duration: 2500 });
+              this.snackBar.open(err.error.msg, null, { duration: 2500 });
             } else {
               throw err;
             }
@@ -86,7 +86,7 @@ export class TwoFactorCheckDialogComponent {
           .catch((err) => {
             this.loading = false;
             if (err.status === 403) {
-              this.snackBar.open(err.error.message, null, { duration: 2500 });
+              this.snackBar.open(err.error.msg, null, { duration: 2500 });
             } else {
               throw err;
             }
@@ -105,7 +105,7 @@ export class TwoFactorCheckDialogComponent {
           .catch((err) => {
             this.loading = false;
             if (err.status === 403) {
-              this.snackBar.open(err.error.message, null, { duration: 2500 });
+              this.snackBar.open(err.error.msg, null, { duration: 2500 });
             } else {
               throw err;
             }

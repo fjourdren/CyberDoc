@@ -57,7 +57,6 @@ export class MockFileSystemService {
   }
 
   setShareMode(file: CloudFile, shareMode: string): Observable<void> {
-    console.warn('TODO', 'setShareMode', file, shareMode);
     return of(null).pipe(delay(DELAY));
   }
 
@@ -170,6 +169,7 @@ export class MockFileSystemService {
         map(() => {
           const directory: CloudDirectory = {
             _id: null,
+            parent_file_id: 'none',
             mimetype: 'application/x-dir',
             name: null,
             ownerName: null,
@@ -178,6 +178,7 @@ export class MockFileSystemService {
             directoryContent: [],
             isDirectory: true,
             preview: false,
+            access: 'none',
             deviceUsedForCreation: new UserDevice(),
             bin_id: false,
           };
@@ -321,7 +322,6 @@ export class MockFileSystemService {
           }
           Respond.email = email;
           Respond.name = 'NAME : ' + email;
-          console.log(Respond.name);
           currentFile = this.filesMap.get(fileID);
           currentFile.sharedWith.forEach((element) => {
             if (Respond.email === element.email) {
@@ -365,7 +365,6 @@ export class MockFileSystemService {
           }
           Respond.email = email;
           Respond.name = 'NAME : ' + email;
-          console.log(Respond.name);
           currentFile = this.filesMap.get(fileID);
           currentFile.sharedWith.forEach((element) => {
             if (Respond.email === element.email) {
@@ -436,8 +435,9 @@ export class MockFileSystemService {
         }),
       );
   }
-  restore(node: CloudNode): Observable<void>{
-    return
+
+  restore(node: CloudNode): Observable<void> {
+    return;
   }
 
   setPreviewEnabled(file: CloudFile, enabled: boolean): Observable<void> {
@@ -445,7 +445,7 @@ export class MockFileSystemService {
       .pipe(delay(DELAY))
       .pipe(
         map(() => {
-          console.warn('not implemented setPreviewEnabled mock', file, enabled);
+          // console.warn('not implemented setPreviewEnabled mock', file, enabled);
         }),
       );
   }

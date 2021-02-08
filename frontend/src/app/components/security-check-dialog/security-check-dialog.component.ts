@@ -56,34 +56,49 @@ export class SecurityCheckDialogComponent implements OnInit {
       .then((isPasswordVerified) => {
         if (isPasswordVerified) {
           if (this.data.checkTwoFactor) {
-            this.dialog
-              .open(TwoFactorCheckDialogComponent, {
-                maxWidth: '500px',
-              })
-              .afterClosed()
-              .subscribe((res) => {
-                if (res) {
-                  if (res.hasRecoveryCodesLeft === false) {
-                    this.dialog.open(
-                      TwoFactorGenerateRecoveryCodesDialogComponent,
-                      {
-                        maxWidth: '500px',
-                        disableClose: true,
-                      },
-                    );
+            const currentUser = this.usersService.getActiveUser();
+            if (
+              currentUser.twoFactorApp ||
+              currentUser.twoFactorSms ||
+              currentUser.twoFactorEmail
+            ) {
+              this.dialog
+                .open(TwoFactorCheckDialogComponent, {
+                  maxWidth: '500px',
+                })
+                .afterClosed()
+                .subscribe((res) => {
+                  if (res) {
+                    if (res.hasRecoveryCodesLeft === false) {
+                      this.dialog.open(
+                        TwoFactorGenerateRecoveryCodesDialogComponent,
+                        {
+                          maxWidth: '500px',
+                          disableClose: true,
+                        },
+                      );
+                    }
+                    this.verifyPasswordDialog.close({
+                      currentPassword: password,
+                    });
+                  } else {
+                    this.verifyPasswordDialog.close(false);
                   }
-                  this.verifyPasswordDialog.close(true);
-                } else {
-                  this.verifyPasswordDialog.close(false);
-                }
+                });
+            } else {
+              this.verifyPasswordDialog.close({
+                currentPassword: password,
               });
+            }
           } else {
-            this.verifyPasswordDialog.close(true);
+            this.verifyPasswordDialog.close({
+              currentPassword: password,
+            });
           }
         }
       })
       .catch((err) => {
-        this.snackBar.open(err.error.message, null, { duration: 2500 });
+        this.snackBar.open(err.error.msg, null, { duration: 2500 });
       });
   }
 }
