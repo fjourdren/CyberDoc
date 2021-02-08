@@ -43,25 +43,6 @@
 
 <mat-card>
     <mat-card-header>
-        <mat-icon mat-card-avatar>lock</mat-icon>
-        <mat-card-title>{{'exportrecoverykey.title' | translate}}</mat-card-title>
-        <mat-card-subtitle>
-            {{'exportrecoverykey.subtitle1' | translate}}
-            <br>
-            <div>
-                {{ 'exportrecoverykey.subtitle2a' | translate }}
-                <b>{{ 'exportrecoverykey.subtitle2b' | translate }}</b>
-            </div>
-        </mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-        <button [disabled]="loading" mat-raised-button (click)="downloadRecoveryKey()" color="primary">{{
-            'exportrecoverykey.download_key' | translate }}</button>
-    </mat-card-content>
-</mat-card>
-
-<mat-card>
-    <mat-card-header>
         <mat-icon mat-card-avatar>devices</mat-icon>
         <mat-card-title>{{'settings.two_factor_card_title' | translate}}</mat-card-title>
         <mat-card-subtitle>{{'settings.two_factor_card_subtitle' | translate}}</mat-card-subtitle>

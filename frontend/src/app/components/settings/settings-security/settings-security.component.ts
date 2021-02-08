@@ -117,21 +117,6 @@ export class SettingsSecurityComponent {
     return this.passwordForm.controls[controlName].hasError(errorName);
   };
 
-  downloadRecoveryKey(): void {
-    this.loading = true;
-    this.usersService
-      .exportRecoveryKey()
-      .toPromise()
-      .then((recoveryKey) => {
-        this.loading = false;
-        const anchor = document.createElement('a');
-        anchor.download = 'recovery-key.txt';
-        anchor.href = `data:text/plain,${recoveryKey}`;
-        anchor.click();
-        anchor.remove();
-      });
-  }
-
   exportData(): void {
     const anchor = document.createElement('a');
     anchor.download = `${
