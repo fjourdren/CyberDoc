@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { GlobalExceptionFilter } from './global-exception.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   // see https://expressjs.com/en/guide/behind-proxies.html
@@ -44,7 +45,7 @@ async function bootstrap() {
     credentials: true,
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
   });
-
+  
   await app.listen(config.get<number>('APP_PORT'));
 }
 // noinspection JSIgnoredPromiseFromCall
