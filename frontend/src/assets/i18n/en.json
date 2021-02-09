@@ -297,6 +297,8 @@
         "reset_password_confirm": "Reset password",
         "password_resetted": "Your password has been reset, you can now go back to the login page.",
         "danger_zone": "Danger zone",
-        "used": "used"
+        "used": "used",
+        "recover_line_1": "Please contact the system administrator at this email",
+        "recover_line_2": "to help you recover your account."
     }
 }
