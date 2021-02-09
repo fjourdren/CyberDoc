@@ -46,6 +46,7 @@
     "mongoose": "5.10.10",
     "mongoose-timestamp": "^0.6.0",
     "node-2fa": "^2.0.0",
+    "node-cron": "2.0.3",
     "node-rsa": "^1.1.1",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
