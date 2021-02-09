@@ -4,7 +4,6 @@
 
 export const environment = {
   production: false,
-  useSentry: true,
   apiBaseURL: 'https://api.cyberdoc.fulgen.fr',
   authCookieDomain: 'cyberdoc.fulgen.fr',
   authCookieName: 'access_token',

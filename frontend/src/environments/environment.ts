@@ -4,7 +4,6 @@
 
 export const environment = {
   production: false,
-  useSentry: false,
   apiBaseURL: 'http://localhost:3000',
   etherpadBaseUrl: 'http://localhost:9001',
   authCookieDomain: 'localhost',
