@@ -63,8 +63,8 @@
                 <input autocomplete="autocomplete_off_hack_xfr4!k" matInput required formControlName="phoneNumber">
             </mat-form-field>
         </form>
-        <button [disabled]="loading" mat-raised-button color="accent"
-                (click)="onSendSMSBtnClick()">{{'twofactor.send_code' | translate}}</button>
+        <button [disabled]="loading || this.subscribeTimer > 0" mat-raised-button color="accent"
+                (click)="onSendSMSBtnClick()">{{'twofactor.send_code' | translate}} <div id="subscribeTimer" *ngIf="this.subscribeTimer > 0">({{ this.subscribeTimer }} s.)</div></button>
     </div>
 
     <div *ngIf="data.twoFactorMode == 'email'" id="configure-via-email-header-container">
@@ -90,7 +90,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-    <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+    <mat-spinner *ngIf="loading" diameter="24">{{ this.subscribeTimer }}</mat-spinner>
     <button [disabled]="loading" mat-button (click)="onCancelBtnClick()">{{'general.cancel' | translate}}</button>
     <button [disabled]="loading || !this.tokenForm.valid || (this.data.twoFactorMode == 'sms' && !validPhoneNumber) "
             mat-button (click)="onOKBtnClick()" mat-raised-button color="primary">{{'general.ok' | translate}}</button>
