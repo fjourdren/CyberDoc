@@ -5,6 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TwoFactorUseRecoveryCodeDialogComponent } from '../two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
 import { TwoFactorService } from 'src/app/services/twofactor/twofactor.service';
 import { UsersService } from 'src/app/services/users/users.service';
+import { timer } from 'rxjs';
 
 @Component({
   selector: 'app-two-factor-dialog',
@@ -18,6 +19,9 @@ export class TwoFactorCheckDialogComponent {
     token: [null, [Validators.required, Validators.pattern('^[0-9]{6}$')]],
   });
   loading = false;
+  subscribeTimerSms: number;
+  subscribeTimerEmail: number;
+  private timeLeft: number;
 
   constructor(
     private fb: FormBuilder,
@@ -119,6 +123,13 @@ export class TwoFactorCheckDialogComponent {
     this.twoFactorService
       .sendTokenByEmail()
       .toPromise()
+      .then(() => {
+        this.timeLeft = 60; // TODO : variable globale
+        const source = timer(1000, 2000);
+        source.subscribe((val) => {
+          this.subscribeTimerEmail = this.timeLeft - val;
+        });
+      })
       .catch((err) =>
         this.snackBar.open(
           'Email cannot be sent : ' + err.error.message,
@@ -135,6 +146,13 @@ export class TwoFactorCheckDialogComponent {
     this.twoFactorService
       .sendTokenBySms()
       .toPromise()
+      .then(() => {
+        this.timeLeft = 60; // TODO : variable globale
+        const source = timer(1000, 2000);
+        source.subscribe((val) => {
+          this.subscribeTimerSms = this.timeLeft - val;
+        });
+      })
       .catch((err) =>
         this.snackBar.open('SMS cannot be sent : ' + err.error.message, null, {
           duration: 2500,
