@@ -4,7 +4,6 @@
 
 export const environment = {
   production: false,
-  useSentry: false,
   apiBaseURL: 'http://192.168.1.10:3000' /* FIXME replace with your local IP */,
   authCookieDomain: '192.168.1.10' /* FIXME replace with your local IP */,
   authCookieName: 'access_token',
