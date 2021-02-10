@@ -109,6 +109,7 @@ import { FilesNoEnoughStorageDialogComponent } from './components/files/files-no
 import { FilesNewMenuComponent } from './components/files/files-new-menu/files-new-menu.component';
 import { SettingsSessionCardComponent } from './components/settings/settings-session-card/settings-session-card.component';
 import { HttpErrorInterceptor } from './services/http-error.interceptor';
+import { MatDividerModule } from '@angular/material/divider';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) =>
@@ -215,6 +216,7 @@ const SETTINGS_COMPONENTS = [
     MatChipsModule,
     MatAutocompleteModule,
     MatSelectModule,
+    MatDividerModule,
     MatExpansionModule,
     NgxFilesizeModule,
     NgResizeObserverPonyfillModule,

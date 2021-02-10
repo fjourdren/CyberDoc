@@ -2,7 +2,7 @@
   <mat-icon fontSet='fa' [fontIcon]='fileTemplate.fontAwesomeIcon'></mat-icon>
   {{ fileTemplate.newActionTranslation | translate }}
 </button>
-<div class='separator'></div>
+<mat-divider></mat-divider>
 <button mat-menu-item (click)='this.fileInput.click()'>
   <mat-icon>publish</mat-icon>
   {{ 'upload.import_file' | translate }}
