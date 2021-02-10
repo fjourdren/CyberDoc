@@ -27,13 +27,15 @@ export class FilesPurgeDialogComponent {
   onPurgeBtnClicked() {
     this.dialogRef.disableClose = true;
     this.loading = true;
-    //TODO mauvais code à refaire
 
-    /* this.fsService.purge().toPromise().then(() => {
-         this.dialogRef.disableClose = false;
-         this.loading = false;
-         this.dialogRef.close(true);
-       });*/
+    this.fsService
+      .purge()
+      .toPromise()
+      .then(() => {
+        this.dialogRef.disableClose = false;
+        this.loading = false;
+        this.dialogRef.close(true);
+      });
   }
 
   onCancelBtnClicked() {

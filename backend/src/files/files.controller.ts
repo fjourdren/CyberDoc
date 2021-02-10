@@ -49,7 +49,7 @@ import {
   CreateFileResponse,
   GetFileResponse,
   GetResponse,
-  SearchFilesResponse,
+  MultipleFilesResponse,
 } from './files.controller.types';
 import { MongoSession } from 'src/mongo-session.decorator';
 import { ClientSession } from 'mongoose';
@@ -69,21 +69,12 @@ import { DOCUMENT_MIMETYPES, TEXT_MIMETYPES } from './file-types';
 @ApiBearerAuth()
 @Controller('files')
 export class FilesController {
-  constructor(private readonly filesService: FilesService) {
-    const cron = require('node-cron');
-    cron.schedule('0 * * * *', () => {
-      //console.log('running a task every hour');
-      this.filesService.checkBinForPurge();
-    });
-  
-  }
-
-
+  constructor(private readonly filesService: FilesService) {}
 
   @Post('search')
   @HttpCode(HttpStatusCode.OK)
   @ApiOperation({ summary: 'Search files', description: 'Search files' })
-  @ApiOkResponse({ description: 'Done', type: SearchFilesResponse })
+  @ApiOkResponse({ description: 'Done', type: MultipleFilesResponse })
   async search(@LoggedUser() user: User, @Body() fileSearchDto: FileSearchDto) {
     const files = await this.filesService.search(user, fileSearchDto);
     const results = await Promise.all(
@@ -95,25 +86,40 @@ export class FilesController {
     return { msg: 'Done', results };
   }
 
-  @Get('get-bin')
+  @Get('bin')
   @HttpCode(HttpStatusCode.OK)
   @ApiOperation({
-    summary: 'Get all files in bin',
-    description: 'Get all files the user sended to the bin',
+    summary: 'Get bin content',
+    description: 'Get bin content',
   })
-  @ApiOkResponse({ description: 'Success', type: GenericResponse })
+  @ApiOkResponse({ description: 'Success', type: MultipleFilesResponse })
   async getBin(@LoggedUser() currentUser: User) {
-    const sharedFiles = await this.filesService.getBin(
-      currentUser,
-    );
+    const binContents = await this.filesService.getBin(currentUser);
 
     const results = await Promise.all(
-      sharedFiles.map(async (value) => {
+      binContents.map(async (value) => {
         return await this.filesService.prepareFileForOutput(value);
       }),
     );
 
     return { msg: 'Success', results };
+  }
+
+  @Delete('bin')
+  @HttpCode(HttpStatusCode.OK)
+  @ApiOperation({
+    summary: 'Purge bin content',
+    description: 'Purge bin content',
+  })
+  @ApiOkResponse({ description: 'Success', type: GenericResponse })
+  async purgeBin(@LoggedUser() currentUser: User) {
+    const binContents = await this.filesService.getBin(currentUser);
+
+    for (const item of binContents) {
+      await this.filesService.delete(item);
+    }
+
+    return { msg: 'Success' };
   }
 
   @Get(':fileID')
@@ -129,14 +135,12 @@ export class FilesController {
   async get(@CurrentFile(FileAcl.READ) file: File) {
     const result = await this.filesService.prepareFileForOutput(file);
     if (file.type == FOLDER) {
-      let folderContents = await this.filesService.getFolderContents(
-        file._id,
-      );
+      let folderContents = await this.filesService.getFolderContents(file._id);
 
       const binTest: File[] = [];
       for (const element of folderContents) {
         if (!element.bin_id) {
-          binTest.push(element)
+          binTest.push(element);
         }
       }
 
@@ -693,10 +697,15 @@ export class FilesController {
     description: 'File ID',
     example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
   })
-  @ApiOperation({ summary: 'Send to bin', description: 'Send a file to the bin' })
+  @ApiOperation({
+    summary: 'Send to bin',
+    description: 'Send a file to the bin',
+  })
   @ApiOkResponse({ description: 'File moved', type: GenericResponse })
-  async sendToBin(@MongoSession() mongoSession: ClientSession,
-    @CurrentFile(FileAcl.OWNER) file: File,) {
+  async sendToBin(
+    @MongoSession() mongoSession: ClientSession,
+    @CurrentFile(FileAcl.OWNER) file: File,
+  ) {
     await this.filesService.sendToBin(file, mongoSession);
     return { msg: 'File moved to bin' };
   }
@@ -709,10 +718,15 @@ export class FilesController {
     description: 'File ID',
     example: 'f3f36d40-4785-198f-e4a6-2cef906c2aeb',
   })
-  @ApiOperation({ summary: 'Restore from bin', description: 'Restore a file from the bin' })
+  @ApiOperation({
+    summary: 'Restore from bin',
+    description: 'Restore a file from the bin',
+  })
   @ApiOkResponse({ description: 'File moved', type: GenericResponse })
-  async restore(@MongoSession() mongoSession: ClientSession,
-    @CurrentFile(FileAcl.OWNER) file: File,) {
+  async restore(
+    @MongoSession() mongoSession: ClientSession,
+    @CurrentFile(FileAcl.OWNER) file: File,
+  ) {
     await this.filesService.restore(file, mongoSession);
     return { msg: 'File restored from bin' };
   }

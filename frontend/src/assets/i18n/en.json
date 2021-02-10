@@ -246,7 +246,8 @@
         "delete": "You can delete definitely all file with the following button :",
         "purge": "Empty the bin",
         "warning_purge": "You will delete the entirety of the bin. Proceed ?",
-        "empty": "Empty bin"
+        "empty": "Empty bin",
+        "header": "Items in the bin are deleted forever after 30 days"
     },
     "general": {
         "generic_error": "Error. Please wait some time then retry",

@@ -93,7 +93,7 @@ export class GetFileResponse extends GenericResponse {
   file: FileInResponse;
 }
 
-export class SearchFilesResponse extends GenericResponse {
+export class MultipleFilesResponse extends GenericResponse {
   @ApiProperty({ description: 'Files', type: [FileInResponse] })
   results: FileInResponse[];
 }

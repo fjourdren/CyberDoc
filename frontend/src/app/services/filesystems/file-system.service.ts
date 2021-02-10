@@ -152,7 +152,7 @@ export class FileSystemService {
 
   getBinFiles(): Observable<CloudDirectory> {
     return this.httpClient
-      .get<any>(`${environment.apiBaseURL}/files/get-bin`, {
+      .get<any>(`${environment.apiBaseURL}/files/bin`, {
         withCredentials: true,
       })
       .pipe(
@@ -336,18 +336,12 @@ export class FileSystemService {
       .pipe(map(() => this._refreshNeeded$.emit(), null));
   }
 
-  //TODO mauvais code à refaire
   purge() {
-    /*let promise: Promise<CloudNode>;
-    promise = this.getBinFiles().toPromise();
-    promise.then((node) => {
-      if (node.isDirectory) {
-        for (const item of node.directoryContent) {
-          this.delete(item);
-        }
-      }
-    });
-    return promise;*/
+    return this.httpClient
+      .delete<any>(`${environment.apiBaseURL}/files/bin`, {
+        withCredentials: true,
+      })
+      .pipe(map(() => this._refreshNeeded$.emit(), null));
   }
 
   restore(node: CloudNode): Observable<void> {

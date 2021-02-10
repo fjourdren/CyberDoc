@@ -19,7 +19,7 @@
 
   </div>
 
-  <mat-slide-toggle *ngIf='node && isPreviewAvailable(node) && !sharedWithMeMode'
+  <mat-slide-toggle *ngIf='node && isPreviewAvailable(node) && !sharedWithMeMode && !binMode'
                     (change)='onPreviewToggleChange($event)' [checked]='node.preview'>{{ 'file.preview' | translate }}
   </mat-slide-toggle>
 
@@ -49,7 +49,7 @@
   </table>
 
   <mat-divider></mat-divider>
-  <div id='title-div' class='mat-h3' *ngIf='!sharedWithMeMode'>
+  <div id='title-div' class='mat-h3' *ngIf='!sharedWithMeMode && !binMode'>
     <span id='title-span'>{{'tags.tags' | translate}}</span>
     <button id='add-tag-btn' mat-stroked-button mat-button (click)='createNewTag()'>
       {{'tags.create_new_tag' | translate}}
@@ -58,7 +58,7 @@
 
   <app-files-tags-input [allTags]='allTags' [selectedTags]='nodeTags' (tagAdded)='onTagAdded($event)'
                         (tagRemoved)='onTagRemoved($event)' (newTagCreated)='createNewTag($event)'
-                        *ngIf='!sharedWithMeMode'>
+                        *ngIf='!sharedWithMeMode && !binMode'>
   </app-files-tags-input>
 
 </div>
