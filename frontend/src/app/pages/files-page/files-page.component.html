@@ -18,15 +18,14 @@
         <mat-drawer [opened]="treeviewDrawerLocked" [mode]="treeviewDrawerLocked ? 'side' : 'over'" #treeviewDrawer
             id="treeview-drawer">
 
-            <mat-toolbar *ngIf="!fileDetailDrawerLocked">
-                {{ 'general.appname' | translate }}
-                <div class="take-remaining-space"></div>
-                <button (click)="treeviewDrawer.close()" mat-icon-button>
-                    <mat-icon>close</mat-icon>
-                </button>
-            </mat-toolbar>
-
             <div style='display: flex; flex-direction: column; height: 100%;'>
+                <mat-toolbar *ngIf="!fileDetailDrawerLocked">
+                    {{ 'general.appname' | translate }}
+                    <div class="take-remaining-space"></div>
+                    <button (click)="treeviewDrawer.close()" mat-icon-button>
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </mat-toolbar>
                 <app-files-treeview style='flex: 1'></app-files-treeview>
                 <app-files-space-info style='display: block; margin: 16px;'></app-files-space-info>
             </div>
