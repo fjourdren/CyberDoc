@@ -1,8 +1,9 @@
 <mat-toolbar color="primary">
     <div class="scrollable">
         <mat-chip-list *ngIf="searchParams">
-            <button [routerLink]="['/files']" style="margin-right: 4px;" mat-mini-fab>
+            <button [routerLink]="['/files']" style="margin-right: 16px;" mat-flat-button color="accent">
                 <mat-icon>search_off</mat-icon>
+                {{'general.clear_all_filters' | translate}}
             </button>
             <mat-chip disableRipple *ngIf="isTypeFilterUsed(searchParams)">
                 <mat-icon fontSet="fa" [fontIcon]="getIconForFileType(searchParams.type)"></mat-icon>
