@@ -40,7 +40,7 @@ export class GlobalExceptionFilter extends BaseExceptionFilter {
         {
           statusCode: exception.getStatus(),
           success: false,
-          msg: `${exception.message}`,
+          msg: exception.getResponse(),
           timestamp: new Date().toISOString(),
           path: request.url,
         },
