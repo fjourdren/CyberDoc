@@ -30,3 +30,13 @@ mat-card, mat-expansion-panel {
 #delete-account-card {
   border: 2px red solid;
 }
+
+mat-card-content {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.tagName {
+  padding-left: 1vw;
+}

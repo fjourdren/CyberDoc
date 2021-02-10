@@ -5,7 +5,7 @@
               [style.background]='tag.hexColor'
               [style.color]='computeTextColor(tag.hexColor)'
               disableRipple removable selectable style='cursor: pointer;'>
-      {{tag.name}}
+      <div id="tagName">{{tag.name}}</div>
       <mat-icon matChipRemove>cancel</mat-icon>
     </mat-chip>
     <input #tagInput (matChipInputTokenEnd)='add($event)' [formControl]='tagsCtrl' [matAutocomplete]='auto'
