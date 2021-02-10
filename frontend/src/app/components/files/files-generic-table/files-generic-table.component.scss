@@ -58,3 +58,10 @@ mat-icon {
 input {
   display: none;
 }
+
+#tabFileName {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-right: 2vw;
+}
