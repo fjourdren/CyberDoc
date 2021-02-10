@@ -221,7 +221,7 @@ export class FileSystemService {
     if (!searchParams.tagIDs) {
       delete searchParams.tagIDs;
     }
-    if (!searchParams.dateDiff) {
+    if (searchParams.dateDiff !== 0 && !searchParams.dateDiff) {
       delete searchParams.dateDiff;
     }
 
