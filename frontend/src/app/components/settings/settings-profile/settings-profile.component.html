@@ -9,7 +9,7 @@
 		<mat-card-subtitle>{{'settings.user_info_card_subtitle' | translate}}</mat-card-subtitle>
 	</mat-card-header>
 	<mat-card-content>
-		<form [formGroup]="profileForm">
+		<form [formGroup]="profileForm" style='display: flex; flex-direction: column'>
 			<mat-form-field>
 				<input type="text" matInput formControlName="firstName"
 					placeholder="{{'accounts.first_name' | translate}}">
