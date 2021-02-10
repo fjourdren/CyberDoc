@@ -32,6 +32,7 @@ import { MongoSession } from 'src/mongo-session.decorator';
 import { ClientSession } from 'mongoose';
 import { CurrentDevice } from './current-device.decorator';
 import { UserDevice } from '../schemas/user-device.schema';
+import { IsTwoFactorAuthorized } from '../auth/is-two-factor-authorized';
 
 @ApiTags('users')
 @Controller('users')
@@ -71,10 +72,16 @@ export class UsersController {
     description: 'Get current user',
   })
   @ApiOkResponse({ description: 'Success', type: GetProfileResponse })
-  async getProfile(@LoggedUser() user: User) {
+  async getProfile(
+    @LoggedUser() user: User,
+    @IsTwoFactorAuthorized() twoFactorAuthorized: boolean,
+  ) {
     return {
       msg: 'Success',
-      user: await this.usersService.prepareUserForOutput(user),
+      user: await this.usersService.prepareUserForOutput(
+        user,
+        twoFactorAuthorized,
+      ),
     };
   }
 

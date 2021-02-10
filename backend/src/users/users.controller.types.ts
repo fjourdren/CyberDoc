@@ -32,6 +32,24 @@ export class UserInResponse {
   tags: FileTag[];
 
   @ApiProperty({
+    description: 'is 2FA via app is activated or not',
+    example: false,
+  })
+  twoFactorApp: boolean;
+
+  @ApiProperty({
+    description: 'is 2FA via app is activated or not',
+    example: false,
+  })
+  twoFactorEmail: boolean;
+
+  @ApiProperty({
+    description: 'is 2FA via app is activated or not',
+    example: false,
+  })
+  twoFactorSms: boolean;
+
+  @ApiProperty({
     description: 'User role',
     example: UserRole.OWNER,
     enum: [UserRole.OWNER, UserRole.COLLABORATOR],
@@ -56,6 +74,12 @@ export class UserInResponse {
 
   @ApiProperty({ description: 'Available space, in bytes', example: 888 })
   availableSpace: number;
+
+  @ApiProperty({
+    description: 'is 2FA authorized or not',
+    example: false,
+  })
+  twoFactorAuthorized: boolean;
 }
 
 export class GetProfileResponse extends GenericResponse {

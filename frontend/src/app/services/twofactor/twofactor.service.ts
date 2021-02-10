@@ -14,18 +14,6 @@ export class TwoFactorService {
     private usersService: UsersService,
   ) {}
 
-  isTwoFactorAuthorized(): Observable<boolean> {
-    return this.httpClient
-      .get<any>(`${environment.apiBaseURL}/two-factor-auth/isAuthorized`, {
-        withCredentials: true,
-      })
-      .pipe(
-        map((response) => {
-          return response.isTwoFactorAuthorized;
-        }),
-      );
-  }
-
   sendTokenByEmail(): Observable<any> {
     return this.httpClient
       .post<any>(
@@ -58,7 +46,7 @@ export class TwoFactorService {
       );
   }
 
-  verifyToken(type: string | undefined, token: string): Observable<boolean> {
+  verifyToken(type: string | undefined, token: string): Promise<any> {
     return this.httpClient
       .post<any>(
         `${environment.apiBaseURL}/two-factor-auth/verifyToken`,
@@ -68,12 +56,10 @@ export class TwoFactorService {
         },
         { withCredentials: true },
       )
-      .pipe(
-        map((response) => {
-          this.usersService.refreshActiveUser();
-          return response;
-        }),
-      );
+      .toPromise()
+      .then(async () => {
+        await this.usersService.refreshActiveUser().toPromise();
+      });
   }
 
   generateSecretUriAndQr(): Observable<any> {

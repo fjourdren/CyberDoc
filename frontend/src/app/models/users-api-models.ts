@@ -24,6 +24,7 @@ export class User {
   public subscription?: Subscription;
   public usedSpace: number;
   public availableSpace: number;
+  public twoFactorAuthorized: boolean;
 }
 
 // noinspection JSUnusedGlobalSymbols

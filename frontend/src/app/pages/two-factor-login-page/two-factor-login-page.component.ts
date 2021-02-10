@@ -60,7 +60,6 @@ export class TwoFactorLoginPageComponent implements OnInit {
         case 'app':
           this.twoFactorService
             .verifyToken('app', this.tokenForm.get('token').value)
-            .toPromise()
             .then(() => {
               this.loading = false;
               this.router.navigate(['/files']);
@@ -73,7 +72,6 @@ export class TwoFactorLoginPageComponent implements OnInit {
         case 'sms':
           this.twoFactorService
             .verifyToken('sms', this.tokenForm.get('token').value)
-            .toPromise()
             .then(() => {
               this.loading = false;
               this.router.navigate(['/files']);
@@ -86,7 +84,6 @@ export class TwoFactorLoginPageComponent implements OnInit {
         case 'email':
           this.twoFactorService
             .verifyToken('email', this.tokenForm.get('token').value)
-            .toPromise()
             .then(() => {
               this.loading = false;
               this.router.navigate(['/files']);

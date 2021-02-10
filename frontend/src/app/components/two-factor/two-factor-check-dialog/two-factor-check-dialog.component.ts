@@ -61,7 +61,6 @@ export class TwoFactorCheckDialogComponent {
       case 'app':
         this.twoFactorService
           .verifyToken('app', this.twoFactorForm.get('token').value)
-          .toPromise()
           .then(() => {
             this.loading = false;
             this.twoFactorDialog.close({
@@ -80,7 +79,6 @@ export class TwoFactorCheckDialogComponent {
       case 'sms':
         this.twoFactorService
           .verifyToken('sms', this.twoFactorForm.get('token').value)
-          .toPromise()
           .then(() => {
             this.loading = false;
             this.twoFactorDialog.close({
@@ -99,7 +97,6 @@ export class TwoFactorCheckDialogComponent {
       case 'email':
         this.twoFactorService
           .verifyToken('email', this.twoFactorForm.get('token').value)
-          .toPromise()
           .then(() => {
             this.loading = false;
             this.twoFactorDialog.close({
