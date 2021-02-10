@@ -3,5 +3,5 @@ a {
 }
 
 .is-active{
-    background: lightgray;
+    background: rgba(0,0,0,.3);
 } 

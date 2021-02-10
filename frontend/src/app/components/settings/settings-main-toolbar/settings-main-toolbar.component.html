@@ -2,7 +2,7 @@
     <button *ngIf="!hideMenuButton" mat-icon-button (click)="menuButtonClicked.emit()">
         <mat-icon>menu</mat-icon>
     </button>
-    <a id="app-name-icon-container" *ngIf="!hideAppName" [routerLink]="['/files']">
+    <a mat-button id="app-name-icon-container" *ngIf="!hideAppName" [routerLink]="['/files']">
         <img id="app-icon" width="44" height="auto" src="/assets/icons/icon-512x512.png" alt="CyberDoc Logo">
         <span>{{'general.appname' | translate}}</span>
     </a>

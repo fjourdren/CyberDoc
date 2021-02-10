@@ -10,7 +10,7 @@
     <div>{{user.usedSpace | filesize}} {{ 'general.used' | translate }} / {{user.availableSpace | filesize}}</div>
   </div>
   <mat-progress-bar mode='determinate' [value]='storageSpacePercent'></mat-progress-bar>
-  <button *ngIf='user.subscription' mat-stroked-button color='primary' [class.spinner]='loading' [disabled]='loading'
+  <button *ngIf='user.subscription' mat-flat-button color='primary' [class.spinner]='loading' [disabled]='loading'
           (click)='onManageSubscriptionBtnClicked()'>{{ 'billing.manage_subscription' | translate }}</button>
   <button *ngIf='!user.subscription' mat-flat-button color='primary'
           [routerLink]='["/setup-billing"]'>{{ 'billing.buy_more_storage' | translate }}</button>
