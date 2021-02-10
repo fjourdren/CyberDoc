@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ForbiddenException,
   HttpException,
-  HttpStatus,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -53,6 +52,8 @@ import { ConfigService } from '@nestjs/config';
 import { FileAcl } from './file-acl';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const streamToPromise = require('stream-to-promise');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const cron = require('node-cron');
 
 export const COLUMNS_TO_KEEP_FOR_FILE = [
   '_id',
@@ -100,6 +101,9 @@ export class FilesService {
   ) {
     this.gridFSModel = new MongoGridFS(connection.db);
     this.etherpad = new Etherpad(this, configService);
+    cron.schedule('0 * * * *', () => {
+      this.deleteOldFilesFromBin();
+    });
   }
 
   async prepareFileForOutput(file: File): Promise<FileInResponse> {
@@ -477,42 +481,35 @@ export class FilesService {
     return copyFile;
   }
 
-  async sendToBin(file: File,
-    mongoSession: ClientSession,
-  ) {
+  async sendToBin(file: File, mongoSession: ClientSession) {
     file.bin_id = true;
     return await new this.fileModel(file).save({ session: mongoSession });
   }
 
-  async restore(file: File,
-    mongoSession: ClientSession,
-  ) {
+  async restore(file: File, mongoSession: ClientSession) {
     file.bin_id = false;
     return await new this.fileModel(file).save({ session: mongoSession });
   }
 
   async getBin(user: User): Promise<File[]> {
-    return await this.fileModel.find({ bin_id: true, owner_id: user._id}).exec();
+    return await this.fileModel
+      .find({ bin_id: true, owner_id: user._id })
+      .exec();
   }
 
+  async deleteOldFilesFromBin() {
+    const binContents = await this.fileModel.find({ bin_id: true }).exec();
+    const currentDate = new Date();
 
-  addDays(date, days) {
-    var result = new Date(date);
-    result.setDate(result.getDate() + days);
-    return result;
-  }
-  async checkBinForPurge(): Promise<void>{
-    let promise: Promise<FileDocument[]>;
-    promise = this.fileModel.find({ bin_id: true}).exec();
-    promise
-      .then((file) => {
-        for (const item of file) {
-          if(this.addDays(item.updated_at, 30) < new Date()){
-            this.delete(item);
-          }
-        }
-        
-      });
+    const fileToDelete = binContents.filter((item) => {
+      const fileData = new Date(item.updated_at);
+      fileData.setDate(fileData.getDate() + 30);
+      return fileData < currentDate;
+    });
+
+    for (const file of fileToDelete) {
+      await this.delete(file);
+    }
   }
 
   async delete(file: File) {

@@ -46,19 +46,21 @@
             </div>
         </div>
 
-        <mat-toolbar *ngIf='binMode' style='display: flex; align-items: center'>
-            <span class='mat-h4' style='flex: 1; margin: 0'>Items in the bin are deleted forever after 30 days</span>
-            <!--<a mat-button (click)='purgeBin()'>Empty bin</a>-->
-        </mat-toolbar>
 
         <mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
 
-        <app-files-generic-table *ngIf="!loading" [showDetailsButton]="!fileDetailDrawerLocked"
-            [sharedWithMeMode]="sharedWithMeMode" [binMode]="binMode" [currentDirectoryID]="currentDirectory && currentDirectory._id"
-            [currentDirectory]="!searchMode && !sharedWithMeMode && currentDirectory"
-            [items]="currentDirectory && currentDirectory.directoryContent" [(selectedNode)]="selectedNode"
-            (openButtonClicked)="openButtonClicked($event)" (detailsButtonClicked)="fileDetailDrawer.open()">
-        </app-files-generic-table>
+        <div id='app-files-generic-table-container'>
+            <mat-toolbar *ngIf='binMode' style='display: flex; align-items: center'>
+                <span class='mat-h4' style='flex: 1; margin: 0'>{{ 'bin.header' | translate}}</span>
+                <button mat-flat-button color='accent' (click)='purgeBin()'>{{ 'bin.empty' | translate}}</button>
+            </mat-toolbar>
+            <app-files-generic-table style='flex: 1' *ngIf="!loading" [showDetailsButton]="!fileDetailDrawerLocked"
+                                     [sharedWithMeMode]="sharedWithMeMode" [binMode]="binMode" [currentDirectoryID]="currentDirectory && currentDirectory._id"
+                                     [currentDirectory]="!searchMode && !sharedWithMeMode && currentDirectory"
+                                     [items]="currentDirectory && currentDirectory.directoryContent" [(selectedNode)]="selectedNode"
+                                     (openButtonClicked)="openButtonClicked($event)" (detailsButtonClicked)="fileDetailDrawer.open()">
+            </app-files-generic-table>
+        </div>
 
         <mat-drawer #fileDetailDrawer [opened]="fileDetailDrawerLocked"
             [mode]="fileDetailDrawerLocked ? 'side' : 'over'" position="end" id="file-detail-drawer">
@@ -70,6 +72,7 @@
                 <div class="take-remaining-space"></div>
             </mat-toolbar>
             <app-files-details-panel [loading]="loading" [sharedWithMeMode]="sharedWithMeMode"
+                                     [binMode]='binMode'
                 [node]="selectedNode || (currentDirectory && currentDirectory.path.length === 0 ? null : currentDirectory)">
             </app-files-details-panel>
         </mat-drawer>

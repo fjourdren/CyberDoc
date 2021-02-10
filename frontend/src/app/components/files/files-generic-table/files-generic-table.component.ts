@@ -140,7 +140,6 @@ export class FilesGenericTableComponent implements AfterViewInit {
   }
 
   get items(): CloudNode[] {
-    
     return this.dataSource.data;
   }
 
@@ -250,7 +249,11 @@ export class FilesGenericTableComponent implements AfterViewInit {
 
     if (this.selectedNode) {
       this.fileContextMenu.openMenu();
-    } else if (this.currentDirectory && !this.currentlyUploading) {
+    } else if (
+      this.currentDirectory &&
+      !this.currentlyUploading &&
+      !this.binMode
+    ) {
       this.newContextMenu.openMenu();
     }
   }
