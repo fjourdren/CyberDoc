@@ -41,8 +41,12 @@ export class TwoFactorLoginPageComponent implements OnInit {
     this.user = this.usersService.getActiveUser();
     if (this.user.twoFactorApp) {
       this.twoFactorType = 'app';
+    } else if (this.user.twoFactorEmail) {
+      this.sendTokenByEmail();
+      this.twoFactorType = 'email';
     } else if (this.user.twoFactorSms) {
       this.sendTokenBySms();
+      this.twoFactorType = 'sms';
     }
 
     this.tokenForm = this.fb.group({
