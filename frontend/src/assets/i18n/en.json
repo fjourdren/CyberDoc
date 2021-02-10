@@ -299,6 +299,7 @@
         "danger_zone": "Danger zone",
         "used": "used",
         "recover_line_1": "Please contact the system administrator at this email",
-        "recover_line_2": "to help you recover your account."
+        "recover_line_2": "to help you recover your account.",
+        "clear_all_filters": "Clear all filters"
     }
 }

@@ -212,6 +212,19 @@ export class FileSystemService {
     let startDate: Date;
     let endDate: Date;
 
+    if (!searchParams.name) {
+      delete searchParams.name;
+    }
+    if (!searchParams.type) {
+      delete searchParams.type;
+    }
+    if (!searchParams.tagIDs) {
+      delete searchParams.tagIDs;
+    }
+    if (!searchParams.dateDiff) {
+      delete searchParams.dateDiff;
+    }
+
     if (searchParams.dateDiff !== -1) {
       startDate = new Date(currentDate);
       startDate.setHours(0);
