@@ -36,8 +36,10 @@ export class TwoFactorCheckDialogComponent {
       this.twoFactorType = 'app';
     } else if (this.user.twoFactorEmail) {
       this.sendTokenByEmail();
+      this.twoFactorType = 'email';
     } else if (this.user.twoFactorSms) {
       this.sendTokenBySms();
+      this.twoFactorType = 'sms';
     }
   }
 
