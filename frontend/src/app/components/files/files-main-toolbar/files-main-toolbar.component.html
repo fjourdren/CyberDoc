@@ -8,7 +8,7 @@
     </a>
     <div id="search-div">
         <mat-form-field floatLabel="never">
-            <mat-icon *ngIf="!hideAppName" matPrefix>search</mat-icon>
+            <mat-icon matPrefix>search</mat-icon>
             <input [(ngModel)]="searchInput" (change)="onSearchInputChange($event)" matInput id="search-input"
                 type="text">
         </mat-form-field>
