@@ -4,7 +4,6 @@
 
 export const environment = {
   production: false,
-  useSentry: false,
   apiBaseURL: '<unused>',
   authCookieDomain: '<unused>',
   authCookieName: 'access_token',

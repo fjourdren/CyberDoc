@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 import {
   HTTP_INTERCEPTORS,
   HttpClient,
@@ -38,7 +38,6 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { NgResizeObserverPonyfillModule } from 'ng-resize-observer';
 import { LayoutModule } from '@angular/cdk/layout';
 import { NgxFilesizeModule } from 'ngx-filesize';
-import * as Sentry from '@sentry/angular';
 import { ClipboardModule } from 'ngx-clipboard';
 
 import { FilesDetailsPanelComponent } from './components/files/files-details-panel/files-details-panel.component';
@@ -78,12 +77,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { RemainingTimePipe } from './pipes/remaining-time/remaining-time.pipe';
 import { GlobalErrorHandler } from './global-error-handler';
-import { environment } from '../environments/environment';
 import { FilesTagsInputComponent } from './components/files/files-tags-input/files-tags-input.component';
 import { FilesFilterDialogComponent } from './components/files/files-filter-dialog/files-filter-dialog.component';
 import { FilesFilterToolbarComponent } from './components/files/files-filter-toolbar/files-filter-toolbar.component';
 import { SettingsMainToolbarComponent } from './components/settings/settings-main-toolbar/settings-main-toolbar.component';
-import { Router } from '@angular/router';
 import { FilesShareMenuDialogComponent } from './components/files/files-share-menu-dialog/files-share-menu-dialog.component';
 import { PasswordRecoveryPageComponent } from './pages/password-recovery-page/password-recovery-page.component';
 import { TwoFactorLoginPageComponent } from './pages/two-factor-login-page/two-factor-login-page.component';
@@ -142,39 +139,6 @@ const SETTINGS_COMPONENTS = [
   SettingsSecurityComponent,
   SettingsMainToolbarComponent,
 ];
-
-const LOCAL_ERROR_HANDLER = [
-  { provide: ErrorHandler, useClass: GlobalErrorHandler },
-];
-
-const SENTRY_ERROR_HANDLER = [
-  { provide: ErrorHandler, useClass: GlobalErrorHandler },
-  {
-    provide: ErrorHandler,
-    useValue: Sentry.createErrorHandler({
-      showDialog: false,
-    }),
-  },
-  {
-    provide: Sentry.TraceService,
-    deps: [Router],
-  },
-  {
-    provide: APP_INITIALIZER,
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    useFactory: () => () => {},
-    deps: [Sentry.TraceService],
-    multi: true,
-  },
-];
-
-let ERROR_HANDLER;
-
-if (environment.useSentry) {
-  ERROR_HANDLER = SENTRY_ERROR_HANDLER;
-} else {
-  ERROR_HANDLER = LOCAL_ERROR_HANDLER;
-}
 
 @NgModule({
   declarations: [
@@ -262,7 +226,7 @@ if (environment.useSentry) {
     }),
   ],
   providers: [
-    ...ERROR_HANDLER,
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
     FileSystemService,
     TwoFactorService,
     UsersService,
