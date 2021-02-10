@@ -8,6 +8,7 @@ table {
 
 .tagcolor-column {
   width: 32px;
+  cursor: pointer;
 }
 
 .editbutton-column, .deletebutton-column {
