@@ -54,7 +54,7 @@ export class TwoFactorUseRecoveryCodeDialogComponent {
       })
       .catch((err) => {
         this.loading = false;
-        this.snackBar.open(err.error.message, null, { duration: 2500 });
+        this.snackBar.open(err.error.msg, null, { duration: 2500 });
         this.recoverTwoFactorForm.controls.code.setErrors({ incorrect: true });
       });
   }
