@@ -24,7 +24,7 @@ mat-card, mat-expansion-panel {
 }
 
 #add-tag-btn, #delete-account-btn {
-  margin-top: 16px;;
+  margin-top: 16px;
 }
 
 #delete-account-card {
@@ -39,4 +39,7 @@ mat-card-content {
 
 .tagName {
   padding-left: 1vw;
+  max-width: 1vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
