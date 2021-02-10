@@ -13,7 +13,7 @@
     <ng-container matColumnDef='name'>
       <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'file.name' | translate }} </th>
       <td class='name-column' mat-cell *matCellDef='let element' (click)='onClick(element)'
-        (dblclick)='onDoubleClick(element)' (touchstart)='onTouchStart(element)'> {{element.name}} </td>
+        (dblclick)='onDoubleClick(element)' (touchstart)='onTouchStart(element)' id="tabFileName"> {{element.name}} </td>
     </ng-container>
 
     <ng-container matColumnDef='type'>

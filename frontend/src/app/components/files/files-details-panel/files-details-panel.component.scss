@@ -33,6 +33,11 @@ img {
   height: 100%;
 }
 
+.mat-title {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
 mat-slide-toggle {
   padding-top: 16px;
 }
