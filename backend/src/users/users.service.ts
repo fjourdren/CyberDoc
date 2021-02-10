@@ -47,7 +47,10 @@ export class UsersService {
     private readonly billingService: BillingService,
   ) {}
 
-  async prepareUserForOutput(user: User): Promise<UserInResponse> {
+  async prepareUserForOutput(
+    user: User,
+    twoFactorAuthorized: boolean,
+  ): Promise<UserInResponse> {
     const result: any = COLUMNS_TO_KEEP_FOR_USER.reduce((r, key) => {
       r[key] = user[key];
       return r;
@@ -62,6 +65,7 @@ export class UsersService {
     result.availableSpace = this.billingService.getAvailableSpaceForSubscription(
       subscription,
     );
+    result.twoFactorAuthorized = twoFactorAuthorized;
 
     return result as UserInResponse;
   }
@@ -184,7 +188,7 @@ export class UsersService {
     );
 
     return {
-      user: await this.prepareUserForOutput(user),
+      user: await this.prepareUserForOutput(user, false),
       files,
     };
   }

@@ -45,23 +45,6 @@ export class TwoFactorAuthController {
     private readonly authService: AuthService,
   ) {}
 
-  @Get('isAuthorized')
-  @HttpCode(HttpStatusCode.OK)
-  @ApiOperation({
-    summary: 'Verify if 2FA is verified',
-    description: 'Verify if 2FA is verified',
-  })
-  @ApiOkResponse({
-    description: 'Tell if you are 2FA verified',
-    type: GenericResponse,
-  })
-  async isTwoFactorAuthorized(
-    @LoggedUser() user: User,
-    @IsTwoFactorAuthorized() twoFactorAuthorized: boolean,
-  ) {
-    return { msg: 'Success', isTwoFactorAuthorized: twoFactorAuthorized };
-  }
-
   @Post('enable')
   @HttpCode(HttpStatusCode.OK)
   @ApiOperation({

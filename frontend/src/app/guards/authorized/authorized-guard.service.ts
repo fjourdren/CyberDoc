@@ -30,23 +30,16 @@ export class AuthorizedGuard implements CanActivate {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    const activeUser = this.usersService.getActiveUser();
-    // Case "No 2FA configured"
-    if (
-      !activeUser.twoFactorApp &&
-      !activeUser.twoFactorSms &&
-      !activeUser.twoFactorEmail
-    ) {
-      return true;
+    const user = this.usersService.getActiveUser();
+    if (user.twoFactorEmail || user.twoFactorApp || user.twoFactorSms) {
+      if (user.twoFactorAuthorized) {
+        return true;
+      } else {
+        return this.router.parseUrl('/two-factor');
+      }
     } else {
-      // Case at least 1 2FA configured
-      return this.twoFactorService
-        .isTwoFactorAuthorized()
-        .toPromise()
-        .then((res) => {
-          if (res) return true;
-          else return this.router.parseUrl('/two-factor');
-        });
+      //No 2FA configured
+      return true;
     }
   }
 }
