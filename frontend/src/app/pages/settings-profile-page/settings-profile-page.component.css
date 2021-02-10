@@ -1,6 +1,7 @@
 #settings-profile{
     margin: 0 auto;
-    width: 40%;
+    max-width: 800px;
+    display: block;
 }
 
 mat-drawer-container {
