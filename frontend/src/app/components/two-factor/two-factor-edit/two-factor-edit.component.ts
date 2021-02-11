@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TwoFactorEditDialogComponent } from '../two-factor-edit-dialog/two-factor-edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -16,7 +16,6 @@ export class TwoFactorEditComponent {
   @Output() twoFactorAppEvent = new EventEmitter<boolean>();
   @Output() twoFactorSmsEvent = new EventEmitter<boolean>();
   @Output() twoFactorEmailEvent = new EventEmitter<boolean>();
-  @Input() canGenerateRecoveryCodes: boolean;
   twoFactorApp: boolean;
   twoFactorSms: boolean;
   twoFactorEmail: boolean;
@@ -32,12 +31,17 @@ export class TwoFactorEditComponent {
   }
 
   refresh(): void {
-    this.twoFactorApp = this.usersService.getActiveUser().twoFactorApp;
-    this.twoFactorSms = this.usersService.getActiveUser().twoFactorSms;
-    this.twoFactorEmail = this.usersService.getActiveUser().twoFactorEmail;
-    this.twoFactorAppEvent.emit(this.twoFactorApp);
-    this.twoFactorSmsEvent.emit(this.twoFactorSms);
-    this.twoFactorEmailEvent.emit(this.twoFactorEmail);
+    this.usersService
+      .refreshActiveUser()
+      .toPromise()
+      .then(() => {
+        this.twoFactorApp = this.usersService.getActiveUser().twoFactorApp;
+        this.twoFactorSms = this.usersService.getActiveUser().twoFactorSms;
+        this.twoFactorEmail = this.usersService.getActiveUser().twoFactorEmail;
+        this.twoFactorAppEvent.emit(this.twoFactorApp);
+        this.twoFactorSmsEvent.emit(this.twoFactorSms);
+        this.twoFactorEmailEvent.emit(this.twoFactorEmail);
+      });
   }
 
   changeTwoFactorApp(event): void {
@@ -59,16 +63,11 @@ export class TwoFactorEditComponent {
                 .disableTwoFactor('app', res.twoFactorToken)
                 .toPromise()
                 .then(() => {
-                  this.usersService
-                    .refreshActiveUser()
-                    .toPromise()
-                    .then(() => {
-                      event.source.checked = false;
-                      this.snackBar.open('2FA by App disabled', null, {
-                        duration: 2000,
-                      });
-                      this.refresh();
-                    });
+                  event.source.checked = false;
+                  this.snackBar.open('2FA by App disabled', null, {
+                    duration: 2000,
+                  });
+                  this.refresh();
                 });
               // }
             }
