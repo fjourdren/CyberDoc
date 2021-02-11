@@ -12,7 +12,7 @@ import { UsersService } from 'src/app/services/users/users.service';
 export class SettingsCreateEditTagDialogComponent {
   loading = false;
   name = new FormControl('', [Validators.required]);
-  color = new FormControl('#000000', [Validators.required]);
+  color = new FormControl('#ff0000', [Validators.required]);
   tagAlreadyExistsError = false;
   tag: FileTag;
 
