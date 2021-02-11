@@ -36,8 +36,10 @@ export class TwoFactorCheckDialogComponent {
       this.twoFactorType = 'app';
     } else if (this.user.twoFactorEmail) {
       this.sendTokenByEmail();
+      this.twoFactorType = 'email';
     } else if (this.user.twoFactorSms) {
       this.sendTokenBySms();
+      this.twoFactorType = 'sms';
     }
   }
 
@@ -122,7 +124,7 @@ export class TwoFactorCheckDialogComponent {
       .toPromise()
       .then(() => {
         this.timeLeft = 60; // TODO : variable globale
-        const source = timer(1000, 2000);
+        const source = timer(0, 1000);
         source.subscribe((val) => {
           this.subscribeTimerEmail = this.timeLeft - val;
         });
@@ -145,7 +147,7 @@ export class TwoFactorCheckDialogComponent {
       .toPromise()
       .then(() => {
         this.timeLeft = 60; // TODO : variable globale
-        const source = timer(1000, 2000);
+        const source = timer(0, 1000);
         source.subscribe((val) => {
           this.subscribeTimerSms = this.timeLeft - val;
         });

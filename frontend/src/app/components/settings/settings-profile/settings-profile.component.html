@@ -48,7 +48,7 @@
 
 			<ng-container matColumnDef="tagcolor">
 				<th mat-header-cell *matHeaderCellDef> </th>
-				<td class="tagcolor-column" mat-cell *matCellDef="let element">
+				<td class="tagcolor-column" mat-cell *matCellDef="let element" (click)="addOrEditTag(element)">
 					<div class="tag-color-div" [style.background]="element.hexColor"></div>
 				</td>
 			</ng-container>

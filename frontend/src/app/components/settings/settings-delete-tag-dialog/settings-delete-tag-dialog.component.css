@@ -1,0 +1,4 @@
+div.mat-dialog-content {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

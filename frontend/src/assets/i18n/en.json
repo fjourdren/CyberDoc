@@ -119,6 +119,7 @@
         "tags": "Tags",
         "tag_name": "Tag name",
         "enter_tag": "Enter a tag...",
+        "delete_confirm": "Are you sure you want to delete '{{name}}' ?",
         "another_tag_with_same_name_exists": "Another tag with the same name already exists"
     },
     "accounts": {
