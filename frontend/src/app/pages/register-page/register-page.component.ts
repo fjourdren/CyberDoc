@@ -44,6 +44,7 @@ export class RegisterPageComponent {
   email: string;
   fileOwnerEmail: string;
   fileId: string;
+  canShowCheckLegalError = false;
 
   constructor(
     private fb: FormBuilder,
@@ -72,6 +73,7 @@ export class RegisterPageComponent {
         password: [null, [Validators.required, passwordValidator()]],
         repeat: [null, Validators.required],
         role: ['owner', Validators.required],
+        checkLegal: [null, Validators.required],
       },
       {
         validator: MustMatch('password', 'repeat'),
@@ -80,6 +82,7 @@ export class RegisterPageComponent {
   }
 
   onSubmit(): void {
+    this.canShowCheckLegalError = true;
     if (
       this.registerForm.invalid ||
       (this.email && this.registerForm.controls.email.value !== this.email)

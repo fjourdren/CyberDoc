@@ -85,6 +85,19 @@
             <mat-radio-button value="owner">{{ 'accounts.owner' | translate }}</mat-radio-button>
             <mat-radio-button value="collaborator">{{ 'accounts.collaborator' | translate }}</mat-radio-button>
           </mat-radio-group>
+
+          <br><br>
+          <mat-checkbox class="full-width" formControlName="checkLegal" required>
+            {{ 'general.privacy_policy_checkbox' | translate }}
+            <a style='padding: 0' mat-button href="/assets/privacy-policy.pdf">
+              {{ 'general.privacy_policy' | translate }}
+            </a>
+          </mat-checkbox>
+          <mat-error *ngIf="canShowCheckLegalError && registerForm.controls['checkLegal'].hasError('required')">
+            {{ 'general.privacy_policy_required' | translate }}
+          </mat-error>
+
+
         </mat-card-content>
 
         <div id="button-container">

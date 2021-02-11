@@ -302,6 +302,9 @@
         "used": "used",
         "recover_line_1": "Please contact the system administrator at this email",
         "recover_line_2": "to help you recover your account.",
-        "clear_all_filters": "Clear all filters"
+        "clear_all_filters": "Clear all filters",
+        "privacy_policy": "CyberDoc privacy policy",
+        "privacy_policy_checkbox": "By using CyberDoc, I agree to",
+        "privacy_policy_required": "You must approve the privacy policy"
     }
 }
