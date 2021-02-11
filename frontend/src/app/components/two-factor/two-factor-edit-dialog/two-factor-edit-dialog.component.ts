@@ -222,7 +222,7 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
           .then(() => {
             this._setLoading(false);
             this.timeLeft = 60; // TODO : variable globale
-            const source = timer(1000, 2000);
+            const source = timer(0, 1000);
             source.subscribe((val) => {
               this.subscribeTimer = this.timeLeft - val;
             });
