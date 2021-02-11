@@ -19,8 +19,8 @@ export class PreviewGenerator {
   async generatePngPreview(file: File, fileContent: Buffer): Promise<Buffer> {
     const extension = extname(file.name); // calculate extension
     const tmpFilename = file._id + extension;
-    const tempInputFile = join('tmp', 'input', tmpFilename);
-    const tempOutputImage = join('tmp', 'output', file._id + '.png');
+    const tempInputFile = join('/', 'tmp', `input-${tmpFilename}`);
+    const tempOutputImage = join('/', 'tmp', `input-${file._id}.png`);
     let contentOutputFile: Buffer;
 
     if (file.mimetype.startsWith('image/')) {
