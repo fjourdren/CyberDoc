@@ -36,11 +36,19 @@ export class GlobalExceptionFilter extends BaseExceptionFilter {
     if (response.headersSent) return;
 
     if (exception instanceof HttpException) {
+      const rawExceptionMessage = (exception.getResponse() as any).message;
+      let exceptionMessage: string;
+      if (typeof rawExceptionMessage === 'string') {
+        exceptionMessage = rawExceptionMessage;
+      } else {
+        exceptionMessage = JSON.stringify(rawExceptionMessage);
+      }
+
       const newException = new HttpException(
         {
           statusCode: exception.getStatus(),
           success: false,
-          msg: exception.getResponse(),
+          msg: exceptionMessage,
           timestamp: new Date().toISOString(),
           path: request.url,
         },
