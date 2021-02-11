@@ -433,7 +433,7 @@ export class FilesService {
       file.parent_file_id = editFileMetadataDto.directoryID;
     }
 
-    if (editFileMetadataDto.preview) {
+    if (editFileMetadataDto.preview != null) {
       requireIsFileOwner();
       if (editFileMetadataDto.preview && file.type !== FILE)
         throw new BadRequestException('Preview is not available for folders');
