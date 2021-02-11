@@ -124,7 +124,7 @@ export class TwoFactorCheckDialogComponent {
       .toPromise()
       .then(() => {
         this.timeLeft = 60; // TODO : variable globale
-        const source = timer(1000, 2000);
+        const source = timer(0, 1000);
         source.subscribe((val) => {
           this.subscribeTimerEmail = this.timeLeft - val;
         });
@@ -147,7 +147,7 @@ export class TwoFactorCheckDialogComponent {
       .toPromise()
       .then(() => {
         this.timeLeft = 60; // TODO : variable globale
-        const source = timer(1000, 2000);
+        const source = timer(0, 1000);
         source.subscribe((val) => {
           this.subscribeTimerSms = this.timeLeft - val;
         });
