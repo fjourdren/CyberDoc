@@ -17,7 +17,7 @@
             <mat-slide-toggle [checked]="twoFactorEmail" (change)="changeTwoFactorEmail($event)"></mat-slide-toggle>
         </div>
     </mat-list-item>
-    <mat-list-item *ngIf="canGenerateRecoveryCodes">
+    <mat-list-item *ngIf="twoFactorApp || twoFactorSms || twoFactorEmail">
         <div class="twoFactorContent">
             <p>{{'settings.generate_recovery_codes' | translate}}</p>
 
