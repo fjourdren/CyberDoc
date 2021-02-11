@@ -110,6 +110,7 @@ import { FilesNewMenuComponent } from './components/files/files-new-menu/files-n
 import { SettingsSessionCardComponent } from './components/settings/settings-session-card/settings-session-card.component';
 import { HttpErrorInterceptor } from './services/http-error.interceptor';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // AoT requires an exported function for factories
 export const HttpLoaderFactory = (httpClient: HttpClient) =>
@@ -216,6 +217,7 @@ const SETTINGS_COMPONENTS = [
     MatChipsModule,
     MatAutocompleteModule,
     MatSelectModule,
+    MatCheckboxModule,
     MatDividerModule,
     MatExpansionModule,
     NgxFilesizeModule,
