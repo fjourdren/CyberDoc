@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TwoFactorEditDialogComponent } from '../two-factor-edit-dialog/two-factor-edit-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -12,7 +12,7 @@ import { TwoFactorService } from '../../../services/twofactor/twofactor.service'
   templateUrl: './two-factor-edit.component.html',
   styleUrls: ['./two-factor-edit.component.css'],
 })
-export class TwoFactorEditComponent {
+export class TwoFactorEditComponent implements OnInit {
   @Output() twoFactorAppEvent = new EventEmitter<boolean>();
   @Output() twoFactorSmsEvent = new EventEmitter<boolean>();
   @Output() twoFactorEmailEvent = new EventEmitter<boolean>();
@@ -25,19 +25,20 @@ export class TwoFactorEditComponent {
     private twoFactorService: TwoFactorService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-  ) {
+  ) {}
+
+  ngOnInit(): void {
     this.refresh();
-    this.usersService.userUpdated().subscribe(() => this.refresh());
   }
 
   refresh(): void {
     this.usersService
       .refreshActiveUser()
       .toPromise()
-      .then(() => {
-        this.twoFactorApp = this.usersService.getActiveUser().twoFactorApp;
-        this.twoFactorSms = this.usersService.getActiveUser().twoFactorSms;
-        this.twoFactorEmail = this.usersService.getActiveUser().twoFactorEmail;
+      .then((refreshedUser) => {
+        this.twoFactorApp = refreshedUser.twoFactorApp;
+        this.twoFactorSms = refreshedUser.twoFactorSms;
+        this.twoFactorEmail = refreshedUser.twoFactorEmail;
         this.twoFactorAppEvent.emit(this.twoFactorApp);
         this.twoFactorSmsEvent.emit(this.twoFactorSms);
         this.twoFactorEmailEvent.emit(this.twoFactorEmail);
@@ -84,7 +85,6 @@ export class TwoFactorEditComponent {
           })
           .afterClosed()
           .subscribe((res) => {
-            // if (xAuthTokenArray && xAuthTokenArray.length === 1) {
             if (res) {
               const refDialog = this.dialog.open(TwoFactorEditDialogComponent, {
                 width: '500px',
@@ -98,20 +98,14 @@ export class TwoFactorEditComponent {
                 .toPromise()
                 .then((res) => {
                   if (res) {
-                    this.usersService
-                      .refreshActiveUser()
-                      .toPromise()
-                      .then(() => {
-                        event.source.checked = true;
-                        this.snackBar.open('2FA by App activated', null, {
-                          duration: 2000,
-                        });
-                        this.refresh();
-                      });
+                    event.source.checked = true;
+                    this.snackBar.open('2FA by App activated', null, {
+                      duration: 2000,
+                    });
+                    this.refresh();
                   }
                 });
             }
-            // }
           });
       }
     } else {
@@ -121,7 +115,6 @@ export class TwoFactorEditComponent {
         width: '500px',
         data: {
           twoFactorMode: 'app',
-          xAuthTokenArray: null,
         },
       });
 
@@ -131,8 +124,8 @@ export class TwoFactorEditComponent {
         .then((res) => {
           if (res) {
             event.source.checked = true;
+            this.refresh();
           }
-          this.refresh();
         });
     }
   }
@@ -152,24 +145,16 @@ export class TwoFactorEditComponent {
           .afterClosed()
           .subscribe((res) => {
             if (res) {
-              // if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) {
-              // password:2faType:2faToken
               this.usersService
                 .disableTwoFactor('sms', res.twoFactorToken)
                 .toPromise()
                 .then(() => {
-                  this.usersService
-                    .refreshActiveUser()
-                    .toPromise()
-                    .then(() => {
-                      event.source.checked = false;
-                      this.snackBar.open('2FA by SMS disabled', null, {
-                        duration: 2000,
-                      });
-                      this.refresh();
-                    });
+                  event.source.checked = false;
+                  this.snackBar.open('2FA by SMS disabled', null, {
+                    duration: 2000,
+                  });
+                  this.refresh();
                 });
-              // }
             }
           });
       } else {
@@ -185,12 +170,10 @@ export class TwoFactorEditComponent {
           .afterClosed()
           .subscribe((res) => {
             if (res) {
-              // if (xAuthTokenArray && xAuthTokenArray.length === 1) {
               const refDialog = this.dialog.open(TwoFactorEditDialogComponent, {
                 width: '500px',
                 data: {
                   twoFactorMode: 'sms',
-                  // xAuthTokenArray,
                 },
               });
 
@@ -199,19 +182,13 @@ export class TwoFactorEditComponent {
                 .toPromise()
                 .then((res) => {
                   if (res) {
-                    this.usersService
-                      .refreshActiveUser()
-                      .toPromise()
-                      .then(() => {
-                        event.source.checked = true;
-                        this.snackBar.open('2FA by SMS activated', null, {
-                          duration: 2000,
-                        });
-                        this.refresh();
-                      });
+                    event.source.checked = true;
+                    this.snackBar.open('2FA by SMS activated', null, {
+                      duration: 2000,
+                    });
+                    this.refresh();
                   }
                 });
-              // }
             }
           });
       }
@@ -222,7 +199,6 @@ export class TwoFactorEditComponent {
         width: '500px',
         data: {
           twoFactorMode: 'sms',
-          xAuthTokenArray: null,
         },
       });
 
@@ -232,8 +208,8 @@ export class TwoFactorEditComponent {
         .then((res) => {
           if (res) {
             event.source.checked = true;
+            this.refresh();
           }
-          this.refresh();
         });
     }
   }
@@ -253,24 +229,16 @@ export class TwoFactorEditComponent {
           .afterClosed()
           .subscribe((res) => {
             if (res) {
-              // if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) {
-              // password:appOrSms:2faToken
               this.usersService
                 .disableTwoFactor('email', res.twoFactorToken)
                 .toPromise()
                 .then(() => {
-                  this.usersService
-                    .refreshActiveUser()
-                    .toPromise()
-                    .then(() => {
-                      event.source.checked = false;
-                      this.snackBar.open('2FA by Email disabled', null, {
-                        duration: 2000,
-                      });
-                      this.refresh();
-                    });
+                  event.source.checked = false;
+                  this.snackBar.open('2FA by Email disabled', null, {
+                    duration: 2000,
+                  });
+                  this.refresh();
                 });
-              // }
             }
           });
       } else {
@@ -286,7 +254,6 @@ export class TwoFactorEditComponent {
           .afterClosed()
           .subscribe((res) => {
             if (res) {
-              // if (xAuthTokenArray && xAuthTokenArray.length === 1) {
               this.twoFactorService
                 .sendTokenByEmail()
                 .toPromise()
@@ -307,19 +274,13 @@ export class TwoFactorEditComponent {
                 .toPromise()
                 .then((res) => {
                   if (res) {
-                    this.usersService
-                      .refreshActiveUser()
-                      .toPromise()
-                      .then(() => {
-                        event.source.checked = true;
-                        this.snackBar.open('2FA by Email activated', null, {
-                          duration: 2000,
-                        });
-                        this.refresh();
-                      });
+                    event.source.checked = true;
+                    this.snackBar.open('2FA by Email activated', null, {
+                      duration: 2000,
+                    });
+                    this.refresh();
                   }
                 });
-              // }
             }
           });
       }
@@ -338,7 +299,6 @@ export class TwoFactorEditComponent {
         width: '500px',
         data: {
           twoFactorMode: 'email',
-          xAuthTokenArray: null,
         },
       });
 
@@ -348,8 +308,8 @@ export class TwoFactorEditComponent {
         .then((res) => {
           if (res) {
             event.source.checked = true;
+            this.refresh();
           }
-          this.refresh();
         });
     }
   }
@@ -365,22 +325,11 @@ export class TwoFactorEditComponent {
       .afterClosed()
       .subscribe((res) => {
         if (res) {
-          // if (res.xAuthTokenArray && res.xAuthTokenArray.length === 3) {
-          // [password:smsOrAppOrRecoveryCode:2faTokenOrRecoveryCode]
-          // if (
-          //   res.xAuthTokenArray[1] === 'app' ||
-          //   res.xAuthTokenArray[1] === 'sms'
-          // ) {
           this.dialog.open(TwoFactorGenerateRecoveryCodesDialogComponent, {
             maxWidth: '500px',
             disableClose: true,
-            // data: {
-            //   xAuthTokenArray: res.xAuthTokenArray,
-            // },
           });
         }
-        // }
-        // }
       });
   }
 }
