@@ -25,7 +25,6 @@ const USER: User = {
   twoFactorSms: false,
   twoFactorEmail: false,
   directory_id: 'root',
-  theme: '',
   tags: [
     {
       _id: '65af88e0-4d6f-80da-1cab-6ef5db2c7188',
@@ -50,6 +49,10 @@ const USER: User = {
   ],
   twoFactorRecoveryCodes: [],
   theme: 'indigo-pink',
+  subscription: undefined,
+  usedSpace: 0,
+  availableSpace: 0,
+  twoFactorAuthorized: true,
 };
 
 @Injectable({
@@ -173,7 +176,6 @@ export class MockUsersService {
     firstName: string,
     lastName: string,
     newEmail: string,
-    xAuthTokenArray: string[],
   ): Observable<void> {
     return of(null)
       .pipe(delay(DELAY))
@@ -198,10 +200,7 @@ export class MockUsersService {
       );
   }
 
-  updatePassword(
-    password: string,
-    xAuthTokenArray: string[],
-  ): Observable<void> {
+  updatePassword(password: string): Observable<void> {
     return of(null)
       .pipe(delay(DELAY))
       .pipe(
@@ -222,9 +221,6 @@ export class MockUsersService {
   updateTwoFactor(
     twoFactorApp: boolean,
     twoFactorSms: boolean,
-    secret: string,
-    phoneNumber: string,
-    xAuthTokenArray: string[],
   ): Observable<void> {
     return of(null)
       .pipe(delay(DELAY))
@@ -287,7 +283,7 @@ export class MockUsersService {
     resetPasswordJWTToken: string,
     password: string,
   ): Observable<void> {
-    return this.updatePassword(password, null);
+    return this.updatePassword(password);
   }
 
   searchExistingUser(email: string): Observable<User> {
@@ -323,7 +319,7 @@ export class MockUsersService {
       );
   }
 
-  deleteAccount(xAuthTokenArray: string[]): Observable<void> {
+  deleteAccount(): Observable<void> {
     return of(null)
       .pipe(delay(DELAY))
       .pipe(
