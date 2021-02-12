@@ -2,7 +2,10 @@ import { AfterViewInit, Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { UsersService } from 'src/app/services/users/users.service';
+import {
+  UsersService,
+  DEFAULT_THEME,
+} from 'src/app/services/users/users.service';
 
 const LAST_DEVICE_NAME_LOCALSTORAGE_KEY = 'lastDeviceName';
 
@@ -27,7 +30,9 @@ export class LoginPageComponent implements AfterViewInit {
     private fb: FormBuilder,
     private usersService: UsersService,
     private router: Router,
-  ) {}
+  ) {
+    this.usersService.setTheme(DEFAULT_THEME);
+  }
 
   onSubmit(): void {
     if (this.loginForm.invalid) {
