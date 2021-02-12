@@ -11,6 +11,7 @@ import { LoadingDialogComponent } from 'src/app/components/global/loading-dialog
 declare let Stripe: any;
 
 const FORCE_USER_REFRESH_URL_HASH = 'forceUserRefresh';
+export const DEFAULT_THEME = 'indigo-pink';
 
 @Injectable({
   providedIn: 'root',
@@ -77,17 +78,21 @@ export class UsersService {
       .pipe(
         map((response) => {
           this._setUser(response.user);
-          if (response.user.theme !== localStorage.getItem('theme')) {
-            localStorage.setItem('theme', response.user.theme);
-            this.dialog.open(LoadingDialogComponent, {
-              width: '96px',
-              height: '96px',
-            });
-            location.reload();
-          }
+          this.setTheme(response.user.theme);
           return response.user;
         }),
       );
+  }
+
+  setTheme(theme: string) {
+    if (theme !== localStorage.getItem('theme')) {
+      localStorage.setItem('theme', theme);
+      this.dialog.open(LoadingDialogComponent, {
+        width: '96px',
+        height: '96px',
+      });
+      location.reload();
+    }
   }
 
   updateProfile(

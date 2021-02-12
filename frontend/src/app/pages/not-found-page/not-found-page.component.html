@@ -1,8 +1,8 @@
-<mat-drawer-container style='width: 100vw; height: 100vh'>
+<div class='primary-background' style='width: 100vw; height: 100vh'>
   <mat-card id="not-found-div">
     <img src="/assets/icons/icon-192x192.png">
     <span class="mat-display-2">404</span>
     <h1 class="mat-headline">{{ 'general.page_not_found' | translate }}</h1>
     <a [routerLink]="['/']" mat-raised-button color="primary">{{ 'general.go_to_homepage' | translate }}</a>
   </mat-card>
-</mat-drawer-container>
+</div>

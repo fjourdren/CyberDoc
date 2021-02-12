@@ -10,7 +10,10 @@ import { User } from 'src/app/models/users-api-models';
 import { MustMatch } from 'src/app/components/settings/settings-security/_helpers/must-match.validator';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { UsersService } from 'src/app/services/users/users.service';
+import {
+  DEFAULT_THEME,
+  UsersService,
+} from 'src/app/services/users/users.service';
 
 function passwordValidator(): ValidatorFn {
   return (control: AbstractControl): { [key: string]: any } | null => {
@@ -52,6 +55,8 @@ export class RegisterPageComponent {
     private router: Router,
     private route: ActivatedRoute,
   ) {
+    this.usersService.setTheme(DEFAULT_THEME);
+
     // Manage registering after file sharing
     this.route.queryParams.subscribe((params) => {
       if (params['data']) {
