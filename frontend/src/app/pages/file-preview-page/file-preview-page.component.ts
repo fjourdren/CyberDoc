@@ -34,10 +34,6 @@ export class FilePreviewPageComponent implements OnInit {
     this.router.navigate(['files', this.file.parent_file_id]);
   }
 
-  onEditInCyberDocBtnClick() {
-    alert('TODO!');
-  }
-
   onDownloadBtnClick() {
     const anchor = document.createElement('a');
     anchor.download = this.file.name;
