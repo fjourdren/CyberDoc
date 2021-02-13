@@ -1,49 +1,50 @@
-<div mat-dialog-title class="mat-headline">
+<div mat-dialog-title class='mat-headline'>
   {{'sharing.sharewith' | translate}}
 </div>
 
-<mat-form-field [formGroup]="newShareForm" appearance="fill">
+<mat-form-field [formGroup]='newShareForm' appearance='fill'>
   <mat-label>{{'sharing.add_email' | translate}}</mat-label>
-  <input formControlName="email" matInput type="text" (keydown)="onInputKeyDown($event)">
-  <button [disabled]="loading" matSuffix mat-icon-button (click)="addEntry()">
+  <input formControlName='email' matInput type='text' (keydown)='onInputKeyDown($event)'>
+  <button [disabled]='loading' matSuffix mat-icon-button (click)='addEntry()'>
     <mat-icon>add</mat-icon>
   </button>
   <mat-error *ngIf="newShareForm.controls['email'].hasError('invalid')">{{'sharing.invalid_or_unknown_email' |
     translate}}</mat-error>
 </mat-form-field>
 
-<div id="table-container">
-  <table mat-table [dataSource]="dataSource">
+<div id='table-container'>
+  <table mat-table [dataSource]='dataSource'>
 
-    <ng-container matColumnDef="email-and-name">
-      <td class="email-and-name-column" mat-cell *matCellDef="let element">
+    <ng-container matColumnDef='email-and-name'>
+      <td class='email-and-name-column' mat-cell *matCellDef='let element'>
         <b>{{element.name}}</b>
         <br>
         {{element.email}}
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="delete">
-      <td class="deletebutton-column" mat-cell *matCellDef="let element">
-        <button [disabled]="loading" mat-icon-button (click)="deleteEntry(element.email)">
+    <ng-container matColumnDef='delete'>
+      <td class='deletebutton-column' mat-cell *matCellDef='let element'>
+        <button [disabled]='loading' mat-icon-button (click)='deleteEntry(element.email)'>
           <mat-icon>delete</mat-icon>
         </button>
       </td>
     </ng-container>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    <tr mat-row *matRowDef='let row; columns: displayedColumns;'></tr>
   </table>
 </div>
 
-<div mat-dialog-actions align="end">
-  <mat-form-field id="shareModeFormField" [formGroup]="shareModeForm">
+<div mat-dialog-actions align='end'>
+  <mat-form-field [style]='{display : hideShareModeField ? "none":"block"}' id='shareModeFormField'
+                  [formGroup]='shareModeForm'>
     <mat-label>{{'sharing.share_access' | translate}}</mat-label>
-    <select formControlName="shareMode" matNativeControl (change)="updateFileShareMode()">
-      <option value="readonly">{{'sharing.view' | translate}}</option>
-      <option value="readwrite">{{'sharing.edit' | translate}}</option>
+    <select formControlName='shareMode' matNativeControl (change)='updateFileShareMode()'>
+      <option value='readonly'>{{'sharing.view' | translate}}</option>
+      <option value='readwrite'>{{'sharing.edit' | translate}}</option>
     </select>
   </mat-form-field>
-  <div class="fill"></div>
-  <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
-  <button [disabled]="loading" mat-raised-button color="primary" (click)="onCloseBtnClicked()">{{'general.close' |
+  <div class='fill'></div>
+  <mat-spinner *ngIf='loading' diameter='24'></mat-spinner>
+  <button [disabled]='loading' mat-raised-button color='primary' (click)='onCloseBtnClicked()'>{{'general.close' |
     translate}}</button>
 </div>
