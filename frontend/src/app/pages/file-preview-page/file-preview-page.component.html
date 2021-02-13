@@ -9,7 +9,6 @@
     </div>
     <div *ngIf='file'>
       <mat-spinner *ngIf="loadingPdfFile" diameter="48"></mat-spinner>
-      <button mat-raised-button *ngIf='!loadingPdfFile' (click)='onEditInCyberDocBtnClick()'>{{ 'fileaction.edit_with_cyberdoc' | translate }}</button>
     </div>
     <div *ngIf='file'>
       <button mat-icon-button (click)='onDownloadBtnClick()'>
