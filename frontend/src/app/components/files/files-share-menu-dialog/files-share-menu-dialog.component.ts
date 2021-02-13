@@ -6,6 +6,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { CloudFile } from 'src/app/models/files-api-models';
 import { FileSystemService } from 'src/app/services/filesystems/file-system.service';
 import { UsersService } from 'src/app/services/users/users.service';
+import { FilesUtilsService } from '../../../services/files-utils/files-utils.service';
 
 @Component({
   selector: 'app-files-share-menu-dialog',
@@ -14,6 +15,7 @@ import { UsersService } from 'src/app/services/users/users.service';
 })
 export class FilesShareMenuDialogComponent {
   loading = false;
+  hideShareModeField = false;
   newShareForm = this.fb.group({
     email: [null, [Validators.email, Validators.required]],
   });
@@ -27,6 +29,7 @@ export class FilesShareMenuDialogComponent {
     public dialogRef: MatDialogRef<FilesShareMenuDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public file: CloudFile,
     private fsService: FileSystemService,
+    private fileUtils: FilesUtilsService,
     private usersService: UsersService,
   ) {
     this.update();
@@ -42,6 +45,10 @@ export class FilesShareMenuDialogComponent {
       this.fsService.getSharedWith(this.file._id).toPromise(),
       this.fsService.getSharedWithPending(this.file._id).toPromise(),
     ]).then((values) => {
+      this.hideShareModeField = !this.fileUtils.canBeOpenedInApp(
+        this.fileUtils.getFileTypeForMimetype(values[0].mimetype),
+      );
+
       this._setIsLoading(false);
       if (!values[0].isDirectory) {
         this.shareModeForm
