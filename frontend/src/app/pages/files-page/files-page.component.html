@@ -46,14 +46,12 @@
             </div>
         </div>
 
-
-        <mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
-
         <div id='app-files-generic-table-container'>
             <mat-toolbar *ngIf='binMode' style='display: flex; align-items: center'>
                 <span class='mat-h4' style='white-space: initial; flex: 1; margin: 0 5px 0 0;'>{{ 'bin.header' | translate}}</span>
                 <button mat-flat-button color='accent' (click)='purgeBin()'>{{ 'bin.empty' | translate}}</button>
             </mat-toolbar>
+            <mat-spinner *ngIf="loading" diameter="48"></mat-spinner>
             <app-files-generic-table style='flex: 1' *ngIf="!loading" [showDetailsButton]="!fileDetailDrawerLocked"
                                      [sharedWithMeMode]="sharedWithMeMode" [binMode]="binMode" [currentDirectoryID]="currentDirectory && currentDirectory._id"
                                      [currentDirectory]="!searchMode && !sharedWithMeMode && currentDirectory"
