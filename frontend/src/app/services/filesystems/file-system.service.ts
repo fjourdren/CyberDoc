@@ -158,10 +158,14 @@ export class FileSystemService {
       .pipe(
         map((response) => {
           const folder = new CloudDirectory();
+          const results = response.results;
+          for (const result of results) {
+            result.isDirectory = result.mimetype === DIRECTORY_MIMETYPE;
+          }
 
-          folder.directoryContent = response.results;
-          folder._id = null;
-          folder.name = null;
+          folder.directoryContent = results;
+          folder._id = 'bin';
+          folder.name = 'Bin';
           folder.isDirectory = true;
           folder.mimetype = DIRECTORY_MIMETYPE;
           folder.ownerName = null;
@@ -314,26 +318,19 @@ export class FileSystemService {
   }
 
   delete(node: CloudNode): Observable<void> {
-    if (!node.isDirectory) {
-      if (node.bin_id) {
-        return this.httpClient
-          .delete<any>(`${environment.apiBaseURL}/files/${node._id}`, {
-            withCredentials: true,
-          })
-          .pipe(map(() => this._refreshNeeded$.emit(), null));
-      } else {
-        return this.httpClient
-          .delete<any>(`${environment.apiBaseURL}/files/${node._id}/sendBin`, {
-            withCredentials: true,
-          })
-          .pipe(map(() => this._refreshNeeded$.emit(), null));
-      }
+    if (node.bin_id) {
+      return this.httpClient
+        .delete<any>(`${environment.apiBaseURL}/files/${node._id}`, {
+          withCredentials: true,
+        })
+        .pipe(map(() => this._refreshNeeded$.emit(), null));
+    } else {
+      return this.httpClient
+        .delete<any>(`${environment.apiBaseURL}/files/${node._id}/sendBin`, {
+          withCredentials: true,
+        })
+        .pipe(map(() => this._refreshNeeded$.emit(), null));
     }
-    return this.httpClient
-      .delete<any>(`${environment.apiBaseURL}/files/${node._id}`, {
-        withCredentials: true,
-      })
-      .pipe(map(() => this._refreshNeeded$.emit(), null));
   }
 
   purge() {
