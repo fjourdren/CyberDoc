@@ -78,10 +78,8 @@
             </mat-form-field>
           </div>
 
-          <br>
-
-          <label id="role-group-label">{{ 'accounts.role' | translate }} : &nbsp;</label>
-          <mat-radio-group aria-labelledby="role-group-label" formControlName="role">
+          <label style='display: none' id="role-group-label">{{ 'accounts.role' | translate }} : &nbsp;</label>
+          <mat-radio-group style='display: none' aria-labelledby="role-group-label" formControlName="role">
             <mat-radio-button value="owner">{{ 'accounts.owner' | translate }}</mat-radio-button>
             <mat-radio-button value="collaborator">{{ 'accounts.collaborator' | translate }}</mat-radio-button>
           </mat-radio-group>
