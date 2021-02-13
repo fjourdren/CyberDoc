@@ -51,7 +51,7 @@ export class FilesSignDialogComponent {
 
   addSignature() {
     this.dialog.open(FilesSignConfirmDialogComponent, {
-      maxWidth: '400px',
+      width: '400px',
       data: this.file,
     });
   }

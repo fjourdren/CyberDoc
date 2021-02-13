@@ -57,7 +57,7 @@ export class FilesMainToolbarComponent {
   openFilterDialog(): void {
     this.dialog
       .open(FilesFilterDialogComponent, {
-        maxWidth: '400px',
+        width: '400px',
         data: this.routeSearchParams,
       })
       .afterClosed()

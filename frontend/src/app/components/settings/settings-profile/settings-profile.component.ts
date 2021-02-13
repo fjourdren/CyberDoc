@@ -180,7 +180,7 @@ export class SettingsProfileComponent {
 
   deleteTag(tag: FileTag): void {
     this.dialog.open(SettingsDeleteTagDialogComponent, {
-      maxWidth: '400px',
+      width: '400px',
       data: tag,
     });
   }

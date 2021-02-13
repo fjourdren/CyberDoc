@@ -55,7 +55,7 @@ export class FilesUploadDragZoneComponent {
     const user = this.usersService.getActiveUser();
     if (user.usedSpace + file.size > user.availableSpace) {
       this.dialog.open(FilesNoEnoughStorageDialogComponent, {
-        maxWidth: '400px',
+        width: '400px',
       });
     } else {
       this.fsService.startFileUpload(file, this.currentDirectory);
