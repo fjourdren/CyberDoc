@@ -420,21 +420,21 @@ export class FilesGenericTableComponent implements AfterViewInit {
 
   deleteNode(node: CloudNode): void {
     this.dialog.open(FilesDeleteDialogComponent, {
-      maxWidth: '400px',
+      width: '400px',
       data: node,
     });
   }
 
   restoreNode(node: CloudNode): void {
     this.dialog.open(FilesRestoreDialogComponent, {
-      maxWidth: '400px',
+      width: '400px',
       data: node,
     });
   }
 
   renameNode(node: CloudNode): void {
     this.dialog.open(FilesRenameDialogComponent, {
-      maxWidth: '400px',
+      width: '400px',
       data: node,
     });
   }
@@ -446,14 +446,14 @@ export class FilesGenericTableComponent implements AfterViewInit {
       user.usedSpace + (node as CloudFile).size > user.availableSpace
     ) {
       this.dialog.open(FilesNoEnoughStorageDialogComponent, {
-        maxWidth: '400px',
+        width: '400px',
       });
       return;
     }
 
     const initialDirectoryID = this.currentDirectoryID || user.directory_id;
     this.dialog.open(FilesMoveCopyDialogComponent, {
-      width: '400px',
+      width: '500px',
       height: '400px',
       data: new MoveCopyDialogModel(node, initialDirectoryID, isCopy),
     });

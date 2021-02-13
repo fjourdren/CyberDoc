@@ -86,7 +86,7 @@ export class FilesNewMenuComponent {
 
   createFolder() {
     this.dialog.open(FilesNewFolderDialogComponent, {
-      maxWidth: '400px',
+      width: '400px',
       data: this.currentDirectory,
     });
   }
@@ -101,7 +101,7 @@ export class FilesNewMenuComponent {
     const user = this.usersService.getActiveUser();
     if (user.usedSpace + newFileSize > user.availableSpace) {
       this.dialog.open(FilesNoEnoughStorageDialogComponent, {
-        maxWidth: '400px',
+        width: '400px',
       });
       return false;
     } else {
