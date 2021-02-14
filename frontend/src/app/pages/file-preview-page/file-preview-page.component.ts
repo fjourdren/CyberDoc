@@ -31,7 +31,11 @@ export class FilePreviewPageComponent implements OnInit {
   }
 
   onBackBtnClick() {
-    this.router.navigate(['files', this.file.parent_file_id]);
+    if (this.file.access === 'owner') {
+      this.router.navigate(['files', this.file.parent_file_id]);
+    } else {
+      this.router.navigate(['shared-with-me']);
+    }
   }
 
   onDownloadBtnClick() {
