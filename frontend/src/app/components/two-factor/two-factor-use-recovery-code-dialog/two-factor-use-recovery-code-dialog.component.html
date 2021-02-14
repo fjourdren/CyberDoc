@@ -22,7 +22,7 @@
 </div>
 
 <div mat-dialog-actions align="end">
-    <button mat-raised-button color="primary" (click)="onSubmit()"
-        [disabled]="loading || recoverTwoFactorForm.invalid">{{ 'general.confirm' | translate }}</button>
-    <button mat-button color="warn" matDialogClose>{{ 'general.cancel' | translate }}</button>
+    <button mat-raised-button color="primary" (click)="onSubmit()" [class.spinner]='loading'
+            [disabled]="loading || recoverTwoFactorForm.invalid">{{ 'general.confirm' | translate }}</button>
+    <button mat-button color="warn" [disabled]="loading" matDialogClose>{{ 'general.cancel' | translate }}</button>
 </div>
