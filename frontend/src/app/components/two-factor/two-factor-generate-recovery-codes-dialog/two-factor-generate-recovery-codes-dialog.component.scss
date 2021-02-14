@@ -1,14 +1,4 @@
-#downloadButton {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-around;
-}
-
-.mat-dialog-content {
-  width: 100%;
-}
-
-.mat-dialog-actions>button {
-  width: 100%;
+ul {
+  list-style-type: none;
+  font-family: monospace;
 }
