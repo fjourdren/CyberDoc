@@ -23,6 +23,7 @@
 			</mat-form-field>
 			<mat-form-field>
 				<mat-label>{{ 'themes.theme' | translate }}</mat-label>
+				<span matPrefix style="margin-right: 1vw;"><mat-icon [svgIcon]="this.profileForm.get('theme').value"></mat-icon></span>
 				<mat-select formControlName="theme">
 					<mat-option *ngFor="let theme of VALID_THEMES" [value]="theme">
 						<mat-icon [svgIcon]="theme"></mat-icon>
