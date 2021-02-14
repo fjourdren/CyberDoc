@@ -47,14 +47,8 @@ Usage
 * Protractor - E2E tests: `ng e2e`
 
 ## Back-end
-* test: `jest --forceExit --coverage --verbose`
-* tsc: `tsc`
-* build: `tsc`
-* clean: `rm -rf dist`
-* dev: `npm run start`
-* startdev: `APP_ENV=dev ts-node src/server.ts`
-* lint: `eslint . --ext .ts`
-* start: `APP_ENV=prod node dist/server.js`
+* build: `npm run build`
+* launch: `npm run start`
 
 ## System
 * Docker Compose: `docker-compose up --build`
