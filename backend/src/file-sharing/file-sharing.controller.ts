@@ -61,7 +61,7 @@ export class FileSharingController {
 
     const results = await Promise.all(
       sharedFiles.map(async (value) => {
-        return await this.filesService.prepareFileForOutput(value);
+        return await this.filesService.prepareFileForOutput(value, currentUser);
       }),
     );
 
