@@ -103,6 +103,7 @@ export class SecurityCheckDialogComponent implements OnInit {
         this.loading = false;
       })
       .catch((err) => {
+        this.loading = false;
         this.snackBar.open(err.error.msg, null, { duration: 2500 });
       });
   }
