@@ -18,6 +18,7 @@ import { UsersService } from 'src/app/services/users/users.service';
 export class SecurityCheckDialogComponent implements OnInit {
   passwordForm: FormGroup;
   hidePassword = true;
+  loading = false;
 
   constructor(
     private snackBar: MatSnackBar,
@@ -51,6 +52,7 @@ export class SecurityCheckDialogComponent implements OnInit {
     if (this.passwordForm.invalid) {
       return;
     }
+    this.loading = true;
     const password: string = this.passwordForm.get('password').value;
     this.usersService
       .validatePassword(password)
@@ -98,6 +100,7 @@ export class SecurityCheckDialogComponent implements OnInit {
             });
           }
         }
+        this.loading = false;
       })
       .catch((err) => {
         this.snackBar.open(err.error.msg, null, { duration: 2500 });
