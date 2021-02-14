@@ -207,7 +207,7 @@ export class FilesPageComponent implements AfterViewInit {
   }
 
   openButtonClicked(node: CloudNode) {
-    if (this.sharedWithMeMode || this.binMode) return;
+    if (this.binMode) return;
 
     if (node.isDirectory) {
       this.router.navigate(['/files', node._id]);
