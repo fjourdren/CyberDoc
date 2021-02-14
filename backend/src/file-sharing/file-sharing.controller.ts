@@ -55,9 +55,9 @@ export class FileSharingController {
   })
   @ApiOkResponse({ description: 'Success', type: GetSharedFilesResponse })
   async getSharedFiles(@LoggedUser() currentUser: User) {
-    const sharedFiles = await this.fileSharingService.getSharedFiles(
-      currentUser,
-    );
+    const sharedFiles = (
+      await this.fileSharingService.getSharedFiles(currentUser)
+    ).filter((item) => !item.bin_id);
 
     const results = await Promise.all(
       sharedFiles.map(async (value) => {
