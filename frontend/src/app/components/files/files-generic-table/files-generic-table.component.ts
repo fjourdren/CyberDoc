@@ -162,6 +162,14 @@ export class FilesGenericTableComponent implements AfterViewInit {
     });
   }
 
+  @HostListener('document:keydown', ['$event']) onKeydownHandler(
+    evt: KeyboardEvent,
+  ) {
+    if (evt.key === 'Delete') {
+      this.deleteNode(this.selectedNode);
+    }
+  }
+
   @HostListener('document:click')
   onDocumentClick() {
     this.fileContextMenu.closeMenu();

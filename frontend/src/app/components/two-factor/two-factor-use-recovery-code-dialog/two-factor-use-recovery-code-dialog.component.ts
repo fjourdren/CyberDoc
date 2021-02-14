@@ -31,6 +31,8 @@ export class TwoFactorUseRecoveryCodeDialogComponent {
   onKeyDown(evt: KeyboardEvent): void {
     if (evt.key === 'Escape') {
       this.onCancel();
+    } else if (evt.key === 'Enter') {
+      this.onSubmit();
     }
   }
 
@@ -46,7 +48,7 @@ export class TwoFactorUseRecoveryCodeDialogComponent {
       .useRecoveryCode(this.recoverTwoFactorForm.get('code').value)
       .toPromise()
       .then((res) => {
-        this.loading = true;
+        this.loading = false;
         this.recoverTwoFactorDialog.close({
           hasRecoveryCodesLeft: res,
           usedCode: this.recoverTwoFactorForm.get('code').value,
