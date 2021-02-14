@@ -20,18 +20,18 @@
     <mat-card>
       <mat-card-subtitle>{{'billing.free' | translate}}</mat-card-subtitle>
       <mat-card-title>{{'billing.freeplan_space' | translate}}</mat-card-title>
-      <br>
+      <div style='user-select: none'>&nbsp;</div>
       <button mat-raised-button disabled>{{'billing.current_plan' | translate}}</button>
     </mat-card>
 
     <mat-card>
       <mat-card-subtitle>{{'billing.most_popular' | translate}}</mat-card-subtitle>
       <mat-card-title>{{'billing.plan1_space' | translate}}</mat-card-title>
-      <br>
+      <div style='user-select: none'>&nbsp;</div>
       <button mat-raised-button color='primary'
               [class.spinner]="loading && selectedPlan == 'plan1_month'" [disabled]='loading'
               (click)='onBillingPlanSelected("plan1_month")'>{{'billing.plan1_month_price' | translate}}</button>
-      <br>
+      <div style='user-select: none'>&nbsp;</div>
       <div>{{'billing.or_prepay_annually' | translate}}</div>
       <div>{{'billing.save_16_percent' | translate}}</div>
       <button mat-button color='primary'
@@ -42,11 +42,11 @@
     <mat-card>
       <mat-card-subtitle>&nbsp;</mat-card-subtitle>
       <mat-card-title>{{'billing.plan2_space' | translate}}</mat-card-title>
-      <br>
+      <div style='user-select: none'>&nbsp;</div>
       <button mat-stroked-button color='primary'
               [class.spinner]="loading && selectedPlan == 'plan2_month'" [disabled]='loading'
               (click)='onBillingPlanSelected("plan2_month")'>{{'billing.plan2_month_price' | translate}}</button>
-      <br>
+      <div style='user-select: none'>&nbsp;</div>
       <div>{{'billing.or_prepay_annually' | translate}}</div>
       <div>{{'billing.save_16_percent' | translate}}</div>
       <button mat-button color='primary'
@@ -57,11 +57,11 @@
     <mat-card>
       <mat-card-subtitle>{{'billing.best_value' | translate}}</mat-card-subtitle>
       <mat-card-title>{{'billing.plan3_space' | translate}}</mat-card-title>
-      <br>
+      <div style='user-select: none'>&nbsp;</div>
       <button mat-stroked-button color='primary'
               [class.spinner]="loading && selectedPlan == 'plan3_month'" [disabled]='loading'
               (click)='onBillingPlanSelected("plan3_month")'>{{'billing.plan3_month_price' | translate}}</button>
-      <br>
+      <div style='user-select: none'>&nbsp;</div>
       <div>{{'billing.or_prepay_annually' | translate}}</div>
       <div>{{'billing.save_16_percent' | translate}}</div>
       <button mat-button color='primary'

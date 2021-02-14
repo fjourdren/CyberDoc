@@ -42,7 +42,7 @@
         <div id='button-container'>
           <button [disabled]='loading' [class.spinner]='loading' mat-raised-button color='primary' type='submit'>{{ 'general.login' | translate
             }}</button>
-          <br>
+          <div style='user-select: none'>&nbsp;</div>
           <a routerLink='/register' mat-stroked-button color='primary'>{{ 'accounts.create_account' | translate }}</a>
         </div>
 
