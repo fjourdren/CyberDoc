@@ -162,7 +162,8 @@ export class SettingsProfileComponent {
             .toPromise()
             .then(() => {
               this.loading = false;
-              this.router.navigate(['/logout']);
+              this.usersService._setUser(null);
+              this.router.navigate(['/']);
             });
         } else {
           this.loading = false;
