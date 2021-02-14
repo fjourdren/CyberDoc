@@ -32,6 +32,8 @@ export class SecurityCheckDialogComponent implements OnInit {
   onKeyDown(evt: KeyboardEvent): void {
     if (evt.key === 'Escape') {
       this.onCancel();
+    } else if (evt.key === 'Enter') {
+      this.onSubmitPassword();
     }
   }
 

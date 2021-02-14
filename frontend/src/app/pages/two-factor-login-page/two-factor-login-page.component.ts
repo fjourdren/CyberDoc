@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -43,15 +43,20 @@ export class TwoFactorLoginPageComponent implements OnInit {
       this.twoFactorType = 'app';
     } else if (this.user.twoFactorEmail) {
       this.sendTokenByEmail();
-      this.twoFactorType = 'email';
     } else if (this.user.twoFactorSms) {
       this.sendTokenBySms();
-      this.twoFactorType = 'sms';
     }
 
     this.tokenForm = this.fb.group({
       token: [null, [Validators.required, Validators.pattern('[0-9]{6}')]],
     });
+  }
+
+  @HostListener('keydown', ['$event'])
+  onKeyDown(evt: KeyboardEvent): void {
+    if (evt.key === 'Enter') {
+      this.onSubmit();
+    }
   }
 
   onSubmit(): void {
@@ -159,9 +164,19 @@ export class TwoFactorLoginPageComponent implements OnInit {
       .then((res) => {
         if (res) {
           if (!res.hasRecoveryCodesLeft) {
-            this.router.navigate(['/generateRecoveryCodes']);
+            this.usersService
+              .refreshActiveUser()
+              .toPromise()
+              .then(() => {
+                this.router.navigate(['/generateRecoveryCodes']);
+              });
           } else {
-            this.router.navigate(['/files']);
+            this.usersService
+              .refreshActiveUser()
+              .toPromise()
+              .then(() => {
+                this.router.navigate(['/files']);
+              });
           }
         }
       });
