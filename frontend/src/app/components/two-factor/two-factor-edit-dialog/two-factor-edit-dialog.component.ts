@@ -185,9 +185,17 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
     this.tooManySMSSentError = false;
     const country: PhoneNumberCountry = this.phoneNumberForm.get('countryCode')
       .value;
-    const phoneNumber = `+${country.dialCode}${
-      this.phoneNumberForm.get('phoneNumber').value
-    }`;
+
+    let phoneNumber: string;
+    if (this.phoneNumberForm.get('phoneNumber').value[0] === '0') {
+      phoneNumber = `+${country.dialCode}${this.phoneNumberForm
+        .get('phoneNumber')
+        .value.substr(1)}`;
+    } else {
+      phoneNumber = `+${country.dialCode}${
+        this.phoneNumberForm.get('phoneNumber').value
+      }`;
+    }
 
     let validNumber = false;
     try {
