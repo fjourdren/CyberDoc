@@ -101,7 +101,7 @@
         <div id="button-container">
           <button [disabled]="loading" [class.spinner]='loading' mat-raised-button color="primary" type="submit">{{ 'general.register' | translate
             }}</button>
-          <br>
+          <div style='user-select: none'>&nbsp;</div>
           <a routerLink="/login" mat-stroked-button color="primary">{{ 'accounts.already_register' | translate }}</a>
         </div>
       </mat-card>
