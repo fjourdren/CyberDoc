@@ -1,5 +1,5 @@
-import { Component, HostListener, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, Validators } from '@angular/forms';
+import { Component, HostListener } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TwoFactorUseRecoveryCodeDialogComponent } from '../../components/two-factor/two-factor-use-recovery-code-dialog/two-factor-use-recovery-code-dialog.component';
@@ -13,11 +13,12 @@ import { timer } from 'rxjs';
   templateUrl: './two-factor-login-page.component.html',
   styleUrls: ['./two-factor-login-page.component.scss'],
 })
-export class TwoFactorLoginPageComponent implements OnInit {
+export class TwoFactorLoginPageComponent {
   user;
   twoFactorType;
-  tokenForm = this.fb.group({
-    token: [null, Validators.required],
+
+  twoFactorForm = this.fb.group({
+    token: [null, [Validators.required, Validators.pattern('^[0-9]{6}$')]],
   });
   loading = false;
   subscribeTimerSms: number;
@@ -26,18 +27,12 @@ export class TwoFactorLoginPageComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private snackBar: MatSnackBar,
     private twoFactorService: TwoFactorService,
     private usersService: UsersService,
-    private router: Router,
-    private snackBar: MatSnackBar,
     private dialog: MatDialog,
-  ) {}
-
-  get f(): { [p: string]: AbstractControl } {
-    return this.tokenForm.controls;
-  }
-
-  ngOnInit(): void {
+    private router: Router,
+  ) {
     this.user = this.usersService.getActiveUser();
     if (this.user.twoFactorApp) {
       this.twoFactorType = 'app';
@@ -46,10 +41,6 @@ export class TwoFactorLoginPageComponent implements OnInit {
     } else if (this.user.twoFactorSms) {
       this.sendTokenBySms();
     }
-
-    this.tokenForm = this.fb.group({
-      token: [null, [Validators.required, Validators.pattern('[0-9]{6}')]],
-    });
   }
 
   @HostListener('keydown', ['$event'])
@@ -60,7 +51,7 @@ export class TwoFactorLoginPageComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.tokenForm.invalid) {
+    if (this.twoFactorForm.invalid) {
       return;
     }
     this.loading = true;
@@ -68,7 +59,7 @@ export class TwoFactorLoginPageComponent implements OnInit {
       switch (this.twoFactorType) {
         case 'app':
           this.twoFactorService
-            .verifyToken('app', this.tokenForm.get('token').value)
+            .verifyToken('app', this.twoFactorForm.get('token').value)
             .then(() => {
               this.loading = false;
               this.router.navigate(['/files']);
@@ -80,7 +71,7 @@ export class TwoFactorLoginPageComponent implements OnInit {
           break;
         case 'sms':
           this.twoFactorService
-            .verifyToken('sms', this.tokenForm.get('token').value)
+            .verifyToken('sms', this.twoFactorForm.get('token').value)
             .then(() => {
               this.loading = false;
               this.router.navigate(['/files']);
@@ -92,7 +83,7 @@ export class TwoFactorLoginPageComponent implements OnInit {
           break;
         case 'email':
           this.twoFactorService
-            .verifyToken('email', this.tokenForm.get('token').value)
+            .verifyToken('email', this.twoFactorForm.get('token').value)
             .then(() => {
               this.loading = false;
               this.router.navigate(['/files']);
@@ -107,10 +98,6 @@ export class TwoFactorLoginPageComponent implements OnInit {
       this.loading = false;
       this.snackBar.open(err.msg, null, { duration: 1500 });
     }
-  }
-
-  dialogTokenByApp(): void {
-    this.twoFactorType = 'app';
   }
 
   sendTokenBySms(): void {

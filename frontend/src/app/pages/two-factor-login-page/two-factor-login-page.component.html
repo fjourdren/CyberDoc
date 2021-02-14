@@ -1,6 +1,6 @@
 <div class='primary-background' id="root-div">
     <div id="form-container">
-        <form [formGroup]="tokenForm" novalidate (ngSubmit)="onSubmit()">
+        <form [formGroup]="twoFactorForm" novalidate (ngSubmit)="onSubmit()">
             <mat-card id="card">
                 <h1 id='app-title'>
                     <img src="/assets/icons/icon-192x192.png" width="100" height="100" alt="CyberDoc Header"/>
@@ -17,30 +17,30 @@
                     <mat-form-field appearance="outline" class="full-width">
                         <mat-label>Token</mat-label>
                         <input matInput formControlName="token" required maxlength="6">
-                        <mat-error *ngIf="tokenForm.controls['token'].hasError('required')">
+                        <mat-error *ngIf="twoFactorForm.controls['token'].hasError('required')">
                             Token is <strong>required. </strong>
                         </mat-error>
                     </mat-form-field>
                     <button *ngIf="(twoFactorType === 'sms' || twoFactorType === 'email') && this.user.twoFactorApp"
-                            mat-raised-button color="basic" (click)="dialogTokenByApp()">
+                            mat-raised-button color="basic" (click)="this.twoFactorType = 'app'" [disabled]="loading">
                         {{ 'twofactor.use_code_from_app' | translate }}
                     </button>
                     <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'email')  && this.user.twoFactorSms"
                             mat-raised-button color="basic"
-                            [disabled]="this.subscribeTimerSms > 0"
-                            (click)="sendTokenBySms()">{{ 'twofactor.send_code_by_sms' | translate }}
+                            [disabled]="loading || this.subscribeTimerSms > 0"
+                            (click)="this.sendTokenBySms()">{{ 'twofactor.send_code_by_sms' | translate }}
                         <div id="subscribeTimerSms" *ngIf="this.subscribeTimerSms > 0">({{ this.subscribeTimerSms }} s.)</div>
                     </button>
                     <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'sms') && this.user.twoFactorEmail"
                             mat-raised-button color="basic"
-                            [disabled]="this.subscribeTimerEmail > 0"
-                            (click)="sendTokenByEmail()">{{ 'twofactor.send_code_by_email' | translate }}
+                            [disabled]="loading || this.subscribeTimerEmail > 0"
+                            (click)="this.sendTokenByEmail()">{{ 'twofactor.send_code_by_email' | translate }}
                         <div id="subscribeTimerEmail" *ngIf="this.subscribeTimerEmail > 0">({{ this.subscribeTimerEmail }} s.)</div>
                     </button>
                     <a mat-button (click)="openDialogRecovery()">{{ 'accounts.use_recovery_code' | translate }}</a>
                 </mat-card-content>
                 <div id="button-container">
-                    <button [disabled]="loading || !tokenForm.valid" [class.spinner]='loading' mat-raised-button color="primary" type="submit"
+                    <button [disabled]="loading || !twoFactorForm.valid" [class.spinner]='loading' mat-raised-button color="primary" type="submit"
                             class="submit">
                         Validate token
                     </button>

@@ -15,29 +15,30 @@
             </mat-form-field>
             <button *ngIf="(twoFactorType === 'sms' || twoFactorType === 'email') && this.user.twoFactorApp"
                     mat-raised-button color="basic"
-                    (click)="dialogTokenByApp()">{{ 'twofactor.use_code_from_app' | translate }}
+                    [disabled]="loading"
+                    (click)="this.twoFactorType = 'app'">{{ 'twofactor.use_code_from_app' | translate }}
             </button>
             <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'email')  && this.user.twoFactorSms"
                     mat-raised-button color="basic"
-                    [disabled]="this.subscribeTimerSms > 0"
-                    (click)="sendTokenBySms()">{{ 'twofactor.send_code_by_sms' | translate }}
+                    [disabled]="loading || this.subscribeTimerSms > 0"
+                    (click)="this.sendTokenBySms()">{{ 'twofactor.send_code_by_sms' | translate }}
                 <div id="subscribeTimerSms" *ngIf="this.subscribeTimerSms > 0">({{ this.subscribeTimerSms }} s.)</div>
             </button>
             <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'sms') && this.user.twoFactorEmail"
                     mat-raised-button color="basic"
-                    [disabled]="this.subscribeTimerEmail > 0"
-                    (click)="sendTokenByEmail()">{{ 'twofactor.send_code_by_email' | translate }}
+                    [disabled]="loading || this.subscribeTimerEmail > 0"
+                    (click)="this.sendTokenByEmail()">{{ 'twofactor.send_code_by_email' | translate }}
                 <div id="subscribeTimerEmail" *ngIf="this.subscribeTimerEmail > 0">({{ this.subscribeTimerEmail }} s.)</div>
             </button>
             <br>
-            <a mat-button (click)="openDialogRecovery()">{{ 'accounts.use_recovery_code' | translate }}</a>
+            <a mat-button (click)="openDialogRecovery()" [disabled]="loading">{{ 'accounts.use_recovery_code' | translate }}</a>
         </mat-card-content>
     </form>
     </div>
 </div>
 
 <div mat-dialog-actions align="end">
-    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="loading || twoFactorForm.invalid">{{
+    <button mat-raised-button color="primary" (click)="onSubmit()" [class.spinner]='loading' [disabled]="loading || twoFactorForm.invalid">{{
         'general.confirm' | translate }}</button>
-    <button mat-button color="warn" matDialogClose>{{ 'general.cancel' | translate }}</button>
+    <button mat-button color="warn" [disabled]='loading' matDialogClose>{{ 'general.cancel' | translate }}</button>
 </div>
