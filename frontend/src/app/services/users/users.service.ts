@@ -29,6 +29,7 @@ export class UsersService {
       localStorage.getItem(environment.userLocalStorageKey),
     ) as User;
   }
+
   register(userObj: User, password: string) {
     return this.httpClient.post<void>(`${environment.apiBaseURL}/users`, {
       email: userObj.email.toLowerCase(),
@@ -163,14 +164,13 @@ export class UsersService {
     );
   }
 
-  login(email: string, password: string, currentDeviceName: string): any {
+  login(email: string, password: string): any {
     return this.httpClient
       .post<any>(
         `${environment.apiBaseURL}/auth/login`,
         {
           username: email.toLowerCase(),
           password,
-          currentDeviceName,
         },
         { withCredentials: true },
       )

@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   ForbiddenException,
@@ -61,13 +60,8 @@ export class AuthController {
           description: 'Password',
           example: 'eV66scN@t5tGG%ND',
         },
-        currentDeviceName: {
-          type: 'string',
-          description: 'Current device name',
-          example: 'MyComputer',
-        },
       },
-      required: ['username', 'password', 'currentDeviceName'],
+      required: ['username', 'password'],
     },
   })
   @ApiOperation({
@@ -78,13 +72,9 @@ export class AuthController {
   async login(
     @Req() req: Request,
     @CurrentDevice() currentDevice: UserDevice,
-    @Body('currentDeviceName') currentDeviceName: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    if (!currentDeviceName || currentDeviceName.length === 0) {
-      throw new BadRequestException('Missing currentDeviceName');
-    }
-    currentDevice.name = currentDeviceName;
+    currentDevice.name = `${currentDevice.browser} on ${currentDevice.os}`;
     const ip =
       req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
 
