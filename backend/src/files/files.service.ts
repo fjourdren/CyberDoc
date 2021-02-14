@@ -106,7 +106,10 @@ export class FilesService {
     });
   }
 
-  async prepareFileForOutput(file: File): Promise<FileInResponse> {
+  async prepareFileForOutput(
+    file: File,
+    currentUser: User,
+  ): Promise<FileInResponse> {
     const columnsToKeep =
       file.type === FOLDER
         ? COLUMNS_TO_KEEP_FOR_FOLDER
@@ -119,7 +122,7 @@ export class FilesService {
     }, {});
 
     result['ownerName'] = `${user.firstname} ${user.lastname}`;
-    switch (FileAcl.getAvailableAccess(file, user)) {
+    switch (FileAcl.getAvailableAccess(file, currentUser)) {
       case FileAcl.NONE:
         result['access'] = 'none';
         break;
@@ -622,7 +625,7 @@ export class FilesService {
       }
     }
 
-    return this.prepareFileForOutput(file);
+    return this.prepareFileForOutput(file, user);
   }
 
   async convertFileToEtherPadFormat(

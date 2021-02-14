@@ -80,7 +80,7 @@ export class FilesController {
     const files = await this.filesService.search(user, fileSearchDto);
     const results = await Promise.all(
       files.map(async (item) => {
-        return await this.filesService.prepareFileForOutput(item);
+        return await this.filesService.prepareFileForOutput(item, user);
       }),
     );
 
@@ -99,7 +99,7 @@ export class FilesController {
 
     const results = await Promise.all(
       binContents.map(async (value) => {
-        return await this.filesService.prepareFileForOutput(value);
+        return await this.filesService.prepareFileForOutput(value, currentUser);
       }),
     );
 
@@ -133,8 +133,8 @@ export class FilesController {
   })
   @ApiOperation({ summary: 'Get a file', description: 'Get a file' })
   @ApiOkResponse({ description: 'File information loaded', type: GetResponse })
-  async get(@CurrentFile(FileAcl.READ) file: File) {
-    const result = await this.filesService.prepareFileForOutput(file);
+  async get(@CurrentFile(FileAcl.READ) file: File, @LoggedUser() user: User) {
+    const result = await this.filesService.prepareFileForOutput(file, user);
     if (file.type == FOLDER) {
       let folderContents = await this.filesService.getFolderContents(file._id);
 
@@ -150,7 +150,7 @@ export class FilesController {
       //DirectoryContent
       (result as any).directoryContent = await Promise.all(
         folderContents.map(async (item) => {
-          return await this.filesService.prepareFileForOutput(item);
+          return await this.filesService.prepareFileForOutput(item, user);
         }),
       );
 
