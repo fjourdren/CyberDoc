@@ -73,6 +73,24 @@
   <app-files-new-menu [currentDirectory]='currentDirectory'></app-files-new-menu>
 </mat-menu>
 
+<mat-menu #etherpadDownloadMenu="matMenu">
+  <button *ngIf="selectedNode" mat-menu-item
+          (click)="onContextMenuOrBottomSheetSelection('download', 'doc')">
+    <mat-icon fontSet="fa" fontIcon="fa-file-word"></mat-icon>
+    <span>{{ 'fileaction.download_as_doc' | translate }}</span>
+  </button>
+  <button *ngIf="selectedNode" mat-menu-item
+          (click)="onContextMenuOrBottomSheetSelection('download', 'odt')">
+    <mat-icon fontSet="fa" fontIcon="fa-file-invoice"></mat-icon>
+    <span>{{ 'fileaction.download_as_odt' | translate }}</span>
+  </button>
+  <button *ngIf="selectedNode" mat-menu-item
+          (click)="onContextMenuOrBottomSheetSelection('download', 'txt')">
+    <mat-icon fontSet="fa" fontIcon="fa-file-alt"></mat-icon>
+    <span>{{ 'fileaction.download_as_txt' | translate }}</span>
+  </button>
+</mat-menu>
+
 <mat-menu #fileContextMenu="matMenu">
     <ng-template matMenuContent>
         <!-- We can open only txt files -->
@@ -85,7 +103,7 @@
         (click)="onContextMenuOrBottomSheetSelection('preview')">
           <mat-icon fontSet="fa" fontIcon="fa-eye"></mat-icon>
           <span>{{ 'fileaction.preview' | translate }}</span>
-        </button>  
+        </button>
 
         <!-- We can download every files -->
         <!-- Etherpad files have their own download logic -->
@@ -94,21 +112,12 @@
             <mat-icon fontSet="fa" fontIcon="fa-file-download"></mat-icon>
             <span>{{ 'fileaction.download' | translate }}</span>
         </button>
-        <button *ngIf="selectedNode && isEtherPadFile(selectedNode)" mat-menu-item
-                (click)="onContextMenuOrBottomSheetSelection('download', 'doc')">
-            <mat-icon fontSet="fa" fontIcon="fa-file-word"></mat-icon>
-            <span>{{ 'fileaction.download_as_doc' | translate }}</span>
-        </button>
-        <button *ngIf="selectedNode && isEtherPadFile(selectedNode)" mat-menu-item
-                (click)="onContextMenuOrBottomSheetSelection('download', 'odt')">
-            <mat-icon fontSet="fa" fontIcon="fa-file-invoice"></mat-icon>
-            <span>{{ 'fileaction.download_as_odt' | translate }}</span>
-        </button>
-        <button *ngIf="selectedNode && isEtherPadFile(selectedNode)" mat-menu-item
-                (click)="onContextMenuOrBottomSheetSelection('download', 'txt')">
-            <mat-icon fontSet="fa" fontIcon="fa-file-alt"></mat-icon>
-            <span>{{ 'fileaction.download_as_txt' | translate }}</span>
-        </button>
+
+      <button *ngIf="selectedNode && !selectedNode.isDirectory && isEtherPadFile(selectedNode) && !selectedNode.bin_id" mat-menu-item
+              [matMenuTriggerFor]="etherpadDownloadMenu">
+        <mat-icon fontSet="fa" fontIcon="fa-file-download"></mat-icon>
+        <span>{{ 'fileaction.download' | translate }}</span>
+      </button>
 
         <!-- We can export PDF when it is available -->
         <button *ngIf="isPDFExportAvailable(selectedNode) && !selectedNode.bin_id" mat-menu-item
