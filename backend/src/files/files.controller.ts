@@ -64,6 +64,7 @@ import {
 import { Utils } from '../utils';
 import { FileAcl } from './file-acl';
 import { DOCUMENT_MIMETYPES, TEXT_MIMETYPES } from './file-types';
+const contentDisposition = require('content-disposition');
 
 @ApiTags('files')
 @ApiBearerAuth()
@@ -476,12 +477,12 @@ export class FilesController {
         'Content-Type',
         getMimetypeForEtherpadExportFormat(etherpadExportFormat),
       );
-      res.set('Content-Disposition', `attachment; filename="${filename}"`);
+      res.set('Content-Disposition', contentDisposition(filename));
       res.send(await content);
     } else {
       const content = this.filesService.getFileContent(user, userHash, file);
       res.set('Content-Type', file.mimetype);
-      res.set('Content-Disposition', `attachment; filename="${file.name}"`);
+      res.set('Content-Disposition', contentDisposition(file.name));
       res.send(await content);
     }
   }
@@ -515,7 +516,7 @@ export class FilesController {
 
     let pdfFileName = Utils.replaceFileExtension(file.name, 'pdf');
     res.set('Content-Type', 'application/pdf');
-    res.set('Content-Disposition', `attachment; filename="${pdfFileName}"`);
+    res.set('Content-Disposition', contentDisposition(pdfFileName));
     res.send(await this.filesService.generatePDF(user, userHash, file));
   }
 
@@ -556,7 +557,7 @@ export class FilesController {
     pngFileName += '.pdf';
 
     res.set('Content-Type', 'image/png');
-    res.set('Content-Disposition', `attachment; filename="${pngFileName}"`);
+    res.set('Content-Disposition', contentDisposition(pngFileName));
     res.send(await this.filesService.generatePngPreview(user, userHash, file));
   }
 
