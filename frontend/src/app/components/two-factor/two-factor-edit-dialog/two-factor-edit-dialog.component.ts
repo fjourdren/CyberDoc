@@ -220,7 +220,7 @@ export class TwoFactorEditDialogComponent implements AfterViewInit {
         undefined,
         undefined,
         undefined,
-        phoneNumber,
+        phoneNumber.replace(/[ |.]/g, ''),
       )
       .toPromise()
       .then(() => {
