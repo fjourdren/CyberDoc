@@ -17,14 +17,6 @@
 
         <mat-card-content>
           <mat-form-field appearance='outline' class='full-width'>
-            <mat-label>{{ 'accounts.device_name' | translate }}</mat-label>
-            <input type='text' matInput formControlName='deviceName' required>
-            <mat-error *ngIf="loginForm.controls['deviceName'].hasError('required')">
-              {{ 'general.no_empty' | translate }}
-            </mat-error>
-          </mat-form-field>
-          <br>
-          <mat-form-field appearance='outline' class='full-width'>
             <mat-label>{{ 'general.email' | translate }}</mat-label>
             <input autocomplete='email' type='email' matInput formControlName='email' required>
             <mat-error *ngIf="loginForm.controls['email'].hasError('required')">
