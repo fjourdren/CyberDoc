@@ -183,7 +183,7 @@ export class UsersService {
     const rawFiles = await this.filesService.getAllFilesForUser(user._id);
     const files = await Promise.all(
       rawFiles.map(async (item) => {
-        return await this.filesService.prepareFileForOutput(item);
+        return await this.filesService.prepareFileForOutput(item, user);
       }),
     );
 
