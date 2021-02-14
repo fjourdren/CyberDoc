@@ -1,6 +1,6 @@
 {
-  "name": "cyberdoc",
-  "short_name": "cyberdoc",
+  "name": "CyberDoc",
+  "short_name": "CyberDoc",
   "theme_color": "#1976d2",
   "background_color": "#fafafa",
   "display": "standalone",
