@@ -40,7 +40,7 @@
                     <a mat-button (click)="openDialogRecovery()">{{ 'accounts.use_recovery_code' | translate }}</a>
                 </mat-card-content>
                 <div id="button-container">
-                    <button [disabled]="loading || !tokenForm.valid" mat-raised-button color="primary" type="submit"
+                    <button [disabled]="loading || !tokenForm.valid" [class.spinner]='loading' mat-raised-button color="primary" type="submit"
                             class="submit">
                         Validate token
                     </button>
