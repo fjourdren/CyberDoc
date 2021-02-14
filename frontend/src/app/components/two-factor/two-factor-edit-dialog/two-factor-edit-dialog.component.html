@@ -60,10 +60,10 @@
             <mat-form-field appearance="fill">
                 <!-- https://gist.github.com/niksumeiko/360164708c3b326bd1c8#gistcomment-2367048 -->
                 <mat-label>{{'twofactor.phone_number' | translate}}</mat-label>
-                <input autocomplete="autocomplete_off_hack_xfr4!k" matInput required formControlName="phoneNumber">
+                <input autocomplete="autocomplete_off_hack_xfr4!k" matInput required formControlName="phoneNumber" placeholder="Ex. 0606060606">
             </mat-form-field>
         </form>
-        <button [disabled]="loading || this.subscribeTimer > 0" mat-raised-button color="accent"
+        <button [disabled]="loading || !this.phoneNumberForm.valid || this.subscribeTimer > 0" mat-raised-button color="accent"
                 (click)="onSendSMSBtnClick()">{{'twofactor.send_code' | translate}} <div id="subscribeTimer" *ngIf="this.subscribeTimer > 0">({{ this.subscribeTimer }} s.)</div></button>
     </div>
 
