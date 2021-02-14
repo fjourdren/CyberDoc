@@ -58,7 +58,7 @@ export class TwoFactorAuthController {
   async enableTwoFactor(
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
-    @Body() dto: TwoFactorTypeDto,
+    @Body() dto: TwoFactorTypeAndTokenDto,
   ) {
     if (this.twoFactorAuthService.isSpecific2FAIsEnabled(user, dto.type)) {
       throw new BadRequestException(
@@ -72,11 +72,11 @@ export class TwoFactorAuthController {
       throw new BadRequestException('User secret not defined.');
     }
 
-    // await this.twoFactorAuthService.verifyToken(
-    //   user,
-    //   dto.type,
-    //   dto.twoFactorToken,
-    // );
+    await this.twoFactorAuthService.verifyToken(
+      user,
+      dto.type,
+      dto.twoFactorToken,
+    );
     await this.twoFactorAuthService.enableTwoFactorMethod(
       mongoSession,
       user,
