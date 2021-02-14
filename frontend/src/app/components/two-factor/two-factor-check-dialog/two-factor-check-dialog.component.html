@@ -16,18 +16,18 @@
             <button *ngIf="(twoFactorType === 'sms' || twoFactorType === 'email') && this.user.twoFactorApp"
                     mat-raised-button color="basic"
                     [disabled]="loading"
-                    (click)="dialogTokenByApp()">{{ 'twofactor.use_code_from_app' | translate }}
+                    (click)="this.twoFactorType = 'app'">{{ 'twofactor.use_code_from_app' | translate }}
             </button>
             <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'email')  && this.user.twoFactorSms"
                     mat-raised-button color="basic"
                     [disabled]="loading || this.subscribeTimerSms > 0"
-                    (click)="sendTokenBySms()">{{ 'twofactor.send_code_by_sms' | translate }}
+                    (click)="this.sendTokenBySms()">{{ 'twofactor.send_code_by_sms' | translate }}
                 <div id="subscribeTimerSms" *ngIf="this.subscribeTimerSms > 0">({{ this.subscribeTimerSms }} s.)</div>
             </button>
             <button *ngIf="(twoFactorType === 'app' || twoFactorType === 'sms') && this.user.twoFactorEmail"
                     mat-raised-button color="basic"
                     [disabled]="loading || this.subscribeTimerEmail > 0"
-                    (click)="sendTokenByEmail()">{{ 'twofactor.send_code_by_email' | translate }}
+                    (click)="this.sendTokenByEmail()">{{ 'twofactor.send_code_by_email' | translate }}
                 <div id="subscribeTimerEmail" *ngIf="this.subscribeTimerEmail > 0">({{ this.subscribeTimerEmail }} s.)</div>
             </button>
             <br>

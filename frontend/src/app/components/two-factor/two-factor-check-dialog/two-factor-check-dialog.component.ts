@@ -36,10 +36,8 @@ export class TwoFactorCheckDialogComponent {
       this.twoFactorType = 'app';
     } else if (this.user.twoFactorEmail) {
       this.sendTokenByEmail();
-      this.twoFactorType = 'email';
     } else if (this.user.twoFactorSms) {
       this.sendTokenBySms();
-      this.twoFactorType = 'sms';
     }
   }
 
@@ -174,9 +172,5 @@ export class TwoFactorCheckDialogComponent {
           this.twoFactorDialog.close(res);
         }
       });
-  }
-
-  dialogTokenByApp(): void {
-    this.twoFactorType = 'app';
   }
 }
