@@ -15,6 +15,7 @@ export class SettingsMainToolbarComponent {
 
   getCurrentUsername(): string {
     const user = this.usersService.getActiveUser();
+    if (!user) return '';
     return `${user.firstname} ${user.lastname}`;
   }
 }
