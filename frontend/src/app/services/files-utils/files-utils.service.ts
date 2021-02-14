@@ -135,6 +135,7 @@ export class FilesUtilsService {
         FileType.Document,
         FileType.Spreadsheet,
         FileType.Presentation,
+        FileType.EtherPad,
       ].indexOf(fileType) !== -1
     );
   }
