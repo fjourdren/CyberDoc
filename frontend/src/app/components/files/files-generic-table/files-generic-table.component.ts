@@ -5,6 +5,7 @@ import {
   HostListener,
   Input,
   NgZone,
+  OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
@@ -154,6 +155,20 @@ export class FilesGenericTableComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
+    this.dataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'date': {
+          return new Date(item.updated_at);
+        }
+        case 'type': {
+          return this.filesUtils.getFileTypeForMimetype(item.mimetype);
+        }
+        default: {
+          return item[property];
+        }
+      }
+    };
+
     this.fileContextMenu.menuClosed.subscribe(() => {
       if (this.unselectAfterContextMenuOrBottomSheet) {
         this.setSelectedNode(null);
