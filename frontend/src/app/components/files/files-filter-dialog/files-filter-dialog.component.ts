@@ -69,7 +69,11 @@ export class FilesFilterDialogComponent {
   }
 
   getTranslationForFileType(type: string): string {
-    return this.filesUtils.fileTypeToString(FileType[type]);
+    if (FileType[type] === FileType.Unknown) {
+      return 'All types';
+    } else {
+      return this.filesUtils.fileTypeToString(FileType[type]);
+    }
   }
 
   onResetBtnClick(): void {
