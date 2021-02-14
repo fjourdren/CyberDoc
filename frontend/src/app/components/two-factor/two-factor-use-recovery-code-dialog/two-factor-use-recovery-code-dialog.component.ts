@@ -44,6 +44,7 @@ export class TwoFactorUseRecoveryCodeDialogComponent {
     if (this.recoverTwoFactorForm.invalid) {
       return;
     }
+    this.loading = true;
     this.twoFactorService
       .useRecoveryCode(this.recoverTwoFactorForm.get('code').value)
       .toPromise()
