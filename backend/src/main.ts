@@ -20,14 +20,14 @@ async function bootstrap() {
 
   app.useGlobalFilters(new GlobalExceptionFilter(config, httpAdapter));
 
-  const options = new DocumentBuilder()
+  /*const options = new DocumentBuilder()
     .setTitle(config.get<string>('APP_NAME'))
     .setDescription(config.get<string>('APP_NAME'))
     .setVersion(config.get<string>('APP_VERSION'))
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document);*/
 
   //enable data validation in DTO classes
   app.useGlobalPipes(new ValidationPipe());
