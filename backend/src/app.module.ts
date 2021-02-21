@@ -25,6 +25,7 @@ import { JwtBanGuard } from './auth/jwt/jwt-ban.guard';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '../.env',
       validationSchema: Joi.object({
         APP_NAME: Joi.string().required(),
         APP_PORT: Joi.number().required(),
@@ -47,6 +48,12 @@ import { JwtBanGuard } from './auth/jwt/jwt-ban.guard';
         TWILIO_ACCOUNT_SID: Joi.string().required(),
         TWILIO_AUTH_TOKEN: Joi.string().required(),
         STRIPE_KEY: Joi.string().required(),
+        PLAN1_MONTH_STRIPEID: Joi.string().required(),
+        PLAN1_YEAR_STRIPEID: Joi.string().required(),
+        PLAN2_MONTH_STRIPEID: Joi.string().required(),
+        PLAN2_YEAR_STRIPEID: Joi.string().required(),
+        PLAN3_MONTH_STRIPEID: Joi.string().required(),
+        PLAN3_YEAR_STRIPEID: Joi.string().required(),
         STRIPE_RETURN_URL: Joi.string().required(),
         ETHERPAD_ROOT_URL: Joi.string().required(),
         ETHERPAD_ROOT_API_URL: Joi.string().required(),

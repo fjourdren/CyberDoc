@@ -7,28 +7,12 @@ import { Stripe } from 'stripe';
 import { ConfigService } from '@nestjs/config';
 import { Subscription, SubscriptionStatus } from './billing.controller.types';
 
-const PLANID_TO_STRIPE_PRICEID = {
-  plan1_month: 'price_1IBPCxJtuzyH7f5DWTmyIdYr',
-  plan1_year: 'price_1IBPCxJtuzyH7f5DIjvO5orW',
-  plan2_month: 'price_1IBPDOJtuzyH7f5D2v3I0vst',
-  plan2_year: 'price_1IBPDOJtuzyH7f5DsTWyrikn',
-  plan3_month: 'price_1IBPDnJtuzyH7f5D18SfnaGZ',
-  plan3_year: 'price_1IBPDnJtuzyH7f5DefYG6quO',
-};
-
-const STRIPE_PRICEID_TO_PLANID = {
-  price_1IBPCxJtuzyH7f5DWTmyIdYr: 'plan1_month',
-  price_1IBPCxJtuzyH7f5DIjvO5orW: 'plan1_year',
-  price_1IBPDOJtuzyH7f5D2v3I0vst: 'plan2_month',
-  price_1IBPDOJtuzyH7f5DsTWyrikn: 'plan2_year',
-  price_1IBPDnJtuzyH7f5D18SfnaGZ: 'plan3_month',
-  price_1IBPDnJtuzyH7f5DefYG6quO: 'plan3_year',
-};
-
 @Injectable()
 export class BillingService {
   private stripe: Stripe;
   private returnUrl: string;
+  private planIdToStripePriceId = {};
+  private stripePriceIdToPlanId = {};
 
   constructor(private readonly configService: ConfigService) {
     this.stripe = new Stripe(
@@ -37,6 +21,17 @@ export class BillingService {
     );
 
     this.returnUrl = configService.get<string>('STRIPE_RETURN_URL');
+    for (const planId of [
+        "plan1_month", "plan1_year",
+        "plan2_month", "plan2_year",
+        "plan3_month", "plan3_year",
+    ]) {
+        const envVar = `${planId.toUpperCase()}_STRIPEID`
+        const stripePriceId = this.configService.get<string>(envVar);
+        this.planIdToStripePriceId[planId] = stripePriceId;
+        this.stripePriceIdToPlanId[stripePriceId] = planId;
+    }
+
   }
 
   async createBillingAccount() {
@@ -68,7 +63,7 @@ export class BillingService {
     }
 
     const priceId = stripeSubscription.items.data[0].price.id;
-    const planId = STRIPE_PRICEID_TO_PLANID[priceId];
+    const planId = this.stripePriceIdToPlanId[priceId];
     if (!planId) {
       throw new InternalServerErrorException(`Unknown priceId : '${priceId}'`);
     }
@@ -84,7 +79,7 @@ export class BillingService {
       throw new BadRequestException('User already have an active subscription');
     }
 
-    const priceId = PLANID_TO_STRIPE_PRICEID[planId];
+    const priceId = this.planIdToStripePriceId[planId];
     if (!priceId) {
       throw new BadRequestException(`Unknown planId : '${planId}'`);
     }
