@@ -19,7 +19,7 @@ services:
     container_name: backend
     build: ./backend
     env_file:
-      - docker.env.template
+      - docker.env
     command: bash -c "npm run start"
     depends_on:
       - mongodb
@@ -31,7 +31,7 @@ services:
     container_name: frontend
     build: ./frontend
     env_file:
-      - docker.env.template
+      - docker.env
     command: bash -c "npm run start:bind"
     depends_on:
       - backend
