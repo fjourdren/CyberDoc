@@ -7,7 +7,9 @@
   "license": "UNLICENSED",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "config": "ts-node ./scripts/setenv.ts",
+    "start": "npm run config -- --environment=dev && ng serve",
+    "start:bind": "npm run config -- --environment=dev && ng serve --host 0.0.0.0",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
@@ -32,6 +34,7 @@
     "@ngx-translate/http-loader": "^6.0.0",
     "classlist.js": "^1.1.20150312",
     "core-js": "^3.7.0",
+    "dotenv": "^8.2.0",
     "google-libphonenumber": "^3.2.14",
     "js-base64": "^3.6.0",
     "ng-resize-observer": "^1.0.1",

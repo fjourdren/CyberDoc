@@ -1,0 +1,39 @@
+version: '3.6'
+services:
+  mongodb:
+    container_name: mongodb
+    image: quadstingray/mongodb:4.2.9
+    environment:
+      MONGO_ROOT_USERNAME: root
+      MONGO_ROOT_PWD: mongoDB_password_CHANGE_ME
+    ports:
+      - "27017:27017"
+
+  redis:
+    container_name: redis
+    image: redis:6.0.10
+    ports:
+      - "6379:6379"
+
+  backend:
+    container_name: backend
+    build: ./backend
+    env_file:
+      - docker.env.template
+    command: bash -c "npm run start"
+    depends_on:
+      - mongodb
+      - redis
+    ports:
+      - "3000:3000"
+
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    env_file:
+      - docker.env.template
+    command: bash -c "npm run start:bind"
+    depends_on:
+      - backend
+    ports:
+      - "4200:4200"
