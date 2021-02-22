@@ -9,7 +9,7 @@ require('dotenv').config({
 
 const requiredEnvNames = [
   'APP_BACKEND_URL',
-  'ETHERPAD_ROOT_URL',
+  'DISABLE_ETHERPAD',
   'JWT_COOKIE_DOMAIN',
   'JWT_COOKIE_NAME',
   'USER_LOCAL_STORAGE_KEY',
@@ -30,6 +30,14 @@ if (!process.env['DISABLE_STRIPE'] && !process.env['STRIPE_PUBLIC_KEY']) {
 } else {
   process.env['STRIPE_PUBLIC_KEY'] = 'none';
 }
+
+if (!process.env['DISABLE_ETHERPAD'] && !process.env['ETHERPAD_ROOT_URL']) {
+  console.error(`Missing ETHERPAD_ROOT_URL env variable !`);
+  process.exit(-1);
+} else {
+  process.env['ETHERPAD_ROOT_URL'] = 'none';
+}
+
 
 const environment = argv.environment;
 const isProduction = environment === 'prod';
@@ -52,6 +60,7 @@ export const environment = {
   userLocalStorageKey: '${process.env.USER_LOCAL_STORAGE_KEY}',
   disableStripe: ${process.env.DISABLE_STRIPE},
   disableTwoFactorAuthAndEmail: ${process.env.DISABLE_2FA_AND_EMAIL},
+  disableEtherpad: ${process.env.DISABLE_ETHERPAD},
   stripePublicKey: '${process.env.STRIPE_PUBLIC_KEY}',
 }
 `;

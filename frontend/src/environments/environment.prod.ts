@@ -12,5 +12,6 @@ export const environment = {
   userLocalStorageKey: 'real_user',
   disableStripe: false,
   disableTwoFactorAuthAndEmail: false,
+  disableEtherpad: false,
   stripePublicKey: 'pk_test_XXX',
 };
