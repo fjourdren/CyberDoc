@@ -13,7 +13,6 @@ const requiredEnvNames = [
   'JWT_COOKIE_DOMAIN',
   'JWT_COOKIE_NAME',
   'USER_LOCAL_STORAGE_KEY',
-  'STRIPE_PUBLIC_KEY',
 ];
 
 for (const key of requiredEnvNames) {
@@ -21,6 +20,13 @@ for (const key of requiredEnvNames) {
     console.error(`Missing ${key} env variable !`);
     process.exit(-1);
   }
+}
+
+if (!process.env['DISABLE_STRIPE'] && !process.env['STRIPE_PUBLIC_KEY']) {
+  console.error(`Missing STRIPE_PUBLIC_KEY env variable !`);
+  process.exit(-1);
+} else {
+  process.env['STRIPE_PUBLIC_KEY'] = 'none';
 }
 
 const environment = argv.environment;
@@ -42,6 +48,7 @@ export const environment = {
   authCookieDomain: '${process.env.JWT_COOKIE_DOMAIN}',
   authCookieName: '${process.env.JWT_COOKIE_NAME}',
   userLocalStorageKey: '${process.env.USER_LOCAL_STORAGE_KEY}',
+  disableStripe: ${process.env.DISABLE_STRIPE},
   stripePublicKey: '${process.env.STRIPE_PUBLIC_KEY}',
 }
 `;

@@ -13,37 +13,70 @@ export class BillingService {
   private returnUrl: string;
   private planIdToStripePriceId = {};
   private stripePriceIdToPlanId = {};
+  private readonly stripeDisabled: boolean;
 
   constructor(private readonly configService: ConfigService) {
-    this.stripe = new Stripe(
-      configService.get<string>('STRIPE_KEY'),
-      undefined,
-    );
+    this.stripeDisabled = configService.get<boolean>('DISABLE_STRIPE');
+    if (this.stripeDisabled) {
+      if (!parseInt(configService.get<string>('STORAGE_SPACE'))) {
+        throw new InternalServerErrorException(`Missing STORAGE_SPACE envvar`);
+      }
+    } else {
+      const requiredEnvVarsForStripe = [
+        'STRIPE_KEY',
+        'STRIPE_RETURN_URL',
+        'PLAN1_MONTH_STRIPEID',
+        'PLAN1_YEAR_STRIPEID',
+        'PLAN2_MONTH_STRIPEID',
+        'PLAN2_YEAR_STRIPEID',
+        'PLAN3_MONTH_STRIPEID',
+        'PLAN3_YEAR_STRIPEID',
+      ];
 
-    this.returnUrl = configService.get<string>('STRIPE_RETURN_URL');
-    for (const planId of [
-        "plan1_month", "plan1_year",
-        "plan2_month", "plan2_year",
-        "plan3_month", "plan3_year",
-    ]) {
-        const envVar = `${planId.toUpperCase()}_STRIPEID`
+      for (const requiredEnvVar of requiredEnvVarsForStripe) {
+        if (!configService.get<string>(requiredEnvVar)) {
+          throw new InternalServerErrorException(
+            `Missing ${requiredEnvVar} envvar`,
+          );
+        }
+      }
+
+      this.stripe = new Stripe(
+        configService.get<string>('STRIPE_KEY'),
+        undefined,
+      );
+
+      this.returnUrl = configService.get<string>('STRIPE_RETURN_URL');
+      for (const planId of [
+        'plan1_month',
+        'plan1_year',
+        'plan2_month',
+        'plan2_year',
+        'plan3_month',
+        'plan3_year',
+      ]) {
+        const envVar = `${planId.toUpperCase()}_STRIPEID`;
         const stripePriceId = this.configService.get<string>(envVar);
         this.planIdToStripePriceId[planId] = stripePriceId;
         this.stripePriceIdToPlanId[stripePriceId] = planId;
+      }
     }
-
   }
 
   async createBillingAccount() {
+    if (this.stripeDisabled) return 'no-billing-account';
     const billingAccount = await this.stripe.customers.create();
     return billingAccount.id;
   }
 
   async deleteBillingAccount(billingAccountID: string) {
-    await this.stripe.customers.del(billingAccountID);
+    if (!this.stripeDisabled) {
+      await this.stripe.customers.del(billingAccountID);
+    }
   }
 
   async getSubscription(billingAccountID: string): Promise<Subscription> {
+    if (this.stripeDisabled) return null;
     const response = await this.stripe.subscriptions.list({
       customer: billingAccountID,
     });
@@ -75,6 +108,7 @@ export class BillingService {
   }
 
   async createCheckoutSession(billingAccountID: string, planId: string) {
+    if (this.stripeDisabled) throw new BadRequestException('Stripe disabled');
     if (await this.getSubscription(billingAccountID)) {
       throw new BadRequestException('User already have an active subscription');
     }
@@ -97,6 +131,7 @@ export class BillingService {
   }
 
   async createCustomerPortalURL(billingAccountID: string) {
+    if (this.stripeDisabled) throw new BadRequestException('Stripe disabled');
     if (!(await this.getSubscription(billingAccountID))) {
       throw new BadRequestException("User don't have any active subscription");
     }
@@ -109,6 +144,10 @@ export class BillingService {
   }
 
   getAvailableSpaceForSubscription(subscription: Subscription) {
+    if (this.stripeDisabled) {
+      return parseInt(this.configService.get<string>('STORAGE_SPACE'));
+    }
+
     if (!subscription) {
       return 104857600; //100MB
     }

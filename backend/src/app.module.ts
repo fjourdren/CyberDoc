@@ -47,17 +47,22 @@ import { JwtBanGuard } from './auth/jwt/jwt-ban.guard';
         SENDGRID_TEMPLATE_2FA_TOKEN: Joi.string().required(),
         TWILIO_ACCOUNT_SID: Joi.string().required(),
         TWILIO_AUTH_TOKEN: Joi.string().required(),
-        STRIPE_KEY: Joi.string().required(),
-        PLAN1_MONTH_STRIPEID: Joi.string().required(),
-        PLAN1_YEAR_STRIPEID: Joi.string().required(),
-        PLAN2_MONTH_STRIPEID: Joi.string().required(),
-        PLAN2_YEAR_STRIPEID: Joi.string().required(),
-        PLAN3_MONTH_STRIPEID: Joi.string().required(),
-        PLAN3_YEAR_STRIPEID: Joi.string().required(),
-        STRIPE_RETURN_URL: Joi.string().required(),
+
+        DISABLE_STRIPE: Joi.boolean().required(),
+        STORAGE_SPACE: Joi.number().optional(), //used when stripe is disabled
+        STRIPE_KEY: Joi.string().optional(),
+        PLAN1_MONTH_STRIPEID: Joi.string().optional(),
+        PLAN1_YEAR_STRIPEID: Joi.string().optional(),
+        PLAN2_MONTH_STRIPEID: Joi.string().optional(),
+        PLAN2_YEAR_STRIPEID: Joi.string().optional(),
+        PLAN3_MONTH_STRIPEID: Joi.string().optional(),
+        PLAN3_YEAR_STRIPEID: Joi.string().optional(),
+        STRIPE_RETURN_URL: Joi.string().optional(),
+
         ETHERPAD_ROOT_URL: Joi.string().required(),
         ETHERPAD_ROOT_API_URL: Joi.string().required(),
         ETHERPAD_API_KEY: Joi.string().required(),
+
       }),
     }),
     MongooseModule.forRootAsync({
