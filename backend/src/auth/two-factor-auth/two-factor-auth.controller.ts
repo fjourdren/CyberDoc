@@ -39,11 +39,17 @@ import { UserDevice } from '../../schemas/user-device.schema';
 @ApiBearerAuth()
 @Controller('two-factor-auth')
 export class TwoFactorAuthController {
+  private readonly twoFactorAuthDisabled: boolean;
+
   constructor(
     private readonly twoFactorAuthService: TwoFactorAuthService,
     private readonly configService: ConfigService,
     private readonly authService: AuthService,
-  ) {}
+  ) {
+    this.twoFactorAuthDisabled = configService.get<boolean>(
+      'DISABLE_2FA_AND_EMAIL',
+    );
+  }
 
   @Post('enable')
   @HttpCode(HttpStatusCode.OK)
@@ -60,6 +66,8 @@ export class TwoFactorAuthController {
     @LoggedUser() user: User,
     @Body() dto: TwoFactorTypeAndTokenDto,
   ) {
+    if (this.twoFactorAuthDisabled)
+      throw new BadRequestException('2FA disabled');
     if (this.twoFactorAuthService.isSpecific2FAIsEnabled(user, dto.type)) {
       throw new BadRequestException(
         `Two-factor authentication by ${dto.type} is already enabled.`,
@@ -100,6 +108,8 @@ export class TwoFactorAuthController {
     @LoggedUser() user: User,
     @Body() dto: TwoFactorTypeDto,
   ) {
+    if (this.twoFactorAuthDisabled)
+      throw new BadRequestException('2FA disabled');
     if (!this.twoFactorAuthService.isSpecific2FAIsEnabled(user, dto.type)) {
       throw new BadRequestException(
         `Two-factor authentication by ${dto.type} is already disabled.`,
@@ -133,6 +143,8 @@ export class TwoFactorAuthController {
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
   ) {
+    if (this.twoFactorAuthDisabled)
+      throw new BadRequestException('2FA disabled');
     return {
       msg: await this.twoFactorAuthService.generateSecretForTwoFactorApp(
         mongoSession,
@@ -152,6 +164,8 @@ export class TwoFactorAuthController {
     type: GenericResponse,
   })
   async sendToken(@LoggedUser() user: User, @Body() dto: SendTokenDto) {
+    if (this.twoFactorAuthDisabled)
+      throw new BadRequestException('2FA disabled');
     if (dto.type === TwoFactorType.APP) {
       throw new BadRequestException('Cannot use this endpoint with app 2FA');
     }
@@ -175,6 +189,8 @@ export class TwoFactorAuthController {
     @CurrentDevice() currentDevice: UserDevice,
     @Body() dto: TwoFactorTypeAndTokenDto,
   ) {
+    if (this.twoFactorAuthDisabled)
+      throw new BadRequestException('2FA disabled');
     await this.twoFactorAuthService.verifyToken(
       user,
       dto.type,
@@ -206,6 +222,8 @@ export class TwoFactorAuthController {
     @MongoSession() mongoSession: ClientSession,
     @LoggedUser() user: User,
   ) {
+    if (this.twoFactorAuthDisabled)
+      throw new BadRequestException('2FA disabled');
     if (!user.twoFactorApp && !user.twoFactorEmail && !user.twoFactorSms) {
       throw new UnauthorizedException(
         'You must have at least 1 Two-Factor option enabled.',
@@ -237,6 +255,8 @@ export class TwoFactorAuthController {
     @CurrentDevice() currentDevice: UserDevice,
     @Body() dto: TwoFactorRecoveryCodeDto,
   ) {
+    if (this.twoFactorAuthDisabled)
+      throw new BadRequestException('2FA disabled');
     if (!user.twoFactorRecoveryCodes) {
       throw new UnauthorizedException(
         'You must have generated recovery codes before using one.',

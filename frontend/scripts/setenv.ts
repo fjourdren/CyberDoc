@@ -13,6 +13,8 @@ const requiredEnvNames = [
   'JWT_COOKIE_DOMAIN',
   'JWT_COOKIE_NAME',
   'USER_LOCAL_STORAGE_KEY',
+  'DISABLE_STRIPE',
+  'DISABLE_2FA_AND_EMAIL',
 ];
 
 for (const key of requiredEnvNames) {
@@ -49,6 +51,7 @@ export const environment = {
   authCookieName: '${process.env.JWT_COOKIE_NAME}',
   userLocalStorageKey: '${process.env.USER_LOCAL_STORAGE_KEY}',
   disableStripe: ${process.env.DISABLE_STRIPE},
+  disableTwoFactorAuthAndEmail: ${process.env.DISABLE_2FA_AND_EMAIL},
   stripePublicKey: '${process.env.STRIPE_PUBLIC_KEY}',
 }
 `;
