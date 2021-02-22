@@ -61,10 +61,10 @@ import { JwtBanGuard } from './auth/jwt/jwt-ban.guard';
         PLAN3_YEAR_STRIPEID: Joi.string().optional(),
         STRIPE_RETURN_URL: Joi.string().optional(),
 
-        ETHERPAD_ROOT_URL: Joi.string().required(),
-        ETHERPAD_ROOT_API_URL: Joi.string().required(),
-        ETHERPAD_API_KEY: Joi.string().required(),
-
+        DISABLE_ETHERPAD: Joi.boolean().required(),
+        ETHERPAD_ROOT_URL: Joi.string().optional(),
+        ETHERPAD_ROOT_API_URL: Joi.string().optional(),
+        ETHERPAD_API_KEY: Joi.string().optional(),
       }),
     }),
     MongooseModule.forRootAsync({

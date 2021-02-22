@@ -7,11 +7,12 @@ See frontend/scripts/setenv.ts
 export const environment = {
   production: false,
   apiBaseURL: 'http://localhost:3000',
-  etherpadBaseUrl: 'http://192.168.56.1:9001',
+  etherpadBaseUrl: 'none',
   authCookieDomain: 'localhost',
   authCookieName: 'access_token',
   userLocalStorageKey: 'real_user',
   disableStripe: true,
   disableTwoFactorAuthAndEmail: true,
+  disableEtherpad: true,
   stripePublicKey: 'none',
 }
