@@ -7,13 +7,13 @@ services:
       MONGO_ROOT_USERNAME: root
       MONGO_ROOT_PWD: mongoDB_password_CHANGE_ME
     ports:
-      - "27017:27017"
+      - "127.0.0.1:27017:27017"
 
   redis:
     container_name: redis
     image: redis:6.0.10
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
 
   backend:
     container_name: backend
@@ -21,11 +21,14 @@ services:
     env_file:
       - docker.env
     command: bash -c "npm run start"
+    links:
+      - "mongodb:mongodb"
+      - "redis:redis"
     depends_on:
       - mongodb
       - redis
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
 
   frontend:
     container_name: frontend
@@ -36,4 +39,4 @@ services:
     depends_on:
       - backend
     ports:
-      - "4200:4200"
+      - "127.0.0.1:4200:4200"
