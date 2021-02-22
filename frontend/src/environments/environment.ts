@@ -11,5 +11,6 @@ export const environment = {
   authCookieDomain: 'localhost',
   authCookieName: 'access_token',
   userLocalStorageKey: 'real_user',
-  stripePublicKey: 'pk_test_51IAhqQJtuzyH7f5D6s19N5gW9iANxOKn82MJELcCnJGvaVhbQhADRksH1Mg8z3qFLXUIVowcHMJ8Ks6FGLCo0mXo00qlEty6Vs',
-}
+  disableStripe: false,
+  stripePublicKey: 'pk_test_XXX',
+};
