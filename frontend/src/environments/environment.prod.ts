@@ -11,5 +11,6 @@ export const environment = {
   authCookieName: 'access_token',
   userLocalStorageKey: 'real_user',
   disableStripe: false,
+  disableTwoFactorAuthAndEmail: false,
   stripePublicKey: 'pk_test_XXX',
 };

@@ -12,6 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { UsersService } from 'src/app/services/users/users.service';
 import { SecurityCheckDialogComponent } from '../../security-check-dialog/security-check-dialog.component';
+import { environment } from '../../../../environments/environment';
 
 function passwordValidator(): ValidatorFn {
   return (control: AbstractControl): { [key: string]: any } | null => {
@@ -44,6 +45,7 @@ function passwordValidator(): ValidatorFn {
 })
 export class SettingsSecurityComponent {
   loading = false;
+  readonly twoFactorAuthDisabled = environment.disableTwoFactorAuthAndEmail;
 
   // Password
   passwordForm: FormGroup;

@@ -41,7 +41,7 @@
     </mat-card-content>
 </mat-card>
 
-<mat-card>
+<mat-card *ngIf='!twoFactorAuthDisabled'>
     <mat-card-header>
         <mat-icon mat-card-avatar>devices</mat-icon>
         <mat-card-title>{{'settings.two_factor_card_title' | translate}}</mat-card-title>
