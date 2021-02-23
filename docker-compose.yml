@@ -18,7 +18,7 @@ services:
   backend:
     container_name: backend
     build: ./backend
-    environment: 
+    environment:
       - APP_NAME="CyberDoc backend"
       - APP_VERSION=v0.0.1
       - APP_PORT=3000
@@ -50,12 +50,13 @@ services:
   frontend:
     container_name: frontend
     build: ./frontend
-    environment: 
+    environment:
       - APP_BACKEND_URL=http://localhost:3000
       - USER_LOCAL_STORAGE_KEY=real_user
       - JWT_COOKIE_NAME=access_token
       - JWT_COOKIE_DOMAIN=localhost
       - ETHERPAD_ROOT_URL=http://localhost:9001
+      - DISABLE_ETHERPAD=true
       - DISABLE_2FA_AND_EMAIL=true
       - DISABLE_STRIPE=true
     command: bash -c "npm run start:bind"
