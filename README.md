@@ -45,7 +45,7 @@ After installing `Docker Compose`, please open a shell in the `CyberDoc` folder 
 
 *If you got this error `ERROR: Couldn't connect to Docker daemon at http+docker://localhost - is it running?`, try this command instead : `sudo docker-compose up`.*
 
-After waiting 5-10 minutes, you will see a console output similar to this one :
+After waiting 15-30 minutes (depending of your computer and Internet connection), you will see a console output similar to this one :
 
 ````
 frontend    | chunk {main} main.js, main.js.map (main) 1.17 MB [initial] [rendered]
