@@ -85,7 +85,7 @@ export class User {
   @Prop({ required: true })
   theme: string;
 
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   billingAccountID: string;
 
   created_at: Date;

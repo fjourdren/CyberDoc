@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { User } from '../../../models/users-api-models';
 import { UsersService } from '../../../services/users/users.service';
 import { TranslateService } from '@ngx-translate/core';
+import {environment} from '../../../../environments/environment';
 
 @Component({
   selector: 'app-settings-billing-card',
@@ -13,6 +14,7 @@ export class SettingsBillingCardComponent {
   user: User;
   storageSpacePercent: number;
   currentPlan: string;
+  readonly stripeDisabled = environment.disableStripe;
 
   constructor(
     private usersService: UsersService,
