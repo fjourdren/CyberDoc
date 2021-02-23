@@ -88,6 +88,7 @@ export const COLUMNS_TO_KEEP_FOR_FOLDER = [
 export class FilesService {
   private readonly gridFSModel: MongoGridFS;
   private readonly etherpad: Etherpad;
+  private readonly etherpadDisabled: boolean;
 
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
@@ -100,7 +101,11 @@ export class FilesService {
     private readonly billingService: BillingService,
   ) {
     this.gridFSModel = new MongoGridFS(connection.db);
-    this.etherpad = new Etherpad(this, configService);
+    this.etherpadDisabled = this.configService.get<boolean>('DISABLE_ETHERPAD');
+    if (!this.etherpadDisabled) {
+      this.etherpad = new Etherpad(this, configService);
+    }
+
     cron.schedule('0 * * * *', () => {
       this.deleteOldFilesFromBin();
     });
@@ -395,6 +400,8 @@ export class FilesService {
     file: File,
     exportFormat: EtherpadExportFormat,
   ) {
+    if (this.etherpadDisabled)
+      throw new BadRequestException('Etherpad disabled');
     try {
       await this.etherpad.createEmptyPad(file._id);
       await this.etherpad.syncPadFromCyberDoc(user, userHash, file, file._id);
@@ -521,7 +528,7 @@ export class FilesService {
         await this.delete(item);
       }
     } else {
-      if (file.mimetype === ETHERPAD_MIMETYPE) {
+      if (file.mimetype === ETHERPAD_MIMETYPE && !this.etherpadDisabled) {
         await this.etherpad.deletePad(file._id);
       }
 
@@ -553,7 +560,7 @@ export class FilesService {
         'PDF generation is not available for this file',
       );
 
-    if (file.mimetype === ETHERPAD_MIMETYPE) {
+    if (file.mimetype === ETHERPAD_MIMETYPE && !this.etherpadDisabled) {
       return await this.exportEtherpadPadAssociatedWithFile(
         user,
         userHash,
@@ -591,7 +598,7 @@ export class FilesService {
     )
       throw new BadRequestException('Preview is not available for this file');
 
-    if (file.mimetype === ETHERPAD_MIMETYPE) {
+    if (file.mimetype === ETHERPAD_MIMETYPE && !this.etherpadDisabled) {
       return await this.previewGenerator.generatePngPreview(
         file,
         await this.exportEtherpadPadAssociatedWithFile(
@@ -614,6 +621,8 @@ export class FilesService {
     userHash: string,
     file: File,
   ) {
+    if (this.etherpadDisabled)
+      throw new BadRequestException('Etherpad disabled');
     try {
       await this.etherpad.createEmptyPad(file._id);
       await this.etherpad.syncPadFromCyberDoc(user, userHash, file, file._id);
@@ -634,6 +643,8 @@ export class FilesService {
     userHash: string,
     file: File,
   ) {
+    if (this.etherpadDisabled)
+      throw new BadRequestException('Etherpad disabled');
     await this.etherpad.createEmptyPad(file._id);
     await this.etherpad.importCyberDocFileToPad(user, userHash, file, file._id);
 
@@ -656,6 +667,8 @@ export class FilesService {
     userHash: string,
     file: File,
   ) {
+    if (this.etherpadDisabled)
+      throw new BadRequestException('Etherpad disabled');
     await this.etherpad.syncPadToCyberDoc(
       mongoSession,
       user,

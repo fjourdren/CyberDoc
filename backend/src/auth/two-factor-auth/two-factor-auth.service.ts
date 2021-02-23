@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ClientSession, Model } from 'mongoose';
 import { User, UserDocument } from 'src/schemas/user.schema';
@@ -11,17 +15,36 @@ import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class TwoFactorAuthService {
   private readonly twilio;
+  private readonly twoFactorAuthDisabled: boolean;
 
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    this.twilio = require('twilio')(
-      this.configService.get<string>('TWILIO_ACCOUNT_SID'),
-      this.configService.get<string>('TWILIO_AUTH_TOKEN'),
+    this.twoFactorAuthDisabled = configService.get<boolean>(
+      'DISABLE_2FA_AND_EMAIL',
     );
+
+    if (!this.twoFactorAuthDisabled) {
+      if (!this.configService.get<string>('TWILIO_ACCOUNT_SID')) {
+        throw new InternalServerErrorException(
+          'Missing TWILIO_ACCOUNT_SID envvar',
+        );
+      }
+
+      if (!this.configService.get<string>('TWILIO_AUTH_TOKEN')) {
+        throw new InternalServerErrorException(
+          'Missing TWILIO_AUTH_TOKEN envvar',
+        );
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      this.twilio = require('twilio')(
+        this.configService.get<string>('TWILIO_ACCOUNT_SID'),
+        this.configService.get<string>('TWILIO_AUTH_TOKEN'),
+      );
+    }
   }
 
   async isAuthorized(accessToken: any): Promise<any> {

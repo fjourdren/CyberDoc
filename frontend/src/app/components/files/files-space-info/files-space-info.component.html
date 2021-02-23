@@ -5,5 +5,5 @@
   </div>
   <mat-progress-bar mode='determinate' [value]='storageSpacePercent'></mat-progress-bar>
   <div>{{user.usedSpace | filesize}} {{ 'general.used' | translate }} / {{user.availableSpace | filesize}}</div>
-  <button id='buy-storage-btn' mat-flat-button color='primary' routerLink='/settings/profile'>{{ 'billing.manage_subscription' | translate }}</button>
+  <button *ngIf='!stripeDisabled' id='buy-storage-btn' mat-flat-button color='primary' routerLink='/settings/profile'>{{ 'billing.manage_subscription' | translate }}</button>
 </div>
