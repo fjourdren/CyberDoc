@@ -20,7 +20,7 @@ CyberDoc is an open source cloud file storage server (similar to Google Drive) w
 
 > **[Demo (YouTube video)](https://www.youtube.com/watch?v=sZweBaCeu-k)**
 
-[![Screenshot](./screenshot.PNG)]()
+![Screenshot](./screenshot.PNG)
 
 [Server architecture](https://github.com/fjourdren/CyberDoc/blob/master/arch.png)
 ## Features
