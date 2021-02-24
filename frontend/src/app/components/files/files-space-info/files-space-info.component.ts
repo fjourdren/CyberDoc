@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { UsersService } from '../../../services/users/users.service';
 import { User } from '../../../models/users-api-models';
 import { FileSystemService } from '../../../services/filesystems/file-system.service';
+import {environment} from '../../../../environments/environment';
 
 @Component({
   selector: 'app-files-space-info',
@@ -11,6 +12,7 @@ import { FileSystemService } from '../../../services/filesystems/file-system.ser
 export class FilesSpaceInfoComponent {
   user: User;
   storageSpacePercent: number;
+  readonly stripeDisabled = environment.disableStripe;
 
   constructor(
     private userService: UsersService,

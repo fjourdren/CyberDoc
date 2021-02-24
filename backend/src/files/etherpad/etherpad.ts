@@ -55,7 +55,23 @@ export class Etherpad {
   constructor(
     private readonly filesService: FilesService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    if (!this.configService.get<boolean>('DISABLE_ETHERPAD')) {
+      const requiredEnvVars = [
+        'ETHERPAD_ROOT_URL',
+        'ETHERPAD_ROOT_API_URL',
+        'ETHERPAD_API_KEY',
+      ];
+
+      for (const requiredEnvVar of requiredEnvVars) {
+        if (!configService.get<string>(requiredEnvVar)) {
+          throw new InternalServerErrorException(
+            `Missing ${requiredEnvVar} envvar`,
+          );
+        }
+      }
+    }
+  }
 
   private async _callEtherpadApiFunction(
     functionName: string,
