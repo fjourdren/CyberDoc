@@ -6,21 +6,21 @@
 CyberDoc
 ========
 
-[![AGPL-3.0](https://img.shields.io/badge/license-%20AGPL--3.0-green)]()
-[![project status: inactive](https://img.shields.io/badge/project%20status-inactive-inactive)]()
-[![stability: unstable](https://img.shields.io/badge/stability-unstable-red)]()
+![AGPL-3.0](https://img.shields.io/badge/license-%20AGPL--3.0-green)
+![project status: inactive](https://img.shields.io/badge/project%20status-inactive-inactive)
+![stability: unstable](https://img.shields.io/badge/stability-unstable-red)
 
 
-[![backend: NestJS](https://img.shields.io/badge/backend-NestJS-blue)]()
-[![frontend: Angular](https://img.shields.io/badge/frontend-Angular-blue)]()
-[![storage: MongoDB](https://img.shields.io/badge/storage-MongoDB-blue)]()
+![backend: NestJS](https://img.shields.io/badge/backend-NestJS-blue)
+![frontend: Angular](https://img.shields.io/badge/frontend-Angular-blue)
+![storage: MongoDB](https://img.shields.io/badge/storage-MongoDB-blue)
 
 
 CyberDoc is an open source cloud file storage server (similar to Google Drive) with built-in encryption.
 
 > **[Demo (YouTube video)](https://www.youtube.com/watch?v=sZweBaCeu-k)**
 
-[![Screenshot](./screenshot.PNG)]()
+![Screenshot](./screenshot.PNG)
 
 [Server architecture](https://github.com/fjourdren/CyberDoc/blob/master/arch.png)
 ## Features
