@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 export const DIRECTORY_MIMETYPE = 'application/x-dir';
 export const ETHERPAD_MIMETYPE = 'application/x-etherpad';
@@ -117,6 +118,10 @@ export class FilesUtilsService {
   }
 
   canBeOpenedInApp(fileType: FileType): boolean {
+    if (environment.disableEtherpad) {
+      return fileType === FileType.Folder;
+    }
+
     return (
       [
         FileType.Text,

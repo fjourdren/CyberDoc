@@ -8,7 +8,7 @@
 
 <div mat-dialog-actions align='end'>
   <button mat-button (click)='dialogRef.close(false)'>{{'general.cancel' | translate}}</button>
-  <button routerLink='/settings/profile' (click)='dialogRef.close(true)' mat-raised-button
+  <button *ngIf='!stripeDisabled' routerLink='/settings/profile' (click)='dialogRef.close(true)' mat-raised-button
           color='primary'>{{'billing.buy_more_storage' |
     translate}}</button>
 </div>
