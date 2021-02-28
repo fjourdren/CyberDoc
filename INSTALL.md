@@ -1,7 +1,11 @@
 # INSTALL
 
 ## Preparation
-**Copy `backend/.env.template` and rename it to `.env`**
+- Clone this repositery with submodules
+- Copy `.env.template` and rename it to `.env`
+- Run `npm install` in `backend` and `frontend` directories
+- Install MongoDB and add in `.env` its url : `MONGODB_URL=XXX`
+- Install Redis and add in `.env` its url : `REDIS_URL=XXX`
 
 ## SendGrid (email sending)
 
@@ -12,8 +16,8 @@
 ### 3. Fill `Create a sender` form 
 **For email fields you can set your personal email address**
 
-- Add in `backend/.env` chosen email address such as : `SENDGRID_MAIL_FROM=hello@example.com`
-- Add in `backend/.env` chosen company name such as : `SENDGRID_MAIL_FROM_NAME=Example`
+- Add in `.env` chosen email address such as : `SENDGRID_MAIL_FROM=hello@example.com`
+- Add in `.env` chosen company name such as : `SENDGRID_MAIL_FROM_NAME=Example`
 
 ### 4. Wait for an email called `Please Verify Your Single Sender` received on the email previously used
 **In this email, click on `Verify Single Sender`**
@@ -22,7 +26,7 @@
 - Name : `cyberdoc`
 - Permissions : Full
 
-Add in `backend/.env` this API key such as : `SENDGRID_API_KEY=SG.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx`
+Add in `.env` this API key such as : `SENDGRID_API_KEY=SG.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx`
 
 ### 5. Add dynamic templates (https://mc.sendgrid.com/dynamic-templates)
 
@@ -42,29 +46,29 @@ For each of these templates :
 8. Click on `Save`
 9. Click on `Back` (arrow on the upper left of the page)
 10. Click on the template name   
-11. Add in `backend/.env` a line with showed TemplateID such as : `SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD=d-e1b7fea6d722441eb525f50173577302`
+11. Add in `.env` a line with showed TemplateID such as : `SENDGRID_TEMPLATE_FORGOTTEN_PASSWORD=d-e1b7fea6d722441eb525f50173577302`
 
 ## Twilio (2FA)
 
 ### 1. Create account on https://www.twilio.com/try-twilio
 ### 2. Go to https://www.twilio.com/console
 
-- Add in `backend/.env` Account SID such as : `TWILIO_ACCOUNT_SID=XXX`
-- Add in `backend/.env` Auth Token such as : `TWILIO_AUTH_TOKEN=XXX`
+- Add in `.env` Account SID such as : `TWILIO_ACCOUNT_SID=XXX`
+- Add in `.env` Auth Token such as : `TWILIO_AUTH_TOKEN=XXX`
 
 ### 3. Go to https://www.twilio.com/console/verify/dashboard
 
 1. Click on `Create Service Now`
 2. Enter cyberdoc as `Friendly Name`
-3. Add in `backend/.env` Service SID such as : `TWILIO_SERVICE_ID=XXX`
+3. Add in `.env` Service SID such as : `TWILIO_SERVICE_ID=XXX`
 
 ### 4. Go to https://www.twilio.com/console/verify/email/new and fill form
 
 - `INTEGRATION NAME` = CyberDoc
-- `SENDGRID API KEY` = value of `SENDGRID_API_KEY` in `backend/.env`
-- `DEFAULT TEMPLATE ID` = value of `SENDGRID_TEMPLATE_2FA_TOKEN` in `backend/.env`
-- `DEFAULT FROM EMAIL` = value of `SENDGRID_MAIL_FROM` in `backend/.env`
-- `DEFAULT FROM NAME` = value of `SENDGRID_MAIL_FROM_NAME` in `backend/.env`
+- `SENDGRID API KEY` = value of `SENDGRID_API_KEY` in `.env`
+- `DEFAULT TEMPLATE ID` = value of `SENDGRID_TEMPLATE_2FA_TOKEN` in `.env`
+- `DEFAULT FROM EMAIL` = value of `SENDGRID_MAIL_FROM` in `.env`
+- `DEFAULT FROM NAME` = value of `SENDGRID_MAIL_FROM_NAME` in `.env`
 
 **Check previously created Verify Service and click on `Save`**
 
@@ -89,7 +93,7 @@ For each of these templates :
         - 3.99 € / month (recurring)
         - 39.99 € / year (recurring)
 
-Add in `backend/.env` (ID begins with `price_`) (you can see ID after saving a product):
+Add in `.env` (ID begins with `price_`) (you can see ID after saving a product):
 - `PLAN1_MONTH_STRIPEID=price_XXX`
 - `PLAN1_YEAR_STRIPEID=price_XXX`
 - `PLAN2_MONTH_STRIPEID=price_XXX`
@@ -100,5 +104,10 @@ Add in `backend/.env` (ID begins with `price_`) (you can see ID after saving a p
 ### 3. Get secret key (https://dashboard.stripe.com/test/dashboard)
 
 Click on `Get your API keys` and 
-- add `Secret key` in `backend/.env` : `STRIPE_KEY=sk_test_XXX`
+- add `Secret key` in `.env` : `STRIPE_KEY=sk_test_XXX`
 - add `Publishable key` in all files in `frontend/src/environments` : `stripePublicKey: 'pk_test_XXX`
+
+## Launch all services
+- In `cyberdoc-etherpad` : `./bin/run.sh`
+- In `backend` : `npm run start`
+- In `frontend` : `npm run start`
