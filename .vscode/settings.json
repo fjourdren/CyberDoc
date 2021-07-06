@@ -1,8 +1,0 @@
-{
-    "todo-tree.tree.showCountsInTree": true,
-    "todo-tree.tree.showBadges": true,
-    "eslint.workingDirectories": [
-        "backend",
-        "frontend"
-    ]
-}
